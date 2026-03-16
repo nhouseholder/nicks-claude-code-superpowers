@@ -6,7 +6,7 @@
 
 ```bash
 # Clone this repo
-git clone https://github.com/yourusername/nicks-claude-code-superpowers.git ~/.claude-tmp
+git clone https://github.com/nhouseholder/nicks-claude-code-superpowers.git ~/.claude-tmp
 
 # Install to your Claude Code config
 cp -r ~/.claude-tmp/skills ~/.claude/

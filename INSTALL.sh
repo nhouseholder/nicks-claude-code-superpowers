@@ -15,7 +15,7 @@ if [ -d "$HOME/.claude" ]; then
 fi
 
 # Clone repo (change this URL after pushing to GitHub)
-REPO_URL="https://github.com/yourusername/nicks-claude-code-superpowers.git"
+REPO_URL="https://github.com/nhouseholder/nicks-claude-code-superpowers.git"
 TEMP_DIR=$(mktemp -d)
 echo "📥 Cloning from: $REPO_URL"
 git clone "$REPO_URL" "$TEMP_DIR"
