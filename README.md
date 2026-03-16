@@ -24,12 +24,12 @@ rm -rf ~/.claude-tmp
 
 ## 📦 What's Included
 
-### Skills (45 total)
+### Skills (46 total)
 
 | Category | Skills |
 |----------|--------|
 | **Thinking & Reasoning** | brainstorming, systematic-debugging, reflexion-reflect, reflexion-critique, fpf-hypotheses |
-| **Autonomy & Completeness** | senior-dev-mindset, proactive-qa, barrier-recognition, response-recap |
+| **Autonomy & Completeness** | senior-dev-mindset, proactive-qa, barrier-recognition, response-recap, intent-detection |
 | **Memory & Learning** | continuous-learning, continuous-learning-v2, reflexion-memorize, mem, error-memory, pre-debug-check |
 | **Coding Quality** | coding-standards, test-driven-development, verification-before-completion, verification-loop |
 | **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch |
@@ -297,6 +297,6 @@ MIT - Skills are from various sources with their own licenses.
 
 ---
 
-**45 skills. 3 hooks. 11 commands. One intelligence stack.**
+**46 skills. 3 hooks. 11 commands. One intelligence stack.**
 
 **Made with ❤️ for smarter AI-assisted development**

@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 45 skills, 3 hooks, 11 commands, and the continuous learning system.
+> Complete documentation for all 46 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -749,6 +749,35 @@ What did we decide about the auth flow last week?
 
 ---
 
+### Natural Language Interface
+
+#### `intent-detection`
+**Trigger:** Always-on — evaluates every user message
+
+**What it does:** Automatically maps plain language to the right slash command or workflow. Instead of memorizing `/deploy`, `/backtest`, `/audit`, etc., just say what you want in natural language and the right workflow triggers.
+
+**Examples:**
+| You say | Claude triggers |
+|---------|----------------|
+| "ship it" | `/deploy` |
+| "the tests are all broken" | `/fix-loop` |
+| "any leaked API keys?" | `/audit` |
+| "how's the model doing?" | `/backtest` |
+| "I want to add dark mode" | `/brainstorm` |
+| "break this into steps" | `/write-plan` |
+| "remember we use Tailwind" | `/mem save` |
+| "try a bunch of different weights" | `parallel-sweep` |
+| "fix tests then deploy" | `/fix-loop` → `/deploy` (chained) |
+
+**Confidence levels:**
+- **High** → executes immediately with a brief announcement
+- **Medium** → confirms briefly, then executes
+- **Low** → asks one clarifying question
+
+**Won't trigger on:** Questions *about* workflows, hypotheticals, past tense, or explicit overrides ("don't deploy yet")
+
+---
+
 ### Meta Skills
 
 #### `writing-skills`
@@ -873,4 +902,4 @@ Error occurs
 
 ---
 
-**45 skills. 3 hooks. 11 commands. One intelligence stack.**
+**46 skills. 3 hooks. 11 commands. One intelligence stack.**
