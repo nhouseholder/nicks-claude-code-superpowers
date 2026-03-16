@@ -24,7 +24,7 @@ rm -rf ~/.claude-tmp
 
 ## 📦 What's Included
 
-### Skills (30 total)
+### Skills (34 total)
 
 | Category | Skills |
 |----------|--------|
@@ -34,6 +34,7 @@ rm -rf ~/.claude-tmp
 | **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch |
 | **Research & Context** | search-first, iterative-retrieval, strategic-compact, context-hydration, token-awareness |
 | **Review & Collaboration** | requesting-code-review, receiving-code-review |
+| **OpenViking Context DB** | ov-add-data, ov-search-context, ov-server-operate, memory-recall |
 | **Meta** | using-superpowers, writing-skills, prompt-improver |
 
 ### Hooks (4 total)
@@ -104,6 +105,15 @@ Encourages efficiency:
 - Parallelize independent operations
 - Avoid unnecessary explanations
 
+### 8. OpenViking Context Database
+[OpenViking](https://github.com/volcengine/OpenViking) provides persistent, semantic memory across sessions:
+- **ov-add-data**: Add resources, files, URLs, and memories to the context database
+- **ov-search-context**: Semantic search across all stored memories and resources
+- **ov-server-operate**: Install, configure, start/stop the OpenViking server
+- **memory-recall**: Recall long-term memories from previous sessions
+- **MCP Server**: RAG query/search/add tools via Model Context Protocol
+- **Claude Memory Plugin**: Hooks that auto-capture session data and extract memories
+
 ---
 
 ## 📋 Skill Matrix
@@ -125,6 +135,10 @@ Encourages efficiency:
 | continuous-learning | Session end | Automatic (hook) |
 | continuous-learning-v2 | Every tool call | Automatic (hook) |
 | prompt-improver | Every message | Automatic (hook) |
+| ov-add-data | Adding resources | Manual |
+| ov-search-context | Searching context | Manual |
+| ov-server-operate | Server management | Manual |
+| memory-recall | Past session context | Automatic |
 
 ---
 
@@ -191,6 +205,11 @@ This stack aggregates best-in-class skills from:
    - context-hydration - Read before edit enforcement
    - token-awareness - Efficiency and conciseness
    - mem - Memory management commands
+
+5. **OpenViking** (volcengine) - Context database for AI agents
+   - ov-add-data, ov-search-context, ov-server-operate
+   - memory-recall, Claude memory plugin hooks
+   - MCP server for RAG query capabilities
 
 ---
 
