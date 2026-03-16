@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 58 skills, 3 hooks, 11 commands, and the continuous learning system.
+> Complete documentation for all 59 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -18,6 +18,7 @@
   - [Communication & UX](#communication--ux)
   - [Git Intelligence](#git-intelligence)
   - [Infrastructure Awareness](#infrastructure-awareness)
+  - [Domain Expertise](#domain-expertise)
   - [Memory & Learning](#memory--learning)
   - [Code Quality & Testing](#code-quality--testing)
   - [Planning & Execution](#planning--execution)
@@ -377,6 +378,29 @@ These skills make Claude operate like a senior developer who ships complete, pro
 
 **Safe to kill:** Duplicate instances, completed builds, watchers no longer needed.
 **Ask before killing:** Processes you didn't start, databases, servers serving other terminals.
+
+---
+
+### Domain Expertise
+
+#### `expert-lens`
+**Trigger:** Always-on — detects domain from explicit persona assignment ("you are an expert in X") or implicitly from task context
+
+**What it does:** Activates professional-grade thinking for any domain. Not just "roleplay" — loads four concrete layers that produce expert-quality output.
+
+**Four layers of expertise:**
+1. **Mental Models** — Domain-specific frameworks (sports: WAR/regression to mean, design: visual hierarchy/Fitts's law, medicine: differential diagnosis, finance: DCF/risk-adjusted returns)
+2. **Vocabulary Calibration** — Use precise domain terms that add clarity, define when needed
+3. **Quality Standards** — Apply the domain's professional bar (statistician: never present a number without context; designer: never propose UI without considering full flow)
+4. **Amateur-Mistake Avoidance** — Know what non-experts get wrong and proactively avoid it
+
+**Activation modes:**
+- **Explicit**: "You are an expert NBA statistician" → activates immediately
+- **Implicit**: Task involves statistical analysis → auto-applies stats lens quietly
+
+**Token economics:** ~30-50 tokens per activation. Expert framing often makes output SHORTER (experts are more direct). Net token impact is near-zero or negative.
+
+**Key rules:** Frameworks over roleplay. Never fabricate credentials. Silent activation. Honest about knowledge limits.
 
 ---
 
@@ -1168,7 +1192,8 @@ Error occurs
 | Smart commit messages | `git-sorcery` (always-on) |
 | Find bug-introducing commit | `git-sorcery` bisect |
 | Check background processes | `process-monitor` (automatic) |
+| Think like a domain expert | `expert-lens` (always-on) |
 
 ---
 
-**58 skills. 3 hooks. 11 commands. One intelligence stack.**
+**59 skills. 3 hooks. 11 commands. One intelligence stack.**

@@ -24,12 +24,12 @@ rm -rf ~/.claude-tmp
 
 ## 📦 What's Included
 
-### Skills (58 total)
+### Skills (59 total)
 
 | Category | Skills |
 |----------|--------|
 | **Thinking & Reasoning** | brainstorming, systematic-debugging, reflexion-reflect, reflexion-critique, fpf-hypotheses, zero-iteration |
-| **Autonomy & Completeness** | senior-dev-mindset, proactive-qa, response-recap, intent-detection, smart-clarify, seamless-resume, adaptive-voice, predictive-next, process-monitor |
+| **Autonomy & Completeness** | senior-dev-mindset, proactive-qa, response-recap, intent-detection, smart-clarify, seamless-resume, adaptive-voice, predictive-next, process-monitor, expert-lens |
 | **Memory & Learning** | continuous-learning, continuous-learning-v2, reflexion-memorize, mem, error-memory, pre-debug-check, shared-memory, total-recall |
 | **Coding Quality** | coding-standards, test-driven-development, verification-before-completion, verification-loop, pattern-propagation |
 | **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch |
@@ -181,7 +181,14 @@ Five purpose-built skills for common development workflows:
 - Branch management and cleanup
 - Descriptive stash operations
 
-### 18. Process Monitor
+### 18. Expert Lens — Domain Expert Perspectives
+`expert-lens` activates professional-grade thinking for any domain:
+- **Explicit**: "You are an expert NBA statistician" → activates sports analytics mental models (WAR, regression to the mean, sample size)
+- **Implicit**: Detects domain from task context and auto-applies the right expert framework
+- Loads 4 layers: mental models, domain vocabulary, quality standards, and amateur-mistake avoidance
+- ~30-50 tokens per activation — expert framing often makes output SHORTER and more precise
+
+### 19. Process Monitor
 `process-monitor` maintains awareness of background processes:
 - Detects port conflicts before starting servers
 - Identifies hung processes and zombies
@@ -189,7 +196,7 @@ Five purpose-built skills for common development workflows:
 - Checks process health when debugging before checking code
 - Mentions running processes before session end
 
-### 19. OpenViking Context Database
+### 20. OpenViking Context Database
 [OpenViking](https://github.com/volcengine/OpenViking) provides persistent, semantic memory across sessions:
 - **ov-add-data**: Add resources, files, URLs, and memories to the context database
 - **ov-search-context**: Semantic search across all stored memories and resources
@@ -243,6 +250,7 @@ Five purpose-built skills for common development workflows:
 | pattern-propagation | Pattern changes | Automatic |
 | git-sorcery | Git operations | Always-on |
 | process-monitor | Background processes | Automatic |
+| expert-lens | "You are an expert in..." or domain detection | Always-on |
 
 ---
 
@@ -354,6 +362,6 @@ MIT - Skills are from various sources with their own licenses.
 
 ---
 
-**58 skills. 3 hooks. 11 commands. One intelligence stack.**
+**59 skills. 3 hooks. 11 commands. One intelligence stack.**
 
 **Made with ❤️ for smarter AI-assisted development**
