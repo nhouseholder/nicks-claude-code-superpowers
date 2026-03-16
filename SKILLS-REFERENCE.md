@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 44 skills, 3 hooks, 11 commands, and the continuous learning system.
+> Complete documentation for all 45 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -723,6 +723,32 @@ What did we decide about the auth flow last week?
 
 ---
 
+### Communication
+
+#### `response-recap`
+**Trigger:** Always-on — fires after every substantive response
+
+**What it does:** Ends every meaningful response with a plain English summary: what was done, why, what changed (with file names), and current state. Balances technical accuracy with rapid comprehension — enough detail to understand without re-reading code output.
+
+**Format:**
+```
+---
+**What happened:** [1-3 sentences in plain English]
+**Why:** [motivation/problem being solved]
+**What changed:**
+- [file/thing] — [plain English description]
+**Current state:** [where things stand, what's next]
+```
+
+**Rules:**
+- Lead with "what" not "how" — say what the change *means*, not the line numbers
+- Use plain English first, technical breadcrumbs second
+- Keep it scannable — bullets, bold key terms, max 5-7 items
+- Skip for simple one-liner answers
+- Adapt detail level: quick fix = 2-3 lines, complex debug = include the root cause insight
+
+---
+
 ### Meta Skills
 
 #### `writing-skills`
@@ -847,4 +873,4 @@ Error occurs
 
 ---
 
-**44 skills. 3 hooks. 11 commands. One intelligence stack.**
+**45 skills. 3 hooks. 11 commands. One intelligence stack.**
