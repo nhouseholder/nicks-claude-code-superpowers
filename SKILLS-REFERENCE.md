@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 49 skills, 3 hooks, 11 commands, and the continuous learning system.
+> Complete documentation for all 50 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -756,6 +756,27 @@ What did we decide about the auth flow last week?
 
 ---
 
+### Session Continuity
+
+#### `seamless-resume`
+**Trigger:** Always-on — fires when user sends "continue", "go", "keep going", or returns to a paused session
+
+**What it does:** When a session is interrupted (tab switch, timeout, compaction), resumes execution instantly with zero ceremony. No re-reading files, no re-explaining context, no "where were we?" — just picks up the exact next step.
+
+**The protocol:**
+1. Identify where execution stopped (mid-edit, mid-plan, pending tool call)
+2. Resume immediately — no greetings, no recaps, no confirmation
+3. If context was compacted, give a ONE-LINE status then proceed
+
+**Rules:**
+- "Continue" means GO, not "tell me what you were doing"
+- Don't re-read files already in context
+- Don't re-ask questions already answered
+- Don't summarize previous work (they can scroll up)
+- Match the previous pace — if you were moving fast, keep moving fast
+
+---
+
 ### Communication
 
 #### `response-recap`
@@ -990,4 +1011,4 @@ Error occurs
 
 ---
 
-**49 skills. 3 hooks. 11 commands. One intelligence stack.**
+**50 skills. 3 hooks. 11 commands. One intelligence stack.**

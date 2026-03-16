@@ -24,12 +24,12 @@ rm -rf ~/.claude-tmp
 
 ## 📦 What's Included
 
-### Skills (49 total)
+### Skills (50 total)
 
 | Category | Skills |
 |----------|--------|
 | **Thinking & Reasoning** | brainstorming, systematic-debugging, reflexion-reflect, reflexion-critique, fpf-hypotheses |
-| **Autonomy & Completeness** | senior-dev-mindset, proactive-qa, response-recap, intent-detection, smart-clarify |
+| **Autonomy & Completeness** | senior-dev-mindset, proactive-qa, response-recap, intent-detection, smart-clarify, seamless-resume |
 | **Memory & Learning** | continuous-learning, continuous-learning-v2, reflexion-memorize, mem, error-memory, pre-debug-check, shared-memory |
 | **Coding Quality** | coding-standards, test-driven-development, verification-before-completion, verification-loop |
 | **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch |
@@ -177,6 +177,7 @@ Five purpose-built skills for common development workflows:
 | memory-recall | Past session context | Automatic |
 | shared-memory | On request | Manual |
 | response-recap | After complex multi-step work | Automatic |
+| seamless-resume | On "continue" / session resume | Always-on |
 | backtest | `/backtest` or backtest tasks | Manual |
 | audit | `/audit` or security scan tasks | Manual |
 | deploy | `/deploy` or deploy tasks | Manual |
@@ -293,6 +294,6 @@ MIT - Skills are from various sources with their own licenses.
 
 ---
 
-**49 skills. 3 hooks. 11 commands. One intelligence stack.**
+**50 skills. 3 hooks. 11 commands. One intelligence stack.**
 
 **Made with ❤️ for smarter AI-assisted development**
