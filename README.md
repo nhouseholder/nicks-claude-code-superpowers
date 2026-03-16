@@ -24,11 +24,12 @@ rm -rf ~/.claude-tmp
 
 ## 📦 What's Included
 
-### Skills (36 total)
+### Skills (38 total)
 
 | Category | Skills |
 |----------|--------|
 | **Thinking & Reasoning** | brainstorming, systematic-debugging, reflexion-reflect, reflexion-critique, fpf-hypotheses |
+| **Autonomy & Completeness** | senior-dev-mindset, proactive-qa |
 | **Memory & Learning** | continuous-learning, continuous-learning-v2, reflexion-memorize, mem, error-memory, pre-debug-check |
 | **Coding Quality** | coding-standards, test-driven-development, verification-before-completion, verification-loop |
 | **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch |
@@ -105,7 +106,12 @@ Encourages efficiency:
 - Parallelize independent operations
 - Avoid unnecessary explanations
 
-### 8. Error Memory — Never Repeat Mistakes
+### 8. Senior Dev Mindset & Proactive QA
+Two always-active skills that make Claude operate like a senior full-stack developer:
+- `senior-dev-mindset`: Infers unstated requirements from real-world context. Never leaves stubs, placeholders, or TODOs. Builds complete features front-to-back. Makes independent decisions that follow established codebase patterns.
+- `proactive-qa`: Mentally walks the user journey after every change. Detects edge cases, catches architectural smells, fixes adjacent issues. Runs the "Ship It" test before declaring anything done.
+
+### 9. Error Memory — Never Repeat Mistakes
 Two skills that form a feedback loop:
 - `pre-debug-check`: Consults `~/.claude/anti-patterns.md` BEFORE attempting any fix
 - `error-memory`: Captures failed approaches and working solutions AFTER debugging
@@ -142,6 +148,8 @@ Two skills that form a feedback loop:
 | continuous-learning | Session end | Automatic (hook) |
 | continuous-learning-v2 | Every tool call | Automatic (hook) |
 | prompt-improver | Every message | Automatic (hook) |
+| senior-dev-mindset | Active | Always-on |
+| proactive-qa | Active | Always-on |
 | error-memory | After fix found | Automatic |
 | pre-debug-check | Before debugging | Automatic |
 | ov-add-data | Adding resources | Manual |

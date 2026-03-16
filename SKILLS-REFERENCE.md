@@ -12,6 +12,7 @@
 - [Workflow Map](#workflow-map)
 - [Skills by Category](#skills-by-category)
   - [Foundation (Always Active)](#foundation-always-active)
+  - [Autonomy & Completeness](#autonomy--completeness)
   - [Thinking & Reasoning](#thinking--reasoning)
   - [Memory & Learning](#memory--learning)
   - [Code Quality & Testing](#code-quality--testing)
@@ -127,7 +128,68 @@ These skills shape every interaction. They don't need to be invoked.
 
 ---
 
-### Thinking & Reasoning
+### Autonomy & Completeness
+
+These skills make Claude operate like a senior developer who ships complete, production-ready code without hand-holding.
+
+#### `senior-dev-mindset`
+**What it does:** Bridges the gap between what the user *says* and what they *mean*. When told "add a login page," this skill ensures Claude builds the complete feature — form validation, error states, loading states, auth integration, redirect logic, mobile responsive, accessible — not just a bare form with a TODO comment.
+
+**How to use:** Always active. Shapes every implementation by:
+- **Inferring unstated requirements** from real-world app patterns (e-commerce, SaaS, social, etc.)
+- **Enforcing completeness** — all states handled (empty, loading, error, success)
+- **Banning placeholders** — no `// TODO`, no `console.log`, no stub functions, no lorem ipsum
+- **Making independent decisions** — follows codebase patterns for styling, state management, file organization without asking permission
+- **Connecting everything** — wired to real data, routes, and services
+
+**Key rules:**
+- When told "add X" → also connect, protect, style, test, and add navigation
+- When told "fix X" → also find sibling bugs, fix root cause, prevent regression
+- When told "update X" → also update consumers, types, tests, docs
+- Never say "you'll need to add..." — just add it
+
+**Completeness checklist (automatic):**
+- Frontend: all states, validation, loading, error handling, responsive, accessible, edge cases
+- Backend: validation, error codes, auth checks, efficient queries
+- Integration: real data flowing, auth handled, routes working, data persisting
+
+---
+
+#### `proactive-qa`
+**What it does:** After every implementation, mentally walks through the feature as different users (new, returning, error-prone, mobile, impatient) and fixes what it finds. Detects architectural smells, anticipates scaling issues, and fixes adjacent bugs.
+
+**How to use:** Always active. After writing any code, runs this loop:
+1. **Walk the user journey** — Would a real user get stuck anywhere?
+2. **Check blast radius** — What else did this change affect?
+3. **Hunt edge cases** — Empty strings, null values, timeout, offline, concurrent access
+4. **Anticipate next problems** — "This list will grow. Does it paginate?"
+
+**Proactive fixes (do without asking):**
+- Missing loading/error/empty states
+- Unhandled promise rejections
+- Memory leaks (uncleared intervals, unsubscribed listeners)
+- Race conditions (stale closures, request ordering)
+- Broken navigation (dead links, orphaned pages)
+- Accessibility issues noticed in passing
+- Inconsistent styling that's clearly a bug
+
+**Architecture smell detection:**
+- God components (300+ lines) → extract sub-components
+- Prop drilling (3+ levels) → use context
+- Duplicated logic (3+ places) → extract utility
+- Mixed concerns (API in render) → separate into service
+
+**The "Ship It" test:** Before declaring done, imagine screen-sharing with the user. Would you feel confident clicking through? If not — fix it first.
+
+**Independence protocol:**
+- Established codebase pattern exists → Follow it (don't ask)
+- Common software pattern → Apply it (don't ask)
+- Choice is reversible → Make judgment, mention it
+- Choice is irreversible → Ask the user
+
+---
+
+
 
 #### `brainstorming`
 **Trigger:** Manual — must invoke before any creative work (features, components, UI changes)
@@ -687,4 +749,4 @@ Error occurs
 
 ---
 
-**36 skills. 3 hooks. 4 commands. One intelligence stack.**
+**38 skills. 3 hooks. 4 commands. One intelligence stack.**
