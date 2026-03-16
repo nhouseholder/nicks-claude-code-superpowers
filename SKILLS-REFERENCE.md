@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 50 skills, 3 hooks, 11 commands, and the continuous learning system.
+> Complete documentation for all 51 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -831,6 +831,34 @@ D) Something else — tell me what you had in mind
 
 ---
 
+### Cross-Agent Collaboration
+
+#### `shared-memory`
+**Trigger:** Always-on — fires at session end when significant decisions or changes were made
+
+**What it does:** Maintains `AGENT-MEMORY.md` in the repo root — a living document that ANY AI agent (Claude, Cursor, Copilot, Windsurf, Aider) can read to understand the project's decisions, architecture, conventions, and gotchas. Auto-updates after significant sessions.
+
+**File structure:**
+- **Project Identity** — what this is, stack, URLs
+- **Architecture Decisions** — table with decision, choice, reasoning, date, agent
+- **Active Conventions** — coding standards and patterns
+- **Current State** — version, branch strategy, deploy target, known issues
+- **Recent Significant Changes** — table of what changed, why, files, agent
+- **Gotchas & Warnings** — things that trip up new agents
+- **Agent Instructions** — protocol for maintaining this file
+
+**Update protocol (for all agents):**
+1. Read before writing — never update without reading first
+2. Append, don't rewrite — old entries are historical context
+3. Timestamp everything — ISO date + agent name on every entry
+4. Be concise — table rows and bullets only, no paragraphs
+5. Resolve, don't conflict — mark disputes with `⚠️ DISPUTED`, never silently overwrite
+6. Prune quarterly — archive entries >90 days from "Recent Changes"
+
+**The significance test:** "Would a new AI agent make a mistake without knowing this?" YES → update. NO → skip.
+
+---
+
 ### Natural Language Interface
 
 #### `intent-detection`
@@ -984,4 +1012,4 @@ Error occurs
 
 ---
 
-**50 skills. 3 hooks. 11 commands. One intelligence stack.**
+**51 skills. 3 hooks. 11 commands. One intelligence stack.**
