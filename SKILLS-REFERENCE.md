@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 59 skills, 3 hooks, 11 commands, and the continuous learning system.
+> Complete documentation for all 60 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -56,6 +56,8 @@ Skills fire based on description matching against the current task. Some are alw
 
 ```
 User Request
+    │
+    ├─ prompt-architect (always-on: decompose intent → optimize execution)
     │
     ├─ Vague? ──→ prompt-improver (auto-enriches)
     │
@@ -788,6 +790,32 @@ Save this fix to error memory
 2. **Generate** — 1-6 targeted questions grounded in research findings
 3. **Clarify** — Ask user
 4. **Execute** — Proceed with enriched understanding
+
+---
+
+#### `prompt-architect`
+**Trigger:** Always-on — every user message, zero overhead
+
+**What it does:** Internally restructures every prompt into the optimal execution format before acting. Extracts intent, identifies implicit requirements, infers constraints, resolves ambiguity, and executes as if the user gave the perfect prompt. The user types naturally; Claude executes perfectly on the first try.
+
+**6-component mental decomposition:**
+1. **TASK** — What exactly am I being asked to do?
+2. **CONTEXT** — What do I already know that's relevant?
+3. **SCOPE** — What's in bounds vs out of bounds?
+4. **QUALITY** — What does "done right" look like?
+5. **FORMAT** — How should the output be structured?
+6. **UNSTATED** — What did they NOT say but clearly expect?
+
+**Key features:**
+- Intent extraction (hear the complete intent, not just literal words)
+- Implicit requirement detection (professional defaults a senior dev would handle)
+- Quality calibration (pragmatic → professional → bulletproof based on context)
+- Ambiguity resolution (conversation > codebase > common interpretation > most impactful)
+- Stream-of-consciousness organization (reorders chaotic requests into logical execution)
+
+**Boundary with `prompt-improver`:** Improver catches vague prompts and asks questions. Architect optimizes ALL prompts during execution. They complement — improver is the safety net, architect is the optimizer.
+
+**Token economics:** ~0 tokens (mental checklist). Net NEGATIVE token cost — eliminates "that's not what I meant" redo cycles.
 
 ---
 

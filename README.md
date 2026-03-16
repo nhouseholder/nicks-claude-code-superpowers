@@ -38,7 +38,7 @@ rm -rf ~/.claude-tmp
 | **Workflow Automation** | backtest, audit, deploy, fix-loop, parallel-sweep |
 | **Git Intelligence** | git-sorcery |
 | **OpenViking Context DB** | ov-add-data, ov-search-context, ov-server-operate, memory-recall |
-| **Meta** | writing-skills, prompt-improver |
+| **Meta** | writing-skills, prompt-improver, prompt-architect |
 
 ### Hooks (4 total)
 
@@ -380,6 +380,6 @@ MIT - Skills are from various sources with their own licenses.
 
 ---
 
-**59 skills. 3 hooks. 11 commands. One intelligence stack.**
+**60 skills. 3 hooks. 11 commands. One intelligence stack.**
 
 **Made with ❤️ for smarter AI-assisted development**
