@@ -1,0 +1,1 @@
+Run the fix-loop skill: self-healing CI loop that runs the full test suite, diagnoses failures, fixes source code (never tests), re-runs until all tests pass, then commits. Max 3 full-suite iterations. See skills/fix-loop/SKILL.md for full workflow.

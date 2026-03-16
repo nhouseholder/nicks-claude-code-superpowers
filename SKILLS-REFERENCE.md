@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 36 skills, 4 hooks, 4 commands, and the continuous learning system.
+> Complete documentation for all 44 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -59,10 +59,10 @@ User Request
     │                                                        ├─ subagent-driven-development
     │                                                        └─ finishing-a-development-branch
     │
-    ├─ Bug/Error? ──→ pre-debug-check ──→ systematic-debugging
-    │                  (check known fixes)    (root cause first)
-    │                                              │
-    │                                              └─ error-memory (save fix)
+    ├─ Bug/Error? ──→ barrier-recognition ──→ pre-debug-check ──→ systematic-debugging
+    │                  (known pattern?)         (check anti-patterns)   (root cause first)
+    │                                                                        │
+    │                                                                        └─ error-memory (save fix)
     │
     ├─ Implementation? ──→ search-first ──→ test-driven-development
     │                      (existing solution?)   (RED → GREEN → REFACTOR)
@@ -634,6 +634,95 @@ What did we decide about the auth flow last week?
 
 ---
 
+### Workflow Automation
+
+#### `backtest`
+**Trigger:** Manual — `/backtest` or when mentioning backtesting, model evaluation, accuracy comparison
+
+**What it does:** Standardized workflow for running and evaluating prediction model backtests. Ensures visible output via `| tee`, compares against baseline accuracy, and commits only when metrics improve.
+
+**How to use:**
+```
+/backtest
+```
+
+**Workflow:** Verify DB → Run with `| tee` → Parse metrics → Compare to baseline → Commit if improved (or report regression)
+
+---
+
+#### `audit`
+**Trigger:** Manual — `/audit` or when asked to scan for secrets, check security
+
+**What it does:** Scans Python and JavaScript files for hardcoded API keys, tokens, credentials. Fixes by moving to env vars. Also checks for code quality anti-patterns (debug statements, unused imports, stale TODOs).
+
+**How to use:**
+```
+/audit
+```
+
+**Workflow:** Scan for secrets → Fix (move to env vars) → Scan for quality issues → Commit → Output report
+
+---
+
+#### `deploy`
+**Trigger:** Manual — `/deploy` or when asked to ship, release, push to production
+
+**What it does:** Full Cloudflare Pages/Workers deployment pipeline with pre-flight checks (lint, test, build), deployment snapshot for rollback, post-deploy verification, automatic rollback on failure, and release tagging.
+
+**How to use:**
+```
+/deploy
+```
+
+**Workflow:** Pre-flight → Snapshot → Deploy → Verify (HTTP 200 + key pages) → Rollback if failed → Tag release if passed
+
+**Rule:** NEVER deploy without passing tests. ALWAYS verify live site. ALWAYS rollback on failure.
+
+---
+
+#### `fix-loop`
+**Trigger:** Manual — `/fix-loop` or when asked to fix all tests, make tests pass
+
+**What it does:** Self-healing CI loop. Runs full test suite, diagnoses each failure, fixes source code (NEVER test files), re-runs until all pass, then commits.
+
+**How to use:**
+```
+/fix-loop
+```
+
+**Workflow:** Run tests → For each failure: read test → read source → diagnose → fix source → verify → Final regression check → Commit
+
+**Rules:** Never modify tests. Max 3 full-suite iterations. Skip network-dependent tests.
+
+---
+
+#### `parallel-sweep`
+**Trigger:** Manual — when doing coefficient searches, hyperparameter tuning, or parallelizable parameter optimization
+
+**What it does:** Spawns N headless Claude Code agents (`claude -p`) to search parameter spaces in parallel. Each agent handles a partition and writes results to a shared SQLite database.
+
+**How to use:** Describe the parameter space and evaluation metric. The skill partitions the space across agents and generates a sweep script.
+
+**Workflow:** Define search space → Partition into N subspaces → Launch headless agents → Wait → Query top results from SQLite
+
+---
+
+#### `barrier-recognition`
+**Trigger:** Always-on — fires continuously during all tool use
+
+**What it does:** Detects when Claude is hitting a familiar barrier mid-execution and redirects before wasting tokens. Watches for 5 signals: error deja vu, approach repetition, escalating cascades, environment friction, and framework quirks.
+
+**How it works:**
+1. STOP current approach immediately
+2. ANNOUNCE the recognized pattern
+3. CITE the specific anti-pattern or past solution
+4. REDIRECT to the known working fix
+5. VERIFY the redirect worked
+
+**Key difference from pre-debug-check:** pre-debug-check fires once at debug start. barrier-recognition fires continuously during ANY workflow — coding, deploying, configuring, not just debugging.
+
+---
+
 ### Meta Skills
 
 #### `writing-skills`
@@ -673,6 +762,10 @@ Slash commands users can invoke directly.
 | `/brainstorm` | `commands/brainstorm.md` | Shortcut to invoke brainstorming skill |
 | `/write-plan` | `commands/write-plan.md` | Shortcut to invoke writing-plans skill |
 | `/execute-plan` | `commands/execute-plan.md` | Shortcut to invoke executing-plans skill |
+| `/backtest` | `commands/backtest.md` | Run model backtest with baseline comparison |
+| `/audit` | `commands/audit.md` | Scan for hardcoded secrets and quality issues |
+| `/deploy` | `commands/deploy.md` | Full deploy pipeline with rollback |
+| `/fix-loop` | `commands/fix-loop.md` | Self-healing CI: test, fix, re-run until green |
 
 ---
 
@@ -746,7 +839,12 @@ Error occurs
 | Search before coding | `search-first` |
 | Add to context DB | `ov add-resource <path>` |
 | Search context DB | `ov find <query>` |
+| Run a backtest | `/backtest` |
+| Scan for secrets | `/audit` |
+| Deploy to production | `/deploy` |
+| Fix all failing tests | `/fix-loop` |
+| Sweep parameters | `parallel-sweep` |
 
 ---
 
-**38 skills. 3 hooks. 4 commands. One intelligence stack.**
+**44 skills. 3 hooks. 11 commands. One intelligence stack.**

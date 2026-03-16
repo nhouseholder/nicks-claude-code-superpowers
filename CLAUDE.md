@@ -12,6 +12,22 @@ When running long-running scripts (backtests, sweeps, coefficient searches), alw
 
 Before starting large tasks, check remaining API usage/rate limits. Break work into smaller, committable chunks so progress is saved if the session is interrupted by usage limits.
 
+### Chunking Strategy
+- Break multi-step work into committable checkpoints (every 2-3 steps)
+- Commit working state BEFORE attempting risky refactors or optimizations
+- Use TodoWrite to track progress so interrupted sessions can be resumed
+
+### Plan-First Protocol
+- For tasks with 3+ steps, create a plan before executing
+- Use `/write-plan` for complex work, mental outline for simpler tasks
+- Plans survive context compaction — implementation details don't
+
+### Barrier Awareness
+- When hitting an error, ALWAYS check `~/.claude/anti-patterns.md` first
+- If the same fix is attempted twice in one session, STOP and rethink
+- Escalating failures (fix A breaks B breaks C) = architectural problem, not local bug
+- Environment friction (git+iCloud, Node versions, venv) is almost always a known pattern
+
 ## Git Workflow
 
 For git operations in iCloud-synced directories, always use a fresh clone to a non-iCloud path first. Never attempt git push/pull directly in iCloud Drive folders.

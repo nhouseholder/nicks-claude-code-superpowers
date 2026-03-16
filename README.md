@@ -24,17 +24,18 @@ rm -rf ~/.claude-tmp
 
 ## 📦 What's Included
 
-### Skills (38 total)
+### Skills (44 total)
 
 | Category | Skills |
 |----------|--------|
 | **Thinking & Reasoning** | brainstorming, systematic-debugging, reflexion-reflect, reflexion-critique, fpf-hypotheses |
-| **Autonomy & Completeness** | senior-dev-mindset, proactive-qa |
+| **Autonomy & Completeness** | senior-dev-mindset, proactive-qa, barrier-recognition |
 | **Memory & Learning** | continuous-learning, continuous-learning-v2, reflexion-memorize, mem, error-memory, pre-debug-check |
 | **Coding Quality** | coding-standards, test-driven-development, verification-before-completion, verification-loop |
 | **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch |
 | **Research & Context** | search-first, iterative-retrieval, strategic-compact, context-hydration, token-awareness |
 | **Review & Collaboration** | requesting-code-review, receiving-code-review |
+| **Workflow Automation** | backtest, audit, deploy, fix-loop, parallel-sweep |
 | **OpenViking Context DB** | ov-add-data, ov-search-context, ov-server-operate, memory-recall |
 | **Meta** | using-superpowers, writing-skills, prompt-improver |
 
@@ -46,7 +47,7 @@ rm -rf ~/.claude-tmp
 | observe.py | PostToolUse | Tracks patterns for instinct-based learning |
 | stop-memory-save.py | Stop | Saves learnings at session end |
 
-### Commands
+### Commands (11 total)
 
 | Command | Description |
 |---------|-------------|
@@ -57,6 +58,10 @@ rm -rf ~/.claude-tmp
 | /brainstorm | Start brainstorming session |
 | /write-plan | Create implementation plan |
 | /execute-plan | Execute plan with checkpoints |
+| /backtest | Run model backtest with baseline comparison |
+| /audit | Scan for hardcoded secrets and code quality issues |
+| /deploy | Full deploy pipeline with rollback |
+| /fix-loop | Self-healing CI: test, fix, re-run until green |
 
 ---
 
@@ -118,7 +123,25 @@ Two skills that form a feedback loop:
 - Persists structured anti-patterns: what failed, why, and what actually works
 - Prevents wasting tokens retrying known-bad approaches across sessions
 
-### 9. OpenViking Context Database
+### 10. Barrier Recognition — Intelligent Redirect
+The `barrier-recognition` skill is an always-on awareness layer that detects when Claude is hitting a familiar barrier mid-execution — not just at debug time. It watches for:
+- **Error deja vu** — same error seen in a previous session
+- **Approach repetition** — about to try something that already failed
+- **Escalating cascades** — fix A breaks B breaks C (architectural, not local)
+- **Environment friction** — iCloud+git, Node versions, venv issues
+- **Framework quirks** — API/library behavior that doesn't match expectations
+
+When recognized, Claude **stops immediately**, announces the pattern, and redirects to the documented working fix — zero wasted tokens.
+
+### 11. Workflow Automation
+Five purpose-built skills for common development workflows:
+- `backtest`: Run model backtests with `| tee`, compare against baseline, commit improvements
+- `audit`: Scan for hardcoded secrets/API keys, fix by moving to env vars, commit
+- `deploy`: Full Cloudflare Pages/Workers pipeline — lint, test, build, deploy, verify, rollback on failure
+- `fix-loop`: Self-healing CI — run tests, diagnose, fix source (never tests), re-run until green
+- `parallel-sweep`: Launch N headless Claude agents to search parameter spaces in parallel
+
+### 12. OpenViking Context Database
 [OpenViking](https://github.com/volcengine/OpenViking) provides persistent, semantic memory across sessions:
 - **ov-add-data**: Add resources, files, URLs, and memories to the context database
 - **ov-search-context**: Semantic search across all stored memories and resources
@@ -156,6 +179,12 @@ Two skills that form a feedback loop:
 | ov-search-context | Searching context | Manual |
 | ov-server-operate | Server management | Manual |
 | memory-recall | Past session context | Automatic |
+| barrier-recognition | Active | Always-on |
+| backtest | `/backtest` or backtest tasks | Manual |
+| audit | `/audit` or security scan tasks | Manual |
+| deploy | `/deploy` or deploy tasks | Manual |
+| fix-loop | `/fix-loop` or test failures | Manual |
+| parallel-sweep | Coefficient sweeps | Manual |
 
 ---
 

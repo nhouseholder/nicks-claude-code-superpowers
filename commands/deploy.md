@@ -1,0 +1,1 @@
+Run the deploy skill: full deployment pipeline with pre-flight checks (lint, test, build), Cloudflare Pages/Workers deploy, post-deploy verification, automatic rollback on failure, and release tagging. See skills/deploy/SKILL.md for full workflow.

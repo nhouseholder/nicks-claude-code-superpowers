@@ -1,0 +1,1 @@
+Run the audit skill: scan all Python and JavaScript files for hardcoded secrets, API keys, credentials, and code quality issues. Fix found issues by moving secrets to env vars. See skills/audit/SKILL.md for full workflow.
