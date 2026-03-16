@@ -106,6 +106,14 @@ This skill is a continuous awareness — no explicit trigger, no token overhead.
 - **response-recap**: Recaps adapt to energy — flow state gets one line, learning mode gets more detail
 - **smart-clarify**: Clarification style matches energy — flow state gets inline choices, learning mode gets explained options
 
+## Floor Rule — Don't Over-Compress Learning Mode
+
+When `token-awareness` and `adaptive-voice` both push toward brevity, there's a risk of under-explaining when the user is genuinely learning. The floor:
+
+- **"Why" questions deserve real answers** — A user asking "why does this work?" is in learning mode. Give them 2-4 sentences of explanation, not a one-liner.
+- **Token-awareness yields to learning mode** — When the user is explicitly learning, clarity beats conciseness. A clear 3-sentence explanation is better than a cryptic 1-sentence answer.
+- **The test:** "Would the user understand this without follow-up questions?" If no → add more. If yes → you're good.
+
 ## Rules
 
 1. **Read before responding** — Scan the user's message for energy signals before you start writing
@@ -113,3 +121,4 @@ This skill is a continuous awareness — no explicit trigger, no token overhead.
 3. **Silence is adaptation** — Sometimes the best adaptation is just doing the work without commentary
 4. **Default to concise** — When in doubt, shorter is better. Users can always ask for more.
 5. **Never announce** — Adaptation should be invisible. The user should just feel understood.
+6. **Floor for learning** — Never compress below what the user needs to understand. "Why" questions get real answers.

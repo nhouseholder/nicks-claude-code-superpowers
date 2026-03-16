@@ -130,6 +130,65 @@ From 24 failure memories:
 - Implications of success
 - ANY communication suggesting completion/correctness
 
+## Deep Verification Mode (Pre-PR / Pre-Deploy)
+
+For major completions (features, PRs, deploys), run the full 6-phase verification:
+
+### Phase 1: Build
+```bash
+npm run build 2>&1 | tail -20
+```
+If build fails → STOP. Fix before continuing.
+
+### Phase 2: Type Check
+```bash
+npx tsc --noEmit 2>&1 | head -30    # TypeScript
+pyright . 2>&1 | head -30            # Python
+```
+
+### Phase 3: Lint
+```bash
+npm run lint 2>&1 | head -30         # JS/TS
+ruff check . 2>&1 | head -30         # Python
+```
+
+### Phase 4: Test Suite
+```bash
+npm run test -- --coverage 2>&1 | tail -50
+```
+Report: total, passed, failed, coverage %.
+
+### Phase 5: Security Scan
+Check for hardcoded secrets, console.log statements, debug artifacts.
+
+### Phase 6: Diff Review
+```bash
+git diff --stat
+```
+Review each changed file for unintended changes, missing error handling, edge cases.
+
+### Verification Report Format
+```
+VERIFICATION REPORT
+==================
+Build:     [PASS/FAIL]
+Types:     [PASS/FAIL] (X errors)
+Lint:      [PASS/FAIL] (X warnings)
+Tests:     [PASS/FAIL] (X/Y passed, Z% coverage)
+Security:  [PASS/FAIL] (X issues)
+Diff:      [X files changed]
+
+Overall:   [READY/NOT READY] for PR
+```
+
+### When to Use Deep Mode
+- Before creating a PR
+- Before deploying to production
+- After major refactors
+- After completing a multi-file feature
+
+For quick fixes and single-file changes, the standard Gate Function is sufficient.
+
 ## The Bottom Line
 
 **No shortcuts for verification.**

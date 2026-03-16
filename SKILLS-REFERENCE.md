@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 61 skills, 3 hooks, 11 commands, and the continuous learning system.
+> Complete documentation for all 59 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -407,15 +407,6 @@ These skills make Claude operate like a senior developer who ships complete, pro
 
 ### Memory & Learning
 
-#### `continuous-learning` (v1)
-**Trigger:** Automatic — Stop hook at session end
-
-**What it does:** Extracts reusable patterns from completed sessions: error resolutions, user corrections, workarounds, debugging techniques, project-specific knowledge. Saves to `~/.claude/skills/learned/`.
-
-**Limitation:** ~50-80% pattern detection reliability. v2 is recommended.
-
----
-
 #### `continuous-learning-v2`
 **Trigger:** Automatic — PreToolUse/PostToolUse hooks (100% reliability)
 
@@ -558,21 +549,6 @@ Save this fix to error memory
 **Forbidden phrases:** "should work", "probably passes", "seems fixed" — without evidence.
 
 ---
-
-#### `verification-loop`
-**Trigger:** Manual — after implementing features or before PRs
-
-**What it does:** 6-phase comprehensive verification: Build → Type Check → Lint → Tests → Security → Diff Review. Produces detailed report with PASS/FAIL status.
-
-**How to use:** Run after completing implementation:
-1. Build check
-2. Type checking (tsc, mypy, etc.)
-3. Lint (eslint, ruff, etc.)
-4. Test suite
-5. Security scan
-6. Diff review (unintended changes?)
-
-**Output:** Verification report with pass/fail per phase, issue counts, coverage percentage.
 
 ---
 
