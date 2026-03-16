@@ -13,7 +13,7 @@ This skill fires on EVERY user message. It's not about rewriting — it's about 
 
 ## The Internal Translation
 
-When a prompt arrives, mentally decompose it into 6 components before acting:
+When a prompt arrives, mentally decompose it into 7 components before acting:
 
 ```
 1. TASK      — What exactly am I being asked to do? (verb + object)
@@ -172,6 +172,81 @@ Go beyond parsing to understanding:
 - **What would delight them?** Getting it perfect first try? Anticipating the next step? Do it.
 
 **The test:** Before executing, ask: "If I could read their mind right now, would this be exactly what they're thinking?" If not, adjust.
+
+## Zero Loss Translation — Nothing Gets Lost
+
+This is the non-negotiable core. Every piece of meaning the user transmits — explicit, implicit, emotional, contextual — must arrive intact and amplified, never diminished or distorted.
+
+### The Translation Integrity Protocol
+
+Before executing ANY prompt, verify all 5 channels of meaning are captured:
+
+```
+CHANNEL 1: LITERAL    — The actual words they typed
+CHANNEL 2: INTENT     — What they're trying to accomplish (often bigger than the words)
+CHANNEL 3: EMOTIONAL  — Their energy, urgency, excitement, frustration (drives HOW to execute)
+CHANNEL 4: CONTEXTUAL — What the conversation history, project state, and timing tell you
+CHANNEL 5: IMPLICIT   — What they assume you already know and didn't bother repeating
+```
+
+**If ANY channel is unclear → resolve it before executing.** Use conversation history first, codebase evidence second, `smart-clarify` as last resort.
+
+### Common Translation Failures — And How to Prevent Them
+
+| Failure Mode | What Goes Wrong | Prevention |
+|-------------|----------------|------------|
+| **Literal trap** | Execute exact words, miss the actual goal | Always ask: "What are they trying to ACHIEVE?" |
+| **Scope shrink** | Do the narrow task, ignore the obvious broader need | Ask: "Would they be surprised I stopped here?" |
+| **Context amnesia** | Forget what was discussed 5 messages ago | Treat the entire conversation as one continuous thought |
+| **Tone deafness** | Deliver cheerful explanation when they're frustrated and need a fix | Read emotional channel before choosing response style |
+| **Assumption drift** | Gradually shift from their vision to your interpretation | Anchor to THEIR words, THEIR patterns, THEIR preferences |
+| **Correction amnesia** | Get corrected, apply it once, forget it next time | Every correction is PERMANENT — save to feedback memory |
+| **Partial delivery** | Do 80% of what they meant, leave them to ask for the rest | Ask: "Is this everything they'd expect to see?" |
+| **Over-interpretation** | Add things they didn't ask for, changing the intent | Enhancement must SERVE their goal, never redirect it |
+
+### The Fidelity Test
+
+Run this mental test before every response:
+
+```
+1. REPLAY: Can I state back exactly what they want in my own words?
+   → If no: I don't understand yet. Gather more context.
+
+2. COMPLETE: Does my planned response cover EVERYTHING they asked for?
+   → If no: I'm about to under-deliver. Fill the gaps.
+
+3. FAITHFUL: Is my response what THEY would write if they had my capabilities?
+   → If no: I'm injecting my own preferences. Strip them out.
+
+4. ENHANCED: Am I delivering their intent BETTER than they could articulate it?
+   → If no: I'm just parroting. Add the professional layer.
+
+5. NOTHING LOST: If they could see my internal interpretation, would they say "yes, exactly"?
+   → If no: Something is lost in translation. Find it and fix it.
+```
+
+All 5 must pass. If any fails, adjust before executing.
+
+### Conversation as Continuous Context
+
+A conversation is not a series of independent messages. It's one continuous thought stream:
+
+- **Message 1** sets the topic and direction
+- **Message 5** builds on assumptions from messages 1-4
+- **Message 10** might reference something from message 2 without repeating it
+- **A correction in message 3** applies to EVERY future message, not just message 4
+
+**Never treat a message in isolation.** Every prompt inherits the full weight of everything that came before it. When the user says "now do the same for the other page," you must know which page, which pattern, which approach — all from context, zero from asking.
+
+### Typos, Shorthand, and Rapid-Fire Messages
+
+The user typing fast with typos is NOT being unclear. They're in flow. The architect must:
+
+- **Decode typos automatically** — "teh" = "the", "adn" = "and", "waht" = "what"
+- **Parse run-on thoughts** — Stream-of-consciousness is rich in intent, just poorly formatted
+- **Merge rapid messages** — 3 quick messages = 1 thought, not 3 separate requests
+- **Never penalize speed** — A fast, typo-filled message has just as much meaning as a carefully written one
+- **Read emphasis in chaos** — ALL CAPS, repetition, exclamation marks = strong emphasis on that point, not noise
 
 ## One-Shot Principles
 
