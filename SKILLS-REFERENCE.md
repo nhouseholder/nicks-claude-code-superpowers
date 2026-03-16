@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 50 skills, 3 hooks, 11 commands, and the continuous learning system.
+> Complete documentation for all 51 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -324,6 +324,24 @@ Save this fix to error memory
 - **LOW** (vague) → Mention it, proceed with normal debugging
 
 **Barrier signals:** Error deja vu, approach repetition (tried before), escalating cascade (fix A breaks B breaks C), environment friction (iCloud+git, Node versions), framework quirks. When recognized: STOP → ANNOUNCE → CITE → REDIRECT → VERIFY.
+
+---
+
+#### `total-recall`
+**Trigger:** Always-on — session start (hydrate) + session end (persist) + continuous during session
+
+**What it does:** Infinite cross-session memory. Orchestrates all memory systems into a seamless experience where Claude remembers everything important about the project between sessions — automatically, without `/mem save`.
+
+**Three phases:**
+1. **Session start** — silently loads MEMORY.md + all memory files + anti-patterns + AGENT-MEMORY.md + recent git log. Builds a mental model of the project without announcing it.
+2. **During session** — watches for capture signals: architecture decisions, gotchas, user corrections, preference statements, project state changes. Saves them to memory files as they happen.
+3. **Session end** — runs the "Would I Forget?" test: if starting a new session tomorrow, what would you wish you knew? Persists anything that passes.
+
+**Memory organization:** By topic, not chronology. Files like `architecture.md`, `gotchas.md`, `user_preferences.md`, `current_work.md`. Aim for 5-15 files per project, not 50. Merge into existing files rather than creating duplicates.
+
+**Coordinates with:** `error-memory` (debugging failures), `shared-memory` (AGENT-MEMORY.md), `stop-memory-save.py` (session end hook), `mem` (manual commands).
+
+**Key rule:** Save WHY decisions were made, not just WHAT was decided. "We use Tailwind" is okay. "We use Tailwind because the user prefers utility-first CSS and the project already had it set up" is much better.
 
 ---
 
@@ -1011,4 +1029,4 @@ Error occurs
 
 ---
 
-**50 skills. 3 hooks. 11 commands. One intelligence stack.**
+**51 skills. 3 hooks. 11 commands. One intelligence stack.**

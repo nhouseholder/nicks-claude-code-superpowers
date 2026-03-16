@@ -24,13 +24,13 @@ rm -rf ~/.claude-tmp
 
 ## 📦 What's Included
 
-### Skills (50 total)
+### Skills (51 total)
 
 | Category | Skills |
 |----------|--------|
 | **Thinking & Reasoning** | brainstorming, systematic-debugging, reflexion-reflect, reflexion-critique, fpf-hypotheses |
 | **Autonomy & Completeness** | senior-dev-mindset, proactive-qa, response-recap, intent-detection, smart-clarify, seamless-resume |
-| **Memory & Learning** | continuous-learning, continuous-learning-v2, reflexion-memorize, mem, error-memory, pre-debug-check, shared-memory |
+| **Memory & Learning** | continuous-learning, continuous-learning-v2, reflexion-memorize, mem, error-memory, pre-debug-check, shared-memory, total-recall |
 | **Coding Quality** | coding-standards, test-driven-development, verification-before-completion, verification-loop |
 | **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch |
 | **Research & Context** | search-first, deep-research, iterative-retrieval, strategic-compact, context-hydration, token-awareness, precision-reading, parallel-tool-routing |
@@ -176,6 +176,7 @@ Five purpose-built skills for common development workflows:
 | ov-server-operate | Server management | Manual |
 | memory-recall | Past session context | Automatic |
 | shared-memory | On request | Manual |
+| total-recall | Session start + end | Always-on |
 | response-recap | After complex multi-step work | Automatic |
 | seamless-resume | On "continue" / session resume | Always-on |
 | backtest | `/backtest` or backtest tasks | Manual |
@@ -294,6 +295,6 @@ MIT - Skills are from various sources with their own licenses.
 
 ---
 
-**50 skills. 3 hooks. 11 commands. One intelligence stack.**
+**51 skills. 3 hooks. 11 commands. One intelligence stack.**
 
 **Made with ❤️ for smarter AI-assisted development**
