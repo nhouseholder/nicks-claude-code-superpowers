@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 48 skills, 3 hooks, 11 commands, and the continuous learning system.
+> Complete documentation for all 49 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -485,6 +485,24 @@ Save this fix to error memory
 
 ### Research & Context
 
+#### `deep-research`
+**Trigger:** Automatic — when asked to implement an unfamiliar concept, statistic, algorithm, or technique
+
+**What it does:** Self-directed literature review that makes Claude an expert before writing any code. Searches authoritative sources (academic papers, official docs, expert analysis), identifies alternatives, and presents a research summary with recommendation — all before implementation.
+
+**The flow:**
+1. **Self-assess** — honestly identify knowledge gaps
+2. **Search** — Tier 1 (academic/official) → Tier 2 (expert blogs) → Tier 3 (community), max 5 searches
+3. **Deep read** — WebFetch top 3 sources with targeted extraction prompts
+4. **Synthesize** — present compact summary: what it is, how it works, alternatives table, recommendation
+5. **Get approval** — user confirms approach before any code is written
+
+**Token budget:** Max 5 WebSearch + 3 WebFetch calls per topic. Skips deep research if self-assessment shows 80%+ confidence. Summary is 200-400 words max with source links.
+
+**Key difference from search-first:** search-first looks for existing *code/libraries*. deep-research learns the *domain knowledge* needed to implement correctly.
+
+---
+
 #### `search-first`
 **Trigger:** Manual — before writing any custom code
 
@@ -938,4 +956,4 @@ Error occurs
 
 ---
 
-**48 skills. 3 hooks. 11 commands. One intelligence stack.**
+**49 skills. 3 hooks. 11 commands. One intelligence stack.**
