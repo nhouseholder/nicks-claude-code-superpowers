@@ -1,0 +1,99 @@
+---
+name: precision-reading
+description: Read files surgically — grep first to find relevant sections, then read only those lines with offset+limit. Prevents loading entire 2000-line files when only 5-20 lines matter. Always-on efficiency skill that reduces token consumption without losing any information. Complements context-hydration by making hydration targeted rather than exhaustive.
+---
+
+# Precision Reading — Surgical File Access
+
+Load only what you need. Never read an entire file when you can target the exact lines.
+
+## Always Active
+
+This skill shapes every file read. Before using the Read tool, ask: "Do I need the whole file, or just a section?"
+
+## The Protocol
+
+### Step 1: Determine What You Need
+
+Before reading any file, classify your intent:
+
+| Intent | Strategy |
+|--------|----------|
+| Understanding overall structure | Grep for key patterns (class/function defs, exports, routes), then read selectively |
+| Finding a specific function/class | Grep for the name first, get line number, then Read with offset+limit |
+| Understanding how something is used | Grep for imports/references across files, read only the matching sections |
+| Editing a known section | If you already know what to change, Read with offset+limit around that area |
+| First time seeing a file | Read the first 50-100 lines to understand structure, then target from there |
+| Small file (<100 lines) | Just read the whole thing — the overhead of grep+targeted-read isn't worth it |
+
+### Step 2: Grep First, Read Second
+
+Instead of:
+```
+Read(file_path="/path/to/big-file.js")  # Loads all 2000 lines = expensive
+```
+
+Do:
+```
+Grep(pattern="function calculateScore", path="/path/to/big-file.js", output_mode="content", -C=5)
+# Found at line 847 with 5 lines context
+
+Read(file_path="/path/to/big-file.js", offset=840, limit=50)
+# Loads only lines 840-890 = cheap
+```
+
+### Step 3: Use Parallel Grep for Multi-File Discovery
+
+When searching across a codebase, use Grep with `files_with_matches` first to find WHICH files matter, then read targeted sections from those files only.
+
+Instead of reading 10 files fully:
+```
+Grep(pattern="dispensary", path="frontend/src/", output_mode="files_with_matches")
+# Returns: 3 files
+
+# Then read only relevant sections from those 3 files
+```
+
+## Size Thresholds
+
+| File Size | Strategy |
+|-----------|----------|
+| < 100 lines | Read whole file — not worth optimizing |
+| 100-500 lines | Read whole file if you need broad understanding; grep+target if you need specific section |
+| 500-1000 lines | Always grep first, then targeted read |
+| 1000+ lines | ALWAYS grep first. Never read the whole thing unless you genuinely need it all |
+
+## Common Patterns
+
+### Finding a function definition
+```
+Grep(pattern="(function|const|def|class)\s+targetName", path="file.js", output_mode="content", -n=true)
+→ Read(offset=matched_line - 5, limit=function_length + 10)
+```
+
+### Understanding imports/exports
+```
+Grep(pattern="(import|export|require)", path="file.js", output_mode="content")
+→ Usually enough — no need to read the full file
+```
+
+### Finding where something is called
+```
+Grep(pattern="functionName\\(", path="src/", output_mode="content", -C=3)
+→ Context lines usually give you enough — read more only if needed
+```
+
+### Checking config values
+```
+Grep(pattern="KEY_NAME", path="config/", output_mode="content")
+→ One-liner result, no need to read any file
+```
+
+## Rules
+
+1. **Never read a 500+ line file fully unless you need the whole thing** — grep first
+2. **Use offset+limit** when you know what section you need
+3. **Parallel grep calls** for multi-file searches — don't read sequentially
+4. **Small files are free** — don't over-optimize files under 100 lines
+5. **First reads can be full** — when you've never seen a file, a full read is fine. But subsequent reads of the same file should be targeted
+6. **This saves tokens, not intelligence** — you still get all the information you need, just without the noise

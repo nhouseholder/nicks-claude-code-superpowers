@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 46 skills, 3 hooks, 11 commands, and the continuous learning system.
+> Complete documentation for all 48 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -524,6 +524,42 @@ Save this fix to error memory
 
 ---
 
+#### `precision-reading`
+**Trigger:** Always-on — shapes every file read
+
+**What it does:** Grep first, read second. Instead of loading entire 2000-line files, finds the relevant section with Grep (getting line numbers), then reads only those lines with offset+limit. Small files (<100 lines) are read fully — the overhead isn't worth it.
+
+**Size thresholds:**
+- < 100 lines → read whole file
+- 100-500 lines → grep+target if you need a specific section
+- 500+ lines → ALWAYS grep first, then targeted read
+
+**Token savings:** A 1500-line file read costs ~1500 lines of tokens. Targeted read of 30 lines costs ~30 lines. That's a 98% reduction per file access.
+
+---
+
+#### `parallel-tool-routing`
+**Trigger:** Always-on — evaluates every multi-tool response
+
+**What it does:** Before making 2+ tool calls, classifies which are independent (can run concurrently) vs dependent (must be sequential). Always batches independent calls into a single response for concurrent execution.
+
+**Key rule:** If call B doesn't need the *result* of call A, they're independent → parallelize.
+
+**Common parallel patterns:**
+- Reading multiple files → always parallel
+- Multiple grep searches → always parallel
+- Edit file A + read file B → parallel (different files)
+- Git status + npm build → parallel (independent commands)
+
+**Common sequential patterns:**
+- Read then edit (same file)
+- Edit then test (verification depends on edit)
+- Grep then targeted read (need line number from grep)
+
+**Time savings:** 3 parallel reads = 1 round trip. 3 sequential reads = 3 round trips. Cuts wall-clock time proportionally.
+
+---
+
 #### `prompt-improver`
 **Trigger:** Automatic (hook) — fires on every user message
 
@@ -902,4 +938,4 @@ Error occurs
 
 ---
 
-**46 skills. 3 hooks. 11 commands. One intelligence stack.**
+**48 skills. 3 hooks. 11 commands. One intelligence stack.**

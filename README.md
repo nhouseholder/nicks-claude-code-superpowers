@@ -24,7 +24,7 @@ rm -rf ~/.claude-tmp
 
 ## 📦 What's Included
 
-### Skills (46 total)
+### Skills (48 total)
 
 | Category | Skills |
 |----------|--------|
@@ -33,7 +33,7 @@ rm -rf ~/.claude-tmp
 | **Memory & Learning** | continuous-learning, continuous-learning-v2, reflexion-memorize, mem, error-memory, pre-debug-check |
 | **Coding Quality** | coding-standards, test-driven-development, verification-before-completion, verification-loop |
 | **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch |
-| **Research & Context** | search-first, iterative-retrieval, strategic-compact, context-hydration, token-awareness |
+| **Research & Context** | search-first, iterative-retrieval, strategic-compact, context-hydration, token-awareness, precision-reading, parallel-tool-routing |
 | **Review & Collaboration** | requesting-code-review, receiving-code-review |
 | **Workflow Automation** | backtest, audit, deploy, fix-loop, parallel-sweep |
 | **OpenViking Context DB** | ov-add-data, ov-search-context, ov-server-operate, memory-recall |
@@ -297,6 +297,6 @@ MIT - Skills are from various sources with their own licenses.
 
 ---
 
-**46 skills. 3 hooks. 11 commands. One intelligence stack.**
+**48 skills. 3 hooks. 11 commands. One intelligence stack.**
 
 **Made with ❤️ for smarter AI-assisted development**
