@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 51 skills, 3 hooks, 11 commands, and the continuous learning system.
+> Complete documentation for all 58 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -14,6 +14,10 @@
   - [Foundation (Always Active)](#foundation-always-active)
   - [Autonomy & Completeness](#autonomy--completeness)
   - [Thinking & Reasoning](#thinking--reasoning)
+  - [Code Intelligence](#code-intelligence)
+  - [Communication & UX](#communication--ux)
+  - [Git Intelligence](#git-intelligence)
+  - [Infrastructure Awareness](#infrastructure-awareness)
   - [Memory & Learning](#memory--learning)
   - [Code Quality & Testing](#code-quality--testing)
   - [Planning & Execution](#planning--execution)
@@ -241,6 +245,138 @@ These skills make Claude operate like a senior developer who ships complete, pro
 **Workflow:** Create FPF directory → Initialize context → Generate hypotheses → Verify logic → Validate evidence → Audit trust scores → Make decision → Output DRR
 
 **Knowledge states:** L0 (accepted) → L1 (supported) → L2 (speculative)
+
+---
+
+---
+
+### Code Intelligence
+
+#### `zero-iteration`
+**Trigger:** Always-on — fires during any code generation or modification
+
+**What it does:** Mentally executes code before writing it. Traces inputs through logic with concrete values, predicts outputs, catches bugs before they exist. The fastest debugging is the debugging you never have to do.
+
+**The mental execution protocol:**
+1. **INPUTS** — What types/shapes come in? Edge cases?
+2. **TRACE** — Step through line by line with concrete values
+3. **OUTPUT** — Does the result match the caller's expectation?
+4. **FAIL** — What makes this break? Null? Empty? Off-by-one?
+
+**The three-value test (every function):**
+1. Happy path — normal expected input
+2. Empty/zero case — empty string, empty array, 0, null
+3. Boundary case — max length, negative, special chars
+
+**Common pre-bugs caught:** Data shape mismatches, off-by-one errors, async timing (missing await), type coercion traps, reference vs value, import/export mismatches.
+
+**Token economics:** Zero cost when code is correct (mental execution). Only costs tokens when it catches a pre-bug — far cheaper than a debug cycle.
+
+---
+
+#### `pattern-propagation`
+**Trigger:** Automatic — fires when modifying anything with multiple instances
+
+**What it does:** When a pattern changes in one place, finds and updates ALL instances across the codebase. Covers renames, API shape changes, component prop changes, config/env changes, and file moves.
+
+**The propagation protocol:**
+1. **Detect scope** — Grep for the pattern, check exports, check conventions
+2. **Collect all instances** — Exact matches, variations, indirect references, tests, docs
+3. **Update systematically** — Source → consumers → indirect consumers → tests → docs → config
+4. **Verify consistency** — Grep for OLD pattern should return zero results
+
+**Rules:** Never leave partial updates. Ask before propagating across 10+ files. Include tests. Skip cosmetic propagation.
+
+---
+
+#### `codebase-cartographer`
+**Trigger:** Automatic — fires at session start
+
+**What it does:** Builds a mental architecture map of the codebase. Knows directory purposes, data flows, conventions, and entry points. Enables instant navigation without redundant exploration.
+
+**Three-tier mapping:**
+- **Tier 1** (memory + git): ~100 tokens — check project memory, git status, package files, directory structure
+- **Tier 2** (targeted reads): ~500-1000 tokens — config files, entry points, routes, schemas (on-demand for current task)
+- **Tier 3** (deep exploration): ~3000-5000 tokens — full subsystem analysis (rare, only for complex multi-file tasks)
+
+**What to map:** Directory purposes, data flow (user input → API → DB → response → UI), auth flow, state management, file naming conventions, testing patterns.
+
+---
+
+### Communication & UX
+
+#### `adaptive-voice`
+**Trigger:** Always-on — reads user energy every response
+
+**What it does:** Matches the user's communication style. Terse when they're in flow, detailed when learning, calm when frustrated.
+
+**Signal detection:**
+| User State | Signals | Your Response |
+|------------|---------|---------------|
+| **Flow** | Short rapid messages, no pleasantries | Max brevity, code only, execute immediately |
+| **Learning** | "why", "how does", "what's the difference" | Brief explanations WITH code |
+| **Frustrated** | ALL CAPS, "!!!", "this still doesn't work" | Acknowledge briefly, try different approach, skip explanations |
+| **Collaborative** | "what do you think?", sharing trade-offs | Engage with ideas, share reasoning |
+| **Directive** | Specific instructions, bullet points | Execute exactly as specified, zero improvisation |
+
+**Rules:** Never announce adaptation. Never be sycophantic. Mirror energy level, not exact style. Default to concise.
+
+---
+
+#### `predictive-next`
+**Trigger:** Automatic — fires after completing any substantive task
+
+**What it does:** Anticipates the most likely next request and offers it in one line. If right, saves a prompt. If wrong, easily ignored.
+
+**Format:** Always a single line: `Next: want me to add tests for this component?`
+
+**Common predictions:**
+- After new code → "Want me to add tests?" / "Wire into router?"
+- After bug fix → "Check for same pattern elsewhere?"
+- After refactor → "Update all references?"
+- After config change → "Run build to verify?"
+
+**Rules:** One prediction, one line. Never list options. Never predict destructive actions. Suppress in flow state.
+
+---
+
+### Git Intelligence
+
+#### `git-sorcery`
+**Trigger:** Always-on — enhances all git operations
+
+**What it does:** Advanced git intelligence: smart commit messages from diffs, conflict resolution strategies, bisect for bug hunting, cherry-pick workflows, branch management, stash operations.
+
+**Smart commit formula:** `[Action] [What] — [Why/Impact]`
+- Action: Fix, Add, Remove, Refactor, Optimize, Update, Migrate
+- What: The specific thing that changed
+- Why: The reason or impact
+
+**Conflict resolution:** UNDERSTAND (read both sides) → INTENT (which is more important?) → RESOLVE (integrate both if possible) → VERIFY (does it make sense?)
+
+**Bug hunting:** When "this used to work" → suggest bisect to binary-search for the introducing commit.
+
+**Rules:** Intent over diff in messages. Atomic commits. Never force-push without asking. Descriptive stashes always.
+
+---
+
+### Infrastructure Awareness
+
+#### `process-monitor`
+**Trigger:** Automatic — fires when starting/encountering background processes, when something seems stuck, before session end
+
+**What it does:** Maintains awareness of background processes (dev servers, builds, test runners). Detects port conflicts, hung processes, zombies, and resource issues. Reports problems, not status.
+
+**Key behaviors:**
+- **Before starting a server** → Check if port is already in use
+- **When something fails** → Check if it's a process issue before checking code
+- **When something hangs** → Detect no-output timeout (30s builds, 5s servers)
+- **Before session end** → Mention running processes (don't auto-kill)
+
+**Token economics:** Event-driven checks only. Zero overhead when everything is normal. Port check = ~50 tokens. Health check = ~100 tokens. No polling.
+
+**Safe to kill:** Duplicate instances, completed builds, watchers no longer needed.
+**Ask before killing:** Processes you didn't start, databases, servers serving other terminals.
 
 ---
 
@@ -1026,7 +1162,13 @@ Error occurs
 | Deploy to production | `/deploy` |
 | Fix all failing tests | `/fix-loop` |
 | Sweep parameters | `parallel-sweep` |
+| Prevent bugs before writing | `zero-iteration` (always-on) |
+| Update all instances of a pattern | `pattern-propagation` (automatic) |
+| Map the codebase | `codebase-cartographer` (session start) |
+| Smart commit messages | `git-sorcery` (always-on) |
+| Find bug-introducing commit | `git-sorcery` bisect |
+| Check background processes | `process-monitor` (automatic) |
 
 ---
 
-**51 skills. 3 hooks. 11 commands. One intelligence stack.**
+**58 skills. 3 hooks. 11 commands. One intelligence stack.**

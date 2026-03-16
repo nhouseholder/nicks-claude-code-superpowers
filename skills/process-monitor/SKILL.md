@@ -1,0 +1,164 @@
+---
+name: process-monitor
+description: Monitor background processes (dev servers, builds, tests, watchers) during a session. Detect hung processes, runaway resource usage, port conflicts, and zombie processes. Provide status updates only when relevant. Kill unnecessary tasks when safe. Low-overhead self-awareness skill.
+---
+
+# Process Monitor — Self-Aware Background Process Management
+
+Stay aware of what's running in the background. Dev servers, build watchers, test runners, database processes — know their status, detect problems, and clean up when done. Be the developer who never leaves orphaned processes behind.
+
+## When This Activates
+
+- **After starting any background process** — Track it
+- **Before starting a new server/process** — Check for port conflicts
+- **When something seems stuck** — Check if a process is hanging
+- **Before session end** — Report on running processes
+- **When the user reports something slow/broken** — Check process health
+
+## Process Tracking
+
+### What to Track
+
+When you start or encounter a background process, note:
+
+```
+PROCESS: [name/command]
+PID: [if known]
+PORT: [if applicable]
+PURPOSE: [why it's running]
+STARTED: [when]
+EXPECTED: [should it still be running?]
+```
+
+### Common Processes to Monitor
+
+| Process | Typical Port | What to Watch |
+|---------|-------------|---------------|
+| Vite dev server | 5173 | Hot reload working? Memory climbing? |
+| React dev server | 3000 | Compilation errors? |
+| FastAPI/uvicorn | 8000 | Startup complete? Crash loops? |
+| Wrangler (CF) | 8788 | Bound correctly? Worker errors? |
+| Database | 5432/3306 | Accepting connections? |
+| Test watcher | — | Stuck in loop? |
+| Build process | — | Completed or hung? |
+| npm install | — | Frozen? Network issue? |
+
+## Problem Detection
+
+### Port Conflicts
+Before starting a server:
+```
+Check: Is the target port already in use?
+If yes: Report which process holds it
+Suggest: Kill the old process, or use an alternate port
+```
+
+### Hung Processes
+Signs a process is stuck:
+- Build with no output for >60 seconds
+- Dev server that started but isn't responding
+- Test suite with no progress
+- npm install frozen mid-download
+
+Action: Report to the user with the specific symptom. Suggest kill + restart.
+
+### Zombie Processes
+Processes that should have stopped but didn't:
+- Previous dev server still running after session ended
+- Build watcher from a different branch
+- Multiple instances of the same server
+
+Action: Identify and suggest cleanup.
+
+### Resource Issues
+Signs of trouble:
+- Process consuming excessive CPU (build loop, infinite re-render)
+- Memory growing unbounded (memory leak in dev server)
+- Disk filling up (build artifacts, logs)
+
+Action: Report the specific issue and suggest resolution.
+
+## Status Updates
+
+### When to Report (Low Token Overhead)
+- **Port conflict detected** — Before the user hits the error
+- **Process crashed** — Immediately, with the error
+- **Process seems hung** — After reasonable timeout (30s for builds, 5s for servers)
+- **Cleanup opportunity** — When you notice orphaned processes
+
+### When NOT to Report
+- Process is running normally — don't say "dev server is still running" every response
+- Process completed successfully — the output speaks for itself
+- User is focused on something else — don't interrupt with process status
+
+### Status Format
+When reporting, keep it to one line:
+
+```
+⚠ Port 5173 already in use (PID 12345, vite from previous session) — kill it?
+```
+
+```
+⚠ Build process appears hung (no output for 45s) — restart?
+```
+
+## Cleanup Protocol
+
+### Safe to Kill (Do it, mention it)
+- Duplicate server instances (same port, same project)
+- Build processes that completed
+- Test watchers no longer needed
+- Processes you started in this session that are done
+
+### Ask Before Killing
+- Processes you didn't start
+- Servers that might be serving other terminals
+- Database processes (could have unsaved state)
+- Anything the user might want running
+
+### Session End Awareness
+Before a session ends or the user switches context:
+```
+IF running processes exist that you started:
+  → Mention them: "Note: vite dev server still running on :5173"
+  → Don't kill them automatically — the user might want them
+```
+
+## Pre-Command Checks
+
+Before running commands that depend on services:
+
+```
+BEFORE running tests    → Is the test DB running?
+BEFORE API calls        → Is the dev server up?
+BEFORE deploy           → Are there running dev processes to stop?
+BEFORE build            → Kill any dev servers that might conflict
+```
+
+## Token Economics
+
+This skill operates on a "check only when relevant" basis:
+
+- **Port check before server start**: 1 shell command (~50 tokens)
+- **Process health check when something fails**: 1-2 commands (~100 tokens)
+- **Session-end status**: Only if there ARE running processes (~30 tokens)
+- **Normal operation with no issues**: Zero additional tokens
+
+No polling. No periodic checks. Only check when an event triggers it.
+
+## Integration
+
+- **proactive-qa**: Process monitor catches infrastructure issues; proactive-qa catches code issues
+- **pre-debug-check**: When debugging, check if the issue is a hung/crashed process first
+- **seamless-resume**: On resume, check if background processes from before the pause are still running
+- **git-sorcery**: Before git operations, check for processes that might have locks on files
+
+## Rules
+
+1. **Check before starting** — Always check for port conflicts before launching servers
+2. **Track what you start** — Know what processes you've spawned this session
+3. **Report problems, not status** — Don't announce that everything is fine
+4. **Ask before killing others' processes** — Only auto-kill processes you started or obvious zombies
+5. **One-line updates** — Process status is infrastructure, not the main event
+6. **No polling** — Event-driven checks only. Zero overhead when everything is normal.
+7. **Clean up on exit** — Mention running processes before session end, don't auto-kill

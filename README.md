@@ -24,18 +24,19 @@ rm -rf ~/.claude-tmp
 
 ## 📦 What's Included
 
-### Skills (51 total)
+### Skills (58 total)
 
 | Category | Skills |
 |----------|--------|
-| **Thinking & Reasoning** | brainstorming, systematic-debugging, reflexion-reflect, reflexion-critique, fpf-hypotheses |
-| **Autonomy & Completeness** | senior-dev-mindset, proactive-qa, response-recap, intent-detection, smart-clarify, seamless-resume |
+| **Thinking & Reasoning** | brainstorming, systematic-debugging, reflexion-reflect, reflexion-critique, fpf-hypotheses, zero-iteration |
+| **Autonomy & Completeness** | senior-dev-mindset, proactive-qa, response-recap, intent-detection, smart-clarify, seamless-resume, adaptive-voice, predictive-next, process-monitor |
 | **Memory & Learning** | continuous-learning, continuous-learning-v2, reflexion-memorize, mem, error-memory, pre-debug-check, shared-memory, total-recall |
-| **Coding Quality** | coding-standards, test-driven-development, verification-before-completion, verification-loop |
+| **Coding Quality** | coding-standards, test-driven-development, verification-before-completion, verification-loop, pattern-propagation |
 | **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch |
-| **Research & Context** | search-first, deep-research, iterative-retrieval, strategic-compact, context-hydration, token-awareness, precision-reading, parallel-tool-routing |
+| **Research & Context** | search-first, deep-research, iterative-retrieval, strategic-compact, context-hydration, token-awareness, precision-reading, parallel-tool-routing, codebase-cartographer |
 | **Review & Collaboration** | requesting-code-review, receiving-code-review |
 | **Workflow Automation** | backtest, audit, deploy, fix-loop, parallel-sweep |
+| **Git Intelligence** | git-sorcery |
 | **OpenViking Context DB** | ov-add-data, ov-search-context, ov-server-operate, memory-recall |
 | **Meta** | writing-skills, prompt-improver |
 
@@ -137,7 +138,58 @@ Five purpose-built skills for common development workflows:
 - `fix-loop`: Self-healing CI — run tests, diagnose, fix source (never tests), re-run until green
 - `parallel-sweep`: Launch N headless Claude agents to search parameter spaces in parallel
 
-### 12. OpenViking Context Database
+### 12. Zero Iteration — Bug Prevention
+`zero-iteration` mentally executes code before writing it:
+- Traces inputs through logic with concrete values
+- Catches off-by-one, async timing, type coercion, and shape mismatches
+- Three-value test: happy path, empty/zero case, boundary case
+- Zero token cost when code is correct — only speaks up when catching a pre-bug
+
+### 13. Adaptive Voice
+`adaptive-voice` matches the user's communication energy:
+- **Flow state** (short rapid messages) → maximum brevity, code only
+- **Learning mode** (why/how questions) → brief explanations with code
+- **Frustrated** (caps, "!!!", "this still doesn't work") → calm competence, different approach
+- **Collaborative** ("what do you think?") → engage with ideas, share reasoning
+
+### 14. Predictive Next
+`predictive-next` anticipates what you need after completing a task:
+- One-line suggestion at the end of responses: "Next: want me to add tests?"
+- Based on codebase patterns, session history, common workflows
+- Never predicts destructive actions or deployments
+- Suppresses in flow state — fast-moving users don't need suggestions
+
+### 15. Codebase Cartographer
+`codebase-cartographer` builds a mental architecture map at session start:
+- Tier 1: From memory + git (near-zero cost, ~80% coverage)
+- Tier 2: Targeted reads for current task
+- Tier 3: Deep exploration only for complex multi-file tasks
+- Knows directory purposes, data flows, conventions, entry points
+
+### 16. Pattern Propagation
+`pattern-propagation` ensures consistency when patterns change:
+- Rename a function → all call sites, imports, tests, and comments updated
+- Change an API shape → all consumers updated
+- Grep for the OLD pattern after updating — should return zero results
+- Asks before propagating across 10+ files
+
+### 17. Git Sorcery
+`git-sorcery` elevates every git interaction:
+- Smart commit messages from diffs: `[Action] [What] — [Why/Impact]`
+- Intelligent conflict resolution (understand both sides, integrate)
+- Bug hunting with bisect
+- Branch management and cleanup
+- Descriptive stash operations
+
+### 18. Process Monitor
+`process-monitor` maintains awareness of background processes:
+- Detects port conflicts before starting servers
+- Identifies hung processes and zombies
+- Reports problems (not status) — zero overhead when everything is normal
+- Checks process health when debugging before checking code
+- Mentions running processes before session end
+
+### 19. OpenViking Context Database
 [OpenViking](https://github.com/volcengine/OpenViking) provides persistent, semantic memory across sessions:
 - **ov-add-data**: Add resources, files, URLs, and memories to the context database
 - **ov-search-context**: Semantic search across all stored memories and resources
@@ -184,6 +236,13 @@ Five purpose-built skills for common development workflows:
 | deploy | `/deploy` or deploy tasks | Manual |
 | fix-loop | `/fix-loop` or test failures | Manual |
 | parallel-sweep | Coefficient sweeps | Manual |
+| zero-iteration | Code generation | Always-on |
+| adaptive-voice | Every response | Always-on |
+| predictive-next | After task completion | Automatic |
+| codebase-cartographer | Session start | Automatic |
+| pattern-propagation | Pattern changes | Automatic |
+| git-sorcery | Git operations | Always-on |
+| process-monitor | Background processes | Automatic |
 
 ---
 
@@ -295,6 +354,6 @@ MIT - Skills are from various sources with their own licenses.
 
 ---
 
-**51 skills. 3 hooks. 11 commands. One intelligence stack.**
+**58 skills. 3 hooks. 11 commands. One intelligence stack.**
 
 **Made with ❤️ for smarter AI-assisted development**
