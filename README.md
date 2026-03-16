@@ -24,12 +24,12 @@ rm -rf ~/.claude-tmp
 
 ## 📦 What's Included
 
-### Skills (34 total)
+### Skills (36 total)
 
 | Category | Skills |
 |----------|--------|
 | **Thinking & Reasoning** | brainstorming, systematic-debugging, reflexion-reflect, reflexion-critique, fpf-hypotheses |
-| **Memory & Learning** | continuous-learning, continuous-learning-v2, reflexion-memorize, mem |
+| **Memory & Learning** | continuous-learning, continuous-learning-v2, reflexion-memorize, mem, error-memory, pre-debug-check |
 | **Coding Quality** | coding-standards, test-driven-development, verification-before-completion, verification-loop |
 | **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch |
 | **Research & Context** | search-first, iterative-retrieval, strategic-compact, context-hydration, token-awareness |
@@ -105,7 +105,14 @@ Encourages efficiency:
 - Parallelize independent operations
 - Avoid unnecessary explanations
 
-### 8. OpenViking Context Database
+### 8. Error Memory — Never Repeat Mistakes
+Two skills that form a feedback loop:
+- `pre-debug-check`: Consults `~/.claude/anti-patterns.md` BEFORE attempting any fix
+- `error-memory`: Captures failed approaches and working solutions AFTER debugging
+- Persists structured anti-patterns: what failed, why, and what actually works
+- Prevents wasting tokens retrying known-bad approaches across sessions
+
+### 9. OpenViking Context Database
 [OpenViking](https://github.com/volcengine/OpenViking) provides persistent, semantic memory across sessions:
 - **ov-add-data**: Add resources, files, URLs, and memories to the context database
 - **ov-search-context**: Semantic search across all stored memories and resources
@@ -135,6 +142,8 @@ Encourages efficiency:
 | continuous-learning | Session end | Automatic (hook) |
 | continuous-learning-v2 | Every tool call | Automatic (hook) |
 | prompt-improver | Every message | Automatic (hook) |
+| error-memory | After fix found | Automatic |
+| pre-debug-check | Before debugging | Automatic |
 | ov-add-data | Adding resources | Manual |
 | ov-search-context | Searching context | Manual |
 | ov-server-operate | Server management | Manual |
