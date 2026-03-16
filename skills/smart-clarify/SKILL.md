@@ -11,6 +11,8 @@ When you're not sure what the user means, don't guess. Don't ask a vague open-en
 
 This skill fires whenever Claude detects ambiguity in the user's request. The goal: resolve ambiguity in ONE exchange, not a back-and-forth conversation.
 
+**Boundary with prompt-improver:** This skill handles *disambiguation* — the user's intent is almost clear but has 2-3 possible interpretations. The `prompt-improver` hook/skill handles *vagueness* — the user's intent is genuinely unclear and needs research/enrichment. If you can list 2-4 specific interpretations → use smart-clarify. If you can't even form options → the prompt needs enrichment.
+
 ## When to Clarify
 
 ### DO clarify when:

@@ -131,6 +131,16 @@ Is there an established pattern in the codebase?
 
 **Default to action over asking.** Senior developers don't ask "should I add error handling?" — they just add it.
 
+## Scope Discipline — Don't Over-Fix
+
+**Match your proactivity to the size of the request.**
+
+- **Small request** (fix a bug, change a color, update copy) → Fix exactly what was asked. Only fix adjacent issues if they're in the same function and take <3 lines.
+- **Medium request** (add a feature, implement a component) → Apply the full QA loop to the new code. Don't refactor surrounding code.
+- **Large request** (build a flow, major refactor) → Full proactive QA across all touched files.
+
+**Never turn a 5-minute fix into a 30-minute cleanup.** If you notice a bigger issue while doing small work, mention it — don't fix it unsolicited.
+
 ## What NOT to Be Proactive About
 
 - **Business logic decisions** — "Should free users see this?" → Ask
@@ -139,5 +149,6 @@ Is there an established pattern in the codebase?
 - **Third-party integrations** — Adding new dependencies → Ask
 - **Destructive operations** — Deleting data, resetting state → Ask
 - **Performance trade-offs** — Caching strategies, lazy loading approaches → Discuss
+- **Code outside the request scope** — Noticed a smell in an unrelated file? Mention it, don't fix it.
 
 These are product decisions, not engineering ones. Let the user decide.

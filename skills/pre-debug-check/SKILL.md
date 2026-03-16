@@ -1,13 +1,13 @@
 ---
 name: pre-debug-check
-description: Checks known anti-patterns and past error solutions BEFORE attempting any fix. Auto-triggers when Claude encounters an error, test failure, or build problem. Prevents wasting tokens on approaches that have already been tried and failed. Must fire before systematic-debugging.
+description: Checks known anti-patterns, past error solutions, and familiar barrier patterns BEFORE attempting any fix. Auto-triggers when Claude encounters an error, test failure, or build problem. Also watches for mid-execution barriers — approach repetition, escalating cascades, environment friction, and framework quirks. Prevents wasting tokens on approaches that have already been tried and failed. Must fire before systematic-debugging.
 context: fork
 allowed-tools: Read, Glob, Grep
 ---
 
-# Pre-Debug Check — Consult Past Failures First
+# Pre-Debug Check — Consult Past Failures First + Barrier Recognition
 
-Before attempting ANY fix for an error, check if this problem (or something similar) has been solved before.
+Before attempting ANY fix for an error, check if this problem (or something similar) has been solved before. Also stay alert for familiar barrier patterns during execution.
 
 ## Step 1: Load Known Anti-Patterns
 
@@ -15,7 +15,7 @@ Before attempting ANY fix for an error, check if this problem (or something simi
 cat ~/.claude/anti-patterns.md 2>/dev/null
 ```
 
-If the file doesn't exist, report "No anti-patterns file found" and exit — let the normal debugging flow proceed.
+If the file doesn't exist, report "No anti-patterns file found" and proceed with normal debugging.
 
 ## Step 2: Search for Matches
 
@@ -57,9 +57,44 @@ Rate your match confidence:
 - **MEDIUM** (similar error, related context) → Suggest fix, note it's a similar-not-identical match
 - **LOW** (vague keyword match) → Mention it but proceed with normal debugging
 
+## Mid-Execution Barrier Detection
+
+Beyond the initial check, stay alert for these patterns during any workflow:
+
+### Barrier Signals
+
+| Signal | What It Looks Like | Action |
+|--------|-------------------|--------|
+| **Error deja vu** | Same error seen before in this session or anti-patterns | Stop. Apply known fix. |
+| **Approach repetition** | About to try something that already failed | Skip it. Try documented alternative. |
+| **Escalating cascade** | Fix A broke B, fix B broke C | Stop after 2 cascades. Problem is architectural, not local. |
+| **Environment friction** | iCloud+git, Node versions, venv, permissions | Check anti-patterns. Usually a known issue. |
+| **Framework quirk** | Code looks correct but doesn't behave as expected | Check docs before guessing. |
+
+### Common Environment Barriers
+
+- iCloud + git → clone to /tmp
+- Node version mismatch → check .nvmrc
+- Python venv not activated → check `which python`
+- Permission denied → check ownership, not chmod 777
+- Rollup deadlock on Node 25 → set ROLLUP_PARSE_WORKERS=0
+
+### The Redirect Protocol
+
+When a barrier is recognized mid-execution:
+
+1. **STOP** current approach immediately
+2. **ANNOUNCE** the recognized pattern to the user
+3. **CITE** the anti-pattern or past solution
+4. **REDIRECT** to the known working fix
+5. **VERIFY** the redirect worked
+6. If redirect fails → **UPDATE** anti-patterns with new context
+
 ## Critical Rules
 
-1. This skill should fire BEFORE any fix attempt
-2. NEVER skip this check — even 5 seconds of lookup saves minutes of failed retries
+1. This skill fires BEFORE any fix attempt — and stays alert during execution
+2. NEVER skip the initial check — even 5 seconds of lookup saves minutes of failed retries
 3. If a HIGH confidence match is found, DO NOT try alternative approaches first
-4. If the known fix doesn't work, UPDATE the anti-pattern with new context (trigger error-memory skill)
+4. If the known fix doesn't work, UPDATE the anti-pattern with new context (trigger error-memory)
+5. After 3+ failed fix attempts on the same problem → step back, the issue is likely architectural
+6. Announce recognized barriers to the user — "I've seen this before" builds trust and saves tokens

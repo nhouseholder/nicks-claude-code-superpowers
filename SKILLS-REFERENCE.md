@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 51 skills, 3 hooks, 11 commands, and the continuous learning system.
+> Complete documentation for all 49 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -118,13 +118,6 @@ These skills shape every interaction. They don't need to be invoked.
 2. Read related/imported files
 3. Understand current state
 4. Then make changes
-
----
-
-#### `using-superpowers`
-**What it does:** Meta-skill that establishes skill invocation protocol. Ensures relevant skills fire BEFORE any response — even clarifying questions.
-
-**How to use:** Always active at conversation start. Checks if any skill matches (even 1% probability), invokes it, then responds. Instruction priority: User > Skills > System prompt.
 
 ---
 
@@ -321,14 +314,16 @@ Save this fix to error memory
 ---
 
 #### `pre-debug-check`
-**Trigger:** Automatic — BEFORE any fix attempt when errors are encountered
+**Trigger:** Automatic — BEFORE any fix attempt when errors are encountered, plus continuous mid-execution barrier detection
 
-**What it does:** Consults `~/.claude/anti-patterns.md` and project memory for known solutions before debugging. Prevents retrying failed approaches.
+**What it does:** Consults `~/.claude/anti-patterns.md` and project memory for known solutions before debugging. Also includes **barrier recognition** — detecting familiar patterns mid-execution (error deja vu, approach repetition, escalating cascades, environment friction, framework quirks). Prevents retrying failed approaches.
 
-**How to use:** Fires automatically before `systematic-debugging`. Reports matches with confidence:
+**How to use:** Fires automatically before `systematic-debugging` and stays alert during execution. Reports matches with confidence:
 - **HIGH** (exact match) → Apply fix directly, skip debugging
 - **MEDIUM** (similar) → Suggest fix, note it's similar-not-identical
 - **LOW** (vague) → Mention it, proceed with normal debugging
+
+**Barrier signals:** Error deja vu, approach repetition (tried before), escalating cascade (fix A breaks B breaks C), environment friction (iCloud+git, Node versions), framework quirks. When recognized: STOP → ANNOUNCE → CITE → REDIRECT → VERIFY.
 
 ---
 
@@ -761,45 +756,28 @@ What did we decide about the auth flow last week?
 
 ---
 
-#### `barrier-recognition`
-**Trigger:** Always-on — fires continuously during all tool use
-
-**What it does:** Detects when Claude is hitting a familiar barrier mid-execution and redirects before wasting tokens. Watches for 5 signals: error deja vu, approach repetition, escalating cascades, environment friction, and framework quirks.
-
-**How it works:**
-1. STOP current approach immediately
-2. ANNOUNCE the recognized pattern
-3. CITE the specific anti-pattern or past solution
-4. REDIRECT to the known working fix
-5. VERIFY the redirect worked
-
-**Key difference from pre-debug-check:** pre-debug-check fires once at debug start. barrier-recognition fires continuously during ANY workflow — coding, deploying, configuring, not just debugging.
-
----
-
 ### Communication
 
 #### `response-recap`
-**Trigger:** Always-on — fires after every substantive response
+**Trigger:** Automatic — fires ONLY after complex, multi-step work (not every response)
 
-**What it does:** Ends every meaningful response with a plain English summary: what was done, why, what changed (with file names), and current state. Balances technical accuracy with rapid comprehension — enough detail to understand without re-reading code output.
+**What it does:** Provides a plain English summary after complex work — multi-file changes, debugging sessions with non-obvious root causes, architecture decisions, multi-step implementations. Skips for single-file edits, quick fixes, Q&A, and routine tasks.
+
+**The decision rule:** If the user would need to scroll up to remember what just happened → add a recap. If the response fits on one screen → skip it.
 
 **Format:**
 ```
 ---
-**What happened:** [1-3 sentences in plain English]
-**Why:** [motivation/problem being solved]
-**What changed:**
-- [file/thing] — [plain English description]
-**Current state:** [where things stand, what's next]
+**What happened:** [1-2 sentences — plain English]
+**What changed:** [file list with one-line descriptions]
+**Current state:** [where things stand]
 ```
 
 **Rules:**
-- Lead with "what" not "how" — say what the change *means*, not the line numbers
-- Use plain English first, technical breadcrumbs second
-- Keep it scannable — bullets, bold key terms, max 5-7 items
-- Skip for simple one-liner answers
-- Adapt detail level: quick fix = 2-3 lines, complex debug = include the root cause insight
+- Lead with "what" not "how" — say what the change *means*, not line numbers
+- Max 5 bullets in "What changed"
+- Skip entirely for quick fixes and simple answers
+- Add root cause insight for debugging sessions
 
 ---
 
@@ -908,7 +886,7 @@ Hooks are shell scripts that fire automatically on specific Claude Code events.
 
 | Hook | File | Event | What It Does |
 |------|------|-------|-------------|
-| **Prompt Improver** | `hooks/improve-prompt.py` | UserPromptSubmit | Evaluates every user message. If vague, enriches with research and clarifying questions. Silent when prompt is clear. |
+| **Prompt Improver** | `hooks/improve-prompt.py` | UserPromptSubmit | Fast-paths clear prompts (short, specific, detailed). Only evaluates mid-length ambiguous prompts. Enriches genuinely vague ones with research and clarification. |
 | **Observer** | `hooks/observe.py` | PostToolUse | Captures all tool calls (except Glob/Grep/Read/ToolSearch) with timestamps. Stores to `observations.jsonl` per project. Powers continuous-learning-v2. |
 | **Memory Save** | `hooks/stop-memory-save.py` | Stop | At session end (if >4 messages), reminds Claude to save learnings to project or global memory. |
 
@@ -1012,4 +990,4 @@ Error occurs
 
 ---
 
-**51 skills. 3 hooks. 11 commands. One intelligence stack.**
+**49 skills. 3 hooks. 11 commands. One intelligence stack.**

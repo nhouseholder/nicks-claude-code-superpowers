@@ -24,12 +24,12 @@ rm -rf ~/.claude-tmp
 
 ## 📦 What's Included
 
-### Skills (51 total)
+### Skills (49 total)
 
 | Category | Skills |
 |----------|--------|
 | **Thinking & Reasoning** | brainstorming, systematic-debugging, reflexion-reflect, reflexion-critique, fpf-hypotheses |
-| **Autonomy & Completeness** | senior-dev-mindset, proactive-qa, barrier-recognition, response-recap, intent-detection, smart-clarify |
+| **Autonomy & Completeness** | senior-dev-mindset, proactive-qa, response-recap, intent-detection, smart-clarify |
 | **Memory & Learning** | continuous-learning, continuous-learning-v2, reflexion-memorize, mem, error-memory, pre-debug-check, shared-memory |
 | **Coding Quality** | coding-standards, test-driven-development, verification-before-completion, verification-loop |
 | **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch |
@@ -37,7 +37,7 @@ rm -rf ~/.claude-tmp
 | **Review & Collaboration** | requesting-code-review, receiving-code-review |
 | **Workflow Automation** | backtest, audit, deploy, fix-loop, parallel-sweep |
 | **OpenViking Context DB** | ov-add-data, ov-search-context, ov-server-operate, memory-recall |
-| **Meta** | using-superpowers, writing-skills, prompt-improver |
+| **Meta** | writing-skills, prompt-improver |
 
 ### Hooks (4 total)
 
@@ -75,10 +75,10 @@ The `continuous-learning-v2` skill automatically learns from your sessions via h
 - Project-scoped to prevent cross-contamination
 
 ### 2. Prompt Improvement
-The `prompt-improver` hook fires on every message:
-- Detects vague prompts
-- Enriches with research and clarification
-- Silent when prompt is already clear
+The `prompt-improver` hook evaluates prompts for clarity:
+- Fast-paths clear prompts (short answers, specific commands, detailed requests)
+- Only evaluates mid-length ambiguous prompts
+- Enriches genuinely vague prompts with research and clarification
 
 ### 3. Reflexion Framework
 Two reflexion skills for deeper thinking:
@@ -112,9 +112,9 @@ Encourages efficiency:
 - Avoid unnecessary explanations
 
 ### 8. Senior Dev Mindset & Proactive QA
-Two always-active skills that make Claude operate like a senior full-stack developer:
-- `senior-dev-mindset`: Infers unstated requirements from real-world context. Never leaves stubs, placeholders, or TODOs. Builds complete features front-to-back. Makes independent decisions that follow established codebase patterns.
-- `proactive-qa`: Mentally walks the user journey after every change. Detects edge cases, catches architectural smells, fixes adjacent issues. Runs the "Ship It" test before declaring anything done.
+Two always-active skills with scope-matching guardrails:
+- `senior-dev-mindset`: Infers unstated requirements, builds complete features, makes independent decisions. Now with **scope discipline** — small request = small response, big request = comprehensive response. Won't turn a 5-minute fix into a 30-minute refactor.
+- `proactive-qa`: Walks the user journey, catches edge cases, fixes adjacent issues. Now with **scope matching** — only applies full QA loop to code proportional to the request size.
 
 ### 9. Error Memory — Never Repeat Mistakes
 Two skills that form a feedback loop:
@@ -123,15 +123,11 @@ Two skills that form a feedback loop:
 - Persists structured anti-patterns: what failed, why, and what actually works
 - Prevents wasting tokens retrying known-bad approaches across sessions
 
-### 10. Barrier Recognition — Intelligent Redirect
-The `barrier-recognition` skill is an always-on awareness layer that detects when Claude is hitting a familiar barrier mid-execution — not just at debug time. It watches for:
-- **Error deja vu** — same error seen in a previous session
-- **Approach repetition** — about to try something that already failed
-- **Escalating cascades** — fix A breaks B breaks C (architectural, not local)
-- **Environment friction** — iCloud+git, Node versions, venv issues
-- **Framework quirks** — API/library behavior that doesn't match expectations
-
-When recognized, Claude **stops immediately**, announces the pattern, and redirects to the documented working fix — zero wasted tokens.
+### 10. Barrier Recognition (merged into pre-debug-check)
+The `pre-debug-check` skill now includes barrier recognition — detecting familiar patterns mid-execution:
+- **Error deja vu**, **approach repetition**, **escalating cascades**, **environment friction**, **framework quirks**
+- Stops immediately, announces the pattern, redirects to the documented fix
+- Previously a separate always-on skill; now consolidated for cleaner pipeline
 
 ### 11. Workflow Automation
 Five purpose-built skills for common development workflows:
@@ -170,7 +166,7 @@ Five purpose-built skills for common development workflows:
 | fpf-hypotheses | Complex decisions | Manual |
 | continuous-learning | Session end | Automatic (hook) |
 | continuous-learning-v2 | Every tool call | Automatic (hook) |
-| prompt-improver | Every message | Automatic (hook) |
+| prompt-improver | Ambiguous prompts only | Automatic (hook) |
 | senior-dev-mindset | Active | Always-on |
 | proactive-qa | Active | Always-on |
 | error-memory | After fix found | Automatic |
@@ -179,9 +175,8 @@ Five purpose-built skills for common development workflows:
 | ov-search-context | Searching context | Manual |
 | ov-server-operate | Server management | Manual |
 | memory-recall | Past session context | Automatic |
-| barrier-recognition | Active | Always-on |
-| shared-memory | Session end (significant changes) | Always-on |
-| response-recap | Active | Always-on |
+| shared-memory | On request | Manual |
+| response-recap | After complex multi-step work | Automatic |
 | backtest | `/backtest` or backtest tasks | Manual |
 | audit | `/audit` or security scan tasks | Manual |
 | deploy | `/deploy` or deploy tasks | Manual |
@@ -298,6 +293,6 @@ MIT - Skills are from various sources with their own licenses.
 
 ---
 
-**51 skills. 3 hooks. 11 commands. One intelligence stack.**
+**49 skills. 3 hooks. 11 commands. One intelligence stack.**
 
 **Made with ❤️ for smarter AI-assisted development**

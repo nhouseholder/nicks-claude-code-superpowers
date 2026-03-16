@@ -132,4 +132,4 @@ Don't trigger workflows for:
 2. **Respect explicit overrides** — if the user says "don't" or "just", honor that
 3. **Execute fully** — don't half-trigger a workflow; run the complete skill
 4. **Chain logically** — multi-intent requests execute in dependency order
-5. **Default to action** — when in doubt between asking and doing, lean toward doing (the user can always course-correct)
+5. **Default to confirming** — for workflow triggers that consume significant tokens (deploy, backtest, fix-loop, brainstorm), confirm intent if confidence is below HIGH. Simple actions (mem save, recall) can lean toward doing.

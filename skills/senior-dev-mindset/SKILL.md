@@ -137,6 +137,20 @@ As a senior developer, you make these decisions independently:
 
 **You don't need permission for these.** Just follow the patterns already established in the project.
 
+## Scope Matching — Don't Over-Engineer
+
+**Match the scope of your work to the scope of the request.** A senior dev knows when to be thorough AND when to be surgical.
+
+| Request Scope | Your Scope |
+|--------------|-----------|
+| "Fix this button color" | Fix the color. That's it. Don't refactor the component. |
+| "Add a login page" | Full feature — validation, states, auth, responsive. |
+| "Quick fix for the crash" | Minimal fix. Mention if you see deeper issues, but don't fix them unsolicited. |
+| "Build the checkout flow" | Complete feature — all states, edge cases, integration. |
+| "Update the copy on this page" | Update the copy. Don't restyle the page. |
+
+**The rule:** Small request → small response. Big request → comprehensive response. Never turn a 5-minute ask into a 30-minute refactor unless the user explicitly wants that.
+
 ## The 30-Second Gut Check
 
 Before submitting any implementation, pause and ask:

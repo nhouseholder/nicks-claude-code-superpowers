@@ -2,6 +2,7 @@
 """
 Claude Code Prompt Improver Hook
 Evaluates prompts for clarity and invokes the prompt-improver skill for vague cases.
+Only fires on genuinely vague prompts — short/clear prompts pass through untouched.
 """
 import json
 import sys
@@ -15,12 +16,6 @@ except json.JSONDecodeError as e:
 
 prompt = input_data.get("prompt", "")
 
-# Show visual confirmation to user (stderr displays in terminal)
-print("✓ Prompt Improver active", file=sys.stderr)
-
-# Escape quotes in prompt for safe embedding
-escaped_prompt = prompt.replace("\\", "\\\\").replace('"', '\\"')
-
 def output_json(text):
     """Output text in UserPromptSubmit JSON format"""
     output = {
@@ -31,27 +26,59 @@ def output_json(text):
     }
     print(json.dumps(output))
 
-# Check for bypass conditions
+# === BYPASS CONDITIONS ===
+
 # 1. Explicit bypass with * prefix
-# 2. Slash commands (built-in or custom)
-# 3. Memorize feature (# prefix)
 if prompt.startswith("*"):
-    # User explicitly bypassed improvement - remove * prefix
     clean_prompt = prompt[1:].strip()
     output_json(clean_prompt)
     sys.exit(0)
 
+# 2. Slash commands
 if prompt.startswith("/"):
-    # Slash command - pass through unchanged
     output_json(prompt)
     sys.exit(0)
 
+# 3. Memorize feature (# prefix)
 if prompt.startswith("#"):
-    # Memorize feature - pass through unchanged
     output_json(prompt)
     sys.exit(0)
 
-# Build the evaluation wrapper
+# === FAST-PATH: Skip evaluation for clearly actionable prompts ===
+
+# Short prompts (under 5 words) that are single-letter or quick answers → pass through
+word_count = len(prompt.split())
+if word_count <= 3:
+    # Very short prompts are usually answers to questions, confirmations, or clear directives
+    output_json(prompt)
+    sys.exit(0)
+
+# Prompts with specific technical signals are almost always clear enough
+clear_signals = [
+    "fix ", "add ", "update ", "change ", "remove ", "delete ", "create ",
+    "implement ", "refactor ", "move ", "rename ", "install ", "deploy ",
+    "run ", "test ", "build ", "push ", "commit ", "merge ",
+    "show me", "read ", "open ", "check ", "look at", "what is",
+    "how do", "why does", "can you", "please ",
+]
+prompt_lower = prompt.lower().strip()
+if any(prompt_lower.startswith(signal) for signal in clear_signals):
+    output_json(prompt)
+    sys.exit(0)
+
+# Prompts over 20 words are usually detailed enough
+if word_count >= 20:
+    output_json(prompt)
+    sys.exit(0)
+
+# === EVALUATION: Only reaches here for mid-length, ambiguous prompts ===
+
+# Show visual confirmation only when actually evaluating
+print("✓ Prompt Improver evaluating", file=sys.stderr)
+
+# Escape quotes in prompt for safe embedding
+escaped_prompt = prompt.replace("\\", "\\\\").replace('"', '\\"')
+
 wrapped_prompt = f"""PROMPT EVALUATION
 
 Original user request: "{escaped_prompt}"

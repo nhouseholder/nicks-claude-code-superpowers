@@ -1,15 +1,21 @@
 ---
 name: shared-memory
-description: Maintains a shared memory document (AGENT-MEMORY.md) in the GitHub repo that any AI agent can read and contribute to. Provides a structured protocol for cross-agent collaboration — decisions, architecture, context, and conventions are persisted so that Claude, Cursor, Copilot, Windsurf, or any AI working from the repo can stay aligned. Auto-updates after significant sessions. Always-on awareness skill.
+description: Maintains a shared memory document (AGENT-MEMORY.md) in the GitHub repo that any AI agent can read and contribute to. Provides a structured protocol for cross-agent collaboration — decisions, architecture, context, and conventions are persisted so that Claude, Cursor, Copilot, Windsurf, or any AI working from the repo can stay aligned. Updates on request or when explicitly prompted. Manual skill — invoke when you want to update the shared memory.
 ---
 
 # Shared Memory — Cross-Agent Collaboration via GitHub
 
 Maintain a living memory document in the repo that ALL AI agents can read. Any agent working from this repo should understand the project's decisions, architecture, conventions, and current state — even if they've never seen it before.
 
-## Always Active
+## When to Use
 
-This skill fires at the end of any session where significant decisions, discoveries, or changes were made. It also shapes how you read and respect the shared memory when starting work.
+This skill is **manual** — invoke it when:
+- You want to update the shared memory after a significant session
+- The user asks you to update the agent memory
+- You're starting work on a repo and want to read the existing shared memory
+- A major architecture decision, convention change, or gotcha was discovered
+
+**Do not auto-update** after every session. Only update when the significance test passes.
 
 ## The Shared Memory File
 
