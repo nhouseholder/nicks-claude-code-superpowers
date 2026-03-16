@@ -1,0 +1,64 @@
+{
+  "model": "claude-opus-4-6",
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Write",
+      "Edit",
+      "Read",
+      "Glob",
+      "Grep",
+      "Task",
+      "WebFetch",
+      "WebSearch",
+      "NotebookEdit",
+      "mcp__Desktop_Commander__*",
+      "mcp__Claude_in_Chrome__*",
+      "mcp__PowerPoint__By_Anthropic__*",
+      "mcp__Word__By_Anthropic__*",
+      "mcp__PDF_Tools_-_Analyze__Extract__Fill__Compare__*",
+      "mcp__mcp-registry__*"
+    ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "description": "Improves user prompts by adding clarifying questions",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/improve-prompt.py"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "description": "Reminds Claude to save important learnings to memory",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/stop-memory-save.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "description": "Background observation for continuous learning",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/observe.py"
+          }
+        ]
+      }
+    ]
+  },
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "32f68de74aa64000b5fee5aa28d79bc9.JlqfKe8f78KwZA5W",
+    "ANTHROPIC_BASE_URL": "https://api.z.ai/api/anthropic",
+    "API_TIMEOUT_MS": "3000000",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": 1
+  }
+}

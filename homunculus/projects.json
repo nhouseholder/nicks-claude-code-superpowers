@@ -1,0 +1,17 @@
+{
+  "77c1673e32dc": {
+    "name": "Strain-Finder-Front-Cannalchemy-Back-3",
+    "path": "/Users/nicholashouseholder/Library/Mobile Documents/com~apple~CloudDocs/Strains AI/Strain-Finder-Front-Cannalchemy-Back-3",
+    "remote": "https://github.com/nhouseholder/Strain-Finder-Front-Cannalchemy-Back.git"
+  },
+  "c4dadc1ef888": {
+    "name": "UFC Algs",
+    "path": "/Users/nicholashouseholder/Library/Mobile Documents/com~apple~CloudDocs/UFC Algs",
+    "remote": "https://github.com/nhouseholder/ufc-predict.git"
+  },
+  "0c09a6bddd8e": {
+    "name": "ufc-predict",
+    "path": "/Users/nicholashouseholder/ufc-predict",
+    "remote": "https://github.com/nhouseholder/ufc-predict"
+  }
+}
