@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 60 skills, 3 hooks, 11 commands, and the continuous learning system.
+> Complete documentation for all 61 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -341,6 +341,23 @@ These skills make Claude operate like a senior developer who ships complete, pro
 - After config change → "Run build to verify?"
 
 **Rules:** One prediction, one line. Never list options. Never predict destructive actions. Suppress in flow state.
+
+---
+
+#### `always-improving`
+**Trigger:** Automatic — fires when all tasks are complete and no urgent work remains
+
+**What it does:** When the to-do list is empty and there are no glaring holes, proactively scans the project across 8 dimensions (performance, UX, code quality, architecture, security, testing, DX, features) and suggests the top 1-3 highest-impact improvements.
+
+**How it suggests:**
+- Brief, specific, actionable suggestions with effort estimates
+- Prioritizes high-impact + low-effort quick wins first
+- Adapts to user preferences (feature-focused? quality-focused? performance-focused?)
+- Always asks before implementing — never takes action without approval
+
+**Key rules:** Only at idle points — never interrupts active work. Suggestions must be grounded in actual code, not hypothetical. Respects declined suggestions (backs off). Top 1-3 only, never a laundry list.
+
+**Boundary with `predictive-next`:** Predictive-next suggests the logical NEXT step after completing a task. Always-improving suggests ENHANCEMENTS when there IS no next step.
 
 ---
 
