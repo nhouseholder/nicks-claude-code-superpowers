@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 59 skills, 3 hooks, 11 commands, and the continuous learning system.
+> Complete documentation for all 60 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -22,6 +22,7 @@
   - [Memory & Learning](#memory--learning)
   - [Code Quality & Testing](#code-quality--testing)
   - [Planning & Execution](#planning--execution)
+  - [Agent Orchestration](#agent-orchestration)
   - [Research & Context](#research--context)
   - [Review & Collaboration](#review--collaboration)
   - [OpenViking Context DB](#openviking-context-db)
@@ -656,6 +657,33 @@ Save this fix to error memory
 
 ---
 
+### Agent Orchestration
+
+#### `command-center`
+**Trigger:** Automatic — activates on complex multi-domain tasks that are decomposable into parallel workstreams
+
+**What it does:** Master AI agent orchestrator. Analyzes a task, decomposes it into independent workstreams, assigns specialist subagents with expert lenses, launches them in parallel, monitors results, resolves conflicts, and delivers a unified output. You talk to the boss — the boss runs the army.
+
+**The 5-phase protocol:**
+1. **Mission Analysis** (~100 tokens) — Decompose into workstreams, identify parallel vs sequential
+2. **Agent Briefing** — Self-contained brief per agent: role, mission, context, expert lens, quality bar
+3. **Parallel Dispatch** — Launch all independent agents simultaneously
+4. **Result Integration** — Review, check for conflicts, resolve, merge
+5. **Quality Gate** — Build/test, verify consistency, deliver polished result
+
+**Resource management:**
+- **Sizing**: Minimum agents needed (2 focused > 5 fragmented)
+- **Strategy**: Research-first (uncertain tasks) vs Execute-first (clear path) vs Hybrid
+- **Priority**: Critical (blocks everything) → High (user-facing) → Medium (tests/docs) → Low (nice-to-have)
+- **Context budgeting**: Each agent gets ONLY the files/context it needs, not the whole codebase
+- **Monitoring**: Check results as they return, resolve conflicts, never duplicate agents
+
+**Budget guard:** <3 agents always fine. 3-5 for substantial features. >5 asks permission first.
+
+**Token economics:** ~200 tokens overhead + ~2000-8000 per agent + ~500 integration. Parallel agents finish in wall-clock time of the slowest (not sum of all). Focused context per agent reduces per-agent cost.
+
+---
+
 ### Research & Context
 
 #### `deep-research`
@@ -1193,7 +1221,8 @@ Error occurs
 | Find bug-introducing commit | `git-sorcery` bisect |
 | Check background processes | `process-monitor` (automatic) |
 | Think like a domain expert | `expert-lens` (always-on) |
+| Orchestrate parallel agent army | `command-center` (automatic) |
 
 ---
 
-**59 skills. 3 hooks. 11 commands. One intelligence stack.**
+**60 skills. 3 hooks. 11 commands. One intelligence stack.**

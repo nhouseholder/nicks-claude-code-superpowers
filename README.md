@@ -24,7 +24,7 @@ rm -rf ~/.claude-tmp
 
 ## 📦 What's Included
 
-### Skills (59 total)
+### Skills (60 total)
 
 | Category | Skills |
 |----------|--------|
@@ -32,7 +32,7 @@ rm -rf ~/.claude-tmp
 | **Autonomy & Completeness** | senior-dev-mindset, proactive-qa, response-recap, intent-detection, smart-clarify, seamless-resume, adaptive-voice, predictive-next, process-monitor, expert-lens |
 | **Memory & Learning** | continuous-learning, continuous-learning-v2, reflexion-memorize, mem, error-memory, pre-debug-check, shared-memory, total-recall |
 | **Coding Quality** | coding-standards, test-driven-development, verification-before-completion, verification-loop, pattern-propagation |
-| **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch |
+| **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch, command-center |
 | **Research & Context** | search-first, deep-research, iterative-retrieval, strategic-compact, context-hydration, token-awareness, precision-reading, parallel-tool-routing, codebase-cartographer |
 | **Review & Collaboration** | requesting-code-review, receiving-code-review |
 | **Workflow Automation** | backtest, audit, deploy, fix-loop, parallel-sweep |
@@ -188,7 +188,15 @@ Five purpose-built skills for common development workflows:
 - Loads 4 layers: mental models, domain vocabulary, quality standards, and amateur-mistake avoidance
 - ~30-50 tokens per activation — expert framing often makes output SHORTER and more precise
 
-### 19. Process Monitor
+### 19. Command Center — Master Agent Orchestrator
+`command-center` turns Claude into the CEO of an AI agent army:
+- Automatically decomposes complex tasks into parallel workstreams
+- Each agent gets a self-contained brief with its own expert lens
+- Agents run in parallel — 3 agents finish in 1/3 the wall-clock time
+- Results are integrated, conflicts resolved, and quality-gated before delivery
+- Only activates for genuinely decomposable multi-domain tasks (not small fixes)
+
+### 20. Process Monitor
 `process-monitor` maintains awareness of background processes:
 - Detects port conflicts before starting servers
 - Identifies hung processes and zombies
@@ -196,7 +204,7 @@ Five purpose-built skills for common development workflows:
 - Checks process health when debugging before checking code
 - Mentions running processes before session end
 
-### 20. OpenViking Context Database
+### 21. OpenViking Context Database
 [OpenViking](https://github.com/volcengine/OpenViking) provides persistent, semantic memory across sessions:
 - **ov-add-data**: Add resources, files, URLs, and memories to the context database
 - **ov-search-context**: Semantic search across all stored memories and resources
@@ -251,6 +259,7 @@ Five purpose-built skills for common development workflows:
 | git-sorcery | Git operations | Always-on |
 | process-monitor | Background processes | Automatic |
 | expert-lens | "You are an expert in..." or domain detection | Always-on |
+| command-center | Complex multi-domain tasks | Automatic |
 
 ---
 
@@ -362,6 +371,6 @@ MIT - Skills are from various sources with their own licenses.
 
 ---
 
-**59 skills. 3 hooks. 11 commands. One intelligence stack.**
+**60 skills. 3 hooks. 11 commands. One intelligence stack.**
 
 **Made with ❤️ for smarter AI-assisted development**
