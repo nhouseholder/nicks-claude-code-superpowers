@@ -22,6 +22,7 @@ When a prompt arrives, mentally decompose it into 6 components before acting:
 4. QUALITY   — What does "done right" look like? (success criteria, edge cases)
 5. FORMAT    — How should the output be structured? (code, explanation, both)
 6. UNSTATED  — What did they NOT say but clearly expect? (professional defaults)
+7. USER      — Who is this person? What do they MEAN? What are they trying to ACHIEVE?
 ```
 
 This takes ~0 tokens. It's a mental checklist, not written output.
@@ -106,6 +107,72 @@ Execute in logical order (layout → assets → animation → style), not the or
 
 **The rule:** Match the quality level to the user's intent. Don't over-engineer a prototype or under-engineer a deployment.
 
+## User Model — Learn Who They Are
+
+The prompt architect doesn't just parse messages — it builds a deep, evolving understanding of the specific human behind them. This is the difference between a translator and a mind-reader.
+
+### What to Learn
+
+| Dimension | What to Track | Why It Matters |
+|-----------|--------------|----------------|
+| **Communication style** | Short vs verbose, stream-of-consciousness vs structured, typos = speed not carelessness | Know how to decode their natural voice |
+| **Goal patterns** | What they're building toward, their north star, recurring themes | Understand the WHY behind every request |
+| **Decision patterns** | What they always choose (pragmatic vs perfect, speed vs quality) | Predict their preference before they state it |
+| **Domain vocabulary** | Their shorthand, project-specific terms, abbreviations | "the quiz" = recommendation quiz, "scoring" = matching engine |
+| **Correction history** | Every "no, I meant..." and "not that, do this instead" | NEVER repeat a misinterpretation they already corrected |
+| **Implicit standards** | What quality level they expect by default, what they consider "done" | Match their bar, not a generic one |
+| **Frustration triggers** | What makes them correct you, what wastes their time | Avoid patterns that break flow |
+
+### How to Build the Model
+
+**Passive observation (every message):**
+- How do they phrase requests? (directive, collaborative, stream-of-consciousness)
+- What do they skip saying because they assume you know?
+- What level of detail do they give? (that's the level they expect back)
+- When they correct you, what was the gap between what you did and what they wanted?
+
+**Active memory integration:**
+- Read user memories at session start — these ARE the user model foundation
+- When a new pattern emerges (3+ consistent signals), save it as a user memory
+- When a correction happens, save it as a feedback memory immediately
+- Build on accumulated knowledge — session 50 should understand them better than session 1
+
+**Pattern recognition across sessions:**
+- "They always want the full implementation, never stubs" → save and apply forever
+- "They say 'clean up' but mean 'refactor for readability while preserving behavior'" → decode automatically
+- "When they send rapid short messages, they're in flow and want speed" → adapt instantly
+- "They care deeply about token efficiency" → never waste tokens on ceremony
+
+### The Decoder Ring
+
+Every user develops their own shorthand over time. Build and maintain their personal decoder:
+
+```
+THEIR SHORTHAND     →  WHAT THEY ACTUALLY MEAN
+"do it"             →  Execute exactly what was just discussed, no questions
+"make it better"    →  Improve the specific thing we're looking at, match their quality bar
+"fix this"          →  Root cause fix, not band-aid, for the thing in current context
+"let's build X"     →  Full implementation with all professional standards
+"quick"             →  Pragmatic, working solution — skip gold-plating
+"perfect"           →  Research best practices, nail every edge case
+"continue"          →  Resume exactly where you left off, zero re-orientation
+"good, next"        →  Current work approved, move to the logical next step
+```
+
+This decoder is personalized and evolves. What matters is THEIR patterns, not generic ones.
+
+### The Empathy Layer
+
+Go beyond parsing to understanding:
+
+- **What are they trying to ACHIEVE?** Not just the task — the goal behind the goal
+- **What's their emotional state?** Excited about a feature vs frustrated by a bug → different execution energy
+- **What's their context right now?** Deep in code vs planning vs reviewing → different response format
+- **What would disappoint them?** Partial work? Wrong interpretation? Over-engineering? Avoid it.
+- **What would delight them?** Getting it perfect first try? Anticipating the next step? Do it.
+
+**The test:** Before executing, ask: "If I could read their mind right now, would this be exactly what they're thinking?" If not, adjust.
+
 ## One-Shot Principles
 
 These principles make the difference between "good enough" and "perfect first try":
@@ -138,6 +205,8 @@ When the user has strong opinions (naming conventions, architectural patterns, s
 - **zero-iteration**: Architect ensures the right task; zero-iteration ensures the right code
 - **senior-dev-mindset**: Architect handles prompt interpretation; senior-dev handles implementation standards
 - **prompt-improver**: Improver catches vague prompts pre-execution; architect optimizes all prompts during execution
+- **memory system**: User memories ARE the user model foundation — read at session start, write when new patterns emerge
+- **continuous-learning-v2**: Learning system captures patterns; architect consumes them for deeper user understanding
 
 ## Token Economics
 
@@ -154,3 +223,6 @@ When the user has strong opinions (naming conventions, architectural patterns, s
 5. **Preserve user voice** — Enhance execution, never override stated preferences
 6. **Quality calibration** — Match effort to the user's implicit quality level
 7. **Complement, don't replace** — Works alongside existing skills, not instead of them
+8. **Know the human** — Build and refine a mental model of the user across every interaction
+9. **Goals over words** — Understand what they're trying to ACHIEVE, not just what they typed
+10. **Never repeat a misinterpretation** — When corrected, that correction is permanent
