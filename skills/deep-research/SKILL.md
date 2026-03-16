@@ -11,24 +11,67 @@ When you encounter something you don't deeply understand, STOP. Research it thor
 
 **Know what you don't know.** Claude's training data has breadth but not always depth. When asked to implement a specific statistical method, algorithm, technique, or domain concept — assume your knowledge is surface-level until proven otherwise. Research first.
 
-## When to Trigger
+## Research Triage — Know WHEN to Go Deep
 
-### Automatic Triggers (always fire)
-- User asks to "add [specific stat/algorithm/technique] to our model"
-- User mentions a method/library/approach Claude hasn't used extensively
-- User asks about domain-specific concepts (pharmacology, sports analytics, ML techniques)
-- The implementation requires understanding mathematical properties, edge cases, or best practices that aren't obvious
-- User says "research this", "learn about this", "what's the best way to..."
+Not everything needs a literature review. The skill is knowing WHICH tasks require expert knowledge and which don't.
 
-### Self-Assessment Check
-Before implementing ANYTHING technical, ask yourself:
-1. Can I explain WHY this method works, not just HOW to code it?
-2. Do I know the assumptions and limitations?
-3. Do I know when this method is inappropriate?
-4. Can I name 2-3 alternatives and explain the tradeoffs?
-5. Do I know the common pitfalls and gotchas?
+### The Complexity Triage
 
-If ANY answer is "no" → trigger deep research before proceeding.
+Run this decision tree on every implementation request:
+
+```
+Is this task...
+
+ROUTINE? (standard CRUD, UI component, config change, known pattern)
+  → SKIP research. Just build it. You're already expert enough.
+  → Examples: "add a button", "create an API endpoint", "fix this CSS"
+
+FAMILIAR BUT SPECIFIC? (known domain, specific technique you've used before)
+  → QUICK CHECK (1-2 searches, 2 min). Validate your knowledge is current.
+  → Examples: "add pagination", "implement JWT auth", "add caching"
+
+TECHNICAL WITH NUANCE? (specific algorithm, statistical method, optimization)
+  → TARGETED RESEARCH (3 searches + 1-2 deep reads, 5 min). Learn the details.
+  → Examples: "add Elo rating", "implement cosine similarity", "add rate limiting with token bucket"
+
+DEEPLY COMPLEX / UNFAMILIAR? (novel domain, cutting-edge technique, multi-disciplinary)
+  → FULL LITERATURE REVIEW (5 searches + 3 deep reads, 10 min). Become an expert.
+  → Examples: "add Bayesian pharmacology scoring", "implement terpene-receptor binding model",
+    "build a recommendation engine using collaborative filtering"
+```
+
+### Complexity Signals
+
+These signal you NEED deep research (not optional):
+- **Mathematical formulas** — if the implementation requires a formula you can't write from memory
+- **Domain-specific constants** — receptor binding affinities, statistical thresholds, scientific values
+- **Tradeoff-heavy decisions** — multiple valid approaches where the wrong choice has consequences
+- **User safety/accuracy implications** — health, finance, legal domains where being wrong matters
+- **User explicitly asks** — "research this", "learn about this first", "what's the best approach"
+
+These signal you can SKIP research:
+- Standard programming patterns (CRUD, auth, routing, state management)
+- UI/UX implementation (components, layouts, styling, animations)
+- Configuration and infrastructure (deployment, CI/CD, env setup)
+- Bug fixes where you can see the error and understand the cause
+- Tasks you've done 10+ times before in similar codebases
+
+### Self-Assessment — Be Honest
+
+Before implementing anything in the "technical" or "complex" zones, score yourself:
+
+| Question | Yes = +1 | No = 0 |
+|----------|----------|--------|
+| Can I explain WHY this method works, not just HOW to code it? | | |
+| Do I know the mathematical assumptions and when they break? | | |
+| Can I name 2-3 alternatives and explain tradeoffs? | | |
+| Do I know the common pitfalls people hit? | | |
+| Have I implemented this (or very similar) before? | | |
+
+- **Score 5/5** → Skip research, just build
+- **Score 3-4/5** → Quick check (1-2 searches to fill gaps)
+- **Score 1-2/5** → Targeted research (learn the specifics)
+- **Score 0/5** → Full literature review (become expert first)
 
 ## The Research Protocol
 
