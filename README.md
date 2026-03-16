@@ -24,12 +24,12 @@ rm -rf ~/.claude-tmp
 
 ## 📦 What's Included
 
-### Skills (60 total)
+### Skills (61 total)
 
 | Category | Skills |
 |----------|--------|
 | **Thinking & Reasoning** | brainstorming, systematic-debugging, reflexion-reflect, reflexion-critique, fpf-hypotheses, zero-iteration |
-| **Autonomy & Completeness** | senior-dev-mindset, proactive-qa, response-recap, intent-detection, smart-clarify, seamless-resume, adaptive-voice, predictive-next, process-monitor, expert-lens |
+| **Autonomy & Completeness** | senior-dev-mindset, proactive-qa, response-recap, intent-detection, smart-clarify, seamless-resume, adaptive-voice, predictive-next, process-monitor, expert-lens, mid-task-triage |
 | **Memory & Learning** | continuous-learning, continuous-learning-v2, reflexion-memorize, mem, error-memory, pre-debug-check, shared-memory, total-recall |
 | **Coding Quality** | coding-standards, test-driven-development, verification-before-completion, verification-loop, pattern-propagation |
 | **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch, command-center |
@@ -188,7 +188,15 @@ Five purpose-built skills for common development workflows:
 - Loads 4 layers: mental models, domain vocabulary, quality standards, and amateur-mistake avoidance
 - ~30-50 tokens per activation — expert framing often makes output SHORTER and more precise
 
-### 19. Command Center — Master Agent Orchestrator
+### 19. Mid-Task Triage — Handle Interruptions Without Stopping
+`mid-task-triage` classifies new messages that arrive while Claude is working:
+- **A) Addendum** — More info for current task → absorb silently, keep working
+- **B) Course Correction** — Change direction → pivot with one-line ack, keep working
+- **C) Queue** — Different topic → note it, finish current task, then address it
+- Never stops to ask "should I continue?" — classification is instant and invisible
+- Near-zero token overhead — saves tokens by preventing stop-start cycles
+
+### 20. Command Center — Master Agent Orchestrator
 `command-center` turns Claude into the CEO of an AI agent army:
 - Automatically decomposes complex tasks into parallel workstreams
 - Each agent gets a self-contained brief with its own expert lens
@@ -196,7 +204,7 @@ Five purpose-built skills for common development workflows:
 - Results are integrated, conflicts resolved, and quality-gated before delivery
 - Only activates for genuinely decomposable multi-domain tasks (not small fixes)
 
-### 20. Process Monitor
+### 21. Process Monitor
 `process-monitor` maintains awareness of background processes:
 - Detects port conflicts before starting servers
 - Identifies hung processes and zombies
@@ -260,6 +268,7 @@ Five purpose-built skills for common development workflows:
 | process-monitor | Background processes | Automatic |
 | expert-lens | "You are an expert in..." or domain detection | Always-on |
 | command-center | Complex multi-domain tasks | Automatic |
+| mid-task-triage | New message arrives mid-task | Always-on |
 
 ---
 
@@ -371,6 +380,6 @@ MIT - Skills are from various sources with their own licenses.
 
 ---
 
-**60 skills. 3 hooks. 11 commands. One intelligence stack.**
+**61 skills. 3 hooks. 11 commands. One intelligence stack.**
 
 **Made with ❤️ for smarter AI-assisted development**

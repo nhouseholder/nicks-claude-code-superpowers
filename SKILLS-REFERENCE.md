@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 60 skills, 3 hooks, 11 commands, and the continuous learning system.
+> Complete documentation for all 61 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -657,6 +657,29 @@ Save this fix to error memory
 
 ---
 
+### Task Flow & Interruption Handling
+
+#### `mid-task-triage`
+**Trigger:** Always-on — fires when a new user message arrives while Claude is mid-execution
+
+**What it does:** Instantly classifies mid-task messages into one of three categories and handles them without stopping work. No "should I continue?" — just seamless absorption and momentum.
+
+**The three classifications:**
+
+| Type | Signal | Action |
+|------|--------|--------|
+| **A) Addendum** | Adds detail/context to current task | Absorb silently, keep working |
+| **B) Course Correction** | Changes direction/approach | Pivot with one-line ack, keep working |
+| **C) Queue** | Different topic entirely | Note it ("I'll do X after this"), keep working |
+
+**Decision tree:** About current task + adds info → Addendum. About current task + changes direction → Correction. Different topic → Queue. Ambiguous → default to Addendum.
+
+**Urgent interrupts override all:** "STOP", "wait", production bugs → halt immediately.
+
+**Token economics:** Near zero. Classification is instant pattern matching. Saves massive tokens by preventing stop-start cycles and re-orientation.
+
+---
+
 ### Agent Orchestration
 
 #### `command-center`
@@ -1222,7 +1245,8 @@ Error occurs
 | Check background processes | `process-monitor` (automatic) |
 | Think like a domain expert | `expert-lens` (always-on) |
 | Orchestrate parallel agent army | `command-center` (automatic) |
+| Handle mid-task interruptions | `mid-task-triage` (always-on) |
 
 ---
 
-**60 skills. 3 hooks. 11 commands. One intelligence stack.**
+**61 skills. 3 hooks. 11 commands. One intelligence stack.**
