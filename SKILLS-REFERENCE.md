@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 49 skills, 3 hooks, 11 commands, and the continuous learning system.
+> Complete documentation for all 50 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -803,6 +803,34 @@ What did we decide about the auth flow last week?
 
 ---
 
+### Smart Clarification
+
+#### `smart-clarify`
+**Trigger:** Always-on — fires when ambiguity is detected in user's request
+
+**What it does:** Instead of guessing or asking open-ended "what do you mean?" questions, presents a structured multiple-choice question with 2-4 options. User picks a letter, Claude proceeds instantly.
+
+**Format:**
+```
+Quick question — [one sentence framing the ambiguity]:
+
+A) [Most likely interpretation — ~60% of the time this is right]
+B) [Second most likely — ~30%]
+C) [Third if genuinely plausible]
+D) Something else — tell me what you had in mind
+
+→ Just reply with the letter!
+```
+
+**The 80/20 rule:**
+- 80%+ confident → just do it, mention assumption
+- 50-80% → do it, flag the assumption clearly
+- <50% → ask multiple choice
+
+**Key rules:** A/B should cover ~90% of cases. One question at a time. After they answer, execute immediately — no follow-ups.
+
+---
+
 ### Natural Language Interface
 
 #### `intent-detection`
@@ -956,4 +984,4 @@ Error occurs
 
 ---
 
-**49 skills. 3 hooks. 11 commands. One intelligence stack.**
+**50 skills. 3 hooks. 11 commands. One intelligence stack.**
