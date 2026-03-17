@@ -1,4 +1,4 @@
-# Skills Quick Reference — 70 Skills in One Line Each
+# Skills Quick Reference — 71 Skills in One Line Each
 
 | # | Skill | What it does & why it matters |
 |---|-------|-------------------------------|
@@ -41,34 +41,35 @@
 | 37 | **profit-driven-development** | The north star for sports prediction work — every change must answer "will this make the NEXT picks more correct and profitable?" Prevents overfitting and endless backtest spinning. |
 | 38 | **proactive-qa** | Walks the user journey after every implementation, catching edge cases and fixing adjacent bugs before you notice. |
 | 39 | **process-monitor** | Detects hung processes, port conflicts, and zombie tasks so dev environment issues are caught before they cascade. |
-| 40 | **prompt-architect** | Internally decomposes every prompt into intent, context, scope, and unstated requirements so execution is perfect first try. |
-| 41 | **prompt-improver** | Catches genuinely vague prompts and enriches them with research-based clarifying questions so ambiguity is resolved before work begins. |
-| 42 | **qa-gate** | Tiered QA checkpoint before delivering features — from mental trace (Tier 1) to full subagent testing (Tier 3), scaled to change complexity so the user never finds bugs first. |
-| 43 | **receiving-code-review** | Evaluates review feedback with technical rigor before implementing so bad suggestions don't degrade code quality. |
-| 44 | **reflexion-critique** | Comprehensive single-reviewer code review with Chain-of-Verification so blind spots are caught efficiently. |
-| 45 | **reflexion-memorize** | Curates insights from reflections into CLAUDE.md so learnings persist across sessions as permanent guidance. |
-| 46 | **reflexion-reflect** | Self-refinement framework that reviews prior output for iterative improvement so quality compounds over time. |
-| 47 | **requesting-code-review** | Dispatches a code-reviewer subagent with precise context so work is independently verified before shipping. |
-| 48 | **response-recap** | Provides plain English summary ONLY after complex multi-step work so the user understands what changed without wading through diffs. |
-| 49 | **sanity-check** | Flags requests that could break things or waste effort — also evaluates whether proposed new skills are necessary or redundant with existing ones. |
-| 50 | **screenshot-dissector** | Methodical pixel-level screenshot analysis during debugging — catches layout bugs, state issues, console errors, and UI regressions beyond the obvious. |
-| 51 | **seamless-resume** | On "continue", picks up exactly where it left off with zero re-reading or re-orientation so momentum is never lost. |
-| 52 | **search-first** | Searches for existing tools and libraries before writing custom code so wheels aren't reinvented. |
-| 53 | **senior-dev-mindset** | Ships complete, production-ready features with inferred requirements so nothing needs hand-holding or follow-up. |
-| 54 | **shared-memory** | Maintains AGENT-MEMORY.md in the repo so any AI agent (Claude, Cursor, Copilot) can stay aligned on decisions. |
-| 55 | **skill-manager** | Prevents skill overload — enforces skill budgets, resolves conflicts with explicit tiebreakers, and ensures skills enhance Claude's reasoning rather than drowning it. |
-| 56 | **smart-clarify** | Asks structured multiple-choice questions instead of open-ended ones so ambiguity resolves in one round, not three. |
-| 57 | **strategic-compact** | Suggests context compaction at logical task boundaries so important context survives rather than being arbitrarily truncated. |
-| 58 | **subagent-driven-development** | Executes implementation plans by dispatching independent tasks to subagents so parallel work happens within a single session. |
-| 59 | **systematic-debugging** | Root-cause-first debugging methodology so bugs are actually fixed, not band-aided. |
-| 60 | **take-your-time** | Matches effort to prompt complexity — a 20-bullet spec gets 20 careful implementations, not one rushed pass. Prevents AI slop on complex work while staying fast on simple tasks. |
-| 61 | **test-driven-development** | RED-GREEN-REFACTOR cycle for business logic so code is tested from the start, not as an afterthought. |
-| 62 | **think-efficiently** | Before every action, checks if it will produce new information, if there's a faster path, and if effort is proportional — prevents testing weight=0.0 and other token-burning non-actions. |
-| 63 | **token-awareness** | Makes Claude conscious of token costs so responses and tool usage stay concise and efficient. |
-| 64 | **total-recall** | Lazy-loads project context at session start and saves everything at session end so Claude remembers everything between sessions. |
-| 65 | **using-git-worktrees** | Creates isolated git worktrees for feature work so experiments don't risk the current workspace. |
-| 66 | **verification-before-completion** | Requires running verification commands and reading output before any success claim so "it works" is always backed by evidence. |
-| 67 | **version-bump** | Automated semantic versioning — determines patch/minor/major from changes, bumps package.json, and formats commit messages with version prefix. |
-| 68 | **writing-plans** | Creates comprehensive implementation plans with file mapping and TDD cycles so multi-step work has a roadmap before code is touched. |
-| 69 | **writing-skills** | Guides creation and editing of new skills with proper structure so the skill system itself stays high quality. |
-| 70 | **zero-iteration** | Mentally traces code execution before writing it so bugs are caught in the mind, not in the test suite. |
+| 40 | **prompt-anchoring** | Keeps Claude anchored to the original prompt objective during long sessions — periodic drift checks prevent "Claude ADHD" without reducing proactivity. |
+| 41 | **prompt-architect** | Internally decomposes every prompt into intent, context, scope, and unstated requirements so execution is perfect first try. |
+| 42 | **prompt-improver** | Catches genuinely vague prompts and enriches them with research-based clarifying questions so ambiguity is resolved before work begins. |
+| 43 | **qa-gate** | Tiered QA checkpoint before delivering features — from mental trace (Tier 1) to full subagent testing (Tier 3), scaled to change complexity so the user never finds bugs first. |
+| 44 | **receiving-code-review** | Evaluates review feedback with technical rigor before implementing so bad suggestions don't degrade code quality. |
+| 45 | **reflexion-critique** | Comprehensive single-reviewer code review with Chain-of-Verification so blind spots are caught efficiently. |
+| 46 | **reflexion-memorize** | Curates insights from reflections into CLAUDE.md so learnings persist across sessions as permanent guidance. |
+| 47 | **reflexion-reflect** | Self-refinement framework that reviews prior output for iterative improvement so quality compounds over time. |
+| 48 | **requesting-code-review** | Dispatches a code-reviewer subagent with precise context so work is independently verified before shipping. |
+| 49 | **response-recap** | Provides plain English summary ONLY after complex multi-step work so the user understands what changed without wading through diffs. |
+| 50 | **sanity-check** | Flags requests that could break things or waste effort — also evaluates whether proposed new skills are necessary or redundant with existing ones. |
+| 51 | **screenshot-dissector** | Methodical pixel-level screenshot analysis during debugging — catches layout bugs, state issues, console errors, and UI regressions beyond the obvious. |
+| 52 | **seamless-resume** | On "continue", picks up exactly where it left off with zero re-reading or re-orientation so momentum is never lost. |
+| 53 | **search-first** | Searches for existing tools and libraries before writing custom code so wheels aren't reinvented. |
+| 54 | **senior-dev-mindset** | Ships complete, production-ready features with inferred requirements so nothing needs hand-holding or follow-up. |
+| 55 | **shared-memory** | Maintains AGENT-MEMORY.md in the repo so any AI agent (Claude, Cursor, Copilot) can stay aligned on decisions. |
+| 56 | **skill-manager** | Prevents skill overload — enforces skill budgets, resolves conflicts with explicit tiebreakers, and ensures skills enhance Claude's reasoning rather than drowning it. |
+| 57 | **smart-clarify** | Asks structured multiple-choice questions instead of open-ended ones so ambiguity resolves in one round, not three. |
+| 58 | **strategic-compact** | Suggests context compaction at logical task boundaries so important context survives rather than being arbitrarily truncated. |
+| 59 | **subagent-driven-development** | Executes implementation plans by dispatching independent tasks to subagents so parallel work happens within a single session. |
+| 60 | **systematic-debugging** | Root-cause-first debugging methodology so bugs are actually fixed, not band-aided. |
+| 61 | **take-your-time** | Matches effort to prompt complexity — a 20-bullet spec gets 20 careful implementations, not one rushed pass. Prevents AI slop on complex work while staying fast on simple tasks. |
+| 62 | **test-driven-development** | RED-GREEN-REFACTOR cycle for business logic so code is tested from the start, not as an afterthought. |
+| 63 | **think-efficiently** | Before every action, checks if it will produce new information, if there's a faster path, and if effort is proportional — prevents testing weight=0.0 and other token-burning non-actions. |
+| 64 | **token-awareness** | Makes Claude conscious of token costs so responses and tool usage stay concise and efficient. |
+| 65 | **total-recall** | Lazy-loads project context at session start and saves everything at session end so Claude remembers everything between sessions. |
+| 66 | **using-git-worktrees** | Creates isolated git worktrees for feature work so experiments don't risk the current workspace. |
+| 67 | **verification-before-completion** | Requires running verification commands and reading output before any success claim so "it works" is always backed by evidence. |
+| 68 | **version-bump** | Automated semantic versioning — determines patch/minor/major from changes, bumps package.json, and formats commit messages with version prefix. |
+| 69 | **writing-plans** | Creates comprehensive implementation plans with file mapping and TDD cycles so multi-step work has a roadmap before code is touched. |
+| 70 | **writing-skills** | Guides creation and editing of new skills with proper structure so the skill system itself stays high quality. |
+| 71 | **zero-iteration** | Mentally traces code execution before writing it so bugs are caught in the mind, not in the test suite. |

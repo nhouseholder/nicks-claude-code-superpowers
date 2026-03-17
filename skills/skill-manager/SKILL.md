@@ -5,7 +5,7 @@ description: Prevents skill overload — detects when too many skills are compet
 
 # Skill Manager — Keep the Stack From Drowning the Signal
 
-68 skills is powerful. 68 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
+71 skills is powerful. 71 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
 
 ## The Core Problem
 
@@ -63,6 +63,8 @@ When two skills at the SAME priority tier conflict:
 | never-give-up says "persist" vs think-efficiently says "stop" | Check evidence gate: proven-valuable → never-give-up. No evidence → think-efficiently. |
 | mid-task-triage receives new message vs prompt-architect wants to interpret | Triage classifies FIRST (addendum/correction/queue), THEN prompt-architect interprets based on triage result. |
 | qa-gate Tier 1 vs think-efficiently mental check | Same thing. QA-gate owns quality verification. Think-efficiently owns action selection. Don't run both. |
+| prompt-anchoring vs opportunistic-improvement/proactive-qa | Prompt-anchoring scopes the others: proactive skills apply WITHIN the current task's scope, not outside it. Anchoring is the fence, not the leash. |
+| prompt-anchoring drift check vs think-efficiently action check | Complementary. Think-efficiently: "is this worth tokens?" Prompt-anchoring: "is this serving the user's goal?" A drift action fails both. |
 | multiple skills all want to add sections to the response | Pick the 1-2 most relevant. Don't stack 5 "sections" onto a simple answer. |
 
 ## The Skill Overload Test

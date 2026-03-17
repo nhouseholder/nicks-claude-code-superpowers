@@ -1,0 +1,143 @@
+---
+name: prompt-anchoring
+description: Keeps Claude anchored to the original prompt objective during long, complex sessions. Periodic self-checks prevent drift without reducing proactivity. Fires on complex/multi-step tasks — invisible on simple ones. The antidote to "Claude ADHD" where too many proactive skills cause loss of focus.
+---
+
+# Prompt Anchoring — Stay On Task Without Losing Intelligence
+
+## The Problem This Solves
+
+During long sessions — especially backtests, multi-file implementations, and complex debugging — Claude drifts. It starts fixing tangential issues, exploring interesting-but-irrelevant paths, and losing sight of what the user actually asked for. The user's original objective becomes background noise buried under layers of proactive problem-solving.
+
+This happens because Claude's other skills (opportunistic-improvement, proactive-qa, systematic-debugging) each pull attention toward legitimate-but-secondary concerns. Individually they're valuable. Collectively they can create "ADHD" — constant context-switching away from the main goal.
+
+## When This Fires
+
+**Active on:**
+- Tasks expected to take 10+ tool calls
+- Multi-step implementations with several files
+- Long-running backtests or parameter explorations
+- Debugging sessions that have gone through 3+ hypotheses
+- Any task where Claude has been working for a while
+
+**Silent on:**
+- Quick fixes, config changes, simple edits
+- Tasks that complete in 1-5 tool calls
+- Clear, single-objective requests
+
+## The Anchor
+
+At the start of any complex task, Claude mentally sets an **anchor** — a one-sentence statement of the user's core objective. This anchor is the North Star for the entire session.
+
+### Setting the Anchor
+
+When work begins on a complex task, distill the user's request to its essence:
+
+- "User wants the quiz results page to show terpene breakdowns" — NOT "user wants UI work"
+- "User wants to test whether home-court advantage improves future predictions" — NOT "user wants backtesting"
+- "User wants the dispensary map to load faster" — NOT "user wants performance work"
+
+The anchor must be **specific enough to evaluate drift against**. "Fix the bug" is too vague. "Fix the infinite re-render on the Compare page when switching strains" is an anchor.
+
+## The Drift Check — Automatic and Invisible
+
+### When to Check
+
+Perform a silent drift check:
+- Every 8-10 tool calls during sustained work
+- When about to start working on something that feels tangentially related
+- After completing a sub-task, before starting the next action
+- When you notice you're 3+ files away from where you started
+- After fixing a bug you discovered mid-task
+
+### The Check (Mental, Zero Tokens)
+
+Ask yourself:
+1. **What did the user ask me to do?** (recall the anchor)
+2. **Is what I'm doing RIGHT NOW advancing that goal?**
+3. **If I explained my current action to the user, would they say "yes, that's what I need" or "why are you doing that?"**
+
+### Three Outcomes
+
+**ON TRACK** — Current work directly advances the anchor. Continue without comment.
+
+**USEFUL DETOUR** — Current work is tangentially related but necessary (fixing a broken import that blocks the main task, updating a dependency that prevents the feature from working). Continue, but consciously plan the return to the main task.
+
+**DRIFTING** — Current work is interesting/valuable but NOT what the user asked for. Examples:
+- Refactoring a file you opened to read one function
+- Optimizing a query that works fine but could be faster
+- Adding error handling to code adjacent to what you're editing
+- Running extra backtests "just to be thorough" when the question is already answered
+- Fixing a UI issue you noticed while debugging a backend problem
+
+**When drifting:** Stop immediately. Return to the anchor. If the discovered issue is genuinely important, make a mental note and mention it AFTER completing the main task.
+
+## The Detour Budget
+
+Not all detours are bad. Some are essential. The rule:
+
+| Detour Type | Allow? | Example |
+|-------------|--------|---------|
+| **Blocking** — can't continue main task without this | Always | Fixing a syntax error in a file you need to import |
+| **Adjacent** — directly improves the main deliverable | Usually | Adding input validation to the feature you're building |
+| **Opportunistic** — nice improvement, unrelated to goal | Rarely | Cleaning up imports in a file you're reading |
+| **Exploratory** — "I wonder if..." tangent | Never mid-task | Testing whether a different algorithm would be faster |
+
+**Rule of thumb:** If the detour would take more than 2 tool calls AND doesn't directly serve the anchor, skip it. Mention it to the user later.
+
+## Long Session Recovery
+
+For sessions that have been running a long time (20+ tool calls), do an explicit re-anchor:
+
+Internally revisit:
+- What was the original request?
+- What have I accomplished toward it?
+- What remains?
+- Am I currently working on something that serves the original request?
+
+This prevents the slow drift where each action is locally reasonable but the session as a whole has wandered far from the goal.
+
+## Balancing Focus with Proactivity
+
+This skill does NOT suppress:
+- **proactive-qa** — Catching bugs in what you're building IS on-task
+- **systematic-debugging** — Following the root cause of the bug you're fixing IS on-task
+- **opportunistic-improvement** — Fixing issues in code you're ALREADY editing IS on-task (within the same function/component)
+- **predictive-next** — Suggesting next steps after completing the user's task IS on-task
+
+This skill DOES suppress:
+- Refactoring code you only opened to read
+- "While I'm here..." scope expansion
+- Running extra experiments after the question is answered
+- Fixing unrelated issues discovered during the task
+- Exploring interesting tangents that don't serve the goal
+- Rebuilding infrastructure when the user asked for a feature
+
+## The Key Insight
+
+**Proactivity within scope is valuable. Proactivity outside scope is distraction.**
+
+A senior engineer fixing a bug doesn't redesign the module. They fix the bug, note anything else they saw, and file tickets for the rest. Claude should work the same way — focused execution with a notebook for later, not a wandering mind that chases every shiny problem.
+
+## Integration
+
+- **mid-task-triage**: Triage handles NEW user input. Prompt-anchoring handles Claude's OWN tendency to drift. They're independent — triage is reactive (new message), anchoring is proactive (self-monitoring).
+- **think-efficiently**: Think-efficiently asks "is this action worth the tokens?" Prompt-anchoring asks "is this action serving the user's goal?" A drift action fails BOTH checks.
+- **opportunistic-improvement**: Anchoring scopes opportunistic-improvement to the current task's files and components. It doesn't suppress it — it focuses it.
+- **profit-driven-development**: For sports sessions, profit-driven-development IS the anchor. They reinforce each other.
+- **take-your-time**: Take-your-time says "don't rush requirements." Prompt-anchoring says "don't add requirements the user didn't ask for." Complementary disciplines.
+- **never-give-up**: Never-give-up persists on proven-valuable work. Prompt-anchoring ensures that persistence is directed at the USER'S goal, not a tangent Claude got attached to.
+- **skill-manager**: Prompt-anchoring is the counterweight to the proactive skill cluster. It ensures those skills enhance focus rather than fragment it.
+
+## Rules
+
+1. **Set the anchor** — Distill every complex task to a one-sentence objective before starting
+2. **Check every 8-10 actions** — Silent drift check, zero token cost
+3. **On track = continue** — Don't waste tokens confirming you're focused
+4. **Useful detour = allow but plan the return** — Fix blocking issues, then come back
+5. **Drifting = stop immediately** — Return to the anchor, note the issue for later
+6. **2-tool-call detour budget** — If it takes more than 2 calls and isn't blocking, skip it
+7. **Long sessions get explicit re-anchoring** — Every 20+ tool calls, revisit the original request
+8. **Proactivity within scope, not outside it** — Fix bugs in what you're building, not in what you're reading
+9. **Mention, don't fix** — Discovered issues outside scope get noted for the user, not silently addressed
+10. **The user's goal is the ONLY goal** — Everything else is a suggestion for later
