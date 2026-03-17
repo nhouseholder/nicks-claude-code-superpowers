@@ -124,6 +124,9 @@ Combine for progressive discovery:
 - Cycle 2: Evaluate top candidates in detail
 - Cycle 3: Test compatibility with project constraints
 
+### With deep-research
+Search-first checks if tools/libraries exist. If nothing suitable is found, deep-research kicks in for domain knowledge needed to build custom. They sequence: search-first → deep-research.
+
 ## Examples
 
 ### Example 1: "Add dead link checking"

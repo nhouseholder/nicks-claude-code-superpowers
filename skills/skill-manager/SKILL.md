@@ -5,7 +5,7 @@ description: Prevents skill overload — detects when too many skills are compet
 
 # Skill Manager — Keep the Stack From Drowning the Signal
 
-72 skills is powerful. 72 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
+73 skills is powerful. 73 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
 
 ## The Core Problem
 
@@ -69,6 +69,15 @@ When two skills at the SAME priority tier conflict:
 | senior-dev-mindset infers scope expansion vs prompt-anchoring says stay focused | Senior-dev infers HOW to build what was asked, not WHAT beyond the ask. Prompt-anchoring is the fence. |
 | take-your-time + 10+ requirements vs skill-manager activation budget | Decompose into logical feature groups (3-4 bullets per group). Implement each group fully with 5-6 active skills, then move to next group. |
 | multiple skills all want to add sections to the response | Pick the 1-2 most relevant. Don't stack 5 "sections" onto a simple answer. |
+
+### Sequencing Rules — When Multiple Skills Fire
+
+| Scenario | Sequence | Notes |
+|----------|----------|-------|
+| **Debugging pipeline** | pre-debug-check → (systematic-debugging OR fix-loop) → never-give-up (if stuck) → error-memory (when fixed) | pre-debug consults anti-patterns FIRST. fix-loop for test failures, systematic-debugging for unknown bugs. Never both. |
+| **Research pipeline** | search-first → deep-research (if unfamiliar) → iterative-retrieval (for subagents) | search-first checks for existing solutions. deep-research only if the domain is genuinely unfamiliar. iterative-retrieval refines context for subagents. |
+| **Parallel execution hierarchy** | parallel-tool-routing (always, tool-level) → dispatching-parallel-agents (agent-level, known tasks) → command-center (orchestration, unknown decomposition) → parallel-sweep (specialized parameter search) | Lowest to highest abstraction. Lower levels are always active. Higher levels only when needed. |
+| **Improvement pipeline** | opportunistic-improvement (during work, same files) → pattern-propagation (if pattern changed, all files) → always-improving (at idle, suggests new work) | Opportunistic finds issues in touched files. Pattern-propagation spreads fixes. Always-improving suggests at idle only. |
 
 ## The Skill Overload Test
 

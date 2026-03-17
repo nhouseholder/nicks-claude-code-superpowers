@@ -189,6 +189,18 @@ Overall:   [READY/NOT READY] for PR
 
 For quick fixes and single-file changes, the standard Gate Function is sufficient.
 
+## Repeat Bug Escalation
+
+When the user reports the SAME issue again after you claimed it was fixed:
+
+| Attempt | What Happened | Required Response |
+|---------|--------------|-------------------|
+| **1st claim → user says "still broken"** | Your verification was insufficient | Re-verify with ACTUAL testing, not mental trace. Reproduce the failure first. |
+| **2nd claim → user says "STILL broken"** | You failed to test the real code path | Full reproduce → fix → prove-fixed cycle. Show exact evidence. |
+| **3rd+ claim → user is frustrated** | Something fundamental is wrong with your approach | STOP fixing. Step back. Re-read the entire flow. You're likely fixing symptoms, not the root cause. |
+
+**The escalation rule**: Each repeated bug report DOUBLES your verification obligation. If mental trace was enough the first time and failed, real testing is required. If real testing failed, reproduce-first is required. Never apply the same level of verification that already failed.
+
 ## The Bottom Line
 
 **No shortcuts for verification.**

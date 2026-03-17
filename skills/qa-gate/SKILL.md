@@ -94,6 +94,41 @@ If ANY test fails:
 
 This is NOT optional. Do not deliver known-broken code with a disclaimer.
 
+### Bug Fix Verification — The "Try Now" Ban
+
+**When fixing a reported bug, you MUST prove the fix works before telling the user to try it.**
+
+This is the #1 trust-destroying failure mode: user reports a bug → Claude changes code → Claude says "try now, it should work" → it still doesn't work → repeat 3-4 times → user loses faith.
+
+#### Bug Fix Verification Protocol
+
+| Attempt | Minimum Verification | Rationale |
+|---------|---------------------|-----------|
+| **1st fix** | Tier 2 minimum — trace the EXACT bug scenario through the fixed code with real inputs. Run the app/tests if possible. | Standard diligence |
+| **2nd fix (same bug)** | Tier 3 mandatory — dispatch QA subagent. The mental trace clearly failed the first time. | Escalation — your first fix didn't work |
+| **3rd+ fix (same bug)** | Tier 3 + reproduce the bug first. Before fixing, PROVE you can trigger the original failure. Then fix. Then prove the failure is gone. | Full red-green cycle — something fundamental was missed |
+
+#### The Rules of Bug Fix Verification
+
+1. **NEVER say "try now" or "it should work" without having tested the exact failure scenario yourself**
+2. **If the user reports the same bug twice, your previous verification was insufficient** — escalate, don't repeat the same level of checking
+3. **Reproduce before fixing on 2nd+ attempts** — if you can't trigger the bug, you can't confirm you fixed it
+4. **Run the actual code path** — don't just read the code and think it looks right. Start the server, hit the endpoint, render the component, upload the file, whatever the bug involves
+5. **Show your evidence** — "I tested this by [exact action] and got [exact result]" not "this should work now"
+6. **If you can't test it yourself** (e.g., requires user's browser, specific device, auth credentials), say so explicitly: "I've verified X and Y, but I can't test Z from here — please verify that specific part"
+
+#### What "Testing a Bug Fix" Actually Means
+
+```
+❌ BAD: Change code → "Try now, it should be working"
+❌ BAD: Change code → Run build → "Build passes, should be fixed"
+❌ BAD: Change code → Read the code → "The logic looks correct now"
+
+✅ GOOD: Change code → Run the app → Trigger the exact bug scenario → Confirm it no longer fails → "Tested: [action] now produces [result] instead of [old failure]"
+✅ GOOD: Change code → Write a test for the exact failure → Run test → Green → "Regression test passes"
+✅ GOOD: Change code → Can't test end-to-end → "I've fixed [root cause] and verified [what I could check], but please test [specific user action] since I can't simulate your browser environment"
+```
+
 ### Step 5 — Report to User
 
 When delivering, include a brief QA summary:
@@ -194,3 +229,5 @@ QA is not an excuse to burn tokens. Match testing effort to the tier:
 6. **Report what you tested** — Brief QA summary so the user knows it was verified
 7. **Subagent for non-trivial work** — Independent eyes catch what the builder misses
 8. **Edge cases are mandatory** — Happy path + at least one edge case, always
+9. **Never say "try now" without evidence** — Bug fixes require proof. "Should work" is not proof.
+10. **Escalate on repeat bugs** — 2nd report of the same bug = Tier 3 mandatory. Your first fix failed; your verification was insufficient.

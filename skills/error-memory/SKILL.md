@@ -110,6 +110,12 @@ The `~/.claude/anti-patterns.md` file has this structure:
 ### [patterns that only apply to specific projects]
 ```
 
+## Integration
+
+- **pre-debug-check**: Pre-debug-check reads anti-patterns BEFORE attempting fixes. Error-memory writes anti-patterns AFTER fixes are found. They're the write/read pair of the same knowledge base.
+- **systematic-debugging**: Systematic-debugging finds the root cause. Error-memory persists it so future sessions skip straight to the fix.
+- **fix-loop**: When fix-loop resolves a test failure, error-memory captures what worked (and what didn't) for next time.
+
 ## Critical Rules
 
 1. **NEVER delete patterns** — only update or add context

@@ -277,6 +277,10 @@ User asks to implement something
     └─ search-first (checks if code/library already exists)
 ```
 
+- **search-first**: search-first checks for existing tools/libraries FIRST. If nothing exists, deep-research kicks in for the domain knowledge needed to build custom.
+- **calibrated-confidence**: GUESSING-level confidence triggers deep-research. If Claude doesn't know the domain, research before implementing.
+- **iterative-retrieval**: Deep-research feeds high-level findings; iterative-retrieval refines context for subagents doing the actual implementation.
+
 ## Rules
 
 1. **Honesty about knowledge gaps** — never pretend to be an expert when you're not

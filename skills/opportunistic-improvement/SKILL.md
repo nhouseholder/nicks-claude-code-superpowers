@@ -133,6 +133,7 @@ Average per task:  ~5-15 tokens (most code is fine)
 - **coding-standards**: Standards define what "good" looks like. Opportunistic applies those standards to existing code encountered during work.
 - **pattern-propagation**: If an opportunistic fix reveals a pattern that exists elsewhere, pattern-propagation handles the sweep.
 - **sanity-check**: If an opportunistic improvement seems risky, the no-brainer test prevents it. If it fails the test, it gets flagged instead.
+- **prompt-anchoring**: Opportunistic improvements apply WITHIN the current task's scope. Prompt-anchoring is the fence — don't chase improvements that pull you away from the user's request.
 
 ## Rules
 
