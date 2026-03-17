@@ -9,7 +9,12 @@ After finishing a task, don't just stop. Think one step ahead: what will the use
 
 ## When This Activates
 
-After completing any substantive task (not after answering a question or providing info). Fires as a lightweight suggestion at the end of your response.
+After completing a substantive task where the next step is **high-confidence and obvious** (e.g., "want me to add tests?" after writing a new component). Does NOT fire on every task completion — only when the prediction would genuinely save the user a prompt.
+
+**Suppress by default when:**
+- The task was self-contained and complete
+- Multiple equally likely next steps exist (don't guess)
+- The user is in a rapid flow state
 
 ## Common Prediction Patterns
 

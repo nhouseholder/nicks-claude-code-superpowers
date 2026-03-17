@@ -7,13 +7,29 @@ description: Internally restructure every user prompt into the optimal Claude ex
 
 The user types naturally. You execute as if they gave the perfect prompt. Every time.
 
-## Always Active
+## Always Active — With Fast Path
 
-This skill fires on EVERY user message. It's not about rewriting — it's about **interpreting at the expert level** before executing. The user should never know this is happening. They just notice that everything works perfectly on the first try.
+This skill fires on EVERY user message — but its depth is proportional to message complexity.
+
+### Fast Path (messages under 20 words OR clear single-intent messages)
+Skip ALL decomposition. Just act. Examples: "yes", "fix it", "that didn't work", "try something else", "continue", "add tests for that". These messages get zero overhead — respond naturally using conversation context.
+
+**Global Complexity Gate:** On fast-path messages, the following skills should also stand down (zero overhead):
+- brainstorming (no design phase needed)
+- reflexion-reflect (no reflection needed)
+- prompt-improver (no enrichment needed)
+- test-driven-development (use judgment, not mandatory)
+- always-improving (don't suggest improvements)
+- predictive-next (only if obvious continuation)
+
+This prevents the "Simple Request Gauntlet" where 14+ skills fire on a typo fix.
+
+### Full Path (complex, multi-part, or ambiguous messages)
+Apply the 7-component decomposition below. This is for messages where intent could genuinely be lost without careful interpretation.
 
 ## The Internal Translation
 
-When a prompt arrives, mentally decompose it into 7 components before acting:
+When a complex prompt arrives, mentally decompose it into 7 components before acting:
 
 ```
 1. TASK      — What exactly am I being asked to do? (verb + object)

@@ -9,17 +9,17 @@ When the work is done and the to-do list is empty, don't just stop. Look at the 
 
 ## When This Fires
 
-**Only at natural idle points:**
-- All requested tasks are complete
-- No queued items from mid-task-triage
-- No obvious next steps from the current work
-- User hasn't given a new directive
+**Only when the user asks** or at natural idle points with explicit opt-in:
+- User says "what should I improve?" / "what's next?" / "any suggestions?"
+- User has previously indicated they want proactive suggestions for this project
+- All requested tasks are complete AND user seems receptive (not in flow state)
 
 **Never fires when:**
 - Mid-task (that's mid-task-triage's domain)
 - User is in flow state sending rapid messages
 - There are pending bugs, errors, or failing tests
 - User explicitly said "that's all" or "we're done"
+- User hasn't indicated they want proactive suggestions (default is OFF)
 
 ## The Improvement Scan
 

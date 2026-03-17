@@ -11,20 +11,22 @@ Transform vague, ambiguous prompts into actionable, well-defined requests throug
 
 ## When This Skill is Invoked
 
-**Automatic invocation:**
-- UserPromptSubmit hook evaluates prompt
-- Hook determines prompt is vague (missing specifics, context, or clear target)
-- Hook invokes this skill to guide research and questioning
+**This skill is for genuinely vague prompts only** — where the user's intent cannot be determined from the message + conversation context + codebase evidence combined. Most "slightly ambiguous" messages should be handled by prompt-architect's normal inference. This skill is the heavy-duty fallback.
+
+**Invocation criteria (ALL must be true):**
+- The message lacks a clear target (what to change)
+- Conversation context doesn't clarify the intent
+- Codebase evidence doesn't narrow it to one interpretation
+- Getting it wrong would waste significant effort
+
+**Do NOT invoke for:**
+- Short messages with clear context ("fix it", "try again", "that didn't work")
+- Messages where prompt-architect can reasonably infer intent
+- Messages where a quick one-line clarifying question would suffice (use smart-clarify instead)
 
 **Manual invocation:**
-- To enrich a vague prompt with research-based questions
-- When building or testing prompt evaluation systems
-- When prompt lacks sufficient context even with conversation history
-
-**Assumptions:**
-- Prompt has already been identified as vague
-- Evaluation phase is complete (done by hook)
-- Proceed directly to research and clarification
+- User explicitly asks for help clarifying their request
+- Complex feature requests with multiple possible interpretations
 
 ## Core Workflow
 

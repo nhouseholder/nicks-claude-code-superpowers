@@ -140,20 +140,15 @@ Each project gets a 12-character hash ID (e.g., `a1b2c3d4e5f6`). A registry file
 
 Add to your `~/.claude/settings.json`.
 
+**Important:** Use the `Stop` hook (fires once at session end) instead of PreToolUse/PostToolUse (which fire on EVERY tool call and add significant overhead). The Stop hook batches all observations from the session into a single analysis pass.
+
 **If installed as a plugin** (recommended):
 
 ```json
 {
   "hooks": {
-    "PreToolUse": [{
-      "matcher": "*",
-      "hooks": [{
-        "type": "command",
-        "command": "${CLAUDE_PLUGIN_ROOT}/skills/continuous-learning-v2/hooks/observe.sh"
-      }]
-    }],
-    "PostToolUse": [{
-      "matcher": "*",
+    "Stop": [{
+      "matcher": "",
       "hooks": [{
         "type": "command",
         "command": "${CLAUDE_PLUGIN_ROOT}/skills/continuous-learning-v2/hooks/observe.sh"
@@ -168,15 +163,8 @@ Add to your `~/.claude/settings.json`.
 ```json
 {
   "hooks": {
-    "PreToolUse": [{
-      "matcher": "*",
-      "hooks": [{
-        "type": "command",
-        "command": "~/.claude/skills/continuous-learning-v2/hooks/observe.sh"
-      }]
-    }],
-    "PostToolUse": [{
-      "matcher": "*",
+    "Stop": [{
+      "matcher": "",
       "hooks": [{
         "type": "command",
         "command": "~/.claude/skills/continuous-learning-v2/hooks/observe.sh"
@@ -185,6 +173,8 @@ Add to your `~/.claude/settings.json`.
   }
 }
 ```
+
+> **Migration note:** Previous versions used PreToolUse/PostToolUse hooks for 100% tool call capture. While more comprehensive, this added latency to every single tool call. The Stop hook captures the same patterns with a single batch analysis at session end — dramatically reducing overhead with minimal learning loss.
 
 ### 2. Initialize Directory Structure
 

@@ -15,34 +15,29 @@ Write the test first. Watch it fail. Write minimal code to pass.
 
 ## When to Use
 
-**Always:**
-- New features
-- Bug fixes
-- Refactoring
-- Behavior changes
+**Use TDD for:**
+- Business logic and domain code
+- Bug fixes (write a test that reproduces the bug first)
+- Complex algorithms or data transformations
+- API endpoints with validation logic
 
-**Exceptions (ask your human partner):**
-- Throwaway prototypes
-- Generated code
-- Configuration files
+**Skip TDD for:**
+- Configuration files, env changes, static data
+- UI/styling changes (visual verification is more appropriate)
+- One-line fixes with obvious correctness
+- Prototypes and throwaway exploration
+- Wiring/glue code (imports, route registration, provider setup)
+- Generated code or scaffolding
 
-Thinking "skip TDD just this once"? Stop. That's rationalization.
+**Use judgment:** TDD is a tool, not a religion. Apply it where it adds value — primarily where logic can be wrong in non-obvious ways.
 
-## The Iron Law
+## The Core Principle
 
 ```
-NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST
+FOR BUSINESS LOGIC: Write the test first, watch it fail, then implement.
 ```
 
-Write code before the test? Delete it. Start over.
-
-**No exceptions:**
-- Don't keep it as "reference"
-- Don't "adapt" it while writing tests
-- Don't look at it
-- Delete means delete
-
-Implement fresh from tests. Period.
+If you wrote implementation code before the test and it's complex logic: consider rewriting test-first. For simple, obviously-correct code: just add the test after and move on. The goal is catching bugs, not ceremony.
 
 ## Red-Green-Refactor
 
