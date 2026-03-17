@@ -1,4 +1,4 @@
-# Skills Quick Reference — 64 Skills in One Line Each
+# Skills Quick Reference — 65 Skills in One Line Each
 
 | # | Skill | What it does & why it matters |
 |---|-------|-------------------------------|
@@ -53,16 +53,17 @@
 | 49 | **search-first** | Searches for existing tools and libraries before writing custom code so wheels aren't reinvented. |
 | 50 | **senior-dev-mindset** | Ships complete, production-ready features with inferred requirements so nothing needs hand-holding or follow-up. |
 | 51 | **shared-memory** | Maintains AGENT-MEMORY.md in the repo so any AI agent (Claude, Cursor, Copilot) can stay aligned on decisions. |
-| 52 | **smart-clarify** | Asks structured multiple-choice questions instead of open-ended ones so ambiguity resolves in one round, not three. |
-| 53 | **strategic-compact** | Suggests context compaction at logical task boundaries so important context survives rather than being arbitrarily truncated. |
-| 54 | **subagent-driven-development** | Executes implementation plans by dispatching independent tasks to subagents so parallel work happens within a single session. |
-| 55 | **systematic-debugging** | Root-cause-first debugging methodology so bugs are actually fixed, not band-aided. |
-| 56 | **test-driven-development** | RED-GREEN-REFACTOR cycle for business logic so code is tested from the start, not as an afterthought. |
-| 57 | **token-awareness** | Makes Claude conscious of token costs so responses and tool usage stay concise and efficient. |
-| 58 | **total-recall** | Lazy-loads project context at session start and saves everything at session end so Claude remembers everything between sessions. |
-| 59 | **using-git-worktrees** | Creates isolated git worktrees for feature work so experiments don't risk the current workspace. |
-| 60 | **verification-before-completion** | Requires running verification commands and reading output before any success claim so "it works" is always backed by evidence. |
-| 61 | **version-bump** | Automated semantic versioning — determines patch/minor/major from changes, bumps package.json, and formats commit messages with version prefix. |
-| 62 | **writing-plans** | Creates comprehensive implementation plans with file mapping and TDD cycles so multi-step work has a roadmap before code is touched. |
-| 63 | **writing-skills** | Guides creation and editing of new skills with proper structure so the skill system itself stays high quality. |
-| 64 | **zero-iteration** | Mentally traces code execution before writing it so bugs are caught in the mind, not in the test suite. |
+| 52 | **skill-manager** | Prevents skill overload — detects when too many skills compete on one message, resolves conflicts, ensures skills enhance Claude's reasoning rather than drowning it. |
+| 53 | **smart-clarify** | Asks structured multiple-choice questions instead of open-ended ones so ambiguity resolves in one round, not three. |
+| 54 | **strategic-compact** | Suggests context compaction at logical task boundaries so important context survives rather than being arbitrarily truncated. |
+| 55 | **subagent-driven-development** | Executes implementation plans by dispatching independent tasks to subagents so parallel work happens within a single session. |
+| 56 | **systematic-debugging** | Root-cause-first debugging methodology so bugs are actually fixed, not band-aided. |
+| 57 | **test-driven-development** | RED-GREEN-REFACTOR cycle for business logic so code is tested from the start, not as an afterthought. |
+| 58 | **token-awareness** | Makes Claude conscious of token costs so responses and tool usage stay concise and efficient. |
+| 59 | **total-recall** | Lazy-loads project context at session start and saves everything at session end so Claude remembers everything between sessions. |
+| 60 | **using-git-worktrees** | Creates isolated git worktrees for feature work so experiments don't risk the current workspace. |
+| 61 | **verification-before-completion** | Requires running verification commands and reading output before any success claim so "it works" is always backed by evidence. |
+| 62 | **version-bump** | Automated semantic versioning — determines patch/minor/major from changes, bumps package.json, and formats commit messages with version prefix. |
+| 63 | **writing-plans** | Creates comprehensive implementation plans with file mapping and TDD cycles so multi-step work has a roadmap before code is touched. |
+| 64 | **writing-skills** | Guides creation and editing of new skills with proper structure so the skill system itself stays high quality. |
+| 65 | **zero-iteration** | Mentally traces code execution before writing it so bugs are caught in the mind, not in the test suite. |

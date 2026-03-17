@@ -29,7 +29,28 @@ Apply the 7-component decomposition below. This is for messages where intent cou
 
 ## The Internal Translation
 
-When a complex prompt arrives, mentally decompose it into 7 components before acting:
+When a complex prompt arrives, perform a two-step internal process:
+
+### Step 0: Anchor the Original Message
+
+Before ANY decomposition, fix the user's exact words in your mind with grammatical cleanup only:
+- Correct typos and spelling
+- Fix sentence structure for clarity
+- Preserve EVERY piece of meaning, emphasis, and conviction
+- Change NOTHING about the intent, scope, or priorities
+
+This cleaned version is your **ground truth anchor**. It is the reference you check against after building the perfect prompt. If the perfect prompt drops, dilutes, or redirects anything from the anchor — the translation is broken. Fix it.
+
+Example:
+- **Raw**: "system modifiers are certianly NOT a failed feature, we know they can yield very hgih profit, you just haven't figured out how to integrate them yet, never give up"
+- **Anchor**: "System modifiers are certainly NOT a failed feature. We know from independent testing they can yield very high profit. You just haven't figured out how to integrate them yet. Never give up on this."
+- **What must survive into the perfect prompt**: (1) conviction that system modifiers work, (2) evidence: independent testing shows high profit, (3) instruction: don't give up, (4) framing: execution failure not idea failure
+
+If the perfect prompt reduces this to just "integrate system modifiers" — the anchor catches the loss. Every piece of the anchor must be accounted for in the final execution plan.
+
+### Step 1: 7-Component Decomposition
+
+Decompose the anchored message into 7 components:
 
 ```
 1. TASK      — What exactly am I being asked to do? (verb + object)
@@ -41,7 +62,11 @@ When a complex prompt arrives, mentally decompose it into 7 components before ac
 7. USER      — Who is this person? What do they MEAN? What are they trying to ACHIEVE?
 ```
 
-This takes ~0 tokens. It's a mental checklist, not written output.
+### Step 2: Verify Against Anchor
+
+After decomposition, mentally check: **Does the 7-component breakdown account for EVERYTHING in the anchor?** If any meaning from the anchor is missing in the decomposition — it was lost in translation. Add it back before executing.
+
+This entire process takes ~0 tokens. It's a mental checklist, not written output. The only output is better execution.
 
 ## The Anatomy of Perfect Execution
 
