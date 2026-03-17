@@ -7,6 +7,8 @@ description: Prevents skill overload — detects when too many skills are compet
 
 73 skills is powerful. 73 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
 
+**Stack cap: 75 skills maximum.** Adding skill #76 requires merging two existing skills or removing one. This prevents gradual bloat.
+
 ## The Core Problem
 
 Skills are supposed to make Claude better. But too many skills competing on one message can:
@@ -30,6 +32,39 @@ Not every message needs 64 skills paying attention. Most messages need 2-5.
 | **Moderate** (single clear task) | 3-5 | "add error handling to the API endpoint" — coding-standards + context-hydration + maybe zero-iteration |
 | **Complex** (multi-part, ambiguous) | 5-8 | "redesign the scoring algorithm" — prompt-architect + expert-lens + brainstorming + writing-plans + backtest |
 | **Meta** (about the skills themselves) | This skill only | "are we over-skilling?" — skill-manager answers |
+
+## Skill Weight Classes — Token Cost Awareness
+
+Not all skills cost the same. Weight classes prevent expensive skills from stacking.
+
+### Weight Definitions
+
+| Weight | Cost | Behavior | Max Per Message |
+|--------|------|----------|-----------------|
+| **passive** | ~0 tokens | Behavioral guidance only — shapes HOW Claude responds, no tool calls | Unlimited |
+| **light** | 50-500 tokens | Quick mental check or small read before acting | 5 max |
+| **heavy** | 1K-50K+ tokens | Spawns agents, reads multiple files, runs commands, or produces large output | 2 max |
+
+### Classification
+
+**Passive** (behavioral shaping — unlimited):
+adaptive-voice, anti-slop, calibrated-confidence, coding-standards, expert-lens, mid-task-triage, never-give-up, opportunistic-improvement, pattern-propagation, precision-reading, predictive-next, process-monitor, prompt-anchoring, prompt-architect, response-recap, sanity-check, seamless-resume, senior-dev-mindset, skill-manager, strategic-compact, take-your-time, think-efficiently, token-awareness, total-recall, zero-iteration
+
+**Light** (quick checks — max 5 per message):
+always-improving, brainstorming, calibrated-confidence (when it triggers research), context-hydration, data-pipeline-guardian, error-memory, intent-detection, pre-debug-check, proactive-qa, search-first, smart-clarify, verification-before-completion, version-bump, writing-skills
+
+**Heavy** (expensive operations — max 2 per message):
+audit, backtest, codebase-cartographer, command-center, continuous-learning-v2, deep-research, deploy, dispatching-parallel-agents, fix-loop, fpf-hypotheses, iterative-retrieval, parallel-sweep, qa-gate, reflexion-critique, reflexion-reflect, screenshot-dissector, shared-memory, subagent-driven-development, systematic-debugging, test-driven-development
+
+### Enforcement
+
+Before allowing a heavy skill to fire, check: **are 2 heavy skills already active on this message?** If yes, defer the third to a follow-up action or suppress it.
+
+Example violations to prevent:
+- qa-gate + deep-research + command-center all firing = 3 heavy = TOO MANY
+- systematic-debugging + fix-loop + reflexion-reflect = 3 heavy = TOO MANY
+- deep-research + qa-gate = 2 heavy = OK
+- 5 passive + 3 light + 1 heavy = OK (normal complex task)
 
 ## Conflict Resolution — When Skills Disagree
 
@@ -134,3 +169,6 @@ If Claude would produce a better answer by ignoring a skill and using its own ju
 5. **Simple = simple** — Simple tasks should feel like talking to Claude with no skills at all
 6. **Audit periodically** — When reviewing the stack, honestly evaluate what's helping and what's noise
 7. **No skill is sacred** — If a skill consistently makes output worse, remove it
+8. **Weight limits are hard** — Never exceed 2 heavy skills per message. Defer or suppress the third.
+9. **Cap at 75** — Adding a new skill past 75 requires merging or removing an existing one. No exceptions.
+10. **Passive is free, heavy is expensive** — When in doubt about whether a skill should fire, check its weight class first
