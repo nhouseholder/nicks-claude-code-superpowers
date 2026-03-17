@@ -1,3 +1,8 @@
+---
+name: token-awareness
+description: Makes Claude conscious of token costs and encourages concise, efficient responses and tool usage
+---
+
 # Token Budget Awareness
 
 **Purpose**: Make Claude more conscious of token costs and encourage efficiency.

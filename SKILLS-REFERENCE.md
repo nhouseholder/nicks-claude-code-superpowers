@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 62 skills, 3 hooks, 11 commands, and the continuous learning system.
+> Complete documentation for all 61 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -313,6 +313,29 @@ These skills make Claude operate like a senior developer who ships complete, pro
 
 ---
 
+#### `opportunistic-improvement`
+**Trigger:** Always-on — passive while working on any task, zero overhead when code is clean
+
+**What it does:** While working on the primary task, notices code smells, inefficiencies, and obvious improvements in files already being read or edited. Fixes no-brainers silently, flags bigger opportunities, and reports all improvements at the end of the response.
+
+**No-brainer test (all 4 must pass):**
+1. Is the fix obviously correct?
+2. Can it break anything?
+3. Is it in a file I'm already touching?
+4. Would ANY developer agree this is better?
+
+**Fix silently:** Dead imports, unused variables, obvious bugs, naming clarity, consistency issues, security basics.
+
+**Flag for permission:** Refactoring patterns, API changes, architecture shifts, logic changes.
+
+**Report format:** End of response — "Improvements made: [list]. Also noticed: [flagged items]."
+
+**Compounding effect:** Each session leaves the project cleaner. Session 5 has almost nothing to flag because sessions 1-4 already cleaned up what they touched.
+
+**Token economics:** ~0 when code is clean. ~5-15 tokens average. Net negative over time — clean code means fewer bugs and debugging sessions.
+
+---
+
 #### `codebase-cartographer`
 **Trigger:** Automatic — fires at session start
 
@@ -461,6 +484,57 @@ These skills make Claude operate like a senior developer who ships complete, pro
 **Instinct lifecycle:** Observation → Instinct (confidence scored) → Cluster → Evolved skill/command/agent
 
 **Storage:** `~/.claude/homunculus/` (global) and `~/.claude/homunculus/projects/<hash>/` (per-project)
+
+---
+
+#### `reflexion-reflect`
+**Trigger:** Manual — invoke when you want structured self-critique of recent work
+
+**What it does:** Self-refinement framework for iterative improvement. Evaluates the most recent output against completeness, quality, correctness, dependency/impact verification, fact-checking, and generated artifact verification. Uses complexity triage to apply the right depth of reflection (quick path for simple tasks, standard path for multi-file work, deep reflection for critical/security changes).
+
+**How to use:**
+```
+/reflexion:reflect
+/reflexion:reflect security
+/reflexion:reflect deep reflect if less than 90% confidence
+```
+
+**Workflow:**
+1. **Complexity triage** — Categorize task as Quick / Standard / Deep
+2. **Initial assessment** — Completeness, quality, correctness, dependency checks, fact-checking, artifact verification
+3. **Decision point** — Refinement needed? If yes, plan and prioritize fixes
+4. **Code-specific checks** — Library-first approach, architecture/DDD alignment, code smells, test coverage
+5. **Final verification** — Self-refine checklist + reflexion questions
+6. **Confidence scoring** — Weighted rubric (Instruction Following 0.30, Output Completeness 0.25, Solution Quality 0.25, Reasoning 0.10, Coherence 0.10). Must meet threshold based on complexity tier.
+
+**Key rules:** Default score is 2 — must justify any upward deviation. Fight sycophancy and leniency bias. Verify all claims with evidence, not memory.
+
+---
+
+#### `reflexion-critique`
+**Trigger:** Manual — invoke for comprehensive multi-perspective review of completed work
+
+**What it does:** Multi-Agent Debate + LLM-as-a-Judge pattern. Spawns three specialized judge agents in parallel (Requirements Validator, Solution Architect, Code Quality Reviewer), each using Chain-of-Verification (CoVe). Judges review independently, then debate disagreements before reaching consensus.
+
+**How to use:**
+```
+/reflexion:critique
+/reflexion:critique src/feature.ts src/feature.test.ts
+/reflexion:critique HEAD~1..HEAD
+```
+
+**Workflow:**
+1. **Context gathering** — Identify scope (files, commits, conversation), capture requirements and decisions
+2. **Independent judge reviews** (parallel via Task tool) — Each judge scores X/10 with structured analysis
+3. **Cross-review & debate** — Synthesize findings, identify contradictions, resolve disagreements
+4. **Consensus report** — Executive summary, judge scores, strengths, prioritized issues, refactoring recommendations, action items
+
+**Three judges:**
+- **Requirements Validator** — Checks every requirement is met, identifies gaps and scope creep
+- **Solution Architect** — Evaluates design decisions, considers alternatives, assesses scalability
+- **Code Quality Reviewer** — Finds code smells, suggests refactorings with before/after examples
+
+**Key rules:** Report-only (no automatic fixes). Be objective and cite specific evidence. Consider project constraints. Disagreements between judges are valuable insights.
 
 ---
 

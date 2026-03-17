@@ -24,14 +24,14 @@ rm -rf ~/.claude-tmp
 
 ## 📦 What's Included
 
-### Skills (62 total)
+### Skills (61 total)
 
 | Category | Skills |
 |----------|--------|
 | **Thinking & Reasoning** | brainstorming, systematic-debugging, reflexion-reflect, reflexion-critique, fpf-hypotheses, zero-iteration |
 | **Autonomy & Completeness** | senior-dev-mindset, proactive-qa, response-recap, intent-detection, smart-clarify, seamless-resume, adaptive-voice, predictive-next, process-monitor, expert-lens, mid-task-triage, always-improving, sanity-check |
-| **Memory & Learning** | continuous-learning-v2, reflexion-memorize, mem, error-memory, pre-debug-check, shared-memory, total-recall |
-| **Coding Quality** | coding-standards, test-driven-development, verification-before-completion, pattern-propagation |
+| **Memory & Learning** | continuous-learning-v2, reflexion-memorize, error-memory, pre-debug-check, shared-memory, total-recall |
+| **Coding Quality** | coding-standards, test-driven-development, verification-before-completion, pattern-propagation, opportunistic-improvement |
 | **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch, command-center |
 | **Research & Context** | search-first, deep-research, iterative-retrieval, strategic-compact, context-hydration, token-awareness, precision-reading, parallel-tool-routing, codebase-cartographer |
 | **Review & Collaboration** | requesting-code-review, receiving-code-review |
@@ -380,6 +380,6 @@ MIT - Skills are from various sources with their own licenses.
 
 ---
 
-**62 skills. 3 hooks. 11 commands. One intelligence stack.**
+**61 skills. 3 hooks. 11 commands. One intelligence stack.**
 
 **Made with ❤️ for smarter AI-assisted development**

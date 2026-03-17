@@ -1,3 +1,8 @@
+---
+name: context-hydration
+description: Ensures all relevant files and context are loaded before making any edits — read before write enforcement
+---
+
 # Context Hydration
 
 **Purpose**: Ensure all relevant files and context are loaded before making changes.
