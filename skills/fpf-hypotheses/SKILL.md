@@ -1,5 +1,5 @@
 ---
-name: fpf:propose-hypotheses
+name: fpf-hypotheses
 description: Execute complete FPF cycle from hypothesis generation to decision
 argument-hint: "[problem-statement]"
 allowed-tools: Task, Read, Write, Bash, AskUserQuestion

@@ -90,6 +90,13 @@ When a barrier is recognized mid-execution:
 5. **VERIFY** the redirect worked
 6. If redirect fails → **UPDATE** anti-patterns with new context
 
+## Integration
+
+- **error-memory**: Pre-debug-check reads anti-patterns; error-memory writes them. They're the read/write pair of the same knowledge base.
+- **systematic-debugging**: Pre-debug-check fires FIRST to catch known patterns. If no match, systematic-debugging takes over for root-cause analysis.
+- **fix-loop**: When fix-loop encounters failures, pre-debug-check is consulted before each retry to avoid repeating known-bad approaches.
+- **calibrated-confidence**: A HIGH confidence anti-pattern match raises confidence to act immediately. No match lowers confidence and triggers deeper investigation.
+
 ## Critical Rules
 
 1. This skill fires BEFORE any fix attempt — and stays alert during execution
