@@ -10,12 +10,20 @@ Help turn ideas into fully formed designs and specs through natural collaborativ
 Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you're building, present the design and get user approval.
 
 <COMPLEXITY-GATE>
-**When to require a design phase:**
-- Task touches 3+ files or introduces a new feature/component → Full brainstorming process
-- Task touches 1-2 files with clear scope (bug fix, config change, simple addition) → Skip brainstorming, implement directly
-- User explicitly asks to brainstorm or plan → Always engage regardless of scope
+**When to require a design phase** (BOTH conditions must be true):
+- Task touches 3+ files or introduces a new feature/component — AND —
+- The approach is ambiguous (multiple valid approaches with different trade-offs)
 
-**When in doubt:** If the task has multiple valid approaches with different trade-offs, brainstorm. If there's one obvious approach, just do it.
+**Skip brainstorming when:**
+- Task is clear in intent even if it touches many files (e.g., "rename X to Y across the codebase")
+- Task touches 1-2 files with clear scope (bug fix, config change, simple addition)
+- There's one obvious approach — just do it
+
+**Always brainstorm when:**
+- User explicitly asks to brainstorm or plan
+- Task has multiple valid approaches and the wrong choice would be costly to reverse
+
+**Use codebase-cartographer** to understand existing patterns before proposing designs — don't re-explore what's already mapped.
 </COMPLEXITY-GATE>
 
 ## Anti-Pattern: "Everything Needs A Design"

@@ -150,6 +150,7 @@ Total overhead: Near zero. This skill SAVES tokens by preventing stop-start cycl
 
 ## Integration
 
+- **prompt-architect**: Triage classifies FIRST (addendum/correction/queue), THEN prompt-architect interprets based on triage result. Triage is the traffic cop, architect is the interpreter.
 - **seamless-resume**: Handles the "continue" after interruption case
 - **adaptive-voice**: Mid-task messages in flow state get even shorter acknowledgments
 - **predictive-next**: After completing current task + queued items, still predict what's next

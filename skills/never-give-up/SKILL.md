@@ -123,8 +123,9 @@ If you can't fill in all 4, your experiment isn't ready. Design it better before
 
 ## Integration with Other Skills
 
-- **backtest**: After a failed integration, backtest to understand WHERE and WHY it regressed
-- **parallel-sweep**: Use multi-agent sweeps to search the joint parameter space efficiently — don't hand-tune
+- **backtest**: After a failed integration, backtest to understand WHERE and WHY it regressed. Use backtest to structure each retry attempt with metrics.
+- **think-efficiently**: Think-efficiently prevents burning tokens on retries that aren't fundamentally different. If think-efficiently says "this won't produce new info," respect it — redesign the attempt, don't just re-run.
+- **parallel-sweep**: Use multi-agent sweeps to search the joint parameter space efficiently — don't hand-tune. Think-efficiently informs sweep range selection.
 - **error-memory**: Log WHAT WAS LEARNED, never log the IDEA as failed
 - **sports_backtesting_protocol**: All retry attempts must follow the full protocol including overfitting checks
 - **token-awareness**: This skill respects token budgets — 3 attempts max before escalating

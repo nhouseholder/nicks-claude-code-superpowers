@@ -5,7 +5,7 @@ description: Prevents skill overload — detects when too many skills are compet
 
 # Skill Manager — Keep the Stack From Drowning the Signal
 
-64 skills is powerful. 64 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
+68 skills is powerful. 68 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
 
 ## The Core Problem
 
@@ -42,15 +42,27 @@ When skills conflict, resolve using this priority order:
 5. **Process skills** (brainstorming, writing-plans, TDD) — they suggest workflow
 6. **Enhancement skills** (opportunistic-improvement, predictive-next) — lowest priority, suppress if busy
 
+### Same-Tier Tiebreakers
+When two skills at the SAME priority tier conflict:
+- **More specific wins** — A domain skill for THIS exact task beats a general domain skill
+- **User's history wins** — If the user has corrected one skill before, the corrected behavior takes priority
+- **Fewer tokens wins** — When both are equally valid, the more concise approach wins
+
 ### Common Conflicts and Resolutions
 
 | Conflict | Resolution |
 |----------|-----------|
 | brainstorming says "design first" vs user says "just do it" | User wins. Skip brainstorming. |
+| brainstorming triggers on 3+ files vs task is clear (not ambiguous) | Clear intent wins. Brainstorm only when BOTH scope is large AND approach is ambiguous. |
 | test-driven-development says "write tests first" vs task is a config change | TDD stands down. Not all tasks need tests. |
 | always-improving suggests improvements vs user is mid-flow | Suppress. Don't interrupt flow with suggestions. |
+| predictive-next vs always-improving at idle | Predictive-next fires when there's a logical NEXT step in the current workflow. Always-improving fires when there IS no next step. Never both. |
 | sanity-check wants to flag a concern vs user has given conviction signal | Conviction overrides sanity-check. User knows what they want. |
+| sanity-check flags twice + user overrides twice on same idea | Never-give-up takes over. Evidence-backed persistence wins. |
 | never-give-up says "keep trying" vs token budget is exhausted | Escalate to user rather than burning more tokens. |
+| never-give-up says "persist" vs think-efficiently says "stop" | Check evidence gate: proven-valuable → never-give-up. No evidence → think-efficiently. |
+| mid-task-triage receives new message vs prompt-architect wants to interpret | Triage classifies FIRST (addendum/correction/queue), THEN prompt-architect interprets based on triage result. |
+| qa-gate Tier 1 vs think-efficiently mental check | Same thing. QA-gate owns quality verification. Think-efficiently owns action selection. Don't run both. |
 | multiple skills all want to add sections to the response | Pick the 1-2 most relevant. Don't stack 5 "sections" onto a simple answer. |
 
 ## The Skill Overload Test

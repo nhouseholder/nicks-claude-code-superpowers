@@ -1,4 +1,4 @@
-# Skills Quick Reference — 68 Skills in One Line Each
+# Skills Quick Reference — 69 Skills in One Line Each
 
 | # | Skill | What it does & why it matters |
 |---|-------|-------------------------------|
@@ -6,7 +6,7 @@
 | 2 | **always-improving** | When the to-do list is empty, suggests the top 1-3 highest-impact project improvements so nothing stagnates. |
 | 3 | **audit** | Scans codebases for hardcoded secrets, security issues, and anti-patterns so vulnerabilities don't ship. |
 | 4 | **backtest** | Runs prediction model backtests with walk-forward integrity, overfitting guards, and future-accuracy focus so model changes are data-driven. |
-| 5 | **brainstorming** | Explores intent, requirements, and design before complex implementations so you build the right thing. |
+| 5 | **brainstorming** | Explores intent, requirements, and design before complex implementations — triggers only when BOTH scope is large AND approach is ambiguous. |
 | 6 | **codebase-cartographer** | Maps codebase architecture with fast-path for documented projects so Claude navigates instantly without redundant exploration. |
 | 7 | **coding-standards** | Enforces universal best practices for TypeScript, JavaScript, React, and Node.js so code quality is consistent. |
 | 8 | **command-center** | Decomposes complex tasks into parallel subagent workstreams so multi-domain work executes at maximum speed. |
@@ -26,8 +26,8 @@
 | 22 | **intent-detection** | Maps natural language to the right skill/command automatically so the user never needs to memorize slash commands. |
 | 23 | **iterative-retrieval** | Progressively refines context retrieval so subagents get exactly the information they need, no more. |
 | 24 | **memory-recall** | Recalls long-term memories from OpenViking so past decisions and context are always accessible. |
-| 25 | **mid-task-triage** | Instantly classifies mid-task messages as addendum, course correction, or queue item so nothing derails active work. |
-| 26 | **never-give-up** | Never abandon a proven-valuable idea because integration failed — failed execution is not a failed idea. Iterate, learn, try harder. |
+| 25 | **mid-task-triage** | Instantly classifies mid-task messages as addendum, course correction, or queue item — triage runs BEFORE prompt-architect so nothing derails active work. |
+| 26 | **never-give-up** | Never abandon a proven-valuable idea because integration failed — uses evidence gate + think-efficiently integration to persist smartly, not stubbornly. |
 | 27 | **opportunistic-improvement** | Fixes no-brainer code issues in files already being touched so the project gets cleaner with every interaction. |
 | 28 | **ov-add-data** | Adds files and resources to OpenViking Context Database so external knowledge is persistently available. |
 | 29 | **ov-search-context** | Searches memories, skills, and resources in OpenViking so stored knowledge is instantly retrievable. |
@@ -37,36 +37,37 @@
 | 33 | **pattern-propagation** | When a pattern changes in one place, updates ALL instances across the codebase so nothing is left inconsistent. |
 | 34 | **pre-debug-check** | Checks known anti-patterns and past failures BEFORE attempting fixes so tokens aren't wasted on dead-end approaches. |
 | 35 | **precision-reading** | Grep-first, read-only-relevant-lines so large files don't waste thousands of tokens on irrelevant content. |
-| 36 | **predictive-next** | After completing a task, offers the most likely next step in one line so workflow momentum is maintained. |
+| 36 | **predictive-next** | After completing a task, offers the most likely NEXT step in the current workflow — suppresses when always-improving should fire instead (no workflow, just enhancements). |
 | 37 | **proactive-qa** | Walks the user journey after every implementation, catching edge cases and fixing adjacent bugs before you notice. |
 | 38 | **process-monitor** | Detects hung processes, port conflicts, and zombie tasks so dev environment issues are caught before they cascade. |
 | 39 | **prompt-architect** | Internally decomposes every prompt into intent, context, scope, and unstated requirements so execution is perfect first try. |
 | 40 | **prompt-improver** | Catches genuinely vague prompts and enriches them with research-based clarifying questions so ambiguity is resolved before work begins. |
-| 41 | **qa-gate** | Mandatory QA checkpoint before delivering features — tiered from quick sanity check to full subagent testing, scaled to change complexity so the user never finds bugs first. |
+| 41 | **qa-gate** | Tiered QA checkpoint before delivering features — from mental trace (Tier 1) to full subagent testing (Tier 3), scaled to change complexity so the user never finds bugs first. |
 | 42 | **receiving-code-review** | Evaluates review feedback with technical rigor before implementing so bad suggestions don't degrade code quality. |
 | 43 | **reflexion-critique** | Comprehensive single-reviewer code review with Chain-of-Verification so blind spots are caught efficiently. |
 | 44 | **reflexion-memorize** | Curates insights from reflections into CLAUDE.md so learnings persist across sessions as permanent guidance. |
 | 45 | **reflexion-reflect** | Self-refinement framework that reviews prior output for iterative improvement so quality compounds over time. |
 | 46 | **requesting-code-review** | Dispatches a code-reviewer subagent with precise context so work is independently verified before shipping. |
 | 47 | **response-recap** | Provides plain English summary ONLY after complex multi-step work so the user understands what changed without wading through diffs. |
-| 48 | **sanity-check** | Flags requests that could break things or waste effort — now also evaluates whether proposed new skills are actually necessary or redundant. |
+| 48 | **sanity-check** | Flags requests that could break things or waste effort — also evaluates whether proposed new skills are necessary or redundant with existing ones. |
 | 49 | **screenshot-dissector** | Methodical pixel-level screenshot analysis during debugging — catches layout bugs, state issues, console errors, and UI regressions beyond the obvious. |
 | 50 | **seamless-resume** | On "continue", picks up exactly where it left off with zero re-reading or re-orientation so momentum is never lost. |
 | 51 | **search-first** | Searches for existing tools and libraries before writing custom code so wheels aren't reinvented. |
 | 52 | **senior-dev-mindset** | Ships complete, production-ready features with inferred requirements so nothing needs hand-holding or follow-up. |
 | 53 | **shared-memory** | Maintains AGENT-MEMORY.md in the repo so any AI agent (Claude, Cursor, Copilot) can stay aligned on decisions. |
-| 54 | **skill-manager** | Prevents skill overload — detects when too many skills compete on one message, resolves conflicts, ensures skills enhance Claude's reasoning rather than drowning it. |
+| 54 | **skill-manager** | Prevents skill overload — enforces skill budgets, resolves conflicts with explicit tiebreakers, and ensures skills enhance Claude's reasoning rather than drowning it. |
 | 55 | **smart-clarify** | Asks structured multiple-choice questions instead of open-ended ones so ambiguity resolves in one round, not three. |
 | 56 | **strategic-compact** | Suggests context compaction at logical task boundaries so important context survives rather than being arbitrarily truncated. |
 | 57 | **subagent-driven-development** | Executes implementation plans by dispatching independent tasks to subagents so parallel work happens within a single session. |
 | 58 | **systematic-debugging** | Root-cause-first debugging methodology so bugs are actually fixed, not band-aided. |
-| 59 | **test-driven-development** | RED-GREEN-REFACTOR cycle for business logic so code is tested from the start, not as an afterthought. |
-| 60 | **think-efficiently** | Before every action, checks if it will produce new information, if there's a faster path, and if effort is proportional — prevents testing weight=0.0 and other token-burning non-actions. |
-| 61 | **token-awareness** | Makes Claude conscious of token costs so responses and tool usage stay concise and efficient. |
-| 62 | **total-recall** | Lazy-loads project context at session start and saves everything at session end so Claude remembers everything between sessions. |
-| 63 | **using-git-worktrees** | Creates isolated git worktrees for feature work so experiments don't risk the current workspace. |
-| 64 | **verification-before-completion** | Requires running verification commands and reading output before any success claim so "it works" is always backed by evidence. |
-| 65 | **version-bump** | Automated semantic versioning — determines patch/minor/major from changes, bumps package.json, and formats commit messages with version prefix. |
-| 66 | **writing-plans** | Creates comprehensive implementation plans with file mapping and TDD cycles so multi-step work has a roadmap before code is touched. |
-| 67 | **writing-skills** | Guides creation and editing of new skills with proper structure so the skill system itself stays high quality. |
-| 68 | **zero-iteration** | Mentally traces code execution before writing it so bugs are caught in the mind, not in the test suite. |
+| 59 | **take-your-time** | Matches effort to prompt complexity — a 20-bullet spec gets 20 careful implementations, not one rushed pass. Prevents AI slop on complex work while staying fast on simple tasks. |
+| 60 | **test-driven-development** | RED-GREEN-REFACTOR cycle for business logic so code is tested from the start, not as an afterthought. |
+| 61 | **think-efficiently** | Before every action, checks if it will produce new information, if there's a faster path, and if effort is proportional — prevents testing weight=0.0 and other token-burning non-actions. |
+| 62 | **token-awareness** | Makes Claude conscious of token costs so responses and tool usage stay concise and efficient. |
+| 63 | **total-recall** | Lazy-loads project context at session start and saves everything at session end so Claude remembers everything between sessions. |
+| 64 | **using-git-worktrees** | Creates isolated git worktrees for feature work so experiments don't risk the current workspace. |
+| 65 | **verification-before-completion** | Requires running verification commands and reading output before any success claim so "it works" is always backed by evidence. |
+| 66 | **version-bump** | Automated semantic versioning — determines patch/minor/major from changes, bumps package.json, and formats commit messages with version prefix. |
+| 67 | **writing-plans** | Creates comprehensive implementation plans with file mapping and TDD cycles so multi-step work has a roadmap before code is touched. |
+| 68 | **writing-skills** | Guides creation and editing of new skills with proper structure so the skill system itself stays high quality. |
+| 69 | **zero-iteration** | Mentally traces code execution before writing it so bugs are caught in the mind, not in the test suite. |

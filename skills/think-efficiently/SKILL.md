@@ -126,7 +126,8 @@ Before any action, spend 1-2 seconds mentally checking:
 - **token-awareness**: Think-efficiently handles the WHAT (don't do pointless things), token-awareness handles the HOW (be concise in what you do)
 - **backtest**: Before each backtest run, think-efficiently validates the test design is worth the tokens
 - **parallel-sweep**: Think-efficiently informs sweep range selection — don't sweep 0.0-1.0 when the useful range is 0.05-0.30
-- **never-give-up**: Think-efficiently prevents burning tokens on retries that aren't fundamentally different
+- **never-give-up**: Check evidence gate first. If proven-valuable → never-give-up logic applies (persist smartly). If no evidence → think-efficiently logic applies (stop wasting tokens). They're complementary, not competing.
+- **qa-gate**: QA-gate owns quality verification (did it work?). Think-efficiently owns action selection (should I even do this?). Don't duplicate the mental check.
 - **zero-iteration**: Both prevent waste — zero-iteration catches bugs mentally, think-efficiently catches pointless actions mentally
 
 ## Rules
