@@ -47,6 +47,25 @@ Continuing — [current step of N] — [what's being done right now]
 
 Then immediately proceed. No elaboration.
 
+## Handling Crash Recovery (New Session After Disconnect/Crash)
+
+When a NEW session starts and the user says "continue" or "pick up where I left off" or references work from a previous session:
+
+1. **Read `current_work.md`** from project memory — this is the crash-safe checkpoint
+   ```
+   Read ~/.claude/projects/<project>/memory/current_work.md
+   ```
+2. If it exists and has active work:
+   - Read the "Resume Instructions" section
+   - Read the "Files Modified This Session" to know what was being touched
+   - Pick up at the first incomplete step
+   - Tell the user in ONE line: "Resuming — [task], picking up at [step]"
+3. If it says "No active work" or doesn't exist:
+   - Check git log for recent commits to understand what was last done
+   - Ask the user what they'd like to work on
+
+**This is the key difference from in-session resume**: after a crash, you DON'T have conversation context. `current_work.md` IS your context. Trust it.
+
 ## Handling "continue" After Compaction
 
 When a conversation is compacted (context compressed), the summary includes task state. Use it:

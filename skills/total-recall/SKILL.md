@@ -43,28 +43,87 @@ From loaded sources, build a mental model of what's relevant to the current task
 ### Don't Announce It
 Load silently. Don't say "I've loaded your project memory" — just know it. The user should feel like you've always known this project.
 
-## Phase 2: During Session — Continuous Capture
+## Phase 2: During Session — Continuous Capture + Crash-Safe Checkpoints
 
-Throughout the session, watch for these **capture signals** — moments worth persisting:
+Throughout the session, watch for **capture signals** (moments worth persisting) AND **checkpoint triggers** (moments where progress must be saved in case the session dies).
 
-### Architecture Decisions
+### Crash-Safe Checkpointing
+
+**The problem**: If the session crashes mid-task (lost WiFi, app crash, token limit), Phase 3 never fires. Everything not yet persisted is lost. The next session starts blind.
+
+**The fix**: Write `current_work.md` checkpoints DURING the session, not just at the end.
+
+#### When to Checkpoint (write/update `current_work.md`):
+
+| Trigger | Why |
+|---------|-----|
+| **After completing a major step** in a multi-step task | Progress is saved even if the next step crashes |
+| **Before a risky operation** (large refactor, deploy, migration) | If it goes wrong and kills the session, you know where you were |
+| **Every 15-20 tool calls** on long tasks | Periodic safety net — don't let more than ~5 min of work go unsaved |
+| **When the user provides important context** | Their requirements survive even if the session dies immediately after |
+| **After a plan is agreed on** | The plan persists even if execution never starts |
+
+#### Checkpoint Format (`current_work.md`):
+
+```markdown
+---
+name: current-work
+description: In-progress task state — read this first when resuming after a crash or new session
+type: project
+---
+
+## Current Task
+[One-line description of what's being done]
+
+## Status
+- **Phase**: [planning | implementing | testing | debugging | deploying]
+- **Progress**: [Step X of Y — what's done, what's next]
+- **Last action**: [The last thing Claude did before this checkpoint]
+
+## Completed So Far
+- [x] [Step 1 — done]
+- [x] [Step 2 — done]
+- [ ] [Step 3 — in progress / next]
+- [ ] [Step 4 — not started]
+
+## Key Context
+[Anything a new session would need to know to continue — file paths being edited, approach chosen, user preferences expressed this session, decisions made]
+
+## Files Modified This Session
+- `path/to/file.js` — [what was changed]
+- `path/to/other.py` — [what was changed]
+
+## Resume Instructions
+[Exactly what to do next if picking up from this checkpoint]
+```
+
+#### Checkpoint Rules:
+1. **Overwrite, don't append** — `current_work.md` is always the LATEST state, not a log
+2. **Keep it under 50 lines** — it needs to be fast to read on resume
+3. **Include file paths** — the next session needs to know what was being touched
+4. **Include the approach** — don't just say "fixing bug", say "fixing bug by adding null check in handleSubmit() in Form.jsx"
+5. **Clear it when done** — when the task is complete, update to "No active work" so the next session doesn't try to resume finished work
+
+### Capture Signals (what to persist to memory files)
+
+#### Architecture Decisions
 - "Let's use X instead of Y" → Save: what was chosen, what was rejected, and WHY
 - "The reason we're doing it this way is..." → Save the reasoning
 - New patterns established (new file structure, new convention, new approach)
 
-### Discoveries & Gotchas
+#### Discoveries & Gotchas
 - Bug with a non-obvious root cause → Save the root cause
 - Environment quirk → Save the workaround
 - "Oh, that's why it wasn't working" → Save the insight
 - API/library behavior that surprised you → Save the correct behavior
 
-### User Preferences (about this project)
+#### User Preferences (about this project)
 - "I prefer X over Y" → Save
 - "Don't do X" or "Always do Y" → Save as a rule
 - Corrections to your approach → Save so you don't repeat the mistake
 - Workflow preferences ("deploy to staging first", "always run tests before committing")
 
-### Project State Changes
+#### Project State Changes
 - Version bumps → Update version in memory
 - New features added → Update feature list
 - Known issues discovered → Add to known issues
