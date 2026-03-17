@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 61 skills, 3 hooks, 11 commands, and the continuous learning system.
+> Complete documentation for all 62 skills, 3 hooks, 11 commands, and the continuous learning system.
 > Last updated: 2026-03-16
 
 ---
@@ -190,7 +190,27 @@ These skills make Claude operate like a senior developer who ships complete, pro
 
 ---
 
+#### `sanity-check`
+**Trigger:** Automatic — fires when a request could break things, waste significant effort, or introduce problems
 
+**What it does:** Before blindly executing a risky or wasteful request, pauses to respectfully flag the concern and recommend a better approach. Saves tokens and prevents regressions by catching bad ideas before work begins.
+
+**Format:** Always three parts:
+1. Specific concern (one sentence)
+2. Better alternative (if one exists)
+3. The choice — user always decides
+
+**Severity levels:**
+- **Green** — Mild concern: do it anyway, mention alternative in one line
+- **Yellow** — Moderate risk: flag before proceeding, ask which approach
+- **Red** — High risk: clear warning, recommend against, still let them decide
+- **Hard stop** — Destructive/irreversible: explicit warning, won't proceed without confirmation
+
+**Key rules:** 95/5 ratio (vast majority of requests execute immediately). Flag once, then respect the decision. Always offer an alternative, not just criticism. Be specific, not vague. Consider you might be wrong.
+
+**Boundary with `proactive-qa`:** QA catches issues in implementation. Sanity-check catches issues in the REQUEST before work begins.
+
+---
 
 #### `brainstorming`
 **Trigger:** Manual — must invoke before any creative work (features, components, UI changes)
