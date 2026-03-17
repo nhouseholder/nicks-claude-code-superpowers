@@ -47,24 +47,44 @@ Continuing — [current step of N] — [what's being done right now]
 
 Then immediately proceed. No elaboration.
 
-## Handling Crash Recovery (New Session After Disconnect/Crash)
+## Handling New Session Resume (Crash, Handoff, or Disconnect)
 
-When a NEW session starts and the user says "continue" or "pick up where I left off" or references work from a previous session:
+When a NEW session starts and the user says "continue", "pick up where I left off", or "read handoff":
 
-1. **Read `current_work.md`** from project memory — this is the crash-safe checkpoint
-   ```
-   Read ~/.claude/projects/<project>/memory/current_work.md
-   ```
-2. If it exists and has active work:
-   - Read the "Resume Instructions" section
-   - Read the "Files Modified This Session" to know what was being touched
-   - Pick up at the first incomplete step
-   - Tell the user in ONE line: "Resuming — [task], picking up at [step]"
-3. If it says "No active work" or doesn't exist:
-   - Check git log for recent commits to understand what was last done
-   - Ask the user what they'd like to work on
+### Priority 1: Check for Handoff Document
+```
+Read ~/.claude/projects/<project>/memory/handoff.md
+```
+If it exists and has active work:
+- This is the **full-fidelity** context from the previous session
+- Read the entire document — it contains the original objective, decisions, files modified, and exact resume instructions
+- Follow the "Exact Resume Instructions" section
+- Tell the user in ONE line: "Resuming from handoff — [task], picking up at [step]"
+- **Trust the handoff completely** — it was written specifically for you
 
-**This is the key difference from in-session resume**: after a crash, you DON'T have conversation context. `current_work.md` IS your context. Trust it.
+### Priority 2: Check for Crash Checkpoint
+```
+Read ~/.claude/projects/<project>/memory/current_work.md
+```
+If handoff.md doesn't exist but current_work.md has active work:
+- This is the quick-reference checkpoint (less detail than a handoff)
+- Read the "Resume Instructions" section
+- Read the "Files Modified This Session" to know what was being touched
+- Pick up at the first incomplete step
+- Tell the user in ONE line: "Resuming — [task], picking up at [step]"
+
+### Priority 3: No Resume State
+If neither file has active work:
+- Check git log for recent commits to understand what was last done
+- Ask the user what they'd like to work on
+
+### After Resuming Successfully
+Once you've picked up the work and completed it:
+- Clear `handoff.md` (set to "No active handoff")
+- Clear `current_work.md` (set to "No active work")
+- This prevents the next session from trying to resume finished work
+
+**Key principle**: after a crash or new session, you DON'T have conversation context. The handoff/checkpoint documents ARE your context. Trust them.
 
 ## Handling "continue" After Compaction
 

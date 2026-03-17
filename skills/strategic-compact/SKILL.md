@@ -62,9 +62,100 @@ Add to your `~/.claude/settings.json`:
 Environment variables:
 - `COMPACT_THRESHOLD` — Tool calls before first suggestion (default: 50)
 
+## Auto-Handoff: Better Than Repeated Compaction
+
+**The problem with repeated compaction**: Each compaction loses fidelity. After 2-3 compactions, nuanced details, user preferences, approach decisions, and subtle context degrade. The summary of a summary of a summary is a skeleton.
+
+**The solution**: When context is running low, create a full handoff document and advise starting a fresh session instead of compacting again.
+
+### When to Trigger Auto-Handoff (instead of compaction)
+
+| Situation | Action |
+|-----------|--------|
+| **First time context is low** | Compact — fidelity loss is minimal |
+| **Already compacted once this session** | Auto-handoff — don't compound fidelity loss |
+| **Complex multi-step task still in progress** | Auto-handoff — too much state to survive compaction |
+| **User has given detailed requirements this session** | Auto-handoff — requirements MUST survive intact |
+| **Debugging session with deep context** | Auto-handoff — root cause analysis needs full detail |
+
+### Handoff Document Protocol
+
+When auto-handoff triggers, write a structured handoff file:
+
+**File**: `~/.claude/projects/<project>/memory/handoff.md`
+
+```markdown
+---
+name: session-handoff
+description: Full context handoff from previous session — read this FIRST when resuming
+type: project
+---
+
+## Handoff from [date] [time]
+
+## Original Objective
+[The user's original request — verbatim or near-verbatim. This is the anchor.]
+
+## Current Status
+- **Phase**: [planning | implementing | testing | debugging | deploying]
+- **Progress**: [Step X of Y — what's done, what's next]
+- **Blockers**: [Any issues preventing progress]
+
+## Work Completed
+- [x] [Step 1 — what was done + which files]
+- [x] [Step 2 — what was done + which files]
+- [ ] [Step 3 — in progress or next]
+- [ ] [Step 4+ — remaining work]
+
+## Key Decisions Made
+- [Decision 1]: chose X over Y because [reason]
+- [Decision 2]: user specified [preference]
+
+## User Requirements & Preferences (This Session)
+- [Anything the user said about how they want it done]
+- [Corrections they gave]
+- [Preferences expressed]
+
+## Files Modified
+- `path/to/file.js` — [what changed and why]
+- `path/to/other.py` — [what changed and why]
+
+## Context the Next Session Needs
+[Anything not captured above — API quirks discovered, gotchas encountered,
+approaches tried and failed, environment setup notes]
+
+## Exact Resume Instructions
+[Step-by-step: what to do first, what to do next, what to verify]
+```
+
+### Handoff Delivery
+
+After writing the handoff document, tell the user:
+
+```
+Context is getting thin. I've saved a complete handoff document with all our
+progress, decisions, and next steps.
+
+To continue with full fidelity, start a new session and say:
+"Read handoff.md and continue where the last session left off"
+
+Everything is preserved — your requirements, our approach, files modified,
+and exactly what to do next.
+```
+
+### Handoff Rules
+
+1. **Verbatim requirements** — Copy the user's original request as close to verbatim as possible. Don't summarize their intent.
+2. **Include failed approaches** — The next session needs to know what NOT to try.
+3. **Include file paths** — Every file touched, with what was changed.
+4. **Include the WHY** — For every decision, include why it was made.
+5. **Overwrite previous handoffs** — `handoff.md` is always the latest. Old handoffs are stale.
+6. **Also update `current_work.md`** — Handoff is the detailed version; `current_work.md` is the quick-reference version. Write both.
+7. **Don't wait until empty** — Trigger when context is LOW, not when it's GONE. You need enough context to write a good handoff.
+
 ## Compaction Decision Guide
 
-Use this table to decide when to compact:
+Use this table when compaction (not handoff) is appropriate:
 
 | Phase Transition | Compact? | Why |
 |-----------------|----------|-----|
@@ -74,6 +165,7 @@ Use this table to decide when to compact:
 | Debugging → Next feature | Yes | Debug traces pollute context for unrelated work |
 | Mid-implementation | No | Losing variable names, file paths, and partial state is costly |
 | After a failed approach | Yes | Clear the dead-end reasoning before trying a new approach |
+| **Already compacted once** | **No — use auto-handoff instead** | **Compounding fidelity loss** |
 
 ## What Survives Compaction
 
