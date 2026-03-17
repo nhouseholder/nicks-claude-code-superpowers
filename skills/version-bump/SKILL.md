@@ -81,6 +81,35 @@ When a commit includes multiple changes:
 - List all changes in the commit body
 - Example: if you fixed a bug (PATCH) and added a feature (MINOR), it's MINOR
 
+## Post-Commit Checklist — Ship It Completely
+
+After bumping and committing, complete the full release cycle. Don't stop at the commit.
+
+### 6. Update Displayed Version (if applicable)
+If the project displays a version number to users (website footer, about page, header subtitle, repo description):
+- Find and update ALL places the version is displayed
+- Common locations: footer component, about page, site title, meta tags
+- Use grep to find the old version string and replace with the new one
+- Include the date: `v5.65.0 (2026-03-16)` or whatever format the project uses
+
+### 7. Push and Follow CI/CD
+```bash
+git push
+```
+- If CI/CD is configured (GitHub Actions, Cloudflare Pages, etc.), verify the pipeline kicks off
+- Don't walk away until the deploy succeeds or you've confirmed it's running
+
+### 8. Update GitHub Repo Description (when warranted)
+For MINOR+ bumps on primary projects, update the GitHub repo description/name if it includes the version:
+```bash
+gh repo edit --description "Project Name vX.Y.Z — description"
+```
+
+### 9. Update Shared Memory
+If the project has AGENT-MEMORY.md (shared-memory skill), update the version entry:
+- Record: version number, date, what changed
+- This ensures any AI agent that reads the repo knows the current state
+
 ## Rules
 
 1. **Always bump** — Every meaningful commit gets a version number
@@ -89,3 +118,6 @@ When a commit includes multiple changes:
 4. **package.json sync** — Version in commit message must match package.json
 5. **No skipping** — Don't jump from v5.64.0 to v5.70.0; increment sequentially
 6. **Ask on ambiguity** — If unsure between MINOR and MAJOR, ask the user
+7. **Update displayed versions** — If users can see the version, update it everywhere
+8. **Push after commit** — A version bump isn't done until it's deployed
+9. **Update shared memory** — Keep AGENT-MEMORY.md current with the latest version and date
