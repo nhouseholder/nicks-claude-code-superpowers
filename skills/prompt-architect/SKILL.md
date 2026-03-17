@@ -248,6 +248,77 @@ The user typing fast with typos is NOT being unclear. They're in flow. The archi
 - **Never penalize speed** — A fast, typo-filled message has just as much meaning as a carefully written one
 - **Read emphasis in chaos** — ALL CAPS, repetition, exclamation marks = strong emphasis on that point, not noise
 
+## Proportional Response — Match the Weight of the Message
+
+The architect's processing must be **proportional to the complexity of the message.** Simple messages get simple handling. Complex messages get deep decomposition. Over-analyzing a straightforward message is just as bad as under-analyzing a complex one.
+
+### The Complexity Spectrum
+
+```
+SIMPLE (instant pass-through)          COMPLEX (full 7-component decomposition)
+←─────────────────────────────────────────────────────────────────────────────→
+"yes"     "that didn't    "fix the     "build a new     "redesign the entire
+"no"       work"           login        checkout flow     scoring algorithm
+"continue" "try again"     "add tests"  with Stripe       with weighted
+"good"     "not that one"  "clean up    integration and   terpene profiles
+            "could it be    the sidebar" email receipts"   across all modes"
+             something
+             else?"
+```
+
+### How Simple Messages Flow
+
+For short, contextual messages like:
+
+| Message | What the Architect Does |
+|---------|------------------------|
+| "that didn't work" | Look at what was just attempted → understand what "that" refers to → try a different approach. Zero decomposition needed. |
+| "i couldn't find that, could it be something else?" | They tried what you suggested, it wasn't there → suggest alternatives. Just respond naturally. |
+| "yes" / "do it" / "good" | Confirmation. Proceed with whatever was proposed. Pass-through. |
+| "not that one" | Rejection of current approach/suggestion. Pivot. No analysis needed. |
+| "try again" | Previous attempt failed. Retry with a different strategy. |
+| "what about X?" | They're suggesting an alternative direction. Follow it. |
+
+**These messages do NOT need:**
+- 7-component decomposition
+- Fidelity testing
+- Channel analysis
+- Any processing overhead whatsoever
+
+**They just need:** Context awareness (what were we just doing?) + natural response.
+
+### The Proportionality Rule
+
+```
+IF message is simple + context makes meaning obvious:
+  → Respond naturally. No decomposition. No overhead. Just act.
+
+IF message is moderate + clear intent:
+  → Light mental check (task + context + scope). 1 second. Then act.
+
+IF message is complex + multi-part + ambiguous:
+  → Full 7-component decomposition + fidelity test. Then act.
+
+IF message is simple BUT context is ambiguous:
+  → Ask one clarifying question. Don't guess on genuinely unclear references.
+```
+
+### The Golden Rule of Proportionality
+
+**The architect should be invisible on simple messages and powerful on complex ones.**
+
+If the user sends "that didn't work" and the architect adds ANY overhead or changes ANY behavior compared to how Claude would naturally respond — the architect is broken. Simple messages should feel like there's no skill at all. The skill's power shows on complex, nuanced, multi-part requests where intent could be lost.
+
+### When Simple Messages Carry Hidden Complexity
+
+Occasionally, a short message has significant weight:
+
+- **"ship it"** — Simple words, but implies: build, test, lint, deploy, verify. The complexity is in the ACTION, not the message.
+- **"start over"** — Two words, but the architect must understand: start over from where? The beginning of this file? This feature? This approach?
+- **"like before"** — Requires recalling a specific previous approach from conversation history.
+
+**The test:** Is the complexity in the MESSAGE (needs decomposition) or in the TASK (just needs execution)? If the task is complex but the message is clear, skip decomposition and start executing.
+
 ## One-Shot Principles
 
 These principles make the difference between "good enough" and "perfect first try":
@@ -301,3 +372,5 @@ When the user has strong opinions (naming conventions, architectural patterns, s
 8. **Know the human** — Build and refine a mental model of the user across every interaction
 9. **Goals over words** — Understand what they're trying to ACHIEVE, not just what they typed
 10. **Never repeat a misinterpretation** — When corrected, that correction is permanent
+11. **Proportional processing** — Simple messages get zero overhead. Complexity of analysis must match complexity of message.
+12. **Never over-analyze** — If the meaning is obvious from context, just act. Don't manufacture ambiguity where none exists.
