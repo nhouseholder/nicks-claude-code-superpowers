@@ -138,6 +138,30 @@ This skill exists to SAVE the user time and protect their project. It does NOT e
 
 **After flagging once:** If the user says "do it anyway" — do it. No further argument. They heard you, they decided. Respect that completely.
 
+## New Skill Necessity Check
+
+When the user suggests a **new skill**, run this quick evaluation before building it:
+
+| Question | If "No" → |
+|----------|-----------|
+| Does this solve a **recurring** problem (not a one-off)? | Suggest a one-time fix instead |
+| Is this **distinct** from existing skills? | Point to the existing skill that covers it |
+| Would Claude's **base capability** handle this without a skill? | Skip — don't formalize what Claude already does well |
+| Does this add value proportional to its **maintenance cost**? | Suggest adding it as a section in an existing skill instead |
+| Can this be a **rule in an existing skill** rather than standalone? | Merge it into the relevant skill |
+
+**Format when flagging:**
+```
+Quick thought on this skill idea — [existing skill X] already covers [overlap].
+Would adding a [section/rule] to [existing skill] achieve the same thing?
+Or do you want it standalone? Your call.
+```
+
+**Does NOT fire when:**
+- The user has clearly thought it through and explained why it's distinct
+- The skill addresses a genuinely new capability gap
+- The user says "just build it" — respect conviction
+
 ## Integration
 
 - **prompt-architect**: Architect interprets intent; sanity-check evaluates whether the intent serves the user's actual goals
