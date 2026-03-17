@@ -11,22 +11,16 @@ Claude delivers a feature, says "done," and the user immediately finds bugs. Thi
 
 ## When This Fires
 
-**Must fire (mandatory QA gate):**
-- New feature or component added
-- Existing feature modified or refactored
-- Bug fix applied
-- Algorithm component created or changed
-- API endpoint added or modified
-- UI component created or changed
-- Data pipeline or script created or modified
+### Complexity Tiers — Match QA Effort to Change Size
 
-**Does NOT fire:**
-- Config-only changes (env vars, wrangler.toml, package.json version bumps)
-- Documentation or comment changes
-- Git operations (commits, merges, branch management)
-- Memory or skill file edits
-- Deleting unused code with no behavioral change
-- Changes the user explicitly says don't need testing ("just push it")
+| Tier | Change Type | QA Level |
+|------|------------|----------|
+| **Tier 3 — Full QA Gate** | New feature (multi-file), full-stack changes, algorithm overhaul, deployment-bound work | Dispatch independent QA subagent, full checklist, fix before delivery |
+| **Tier 2 — Inline Verification** | Single-component change, bug fix, API endpoint tweak, algorithm parameter change | Trace the code path with real inputs, check edge cases inline, no subagent needed |
+| **Tier 1 — Quick Sanity Check** | Small fix (1-2 lines), style/layout tweak, single function change | Mentally verify correctness, check for obvious breakage, move on |
+| **Skip** | Config-only, docs, git ops, memory/skill files, unused code deletion, user says "just push it" | No QA needed |
+
+**The rule:** Tier 3 is the mandatory full gate. Tiers 1-2 scale down proportionally. Never skip entirely on behavioral changes.
 
 ## The QA Protocol
 
@@ -161,12 +155,24 @@ Bugs found: [list with file:line and description]
 Recommendation: SHIP or FIX FIRST
 ```
 
-## Token Economics
+## Token Economics — QA Must Be Efficient
 
-- **Small changes** (single function fix): ~30-50 tokens for inline verification
-- **Medium changes** (component + API): ~100-200 tokens for structured testing
-- **Large features** (multi-file): Subagent cost (~500-1000 tokens) but saves the user from finding bugs themselves
-- **Net impact**: Massive time savings — finding a bug before delivery takes 50 tokens. The user finding it, reporting it, and Claude fixing it takes 500+.
+QA is not an excuse to burn tokens. Match testing effort to the tier:
+
+| Tier | Token Budget | Method |
+|------|-------------|--------|
+| **Tier 1** (quick sanity) | ~10-20 tokens | Mental trace only, no output |
+| **Tier 2** (inline verify) | ~50-100 tokens | Trace code with real inputs, check 2-3 scenarios |
+| **Tier 3** (full gate) | ~200-500 tokens | Subagent with focused brief, structured report |
+
+**Efficiency rules:**
+- Don't re-test what you just built and know works — focus on integration points and edge cases
+- Don't test obvious things (does a React component render JSX? Yes, that's what React does)
+- Do test non-obvious things (does the component handle null props? Does the API validate input?)
+- Subagent briefs should be FOCUSED — don't send the entire codebase context, send the changed files and specific test scenarios
+- One well-designed test that covers 3 scenarios > three separate tests that each cover one
+
+**Net impact**: Finding a bug before delivery costs ~50 tokens. The user finding it, reporting it, and Claude diagnosing + fixing it costs 500+. QA is always net-positive on tokens.
 
 ## Integration
 

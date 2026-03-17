@@ -2,7 +2,7 @@
 
 > A comprehensive intelligence stack for Claude Code — making it smarter, more efficient, better at memory, and more capable.
 
-## ⚡ 67 Skills at a Glance
+## ⚡ 68 Skills at a Glance
 
 | # | Skill | What it does |
 |---|-------|------|
@@ -65,14 +65,15 @@
 | 57 | **subagent-driven-development** | Executes implementation plans by dispatching independent tasks to subagents so parallel work happens within a single session. |
 | 58 | **systematic-debugging** | Root-cause-first debugging methodology so bugs are actually fixed, not band-aided. |
 | 59 | **test-driven-development** | RED-GREEN-REFACTOR cycle for business logic so code is tested from the start, not as an afterthought. |
-| 60 | **token-awareness** | Makes Claude conscious of token costs so responses and tool usage stay concise and efficient. |
-| 61 | **total-recall** | Lazy-loads project context at session start and saves everything at session end so Claude remembers everything between sessions. |
-| 62 | **using-git-worktrees** | Creates isolated git worktrees for feature work so experiments don't risk the current workspace. |
-| 63 | **verification-before-completion** | Requires running verification commands and reading output before any success claim so "it works" is always backed by evidence. |
-| 64 | **version-bump** | Automated semantic versioning — determines patch/minor/major from changes, bumps package.json, and formats commit messages with version prefix. |
-| 65 | **writing-plans** | Creates comprehensive implementation plans with file mapping and TDD cycles so multi-step work has a roadmap before code is touched. |
-| 66 | **writing-skills** | Guides creation and editing of new skills with proper structure so the skill system itself stays high quality. |
-| 67 | **zero-iteration** | Mentally traces code execution before writing it so bugs are caught in the mind, not in the test suite. |
+| 60 | **think-efficiently** | Before every action, checks if it will produce new information, if there's a faster path, and if effort is proportional — prevents testing weight=0.0 and other token-burning non-actions. |
+| 61 | **token-awareness** | Makes Claude conscious of token costs so responses and tool usage stay concise and efficient. |
+| 62 | **total-recall** | Lazy-loads project context at session start and saves everything at session end so Claude remembers everything between sessions. |
+| 63 | **using-git-worktrees** | Creates isolated git worktrees for feature work so experiments don't risk the current workspace. |
+| 64 | **verification-before-completion** | Requires running verification commands and reading output before any success claim so "it works" is always backed by evidence. |
+| 65 | **version-bump** | Automated semantic versioning — determines patch/minor/major from changes, bumps package.json, and formats commit messages with version prefix. |
+| 66 | **writing-plans** | Creates comprehensive implementation plans with file mapping and TDD cycles so multi-step work has a roadmap before code is touched. |
+| 67 | **writing-skills** | Guides creation and editing of new skills with proper structure so the skill system itself stays high quality. |
+| 68 | **zero-iteration** | Mentally traces code execution before writing it so bugs are caught in the mind, not in the test suite. |
 
 ---
 
@@ -98,7 +99,7 @@ rm -rf ~/.claude-tmp
 
 ## 📦 What's Included
 
-### Skills (67 total)
+### Skills (68 total)
 
 | Category | Skills |
 |----------|--------|
@@ -107,7 +108,7 @@ rm -rf ~/.claude-tmp
 | **Memory & Learning** | continuous-learning-v2, reflexion-memorize, error-memory, pre-debug-check, shared-memory, total-recall |
 | **Coding Quality** | coding-standards, test-driven-development, verification-before-completion, pattern-propagation, opportunistic-improvement, qa-gate |
 | **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch, command-center |
-| **Research & Context** | search-first, deep-research, iterative-retrieval, strategic-compact, context-hydration, token-awareness, precision-reading, parallel-tool-routing, codebase-cartographer |
+| **Research & Context** | search-first, deep-research, iterative-retrieval, strategic-compact, context-hydration, token-awareness, think-efficiently, precision-reading, parallel-tool-routing, codebase-cartographer |
 | **Review & Collaboration** | requesting-code-review, receiving-code-review |
 | **Workflow Automation** | backtest, audit, deploy, fix-loop, parallel-sweep, data-pipeline-guardian, version-bump |
 | **Git Intelligence** | git-sorcery |
@@ -454,6 +455,6 @@ MIT - Skills are from various sources with their own licenses.
 
 ---
 
-**67 skills. 3 hooks. 11 commands. One intelligence stack.**
+**68 skills. 3 hooks. 11 commands. One intelligence stack.**
 
 **Made with ❤️ for smarter AI-assisted development**
