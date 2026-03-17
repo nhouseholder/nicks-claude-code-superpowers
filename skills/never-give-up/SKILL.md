@@ -63,6 +63,30 @@ It DOES mean:
 - **Learning from each attempt**: Each failure should narrow the search space, not repeat it
 - **Designing better experiments**: If the first test was poorly designed (wrong baseline, wrong metric, no controls), fix the experiment design, not just the feature
 
+## Experiment Design — Don't Waste Attempts on Bad Tests
+
+A "failed attempt" that was poorly designed teaches you nothing and wastes tokens. Before EACH retry, write down (mentally, not to the user):
+
+1. **Hypothesis**: "I believe [specific change] will improve [specific metric] because [specific reason]"
+2. **Expected outcome**: "If this works, I expect accuracy to increase by roughly X% on Y subset"
+3. **Failure signal**: "If this doesn't work, it will tell me [what I'll learn from the failure]"
+4. **Controls**: "I'll compare against [specific baseline] with [specific holdout data]"
+
+If you can't fill in all 4, your experiment isn't ready. Design it better before running it.
+
+### What Makes an Attempt "Well-Designed" vs "Poorly Designed"
+
+| Well-Designed | Poorly Designed |
+|--------------|----------------|
+| Clear hypothesis with domain reasoning | "Let's try this and see what happens" |
+| One variable changed at a time (or deliberate multi-variable with controls) | Changed 5 things at once, can't tell what helped |
+| Compared against known-good baseline | Compared against nothing, just looked at absolute numbers |
+| Used holdout data for validation | Tested on the same data used to tune |
+| Analyzed WHERE it improved/regressed | Only looked at aggregate accuracy |
+| Learned something specific from the result | "It didn't work" with no further analysis |
+
+**The rule:** A failed well-designed experiment is valuable. A failed poorly-designed experiment is just wasted tokens. Never count poorly-designed attempts toward the 3-attempt cap — they don't count as real tries.
+
 ## The Critical Distinction
 
 | Situation | What It Means | What To Do |

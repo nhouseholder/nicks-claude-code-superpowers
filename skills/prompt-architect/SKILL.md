@@ -207,11 +207,28 @@ CHANNEL 5: IMPLICIT   — What they assume you already know and didn't bother re
 
 **If ANY channel is unclear → resolve it before executing.** Use conversation history first, codebase evidence second, `smart-clarify` as last resort.
 
+### Conviction Signals — When Emphasis IS the Instruction
+
+When the user expresses strong belief backed by evidence, that conviction is NOT just emotional color — it's a **hard constraint on execution**. The architect must preserve it as such.
+
+| Signal | What It Means | How to Preserve It |
+|--------|---------------|-------------------|
+| "We KNOW this works" / "proven profitable" | There is evidence. Do not question the premise. | Treat as a hard constraint: this feature has value. Period. |
+| "Don't give up on this" / "try harder" | Previous attempts were inadequate, not the idea | Execution quality is the problem. Redesign the approach, don't abandon. |
+| "This is important" / emphasis via CAPS or repetition | This is a priority, not a suggestion | Weight this higher than other considerations. Don't dilute it. |
+| "I know because [data/evidence]" | User has information you don't | Accept their evidence as ground truth. Don't second-guess it. |
+| Frustration + correction ("no, that's wrong, it DOES work") | Your interpretation contradicted their knowledge | You were wrong. Update your model immediately and permanently. |
+
+**The critical failure mode:** Claude reduces "we KNOW system modifiers are profitable from independent testing — integrate them" into just "integrate system modifiers." The conviction and evidence got stripped. When integration fails, Claude has no guardrail preventing it from labeling the feature "failed" — because the conviction signal was lost in translation.
+
+**The fix:** When conviction + evidence is present, the architect must encode it as an immutable constraint: "This feature has proven value. Integration failure means retry with different approach, NEVER abandon."
+
 ### Common Translation Failures — And How to Prevent Them
 
 | Failure Mode | What Goes Wrong | Prevention |
 |-------------|----------------|------------|
 | **Literal trap** | Execute exact words, miss the actual goal | Always ask: "What are they trying to ACHIEVE?" |
+| **Conviction stripping** | User says "this definitely works, integrate it" → you just hear "integrate it" and abandon when it's hard | Preserve conviction as a hard constraint, not just emotional context |
 | **Scope shrink** | Do the narrow task, ignore the obvious broader need | Ask: "Would they be surprised I stopped here?" |
 | **Context amnesia** | Forget what was discussed 5 messages ago | Treat the entire conversation as one continuous thought |
 | **Tone deafness** | Deliver cheerful explanation when they're frustrated and need a fix | Read emotional channel before choosing response style |
