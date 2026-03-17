@@ -2,71 +2,73 @@
 
 > A comprehensive intelligence stack for Claude Code — making it smarter, more efficient, better at memory, and more capable.
 
-## ⚡ 61 Skills at a Glance
+## ⚡ 63 Skills at a Glance
 
 | # | Skill | What it does |
 |---|-------|------|
 | 1 | **adaptive-voice** | Matches the user's energy and pace — terse in flow, detailed when learning, calm when frustrated — so responses always feel natural. |
 | 2 | **always-improving** | When the to-do list is empty, suggests the top 1-3 highest-impact project improvements so nothing stagnates. |
 | 3 | **audit** | Scans codebases for hardcoded secrets, security issues, and anti-patterns so vulnerabilities don't ship. |
-| 4 | **backtest** | Runs prediction model backtests with visible output and baseline comparison so model changes are data-driven. |
-| 5 | **brainstorming** | Forces exploration of intent, requirements, and design BEFORE implementation so you build the right thing. |
-| 6 | **codebase-cartographer** | Maps the entire codebase architecture at session start so Claude navigates instantly without redundant exploration. |
+| 4 | **backtest** | Runs prediction model backtests with walk-forward integrity, overfitting guards, and future-accuracy focus so model changes are data-driven. |
+| 5 | **brainstorming** | Explores intent, requirements, and design before complex implementations so you build the right thing. |
+| 6 | **codebase-cartographer** | Maps codebase architecture with fast-path for documented projects so Claude navigates instantly without redundant exploration. |
 | 7 | **coding-standards** | Enforces universal best practices for TypeScript, JavaScript, React, and Node.js so code quality is consistent. |
 | 8 | **command-center** | Decomposes complex tasks into parallel subagent workstreams so multi-domain work executes at maximum speed. |
 | 9 | **context-hydration** | Ensures all relevant files are loaded before edits so Claude never modifies code it hasn't read. |
 | 10 | **continuous-learning-v2** | Observes sessions via hooks and creates atomic instincts with confidence scoring so Claude gets smarter over time. |
-| 11 | **deep-research** | Stops and researches unfamiliar concepts from authoritative sources before implementing so solutions are expert-level. |
-| 12 | **deploy** | Handles full deployment with pre-flight checks, smoke tests, and auto-rollback so broken code never reaches production. |
-| 13 | **dispatching-parallel-agents** | Launches 2+ independent tasks as concurrent subagents so wall-clock time is cut in half (or more). |
-| 14 | **error-memory** | Captures failed approaches and working solutions so Claude never wastes tokens retrying known-bad fixes. |
-| 15 | **executing-plans** | Executes written implementation plans with review checkpoints so multi-step work stays on track. |
-| 16 | **expert-lens** | Activates domain-expert mental models, vocabulary, and quality standards so output meets professional-grade bars. |
-| 17 | **finishing-a-development-branch** | Guides branch completion with structured merge/PR/cleanup options so work integrates cleanly. |
-| 18 | **fix-loop** | Self-healing CI loop that runs tests, diagnoses, fixes, and re-runs until all pass so broken builds resolve autonomously. |
-| 19 | **fpf-hypotheses** | Executes first-principles hypothesis cycles so complex decisions are grounded in evidence, not gut feeling. |
-| 20 | **git-sorcery** | Smart commit messages, conflict resolution, bisect, and cherry-pick so git operations are expert-level. |
-| 21 | **intent-detection** | Maps natural language to the right skill/command automatically so the user never needs to memorize slash commands. |
-| 22 | **iterative-retrieval** | Progressively refines context retrieval so subagents get exactly the information they need, no more. |
-| 23 | **memory-recall** | Recalls long-term memories from OpenViking so past decisions and context are always accessible. |
-| 24 | **mid-task-triage** | Instantly classifies mid-task messages as addendum, course correction, or queue item so nothing derails active work. |
-| 25 | **opportunistic-improvement** | Fixes no-brainer code issues in files already being touched so the project gets cleaner with every interaction. |
-| 26 | **ov-add-data** | Adds files and resources to OpenViking Context Database so external knowledge is persistently available. |
-| 27 | **ov-search-context** | Searches memories, skills, and resources in OpenViking so stored knowledge is instantly retrievable. |
-| 28 | **ov-server-operate** | Configures, installs, starts, and stops the OpenViking server so the context database stays operational. |
-| 29 | **parallel-sweep** | Runs parallel parameter sweeps via headless agents so optimization tasks that would take hours finish in minutes. |
-| 30 | **parallel-tool-routing** | Batches independent tool calls into concurrent execution so wall-clock time drops without changing results. |
-| 31 | **pattern-propagation** | When a pattern changes in one place, updates ALL instances across the codebase so nothing is left inconsistent. |
-| 32 | **pre-debug-check** | Checks known anti-patterns and past failures BEFORE attempting fixes so tokens aren't wasted on dead-end approaches. |
-| 33 | **precision-reading** | Grep-first, read-only-relevant-lines so large files don't waste thousands of tokens on irrelevant content. |
-| 34 | **predictive-next** | After completing a task, offers the most likely next step in one line so workflow momentum is maintained. |
-| 35 | **proactive-qa** | Walks the user journey after every implementation, catching edge cases and fixing adjacent bugs before you notice. |
-| 36 | **process-monitor** | Detects hung processes, port conflicts, and zombie tasks so dev environment issues are caught before they cascade. |
-| 37 | **prompt-architect** | Internally decomposes every prompt into intent, context, scope, and unstated requirements so execution is perfect first try. |
-| 38 | **prompt-improver** | Catches genuinely vague prompts and enriches them with research-based clarifying questions so ambiguity is resolved before work begins. |
-| 39 | **receiving-code-review** | Evaluates review feedback with technical rigor before implementing so bad suggestions don't degrade code quality. |
-| 40 | **reflexion-critique** | Comprehensive code review using a single reviewer agent so blind spots are caught efficiently. |
-| 41 | **reflexion-memorize** | Curates insights from reflections into CLAUDE.md so learnings persist across sessions as permanent guidance. |
-| 42 | **reflexion-reflect** | Self-refinement framework that reviews prior output for iterative improvement so quality compounds over time. |
-| 43 | **requesting-code-review** | Dispatches a code-reviewer subagent with precise context so work is independently verified before shipping. |
-| 44 | **response-recap** | Provides plain English summary ONLY after complex multi-step work so the user understands what changed without wading through diffs. |
-| 45 | **sanity-check** | Flags requests that could break things or waste effort, with a specific concern + better alternative, so bad ideas are caught before burning tokens. |
-| 46 | **seamless-resume** | On "continue", picks up exactly where it left off with zero re-reading or re-orientation so momentum is never lost. |
-| 47 | **search-first** | Searches for existing tools and libraries before writing custom code so wheels aren't reinvented. |
-| 48 | **senior-dev-mindset** | Ships complete, production-ready features with inferred requirements so nothing needs hand-holding or follow-up. |
-| 49 | **shared-memory** | Maintains AGENT-MEMORY.md in the repo so any AI agent (Claude, Cursor, Copilot) can stay aligned on decisions. |
-| 50 | **smart-clarify** | Asks structured multiple-choice questions instead of open-ended ones so ambiguity resolves in one round, not three. |
-| 51 | **strategic-compact** | Suggests context compaction at logical task boundaries so important context survives rather than being arbitrarily truncated. |
-| 52 | **subagent-driven-development** | Executes implementation plans by dispatching independent tasks to subagents so parallel work happens within a single session. |
-| 53 | **systematic-debugging** | Root-cause-first debugging methodology so bugs are actually fixed, not band-aided. |
-| 54 | **test-driven-development** | RED-GREEN-REFACTOR cycle for business logic so code is tested from the start, not as an afterthought. |
-| 55 | **token-awareness** | Makes Claude conscious of token costs so responses and tool usage stay concise and efficient. |
-| 56 | **total-recall** | Lazy-loads project context at session start and saves everything at session end so Claude remembers everything between sessions. |
-| 57 | **using-git-worktrees** | Creates isolated git worktrees for feature work so experiments don't risk the current workspace. |
-| 58 | **verification-before-completion** | Requires running verification commands and reading output before any success claim so "it works" is always backed by evidence. |
-| 59 | **writing-plans** | Creates comprehensive implementation plans with file mapping and TDD cycles so multi-step work has a roadmap before code is touched. |
-| 60 | **writing-skills** | Guides creation and editing of new skills with proper structure so the skill system itself stays high quality. |
-| 61 | **zero-iteration** | Mentally traces code execution before writing it so bugs are caught in the mind, not in the test suite. |
+| 11 | **data-pipeline-guardian** | Guards scrapers, cron jobs, and harvest workflows with idempotency, incremental fetching, and self-healing so data pipelines never fail silently. |
+| 12 | **deep-research** | Stops and researches unfamiliar concepts from authoritative sources before implementing so solutions are expert-level. |
+| 13 | **deploy** | Handles full deployment with Cloudflare-specific checks, smoke tests, and auto-rollback so broken code never reaches production. |
+| 14 | **dispatching-parallel-agents** | Launches 2+ independent tasks as concurrent subagents so wall-clock time is cut in half (or more). |
+| 15 | **error-memory** | Captures failed approaches and working solutions so Claude never wastes tokens retrying known-bad fixes. |
+| 16 | **executing-plans** | Executes written implementation plans with review checkpoints so multi-step work stays on track. |
+| 17 | **expert-lens** | Activates domain-expert mental models with pre-loaded cannabis pharmacology and sports analytics so output meets professional-grade bars. |
+| 18 | **finishing-a-development-branch** | Guides branch completion with structured merge/PR/cleanup options so work integrates cleanly. |
+| 19 | **fix-loop** | Self-healing CI loop that runs tests, diagnoses, fixes, and re-runs until all pass so broken builds resolve autonomously. |
+| 20 | **fpf-hypotheses** | Executes first-principles hypothesis cycles so complex decisions are grounded in evidence, not gut feeling. |
+| 21 | **git-sorcery** | Smart commit messages, conflict resolution, bisect, and cherry-pick so git operations are expert-level. |
+| 22 | **intent-detection** | Maps natural language to the right skill/command automatically so the user never needs to memorize slash commands. |
+| 23 | **iterative-retrieval** | Progressively refines context retrieval so subagents get exactly the information they need, no more. |
+| 24 | **memory-recall** | Recalls long-term memories from OpenViking so past decisions and context are always accessible. |
+| 25 | **mid-task-triage** | Instantly classifies mid-task messages as addendum, course correction, or queue item so nothing derails active work. |
+| 26 | **opportunistic-improvement** | Fixes no-brainer code issues in files already being touched so the project gets cleaner with every interaction. |
+| 27 | **ov-add-data** | Adds files and resources to OpenViking Context Database so external knowledge is persistently available. |
+| 28 | **ov-search-context** | Searches memories, skills, and resources in OpenViking so stored knowledge is instantly retrievable. |
+| 29 | **ov-server-operate** | Configures, installs, starts, and stops the OpenViking server so the context database stays operational. |
+| 30 | **parallel-sweep** | Runs parallel parameter sweeps with walk-forward and overfitting guards so optimization finishes in minutes, not hours. |
+| 31 | **parallel-tool-routing** | Batches independent tool calls into concurrent execution so wall-clock time drops without changing results. |
+| 32 | **pattern-propagation** | When a pattern changes in one place, updates ALL instances across the codebase so nothing is left inconsistent. |
+| 33 | **pre-debug-check** | Checks known anti-patterns and past failures BEFORE attempting fixes so tokens aren't wasted on dead-end approaches. |
+| 34 | **precision-reading** | Grep-first, read-only-relevant-lines so large files don't waste thousands of tokens on irrelevant content. |
+| 35 | **predictive-next** | After completing a task, offers the most likely next step in one line so workflow momentum is maintained. |
+| 36 | **proactive-qa** | Walks the user journey after every implementation, catching edge cases and fixing adjacent bugs before you notice. |
+| 37 | **process-monitor** | Detects hung processes, port conflicts, and zombie tasks so dev environment issues are caught before they cascade. |
+| 38 | **prompt-architect** | Internally decomposes every prompt into intent, context, scope, and unstated requirements so execution is perfect first try. |
+| 39 | **prompt-improver** | Catches genuinely vague prompts and enriches them with research-based clarifying questions so ambiguity is resolved before work begins. |
+| 40 | **receiving-code-review** | Evaluates review feedback with technical rigor before implementing so bad suggestions don't degrade code quality. |
+| 41 | **reflexion-critique** | Comprehensive single-reviewer code review with Chain-of-Verification so blind spots are caught efficiently. |
+| 42 | **reflexion-memorize** | Curates insights from reflections into CLAUDE.md so learnings persist across sessions as permanent guidance. |
+| 43 | **reflexion-reflect** | Self-refinement framework that reviews prior output for iterative improvement so quality compounds over time. |
+| 44 | **requesting-code-review** | Dispatches a code-reviewer subagent with precise context so work is independently verified before shipping. |
+| 45 | **response-recap** | Provides plain English summary ONLY after complex multi-step work so the user understands what changed without wading through diffs. |
+| 46 | **sanity-check** | Flags requests that could break things or waste effort, with a specific concern + better alternative, so bad ideas are caught before burning tokens. |
+| 47 | **seamless-resume** | On "continue", picks up exactly where it left off with zero re-reading or re-orientation so momentum is never lost. |
+| 48 | **search-first** | Searches for existing tools and libraries before writing custom code so wheels aren't reinvented. |
+| 49 | **senior-dev-mindset** | Ships complete, production-ready features with inferred requirements so nothing needs hand-holding or follow-up. |
+| 50 | **shared-memory** | Maintains AGENT-MEMORY.md in the repo so any AI agent (Claude, Cursor, Copilot) can stay aligned on decisions. |
+| 51 | **smart-clarify** | Asks structured multiple-choice questions instead of open-ended ones so ambiguity resolves in one round, not three. |
+| 52 | **strategic-compact** | Suggests context compaction at logical task boundaries so important context survives rather than being arbitrarily truncated. |
+| 53 | **subagent-driven-development** | Executes implementation plans by dispatching independent tasks to subagents so parallel work happens within a single session. |
+| 54 | **systematic-debugging** | Root-cause-first debugging methodology so bugs are actually fixed, not band-aided. |
+| 55 | **test-driven-development** | RED-GREEN-REFACTOR cycle for business logic so code is tested from the start, not as an afterthought. |
+| 56 | **token-awareness** | Makes Claude conscious of token costs so responses and tool usage stay concise and efficient. |
+| 57 | **total-recall** | Lazy-loads project context at session start and saves everything at session end so Claude remembers everything between sessions. |
+| 58 | **using-git-worktrees** | Creates isolated git worktrees for feature work so experiments don't risk the current workspace. |
+| 59 | **verification-before-completion** | Requires running verification commands and reading output before any success claim so "it works" is always backed by evidence. |
+| 60 | **version-bump** | Automated semantic versioning — determines patch/minor/major from changes, bumps package.json, and formats commit messages with version prefix. |
+| 61 | **writing-plans** | Creates comprehensive implementation plans with file mapping and TDD cycles so multi-step work has a roadmap before code is touched. |
+| 62 | **writing-skills** | Guides creation and editing of new skills with proper structure so the skill system itself stays high quality. |
+| 63 | **zero-iteration** | Mentally traces code execution before writing it so bugs are caught in the mind, not in the test suite. |
 
 ---
 
@@ -92,7 +94,7 @@ rm -rf ~/.claude-tmp
 
 ## 📦 What's Included
 
-### Skills (61 total)
+### Skills (63 total)
 
 | Category | Skills |
 |----------|--------|
@@ -103,7 +105,7 @@ rm -rf ~/.claude-tmp
 | **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch, command-center |
 | **Research & Context** | search-first, deep-research, iterative-retrieval, strategic-compact, context-hydration, token-awareness, precision-reading, parallel-tool-routing, codebase-cartographer |
 | **Review & Collaboration** | requesting-code-review, receiving-code-review |
-| **Workflow Automation** | backtest, audit, deploy, fix-loop, parallel-sweep |
+| **Workflow Automation** | backtest, audit, deploy, fix-loop, parallel-sweep, data-pipeline-guardian, version-bump |
 | **Git Intelligence** | git-sorcery |
 | **OpenViking Context DB** | ov-add-data, ov-search-context, ov-server-operate, memory-recall |
 | **Meta** | writing-skills, prompt-improver, prompt-architect |
@@ -448,6 +450,6 @@ MIT - Skills are from various sources with their own licenses.
 
 ---
 
-**61 skills. 3 hooks. 11 commands. One intelligence stack.**
+**63 skills. 3 hooks. 11 commands. One intelligence stack.**
 
 **Made with ❤️ for smarter AI-assisted development**

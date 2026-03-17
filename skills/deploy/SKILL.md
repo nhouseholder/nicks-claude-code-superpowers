@@ -28,6 +28,9 @@ npm run build 2>&1 || { echo "ABORT: Build failed"; exit 1; }
 - Verify wrangler is authenticated: `npx wrangler whoami`
 - Test critical API endpoints with lightweight calls if applicable
 - Confirm the target environment (production vs staging)
+- For Cloudflare Pages: verify `wrangler.toml` config matches target project
+- For Cloudflare Workers: check KV namespace bindings, D1 databases, and secrets are configured
+- Check `functions/` directory for Pages Functions that may need separate validation
 
 ### 3. Snapshot for Rollback
 ```bash
@@ -63,8 +66,10 @@ fi
 
 Also verify:
 - Key pages load correctly
-- API endpoints respond
+- API endpoints respond (especially Pages Functions at `/api/` routes)
 - No console errors on critical pages (if browser tools available)
+- KV cache is accessible (if applicable)
+- Workers AI endpoints respond (if applicable)
 
 ### 6. Rollback on Failure
 If verification fails:

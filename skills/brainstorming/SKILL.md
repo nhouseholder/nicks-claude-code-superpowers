@@ -1,6 +1,6 @@
 ---
 name: brainstorming
-description: "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation."
+description: "Explore intent, requirements, and design before implementing complex features. Triggers on 3+ file changes or ambiguous multi-approach tasks. Skips automatically for clear-scope work."
 ---
 
 # Brainstorming Ideas Into Designs

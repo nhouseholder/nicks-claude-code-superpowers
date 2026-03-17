@@ -13,6 +13,14 @@ Spawn multiple Claude Code headless agents to search parameter spaces in paralle
 - Any parameter search that can be divided into independent subspaces
 - Tasks that would take hours single-threaded but minutes in parallel
 
+## Sports Model Integration
+When sweeping sports prediction model parameters:
+- **Walk-forward only**: Each backtest in the sweep must use only pre-game data
+- **Holdout validation**: Reserve most recent data window — sweep on training data, validate winner on holdout
+- **Overfitting guard**: If the top configuration has dramatically better results than neighbors, it's likely overfit — prefer the cluster of good results over the single best
+- **Log the full sweep**: Store ALL configurations tested, not just the winner — the distribution matters
+- Follow the full [Sports Backtesting Protocol] for the winning configuration before committing
+
 ## Workflow
 
 ### 1. Define the Search Space
@@ -122,3 +130,5 @@ sqlite3 sweep_results.db "SELECT agent_id, COUNT(*), AVG(accuracy), MAX(accuracy
 - Always log each agent's output separately
 - Generate a summary report after all agents complete
 - Never suppress output — use `| tee` for everything
+- For sports models: validate the winning config on holdout data before committing
+- Prefer robust configurations (good neighborhood) over isolated peaks

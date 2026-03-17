@@ -1,11 +1,30 @@
 ---
 name: backtest
-description: Run backtests for prediction models (UFC, sports betting). Ensures visible output via tee, compares against baseline accuracy, and commits improvements with structured messages. Use when the user mentions backtesting, model evaluation, coefficient testing, or accuracy comparison.
+description: Run backtests for prediction models (UFC, sports betting). Ensures visible output via tee, compares against baseline accuracy, and commits improvements with structured messages. Enforces walk-forward integrity, overfitting awareness, and future predictive accuracy as the #1 goal. Use when the user mentions backtesting, model evaluation, coefficient testing, or accuracy comparison.
 ---
 
 # Backtest Skill
 
 Standardized workflow for running and evaluating prediction model backtests.
+
+## The #1 Rule: Future Predictive Accuracy
+
+Every backtest exists to answer ONE question: **Will this algorithm make money on FUTURE bets?**
+
+Historical performance is a tool, not the goal. Before running any backtest, ask:
+- What is the hypothesis? Why should this change improve future predictions?
+- Is this generalizable across time periods, or fitting noise?
+- Would a domain expert agree this factor matters?
+
+If working on Nick's sports prediction models, the full Sports Backtesting Protocol in project memory is MANDATORY — including overfitting checks, walk-forward validation, and out-of-sample holdouts.
+
+## Overfitting Guard
+
+After every backtest, run this quick check:
+- **Suspiciously good?** If accuracy jumped 5%+ from a minor tweak → likely overfit
+- **Stable across windows?** Test on 2+ non-overlapping time periods
+- **Robust to perturbation?** Slightly different coefficients should give similar results
+- **Explainable?** If you can't explain WHY it works in domain terms → don't trust it
 
 ## Workflow
 
@@ -51,8 +70,21 @@ If metrics declined:
 - Never delete previous logs — they're the audit trail
 - Name logs with timestamps for traceability
 
+### 6. Overfitting Validation (Sports Models)
+Before committing, validate the improvement is real:
+```bash
+# Run on a holdout time window the algorithm hasn't seen
+python backtest.py --start-date HOLDOUT_START --end-date HOLDOUT_END | tee holdout_results.log
+```
+- If holdout performance is significantly worse than training window → likely overfit
+- If holdout performance is comparable → improvement is likely genuine
+- Log both training and holdout results in commit message
+
 ## Rules
 - Never suppress backtest output
 - Always show the comparison to baseline
 - Commit only improvements (or explicitly ask before committing regressions)
 - Break long sweeps into chunks that can be committed incrementally
+- **Walk-forward only** — never use future data to predict past outcomes
+- **Overfitting check** — validate on holdout data before committing sports model changes
+- **Future-first** — every change must have a hypothesis for why it improves future accuracy

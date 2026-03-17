@@ -15,9 +15,16 @@ At the start of every session, build a mental map of the codebase. Know the arch
 
 ## The Mapping Protocol
 
+### Fast Path: Architecture Already Documented
+
+**Before doing ANY mapping work**, check if MEMORY.md or CLAUDE.md already contains an architecture section with key paths, tech stack, and directory purposes. If it does:
+- Skip Tier 1 mapping entirely — the map already exists
+- Go straight to Tier 2 targeted reads for the current task
+- This saves ~500+ tokens per session on well-documented projects
+
 ### Tier 1: Instant Map (From Memory + Git Status)
 
-Before reading any files, assemble what you already know:
+Only if the fast path didn't find existing architecture docs:
 
 ```
 1. Check project memory (MEMORY.md, CLAUDE.md) — architecture may already be documented

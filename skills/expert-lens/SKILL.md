@@ -43,7 +43,8 @@ Every domain has specific frameworks that experts use instinctively:
 
 | Domain | Key Mental Models |
 |--------|------------------|
-| **Sports Analytics** | WAR, expected value, regression to the mean, sample size warnings, survivorship bias, replacement-level thinking |
+| **Sports Analytics / Betting** | WAR, expected value, regression to the mean, sample size warnings, survivorship bias, replacement-level thinking, walk-forward validation, overfitting detection, Kelly criterion, closing line value, sharp vs public money, vig-adjusted ROI |
+| **Cannabis Pharmacology** | Entourage effect, terpene-cannabinoid synergy, receptor binding (CB1/CB2/TRPV1/5-HT1A/PPARγ/GPR55), biphasic dosing, chemotype classification, terpene profiles, strain lineage, phenotype expression |
 | **Web Design** | Visual hierarchy, Gestalt principles, Fitts's law, progressive disclosure, design systems, accessibility (WCAG) |
 | **Medicine/Health** | Differential diagnosis, evidence tiers, NNT/NNH, sensitivity vs specificity, pretest probability |
 | **Finance** | DCF, risk-adjusted returns, Monte Carlo, fat tails, correlation ≠ causation, base rates |
@@ -79,7 +80,8 @@ The highest-value layer. Every domain has common mistakes that amateurs make and
 
 | Domain | What Amateurs Do | What Experts Do |
 |--------|------------------|-----------------|
-| **Sports Stats** | Cherry-pick stats to fit narrative | Start with the question, then find the right stat |
+| **Sports Stats/Betting** | Cherry-pick stats, overfit to historical data, ignore sample size | Start with the question, validate on out-of-sample data, demand statistical significance |
+| **Cannabis Science** | Treat all strains as THC% comparison | Consider full chemotype: terpene profile, cannabinoid ratios, receptor interactions, individual tolerance |
 | **Design** | Make it "look cool" | Make it usable, accessible, then beautiful |
 | **Medicine** | Jump to diagnosis from one symptom | Build a differential, rule out dangerous causes first |
 | **Finance** | Chase returns | Risk-adjust everything, account for fees and taxes |
