@@ -100,6 +100,7 @@ Only include "Also spotted" if there ARE additional issues. Don't invent problem
 - **context-hydration**: After identifying the likely component from the screenshot, hydrate that file before proposing fixes
 - **pre-debug-check**: Check if the visual bug matches a known anti-pattern before investigating
 - **proactive-qa**: Dissector catches visual bugs; proactive-qa catches them before they happen
+- **qa-gate**: qa-gate covers functional testing; screenshot-dissector covers VISUAL bug detection that QA checklists miss. If identified component isn't already in context, flag it: "Likely caused by [Component] — loading that file for a fix proposal."
 
 ## Rules
 

@@ -102,7 +102,7 @@ The waste isn't spending 5,000 tokens to properly implement 20 features. The was
 
 ## Integration
 
-- **think-efficiently**: Complementary, not competing. Think-efficiently prevents pointless actions. Take-your-time prevents rushing necessary ones.
+- **think-efficiently**: They work in sequence, not conflict. Think-efficiently validates the approach first (test architecture with 2 widgets before building 15). Take-your-time then ensures each validated piece gets full attention (no rushed implementations once the approach is confirmed).
 - **qa-gate**: QA gate catches bugs after implementation. Take-your-time prevents them during implementation by not rushing.
 - **prompt-architect**: Architect decomposes the prompt. Take-your-time ensures each decomposed piece gets full implementation.
 - **senior-dev-mindset**: Senior devs ship complete features. Take-your-time ensures "complete" means every requirement, not a rushed approximation.

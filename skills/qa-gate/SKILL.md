@@ -179,7 +179,8 @@ QA is not an excuse to burn tokens. Match testing effort to the tier:
 - **verification-before-completion**: QA gate extends this — verification checks commands pass, QA gate checks the FEATURE works
 - **proactive-qa**: Proactive QA anticipates issues during development. QA gate is the final checkpoint before delivery.
 - **fix-loop**: If QA gate finds failures, use fix-loop methodology to resolve them
-- **screenshot-dissector**: For frontend changes, if a preview is available, use screenshot-dissector to visually verify
+- **screenshot-dissector**: For frontend changes, if a preview is available, use screenshot-dissector to visually verify. For Tier 2 frontend changes where visual rendering is critical (layout, styling, responsive), run screenshot-dissector in parallel with code verification.
+- **calibrated-confidence**: If confidence is at GUESSING level on the change being tested, escalate from Tier 2 (inline) to Tier 3 (full subagent). Lack of confidence = lack of testing confidence.
 - **zero-iteration**: Zero-iteration catches bugs mentally before writing code. QA gate catches bugs that slipped through after writing code.
 - **test-driven-development**: TDD writes tests first. QA gate verifies the COMPLETE feature works, including aspects tests don't cover.
 

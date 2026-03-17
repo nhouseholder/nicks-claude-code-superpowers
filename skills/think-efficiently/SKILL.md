@@ -129,6 +129,8 @@ Before any action, spend 1-2 seconds mentally checking:
 - **never-give-up**: Check evidence gate first. If proven-valuable → never-give-up logic applies (persist smartly). If no evidence → think-efficiently logic applies (stop wasting tokens). They're complementary, not competing.
 - **qa-gate**: QA-gate owns quality verification (did it work?). Think-efficiently owns action selection (should I even do this?). Don't duplicate the mental check.
 - **zero-iteration**: Both prevent waste — zero-iteration catches bugs mentally, think-efficiently catches pointless actions mentally
+- **profit-driven-development**: For sports code, profit-driven-development is the anchor that determines which backtests are worth running. Think-efficiently enforces the HOW (binary search, no redundant baselines), profit-driven-development enforces the WHY (future predictive accuracy, not historical fit).
+- **take-your-time**: They work in sequence: think-efficiently validates the approach is sound (don't build 15 widgets before testing the architecture), THEN take-your-time ensures each validated piece gets full attention (no corners cut on the 15 widgets once the architecture is proven).
 
 ## Rules
 

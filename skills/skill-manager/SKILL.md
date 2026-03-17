@@ -65,6 +65,9 @@ When two skills at the SAME priority tier conflict:
 | qa-gate Tier 1 vs think-efficiently mental check | Same thing. QA-gate owns quality verification. Think-efficiently owns action selection. Don't run both. |
 | prompt-anchoring vs opportunistic-improvement/proactive-qa | Prompt-anchoring scopes the others: proactive skills apply WITHIN the current task's scope, not outside it. Anchoring is the fence, not the leash. |
 | prompt-anchoring drift check vs think-efficiently action check | Complementary. Think-efficiently: "is this worth tokens?" Prompt-anchoring: "is this serving the user's goal?" A drift action fails both. |
+| calibrated-confidence LOW vs prompt-anchoring drift check | Confidence gate fires first. If confidence is low, don't act (read more context). If confident and WOULD act, then check drift. |
+| senior-dev-mindset infers scope expansion vs prompt-anchoring says stay focused | Senior-dev infers HOW to build what was asked, not WHAT beyond the ask. Prompt-anchoring is the fence. |
+| take-your-time + 10+ requirements vs skill-manager activation budget | Decompose into logical feature groups (3-4 bullets per group). Implement each group fully with 5-6 active skills, then move to next group. |
 | multiple skills all want to add sections to the response | Pick the 1-2 most relevant. Don't stack 5 "sections" onto a simple answer. |
 
 ## The Skill Overload Test
