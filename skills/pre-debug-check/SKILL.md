@@ -9,30 +9,52 @@ allowed-tools: Read, Glob, Grep
 
 Before attempting ANY fix for an error, check if this problem (or something similar) has been solved before. Also stay alert for familiar barrier patterns during execution.
 
-## Step 1: Load Known Anti-Patterns
+## Step 1: Load Known Anti-Patterns AND Recurring Bugs
 
 ```bash
 cat ~/.claude/anti-patterns.md 2>/dev/null
+cat ~/.claude/recurring-bugs.md 2>/dev/null
 ```
 
-If the file doesn't exist, report "No anti-patterns file found" and proceed with normal debugging.
+If neither file exists, report "No anti-patterns or recurring bugs found" and proceed with normal debugging.
 
 ## Step 2: Search for Matches
 
-Search the anti-patterns file for keywords from the current error:
+Search BOTH files for keywords from the current error:
 
-1. Extract key terms from the error message (package names, error codes, function names)
+1. Extract key terms from the error message (package names, error codes, function names, component names)
 2. Search anti-patterns for matches
-3. Also search project memory for project-specific patterns:
+3. **Search recurring bugs tracker** — this is critical for bugs that keep coming back
+4. Also search project memory for project-specific patterns:
 
 ```bash
+# Search anti-patterns
+grep -i "KEYWORD" ~/.claude/anti-patterns.md 2>/dev/null
+
+# Search recurring bugs — HIGH PRIORITY
+grep -i "KEYWORD" ~/.claude/recurring-bugs.md 2>/dev/null
+
 # Search project memory
 grep -ri "KEYWORD" ~/.claude/projects/*/memory/ 2>/dev/null
 ```
 
 ## Step 3: Report Findings
 
-If matches found, output:
+### If a RECURRING BUG match is found (highest priority):
+
+```
+⚠️ RECURRING BUG DETECTED — Report #[N]
+Bug: [bug title]
+Previous fix attempts:
+  - [DATE]: [what was done] — DIDN'T HOLD because [reason]
+  - [DATE]: [what was done] — DIDN'T HOLD because [reason]
+
+DO NOT re-apply previous fixes. They didn't hold.
+ESCALATION REQUIRED: [level based on report count]
+Proceeding with deeper root-cause analysis.
+```
+
+### If an anti-pattern match is found:
 
 ```
 KNOWN PATTERN MATCH:
@@ -44,16 +66,17 @@ Context: [when this applies]
 Recommendation: Apply the known working fix directly. Do not retry the failed approach.
 ```
 
-If NO matches found, output:
+### If NO matches found:
 
 ```
-No known anti-patterns match this error. Proceeding with fresh debugging.
+No known anti-patterns or recurring bugs match this error. Proceeding with fresh debugging.
 ```
 
 ## Step 4: Confidence Assessment
 
 Rate your match confidence:
 - **HIGH** (exact error message match, same project/framework) → Apply fix directly
+- **HIGH + RECURRING** (recurring bug match) → Do NOT apply previous fix. Escalate per recurrence level.
 - **MEDIUM** (similar error, related context) → Suggest fix, note it's a similar-not-identical match
 - **LOW** (vague keyword match) → Mention it but proceed with normal debugging
 
@@ -92,7 +115,7 @@ When a barrier is recognized mid-execution:
 
 ## Integration
 
-- **error-memory**: Pre-debug-check reads anti-patterns; error-memory writes them. They're the read/write pair of the same knowledge base.
+- **error-memory**: Pre-debug-check reads anti-patterns AND recurring-bugs.md; error-memory writes to both. They're the read/write pair of the same knowledge base. Recurring bugs get escalated — never re-apply a fix that didn't hold.
 - **systematic-debugging**: Pre-debug-check fires FIRST to catch known patterns. If no match, systematic-debugging takes over for root-cause analysis.
 - **fix-loop**: When fix-loop encounters failures, pre-debug-check is consulted before each retry to avoid repeating known-bad approaches.
 - **calibrated-confidence**: A HIGH confidence anti-pattern match raises confidence to act immediately. No match lowers confidence and triggers deeper investigation.
