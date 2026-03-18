@@ -114,6 +114,22 @@ When two skills at the SAME priority tier conflict:
 | **Parallel execution hierarchy** | parallel-tool-routing (always, tool-level) → dispatching-parallel-agents (agent-level, known tasks) → command-center (orchestration, unknown decomposition) → parallel-sweep (specialized parameter search) | Lowest to highest abstraction. Lower levels are always active. Higher levels only when needed. |
 | **Improvement pipeline** | opportunistic-improvement (during work, same files) → pattern-propagation (if pattern changed, all files) → always-improving (at idle, suggests new work) | Opportunistic finds issues in touched files. Pattern-propagation spreads fixes. Always-improving suggests at idle only. |
 
+## The Overthinking Detector
+
+Before responding, check: **Am I about to THINK about this task, or DO this task?**
+
+Signs of overthinking (STOP and just execute):
+- About to explain what you're going to do before doing it
+- About to propose multiple approaches when one is obviously right
+- About to ask a clarifying question you could answer yourself from context
+- About to brainstorm/plan for a task that has a clear solution
+- About to read 5 files when you could grep for the one line you need
+- About to run a research phase for something you already know
+- Writing a response longer than 3 sentences before the first tool call
+- The word "approach" appears in your draft response for a simple task
+
+**The fix:** Delete the analysis. Make the first tool call. Execute.
+
 ## The Skill Overload Test
 
 Before executing, mentally check: **Is this response being shaped by Claude's understanding of the task, or by a stack of skill checklists?**

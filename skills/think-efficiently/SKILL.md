@@ -7,6 +7,26 @@ description: Stop Claude from wasting tokens on pointless actions. Before execut
 
 ## The Problem This Solves
 
+Claude has TWO failure modes:
+1. **Pointless actions** — executing things that produce no new information
+2. **Analysis paralysis** — thinking, planning, and researching when it should just execute
+
+Both waste the user's tokens. This skill catches both.
+
+### The Overthinking Test
+
+Before starting any planning, research, or analysis phase, ask: **"Do I already know enough to just do this?"**
+
+| Signal | Action |
+|--------|--------|
+| User said "fix X" and you can see the bug | Fix it. Don't plan, don't research, don't brainstorm. |
+| User said "add feature X" and the pattern exists in the codebase | Copy the pattern. Don't propose 3 approaches. |
+| User said "deploy" and you know the deploy process | Deploy. Don't create a pre-flight checklist discussion. |
+| You've already decided what to do | Do it. Don't explain what you're about to do first. |
+| The task has one obvious approach | Take it. Don't present alternatives. |
+
+**The rule: Bias toward action, not analysis.** Claude's default is to over-prepare. Fight that default. The user hired an executor, not a consultant.
+
 Claude sometimes executes actions that are logically pointless:
 - Testing a variable at weight 0.0 (that's the same as not having the variable — why test it?)
 - Running 3 backtests that vary a parameter by 0.001 when the signal is noisy
@@ -143,3 +163,6 @@ Before any action, spend 1-2 seconds mentally checking:
 7. **Think before executing** — 1 second of thought saves 100 tokens of action
 8. **No redundant baselines** — don't re-prove what hasn't changed
 9. **Articulate the question** — before each test, state what question it answers. If you can't, don't run it.
+10. **Bias toward action** — if you know what to do, DO IT. Don't explain, plan, or ask permission first. The user wants results, not narration.
+11. **One obvious path = take it** — never present 3 approaches when there's clearly one right answer. That's not thoroughness, it's stalling.
+12. **Execution over explanation** — show the result, not the reasoning. Explain only when the user would genuinely benefit from understanding why.

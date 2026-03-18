@@ -14,6 +14,15 @@ This skill fires on EVERY user message — but its depth is proportional to mess
 ### Fast Path (messages under 20 words OR clear single-intent messages)
 Skip ALL decomposition. Just act. Examples: "yes", "fix it", "that didn't work", "try something else", "continue", "add tests for that". These messages get zero overhead — respond naturally using conversation context.
 
+### Medium Path (clear intent, moderate complexity)
+Most messages land here. Do the 7-component decomposition MENTALLY in ~0 tokens, then EXECUTE IMMEDIATELY. Do NOT:
+- Present the decomposition to the user
+- Propose multiple approaches when one is obvious
+- Ask clarifying questions when the intent is clear enough to act on
+- Explain what you're about to do before doing it
+
+**The anti-inflation rule:** Never upgrade a simple request into a complex one. "Add a logout button" does not become a 3-approach design discussion. It becomes a logout button.
+
 **Global Complexity Gate:** On fast-path messages, the following skills should also stand down (zero overhead):
 - brainstorming (no design phase needed)
 - reflexion-reflect (no reflection needed)
