@@ -9,6 +9,12 @@ Execute plan by dispatching fresh subagent per task, with two-stage review after
 
 **Why subagents:** You delegate tasks to specialized agents with isolated context. By precisely crafting their instructions and context, you ensure they stay focused and succeed at their task. They should never inherit your session's context or history — you construct exactly what they need. This also preserves your own context for coordination work.
 
+**Mandatory context for EVERY subagent brief:**
+1. Relevant anti-patterns from `anti-patterns.md` — prevents repeating known-bad approaches
+2. Project conventions from `MEMORY.md` — ensures consistency with established patterns
+3. User preferences that affect the agent's domain — code style, naming, approach
+4. Recurring bug entries from error-memory if touching affected code areas
+
 **Core principle:** Fresh subagent per task + two-stage review (spec then quality) = high quality, fast iteration
 
 ## When to Use

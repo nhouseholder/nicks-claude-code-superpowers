@@ -71,6 +71,8 @@ Each agent gets:
 - **Clear goal:** Make these tests pass
 - **Constraints:** Don't change other code
 - **Expected output:** Summary of what you found and fixed
+- **Anti-patterns:** Relevant entries from anti-patterns.md (so the agent doesn't repeat known-bad approaches)
+- **Project conventions:** Key patterns from MEMORY.md relevant to this agent's scope
 
 ### 3. Dispatch in Parallel
 

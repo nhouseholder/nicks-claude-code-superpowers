@@ -230,9 +230,19 @@ CONTEXT BUDGET PER AGENT:
 - Relevant files:       Read only the files THIS agent needs
 - Conventions:          Only patterns relevant to this agent's domain
 - Dependencies:         Only what this agent's output connects to
+- Anti-patterns:        ALWAYS include relevant entries from anti-patterns.md
+- Known gotchas:        ALWAYS include project gotchas relevant to this agent's domain
 
 NEVER: Dump the entire codebase context into every agent.
 ALWAYS: Curate context per agent. A test agent doesn't need the deploy config.
+
+MANDATORY CONTEXT (every agent gets these, non-negotiable):
+1. Project conventions from MEMORY.md relevant to the agent's domain
+2. Known anti-patterns from anti-patterns.md that could affect the agent's work
+3. User preferences that affect code style, naming, or approach
+4. Recurring bug entries from error-memory if the agent is touching affected code
+
+This prevents subagents from repeating mistakes the main session already learned from.
 ```
 
 ### Merge Strategy
