@@ -30,9 +30,21 @@ Start by understanding the current project context, then ask questions one at a 
 
 Only tasks with genuine complexity or ambiguity benefit from the design process. A single-file bug fix, a config change, or adding a straightforward utility does NOT need a 9-step design phase. Save brainstorming for work where the upfront thinking genuinely prevents wasted effort.
 
-## Checklist
+## Speed-Tiered Checklist
 
-You MUST create a task for each of these items and complete them in order:
+NOT every brainstorm needs 9 steps. Match depth to task size:
+
+### Lite Brainstorm (most tasks that clear the complexity gate)
+For tasks where the design question is "which of 2-3 approaches?" — not "what are we building?"
+
+1. **State the 2-3 approaches** — one sentence each with trade-off
+2. **Recommend one** — with a one-line reason
+3. **Get user pick** — then execute immediately
+
+Total: 1 message, ~30 seconds. No design doc, no spec review, no visual companion.
+
+### Full Brainstorm (only for genuinely complex, multi-component features)
+Only use when the user explicitly asks to brainstorm OR the task involves a new system/architecture:
 
 1. **Explore project context** — check files, docs, recent commits
 2. **Offer visual companion** (if topic will involve visual questions) — this is its own message, not combined with a clarifying question. See the Visual Companion section below.
@@ -43,6 +55,8 @@ You MUST create a task for each of these items and complete them in order:
 7. **Spec review loop** — dispatch spec-document-reviewer subagent with precisely crafted review context (never your session history); fix issues and re-dispatch until approved (max 5 iterations, then surface to human)
 8. **User reviews written spec** — ask user to review the spec file before proceeding
 9. **Transition to implementation** — invoke writing-plans skill to create implementation plan
+
+**Default to Lite.** Only escalate to Full when the user says "let's plan this out" or the task is genuinely architectural (new service, new data model, new integration pattern).
 
 ## Process Flow
 

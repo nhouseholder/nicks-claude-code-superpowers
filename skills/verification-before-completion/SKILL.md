@@ -13,15 +13,20 @@ Claiming work is complete without verification is dishonesty, not efficiency.
 
 **Violating the letter of this rule is violating the spirit of this rule.**
 
-## The Iron Law
+## Speed Tiers — Match Verification to Risk
 
-```
-NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE
-```
+Not every change needs a full verification ceremony:
 
-If you haven't run the verification command in this message, you cannot claim it passes.
+| Change Type | Verification | Example |
+|------------|-------------|---------|
+| **Config/text/style only** | Mental trace — no command needed | Changed a color, updated a string, edited docs |
+| **Single function, clear logic** | One targeted test or quick run | Added a null check, fixed a typo in logic |
+| **Multi-file feature or bug fix** | Full verification (run tests, check output) | New endpoint, scoring change, data pipeline fix |
+| **Deploy, migration, auth** | Full verification + smoke test | Anything user-facing in production |
 
-## The Gate Function
+**The Iron Law still applies to Tier 3-4**: No completion claims without fresh verification evidence. But Tier 1-2 don't need a command run — mental verification or a quick check is sufficient.
+
+## The Gate Function (Tier 3-4 only)
 
 ```
 BEFORE claiming any status or expressing satisfaction:
