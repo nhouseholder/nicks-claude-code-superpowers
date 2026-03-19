@@ -57,6 +57,36 @@ grep -ri "KEYWORD1\|KEYWORD2\|KEYWORD3" ~/.claude/projects/*/memory/error_* 2>/d
 | 3rd time | Architectural issue. Map all code paths that touch this feature. Find the systemic cause. |
 | 4th+ time | **STOP and tell the user**: "This bug has come back [N] times. The fix keeps getting undone. Here's what I think the root cause is: [X]. This likely requires [architectural change / guard rail / test]. Want me to proceed with the deeper fix?" |
 
+## Step 0.5: In-Session Failure Tracking (within the CURRENT conversation)
+
+Error-memory primarily persists knowledge for FUTURE sessions. But Claude also forgets within the SAME session — especially after context compaction. This step prevents that.
+
+### When Claude's own approach fails in-session:
+
+Every time an approach fails during the current session, mentally tag it:
+
+```
+FAILED THIS SESSION:
+- [What I tried] → [Why it failed] → [Don't retry this]
+```
+
+### Rules for in-session tracking:
+
+1. **Never retry an approach that failed earlier in the same session** — even after compaction. If you tried X and it didn't work, don't try X again with "maybe it'll work this time."
+2. **After 2 failed approaches on the same problem**, pause and re-read the error/context from scratch. Your mental model is wrong.
+3. **After compaction**, if you're about to attempt a fix, check the compaction summary for any "FAILED" or "didn't work" mentions. Those are your own notes from earlier.
+4. **When the user says "you already tried that"** — this is a CRITICAL signal. Stop. Read the conversation history. Apologize once (not profusely). Take a genuinely different approach.
+
+### What counts as "the same approach":
+- Same fix applied to same file/function, even with minor variations
+- Same debugging hypothesis tested a different way
+- Same tool call pattern that produced the same error
+
+### What does NOT count (OK to retry):
+- Same general technique applied to a DIFFERENT root cause
+- Retrying after fixing the prerequisite that caused the first failure
+- User explicitly asks you to retry something
+
 ## Step 1: Extract the Error Pattern
 
 From the conversation context, identify:
@@ -204,6 +234,26 @@ The `~/.claude/recurring-bugs.md` file has this structure:
 - **fix-loop**: When fix-loop resolves a test failure, error-memory captures what worked (and what didn't) for next time.
 - **qa-gate**: After fixing a recurring bug (2nd+ report), qa-gate MUST verify the fix with real testing. No mental traces allowed for repeat offenders.
 - **verification-before-completion**: For recurring bugs, verification-before-completion requires evidence that the SPECIFIC symptom is resolved, not just that the code change looks correct.
+
+## Efficiency Failures (not just bugs)
+
+Error-memory isn't just for bugs. It also captures **wasted effort** — approaches that technically worked but were inefficient, so Claude doesn't waste the user's tokens the same way twice.
+
+### Capture these as anti-patterns too:
+
+| Inefficiency | What to Record |
+|-------------|----------------|
+| Spent 20 tool calls on something that needed 3 | "For [task type], do [efficient approach] instead of [wasteful approach]" |
+| Read 5 files when grep would have found the answer | "In [project], [pattern] is always in [file]. Grep first." |
+| Built something from scratch that already existed | "Check [location] before building custom [thing]" |
+| Ran full test suite when one test file was enough | "For [component] changes, run [specific test] not full suite" |
+| User corrected your approach (even if result was OK) | Record the correction — the user's preferred approach IS the efficient one |
+
+### When to record efficiency patterns:
+- When the user expresses frustration about wasted time/tokens
+- When you realize mid-task you took a wasteful path
+- When the user shows you a faster way to do something
+- When a 2-minute task took 10+ minutes
 
 ## Critical Rules
 
