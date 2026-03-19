@@ -16,6 +16,16 @@ Suggests manual `/compact` at strategic points in your workflow rather than rely
 - After completing a major milestone and starting new work
 - When responses slow down or become less coherent (context pressure)
 
+## The #1 Rule: Files Beat Memory
+
+**Anything important that only exists in conversation context WILL be lost.** Either by compaction, crash, or session end. The only things that survive perfectly are files.
+
+Before any compaction or handoff, ask: **"What do I know right now that exists ONLY in conversation context?"** Write it to a file. Then compact.
+
+This is the difference between a useful compaction and a lossy one:
+- **Bad**: Compact → summary says "user wants feature X" → loses all the nuance
+- **Good**: Write user requirements to `session_requirements.md` → compact → summary can be vague because the file has everything
+
 ## Why Strategic Compaction?
 
 Auto-compaction triggers at arbitrary points:

@@ -62,6 +62,27 @@ Throughout the session, watch for **capture signals** (moments worth persisting)
 | **Every 15-20 tool calls** on long tasks | Periodic safety net — don't let more than ~5 min of work go unsaved |
 | **When the user provides important context** | Their requirements survive even if the session dies immediately after |
 | **After a plan is agreed on** | The plan persists even if execution never starts |
+| **Before compaction** | This is the MOST CRITICAL checkpoint — everything not in a file is about to degrade |
+
+#### Pre-Compaction Capture (critical for long sessions)
+
+When context is getting long (50+ tool calls, or you sense compaction approaching):
+
+**Write to project memory files — NOT just current_work.md:**
+
+1. **`session_requirements.md`** — The user's EXACT requirements from this session. Not summarized. Near-verbatim. Include:
+   - What they asked for originally
+   - Every correction or clarification they gave
+   - Preferences expressed ("I want it this way", "don't do X")
+   - Decisions made ("let's use approach A")
+
+2. **Update `current_work.md`** — Full task state as usual
+
+3. **`session_decisions.md`** — Every "we chose X over Y because Z" from this session. Compaction summaries lose the reasoning.
+
+**Why this matters**: Compaction preserves WHAT you're doing but loses WHY and HOW THE USER WANTS IT. A compacted summary says "implementing feature X" but drops "user specifically said to use approach A, not B, because they tried B last week and it broke."
+
+The files survive compaction perfectly. The conversation doesn't.
 
 #### Checkpoint Format (`current_work.md`):
 
@@ -86,8 +107,16 @@ type: project
 - [ ] [Step 3 — in progress / next]
 - [ ] [Step 4 — not started]
 
+## User's Requirements (near-verbatim)
+- [What they originally asked for]
+- [Corrections/clarifications they gave]
+- [Preferences: "do it this way", "don't do X"]
+
+## Decisions Made
+- [Chose X over Y because: user said / technical reason / tested and confirmed]
+
 ## Key Context
-[Anything a new session would need to know to continue — file paths being edited, approach chosen, user preferences expressed this session, decisions made]
+[Anything else a new session would need — approach chosen, gotchas discovered, failed attempts]
 
 ## Files Modified This Session
 - `path/to/file.js` — [what was changed]
