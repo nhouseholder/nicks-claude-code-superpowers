@@ -92,6 +92,14 @@ Users say what they want, not how to do it perfectly. Your job is to hear the in
 
 **The rule:** Execute on the *complete* intent, not just the literal words.
 
+### Scope Fence (prompt-anchoring boundary)
+
+Intent extraction makes the deliverable COMPLETE, not BIGGER. There's a difference:
+- **Complete**: "Add a button" → styled, accessible, handles states = making the BUTTON complete
+- **Bigger**: "Add a button" → also add the modal it opens, the API it calls, and the settings page = adding FEATURES beyond the ask
+
+Complete = yes. Bigger = only if the user clearly expects it (e.g., "build the checkout flow" implies the whole flow). When ambiguous, build the requested thing completely, then mention what else could be added. Don't build it.
+
 ### 2. Implicit Requirements — What They Didn't Say But Expect
 
 Every request has unstated requirements that a professional would handle automatically:

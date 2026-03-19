@@ -85,6 +85,8 @@ Not all detours are bad. Some are essential. The rule:
 
 **Rule of thumb:** If the detour would take more than 2 tool calls AND doesn't directly serve the anchor, skip it. Mention it to the user later.
 
+**Clarification on opportunistic-improvement:** Fixing code in the same function/component you're already editing is NOT a detour — it's in-scope editing (same file, same context, no extra reads needed). Opportunistic-improvement only becomes a detour when it pulls you into OTHER files or takes >2 tool calls beyond the current edit.
+
 ## Long Session Recovery
 
 For sessions that have been running a long time (20+ tool calls), do an explicit re-anchor:

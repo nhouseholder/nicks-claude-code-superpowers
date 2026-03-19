@@ -107,11 +107,12 @@ Beyond the initial check, stay alert for these patterns during any workflow:
 When a barrier is recognized mid-execution:
 
 1. **STOP** current approach immediately
-2. **ANNOUNCE** the recognized pattern to the user
+2. **ANNOUNCE** the recognized pattern to the user: "[Barrier type] detected — [what this means in one sentence]"
 3. **CITE** the anti-pattern or past solution
 4. **REDIRECT** to the known working fix
 5. **VERIFY** the redirect worked
 6. If redirect fails → **UPDATE** anti-patterns with new context
+7. If NO known fix exists → **ESCALATE**: tell the user what you tried, what pattern you see, and recommend next step (architectural review, different approach, or external help). Don't just stop — always leave the user with a clear path forward.
 
 ## Integration
 

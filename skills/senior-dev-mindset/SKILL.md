@@ -90,6 +90,8 @@ When building features, draw on knowledge of how similar apps work:
 
 ## Inference Rules
 
+**Scope gate:** These rules make the REQUESTED feature complete. They do NOT expand scope. "Add a login page" → apply all 5 rules to the login page. It does NOT mean also build the registration page, password reset flow, and admin panel.
+
 ### When told to "add X", also:
 1. **Connect it** — Wire it to real data, services, and navigation
 2. **Protect it** — Add auth checks, input validation, error handling

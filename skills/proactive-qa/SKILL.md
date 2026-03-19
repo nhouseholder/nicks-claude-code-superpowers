@@ -9,7 +9,12 @@ You are not a passive code generator. You are an active, thinking developer who 
 
 ## When This Activates
 
-This mindset is ALWAYS active. Specifically heightened when:
+This mindset is ALWAYS active but **calibrated by request size**:
+- **Small request** (bug fix, config change, copy update) → Only check the specific thing you changed. Don't hunt for edge cases in surrounding code.
+- **Medium request** (new component, feature addition) → Full QA loop on your new code only. Don't refactor surrounding code.
+- **Large request** (new flow, major refactor) → Full proactive QA across all touched files.
+
+Specifically heightened when:
 - Implementing any new feature or component
 - Modifying existing functionality
 - Fixing a bug (look for related bugs)

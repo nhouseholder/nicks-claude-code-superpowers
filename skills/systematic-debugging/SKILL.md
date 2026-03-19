@@ -231,7 +231,9 @@ If you catch yourself thinking:
 
 **If 3+ fixes failed:** Question the architecture (see Phase 4.5)
 
-## your human partner's Signals You're Doing It Wrong
+**Note:** qa-gate escalates to Tier 3 (independent QA subagent) on the 2nd failure — earlier than this threshold. That's intentional: QA escalation catches verification gaps, while this 3-fix threshold catches architectural problems. Both can fire.
+
+## Signals You're Doing It Wrong
 
 **Watch for these redirections:**
 - "Is that not happening?" - You assumed without verifying
