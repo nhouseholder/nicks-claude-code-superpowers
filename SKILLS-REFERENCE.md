@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 67 skills, 4 hooks, 9 commands, and the continuous learning system.
+> Complete documentation for all 68 skills, 4 hooks, 9 commands, and the continuous learning system.
 > Last updated: 2026-03-19
 
 ---
@@ -588,6 +588,26 @@ Save this fix to error memory
 - **LOW** (vague) → Mention it, proceed with normal debugging
 
 **Barrier signals:** Error deja vu, approach repetition (tried before), escalating cascade (fix A breaks B breaks C), environment friction (iCloud+git, Node versions), framework quirks. When recognized: STOP → ANNOUNCE → CITE → REDIRECT → VERIFY.
+
+---
+
+#### `isolate-before-iterate`
+**Trigger:** Passive — activates during debugging sessions when about to re-run a full pipeline
+
+**What it does:** Prevents the anti-pattern of running 30+ minute full pipelines (backtests, builds, deploys) to debug a single function. Forces Claude to write a minimal standalone test (5-15 lines) that exercises only the suspect logic.
+
+**Escalation ladder:**
+- < 30 seconds → fine, run the full thing
+- 30s - 5 min → acceptable first time; isolate on second attempt
+- 5 - 15 min → must isolate, no exceptions
+- 15+ min → stop everything, write isolation script first
+
+**Key rules:**
+1. Second run = must isolate. If running the same pipeline a second time to debug, write an isolation script first.
+2. One print, one run. If you must debug via the full pipeline, add ONE targeted print that definitively answers your hypothesis.
+3. Compare inputs, not outputs. When isolated tests pass but pipeline fails, the bug is in the inputs.
+
+**Coordinates with:** `systematic-debugging` (root cause methodology), `pre-debug-check` (known patterns), `fix-loop` (test cycles), `think-efficiently` (general efficiency).
 
 ---
 
@@ -1257,9 +1277,9 @@ Error occurs
     │
     ├─ pre-debug-check ──→ Known fix? ──→ Apply directly (0 wasted tokens)
     │                          │
-    │                          └─ No match ──→ systematic-debugging
-    │                                              │
-    │                                              └─ Fix found ──→ error-memory
+    │                          └─ No match ──→ isolate-before-iterate ──→ systematic-debugging
+    │                                          (fast feedback loop)           │
+    │                                                                        └─ Fix found ──→ error-memory
     │                                                                   │
     │                                                                   └─ Saved to anti-patterns.md
     │                                                                        │
@@ -1290,7 +1310,7 @@ Error occurs
 | I want to... | Use this |
 |--------------|----------|
 | Design a feature | `/brainstorm` → `/write-plan` → `/execute-plan` |
-| Fix a bug | `pre-debug-check` → `systematic-debugging` → `error-memory` |
+| Fix a bug | `pre-debug-check` → `isolate-before-iterate` → `systematic-debugging` → `error-memory` |
 | Remember something | `/mem save <text>` |
 | Recall past work | `/mem recall <query>` |
 | Review my code | `requesting-code-review` |
@@ -1316,4 +1336,4 @@ Error occurs
 
 ---
 
-**67 skills. 4 hooks. 9 commands. One intelligence stack.**
+**68 skills. 4 hooks. 9 commands. One intelligence stack.**

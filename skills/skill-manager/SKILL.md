@@ -5,9 +5,9 @@ description: Prevents skill overload — detects when too many skills are compet
 
 # Skill Manager — Keep the Stack From Drowning the Signal
 
-75 skills is powerful. 75 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
+68 skills is powerful. 68 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
 
-**Stack cap: 75 skills maximum.** Adding skill #76 requires merging two existing skills or removing one. This prevents gradual bloat.
+**Stack cap: 68 skills maximum.** Adding skill #69 requires merging two existing skills or removing one. This prevents gradual bloat.
 
 ## The Core Problem
 
@@ -48,7 +48,7 @@ Not all skills cost the same. Weight classes prevent expensive skills from stack
 ### Classification
 
 **Passive** (behavioral shaping — unlimited):
-adaptive-voice, anti-slop, calibrated-confidence, coding-standards, confusion-prevention, expert-lens, mid-task-triage, never-give-up, opportunistic-improvement, pattern-propagation, precision-reading, predictive-next, process-monitor, prompt-anchoring, prompt-architect, response-recap, sanity-check, seamless-resume, senior-dev-mindset, skill-manager, strategic-compact, take-your-time, think-efficiently, token-awareness, total-recall, user-rules, zero-iteration
+adaptive-voice, anti-slop, calibrated-confidence, coding-standards, confusion-prevention, expert-lens, isolate-before-iterate, mid-task-triage, never-give-up, opportunistic-improvement, pattern-propagation, precision-reading, predictive-next, process-monitor, prompt-anchoring, prompt-architect, response-recap, sanity-check, seamless-resume, senior-dev-mindset, skill-manager, strategic-compact, take-your-time, think-efficiently, token-awareness, total-recall, user-rules, zero-iteration
 
 **Light** (quick checks — max 5 per message):
 always-improving, brainstorming, calibrated-confidence (when it triggers research), context-hydration, data-pipeline-guardian, error-memory, intent-detection, pre-debug-check, proactive-qa, search-first, smart-clarify, verification-before-completion, version-bump, writing-skills
