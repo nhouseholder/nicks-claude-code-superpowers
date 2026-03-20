@@ -18,36 +18,36 @@ After completing a substantive task where the next step is **high-confidence and
 ## Common Prediction Patterns
 
 ### After Writing New Code
-- New component → "Want me to add tests?" or "Want me to wire this into the router?"
-- New API endpoint → "Want me to add the frontend call?" or "Want me to add error handling?"
-- New utility function → "Want me to update the exports?" or "Want me to add this to the existing usage?"
-- New database migration → "Want me to run it?" or "Want me to update the model?"
+- New component → "I recommend we add tests next" or "I recommend we wire this into the router"
+- New API endpoint → "I recommend we add the frontend call next" or "I recommend we add error handling"
+- New utility function → "I recommend we update the exports"
+- New database migration → "I recommend we run the migration and update the model"
 
 ### After Fixing a Bug
-- Single bug fix → "Want me to check for the same pattern elsewhere?"
-- Fix in shared code → "This is used in N other places — want me to verify they're unaffected?"
-- Fix with workaround → "Want me to add a TODO for a proper fix?"
-- Flaky test fix → "Want me to run the full test suite?"
+- Single bug fix → "I recommend we check for the same pattern elsewhere"
+- Fix in shared code → "This is used in N other places — I recommend we verify they're unaffected"
+- Fix with workaround → "I recommend we add a TODO for a proper fix"
+- Flaky test fix → "I recommend we run the full test suite"
 
 ### After Refactoring
-- Renamed something → "Want me to update all references?" (or better: already did it)
-- Extracted a component → "Want me to replace the other instances?"
-- Changed an interface → "Want me to update the consumers?"
+- Renamed something → "I recommend we update all references" (or better: already did it)
+- Extracted a component → "I recommend we replace the other instances"
+- Changed an interface → "I recommend we update the consumers"
 
 ### After Config/Setup Changes
-- Updated dependencies → "Want me to run the build to verify?"
-- Changed env vars → "Want me to update the .env.example?"
-- Modified CI/CD → "Want me to push and watch the pipeline?"
+- Updated dependencies → "I recommend we run the build to verify"
+- Changed env vars → "I recommend we update .env.example"
+- Modified CI/CD → "I recommend we push and watch the pipeline"
 
 ### After Data/Schema Changes
-- Schema change → "Want me to update the seed data?"
-- New data field → "Want me to add it to the frontend display?"
-- Data migration → "Want me to verify the counts match?"
+- Schema change → "I recommend we update the seed data"
+- New data field → "I recommend we add it to the frontend display"
+- Data migration → "I recommend we verify the counts match"
 
 ### After Git Operations
-- After commit → "Want me to push?" (only if they usually push after commit)
-- After merge → "Want me to clean up the branch?"
-- After resolving conflicts → "Want me to run tests before committing?"
+- After commit → "I recommend we push" (only if they usually push after commit)
+- After merge → "I recommend we clean up the branch"
+- After resolving conflicts → "I recommend we run tests before committing"
 
 ## Prediction Quality Rules
 
@@ -77,7 +77,7 @@ Normal workflow actions (commit, run tests, create PR) are fine to suggest.
 ### Single next step (most common)
 When one step is clearly the best move, use one line:
 ```
-Next: want me to add tests for this component?
+I recommend we add tests for this component next — it has no coverage yet.
 ```
 
 ### Multiple next steps (when 2-4 are all valuable)
@@ -103,6 +103,7 @@ more robust but overkill for current traffic.
 - Bold your recommendation. Keep each item to one line. Max 4 items.
 - **Always include a reason** — even if brief ("recommended — highest ROI" or "this blocks everything else")
 - For decisions, lead with "My recommendation:" so it's instantly recognizable
+- **Never use "Want me to...?" or "Should I...?"** — always frame as "I recommend we..."
 
 ### Never do this
 ```
@@ -125,8 +126,8 @@ Cost: ~10-15 tokens per prediction (one line). Value: saves an entire user promp
 ## Rules
 
 1. **One prediction or a short menu** — Single line when one step is obvious. Bulleted menu (max 4) when multiple steps are all valuable. Bold your recommendation with a brief reason.
-2. **Always be opinionated** — The user wants your recommendation, not a neutral list. Use "Next:" for actions and "My recommendation:" for decisions. Always say what YOU would do and why.
-3. **"Next:" / "My recommendation:" prefix** — Consistent format so the user recognizes it instantly
+2. **Always be opinionated** — The user wants your recommendation, not a neutral list. Frame as "I recommend we..." for actions and "My recommendation:" for decisions. Never ask "want me to...?" — state what you think should happen.
+3. **"I recommend" framing** — Proactive, confident tone. Not "want me to?" but "I recommend we do X because Y."
 3. **Easy to ignore** — If the prediction is wrong, the user just sends their actual request
 5. **Never predict irreversible destructive actions** — No force pushes, database drops, or production deploys. Normal workflow actions (commit, tests, create PR) are fine.
 6. **Suppress in flow state** — Fast-moving users don't need suggestions
