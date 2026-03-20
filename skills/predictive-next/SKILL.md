@@ -13,7 +13,6 @@ After completing a substantive task where the next step is **high-confidence and
 
 **Suppress by default when:**
 - The task was self-contained and complete
-- Multiple equally likely next steps exist (don't guess)
 - The user is in a rapid flow state
 
 ## Common Prediction Patterns
@@ -57,8 +56,13 @@ After completing a substantive task where the next step is **high-confidence and
 - The codebase has a clear pattern (e.g., every component has a test file)
 - The user has done this sequence before in the session
 
+### Multiple Next Steps (List When Relevant)
+- When 2-4 distinct next steps are all valuable, list them as a short bulleted menu
+- This is common after completing a feature (tests, docs, deploy, PR)
+- Keep each option to one line — this is a menu, not a discussion
+- Bold the one you'd recommend: helps the user pick fast
+
 ### Low-Confidence Predictions (Don't Offer)
-- Multiple equally likely next steps
 - The task was self-contained (nothing obviously follows)
 - The user seems to be exploring, not executing a plan
 
@@ -70,24 +74,28 @@ Normal workflow actions (commit, run tests, create PR) are fine to suggest.
 
 ## Format
 
-Always a single line at the end of your response. Never a paragraph. Never multiple options.
-
-**Good:**
+### Single next step (most common)
+When one step is clearly the best move, use one line:
 ```
 Next: want me to add tests for this component?
 ```
 
-**Bad:**
+### Multiple next steps (when 2-4 are all valuable)
+When several distinct steps are worth doing, list them as a compact menu:
 ```
-Now that we've created the component, here are some things we could do next:
-1. Add unit tests
-2. Wire it into the router
-3. Add error handling
-4. Update the documentation
-What would you like to do?
+Next steps:
+- **Add tests for the new component** (recommended)
+- Wire it into the router
+- Update the API docs
 ```
 
-The bad example burns tokens, creates decision fatigue, and slows the user down. Pick the ONE most likely next step.
+Bold your recommendation. Keep each item to one line. Max 4 items — beyond that, you're creating decision fatigue, not saving time.
+
+### Never do this
+```
+Now that we've created the component, let me walk you through what we could do next. There are several options to consider. First, we could add unit tests, which would help ensure...
+```
+No preamble, no paragraphs, no explaining why each option exists. Menu only.
 
 ## Suppression
 
@@ -103,7 +111,7 @@ Cost: ~10-15 tokens per prediction (one line). Value: saves an entire user promp
 
 ## Rules
 
-1. **One prediction, one line** — Never list options. Pick the most likely next step.
+1. **One prediction or a short menu** — Single line when one step is obvious. Bulleted menu (max 4) when multiple steps are all valuable. Bold your recommendation.
 2. **"Next:" prefix** — Consistent format so the user recognizes it instantly
 3. **Easy to ignore** — If the prediction is wrong, the user just sends their actual request
 4. **Never predict irreversible destructive actions** — No force pushes, database drops, or production deploys. Normal workflow actions (commit, tests, create PR) are fine.
