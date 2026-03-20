@@ -81,21 +81,34 @@ Next: want me to add tests for this component?
 ```
 
 ### Multiple next steps (when 2-4 are all valuable)
-When several distinct steps are worth doing, list them as a compact menu:
+When several distinct steps are worth doing, list them as a compact menu with your recommendation and a brief reason:
 ```
 Next steps:
-- **Add tests for the new component** (recommended)
+- **Add tests for the new component** — recommended, this has no coverage yet
 - Wire it into the router
 - Update the API docs
 ```
 
-Bold your recommendation. Keep each item to one line. Max 4 items — beyond that, you're creating decision fatigue, not saving time.
+### Decision points (when the user needs to choose a direction)
+When the work reveals a decision the user should make, frame it as options with your recommendation:
+```
+My recommendation: Go with approach A (Redis cache). It handles the 50K daily requests
+without adding infrastructure complexity. Approach B (PostgreSQL materialized views) is
+more robust but overkill for current traffic.
+```
+
+**Always give your recommendation.** The user wants to know what you think, not just a neutral list. Be opinionated — if you have a clear preference, say so and say why in one sentence. The user can override you, but they shouldn't have to guess what you'd do.
+
+### Key principles
+- Bold your recommendation. Keep each item to one line. Max 4 items.
+- **Always include a reason** — even if brief ("recommended — highest ROI" or "this blocks everything else")
+- For decisions, lead with "My recommendation:" so it's instantly recognizable
 
 ### Never do this
 ```
 Now that we've created the component, let me walk you through what we could do next. There are several options to consider. First, we could add unit tests, which would help ensure...
 ```
-No preamble, no paragraphs, no explaining why each option exists. Menu only.
+No preamble, no paragraphs, no multi-sentence explanations per option.
 
 ## Suppression
 
@@ -111,9 +124,10 @@ Cost: ~10-15 tokens per prediction (one line). Value: saves an entire user promp
 
 ## Rules
 
-1. **One prediction or a short menu** — Single line when one step is obvious. Bulleted menu (max 4) when multiple steps are all valuable. Bold your recommendation.
-2. **"Next:" prefix** — Consistent format so the user recognizes it instantly
+1. **One prediction or a short menu** — Single line when one step is obvious. Bulleted menu (max 4) when multiple steps are all valuable. Bold your recommendation with a brief reason.
+2. **Always be opinionated** — The user wants your recommendation, not a neutral list. Use "Next:" for actions and "My recommendation:" for decisions. Always say what YOU would do and why.
+3. **"Next:" / "My recommendation:" prefix** — Consistent format so the user recognizes it instantly
 3. **Easy to ignore** — If the prediction is wrong, the user just sends their actual request
-4. **Never predict irreversible destructive actions** — No force pushes, database drops, or production deploys. Normal workflow actions (commit, tests, create PR) are fine.
-5. **Suppress in flow state** — Fast-moving users don't need suggestions
-6. **Base it on evidence** — Codebase patterns, session history, common workflows. Not guessing.
+5. **Never predict irreversible destructive actions** — No force pushes, database drops, or production deploys. Normal workflow actions (commit, tests, create PR) are fine.
+6. **Suppress in flow state** — Fast-moving users don't need suggestions
+7. **Base it on evidence** — Codebase patterns, session history, common workflows. Not guessing.
