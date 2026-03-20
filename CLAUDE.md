@@ -80,6 +80,30 @@ When background tasks complete (especially stale ones from prior sessions):
 - **Keep it short.** Stale task = 1 line max. Never write paragraphs explaining why a stale task is irrelevant.
 - **Final summary only.** After all tasks drain, give ONE clean summary of what actually matters — results, next steps. Skip the play-by-play.
 
+## Bug Recording (MANDATORY)
+
+**Every bug fix must be recorded. No exceptions.**
+
+When ANY bug is fixed — in the algorithm, the app, the website, or any project — immediately:
+
+1. **Record it** in `~/.claude/anti-patterns.md` using the error-memory format:
+   ```
+   ### [SHORT_TITLE] — [DATE]
+   - **Context**: [project/file/component]
+   - **Bug**: [what was broken]
+   - **Root cause**: [why it was broken]
+   - **Fix**: [what actually fixed it]
+   - **Applies when**: [when to check this before acting]
+   ```
+
+2. **Check it first** — Before attempting ANY fix, search `~/.claude/anti-patterns.md` and `~/.claude/recurring-bugs.md` for prior occurrences. If this bug was fixed before, the previous fix was insufficient — escalate, don't re-apply.
+
+3. **Commit to GitHub** — Anti-patterns and recurring-bugs files must be committed to the relevant project repo so all agents (across sessions, machines, and collaborators) share the same knowledge.
+
+4. **Read on session start** — At the beginning of every session that involves debugging, read `anti-patterns.md` to preload known failure patterns.
+
+The goal: **no bug is ever fixed twice the same way.** Every fix becomes institutional knowledge that all future sessions can access.
+
 ## Behavioral Rules
 
 1. **Search before coding** — Before writing custom code, check if a solution already exists (npm, PyPI, MCP, skills, GitHub).

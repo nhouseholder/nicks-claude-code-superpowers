@@ -108,3 +108,4 @@ Error-memory also captures **wasted effort** — not just bugs. Record as anti-p
 3. **Capture the user's exact words** when they correct you — their phrasing often contains the key insight
 4. **NEVER re-apply a fix that didn't hold** — find the deeper cause. Track recurrence count and escalate accordingly.
 5. **Record what UNDID the previous fix** — the regression cause is often more important than the fix itself
+6. **Commit to GitHub** — After recording a bug fix, commit `anti-patterns.md` and `recurring-bugs.md` to the project repo. All agents must share the same knowledge base across sessions and machines.
