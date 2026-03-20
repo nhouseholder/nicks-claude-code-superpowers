@@ -50,8 +50,11 @@ Signs a process is stuck:
 - Dev server that started but isn't responding
 - Test suite with no progress
 - npm install frozen mid-download
+- 0% CPU for >30 seconds on a compute-heavy task
 
 Action: Report to the user with the specific symptom. Suggest kill + restart.
+
+**NEVER poll a hung process.** If you check once and see no progress, DIAGNOSE (check CPU%, I/O state, network connections via `lsof -p`) — don't check again in 30 seconds hoping it changed. One diagnostic check replaces 8 status checks.
 
 ### Zombie Processes
 Processes that should have stopped but didn't:
@@ -124,7 +127,24 @@ BEFORE running tests    → Is the test DB running?
 BEFORE API calls        → Is the dev server up?
 BEFORE deploy           → Are there running dev processes to stop?
 BEFORE build            → Kill any dev servers that might conflict
+BEFORE long-running scripts → Do required inputs exist? (cache files, data files, configs)
+BEFORE iCloud-path scripts  → Will I/O hang? Copy to /tmp first.
 ```
+
+## Background Task Anti-Patterns
+
+### The Polling Trap
+When you start a process with `run_in_background`:
+- **DO**: Trust the notification system. Do other work while waiting.
+- **DON'T**: Manually check status every 30 seconds. Each check is a wasted tool call.
+- **If you must check**: Check ONCE. If no progress, diagnose the root cause immediately (CPU%, I/O, network). Don't check a second time with the same command.
+
+### Pre-Flight for Long-Running Tasks
+Before starting any task that takes >60 seconds:
+1. **Verify inputs exist** — cache files, data files, API keys
+2. **Verify environment** — correct directory, not on iCloud, dependencies installed
+3. **Estimate runtime** — tell the user "this will take ~X minutes"
+4. **Choose the right path** — if a cache is missing, acknowledge the scraping cost upfront rather than discovering it mid-run
 
 ## Token Economics
 
@@ -144,5 +164,5 @@ No polling. No periodic checks. Only check when an event triggers it.
 3. **Report problems, not status** — Don't announce that everything is fine
 4. **Ask before killing others' processes** — Only auto-kill processes you started or obvious zombies
 5. **One-line updates** — Process status is infrastructure, not the main event
-6. **No polling** — Event-driven checks only. Zero overhead when everything is normal.
+6. **No polling** — Event-driven checks only. If you check once and see no progress, diagnose — don't check again.
 7. **Clean up on exit** — Mention running processes before session end, don't auto-kill
