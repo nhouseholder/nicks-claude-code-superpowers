@@ -144,11 +144,11 @@ This takes 5 tokens and prevents 500 tokens of confusion later.
 **Prevention**: Use `git stash` first, or `git show HEAD:path/to/file` to VIEW without reverting.
 
 ### Multiple Copies of the Same File
-**Trap**: Project has `algorithm.py`, `algorithm_backup.py`, `../ufc-predict-2/algorithm.py` — editing the wrong one.
+**Trap**: Project has `app.py`, `app_backup.py`, `../project-v2/app.py` — editing the wrong one.
 **Prevention**: At task start, identify which copy is canonical. Ignore the rest.
 
 ### Environment Variables vs Hardcoded Values
-**Trap**: A sweep script uses `UFC_NUM_EVENTS=211` but the hardcoded default is 36. Results differ and you don't know why.
+**Trap**: A script uses `NUM_EVENTS=500` via env var but the hardcoded default is 50. Results differ and you don't know why.
 **Prevention**: Before running, check: "Is this value overridden by env?" `grep -r "os.environ\|process.env" [script]`
 
 ### Before/After Without Controlling Variables

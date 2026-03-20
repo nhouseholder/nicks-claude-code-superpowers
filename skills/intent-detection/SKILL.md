@@ -22,34 +22,6 @@ Trigger phrases (any variation of):
 - "is this ready to ship?", "let's get this out"
 - "publish", "launch", "roll out"
 
-### Backtest Intents → `/backtest` + mandatory rules
-Trigger phrases:
-- "run the backtest", "test the model", "check accuracy", "backtest"
-- "how's the model doing?", "compare to baseline"
-- "run predictions", "evaluate the coefficients"
-- "test these weights", "benchmark this"
-
-**Auto-enforced rules when ANY backtest intent is detected:**
-1. Walk-forward only — point-in-time stats, no post-event data leakage
-2. Cache all scraped data locally and commit to GitHub — never re-scrape cached data
-3. Respect backtest window limits (UFC: 70 events growing, NHL/MLB/NBA/CBB: 3 seasons)
-4. Output via `| tee` — never suppress backtest output
-
-### Website Update Intents → `site-update-protocol`
-Trigger phrases:
-- "update the website", "update the site", "refresh the site"
-- "push to the website", "update octagonai", "update diamond predictions", "update courtside"
-- "the site needs updating", "website is stale", "update all tabs"
-- "deploy the new stats", "refresh the frontend data"
-- "update mmalogic", "update diamondpredictions"
-
-**Auto-enforced rules when ANY website update intent is detected:**
-1. Follow the full 7-phase site-update-protocol (regenerate data → verify → update frontend → build & deploy → post-deploy verify → update Firestore → consistency review)
-2. No partial updates — if the algorithm changed, ALL data files and ALL tabs must reflect the new state
-3. Never build from iCloud — clone to `/tmp/` first
-4. Version bump every deploy
-5. Full consistency review (Phase 7) — cross-check algorithm ↔ backtester ↔ predictor ↔ website ↔ local/iCloud files. No drift allowed between any layer.
-
 ### Audit Intents → `/audit`
 Trigger phrases:
 - "check for secrets", "scan for API keys", "security check"
@@ -121,7 +93,6 @@ When triggering a command/skill from natural language:
 
 Sometimes a single message contains multiple intents:
 - "fix the tests and then deploy" → `/fix-loop` then `/deploy`
-- "run a backtest and if it improves, commit it" → `/backtest` (which already handles commit-on-improvement)
 - "check for secrets and then ship it" → `/audit` then `/deploy`
 
 Execute them in logical order. If one fails (e.g., tests don't pass), stop before the next (don't deploy broken code).
@@ -141,9 +112,6 @@ Don't trigger workflows for:
 | "ship it" | Deploy | Run full deploy pipeline |
 | "the tests are all broken, fix them" | Fix Loop | Run fix-loop skill |
 | "are there any API keys in the code?" | Audit | Run security audit |
-| "let's see how the model does now" | Backtest | Run backtest with walk-forward + caching rules |
-| "update the website" | Website Update | Run full site-update-protocol (all 6 phases) |
-| "update octagonai with the new stats" | Website Update | Site-update-protocol for OctagonAI specifically |
 | "I want to add dark mode" | Brainstorm | Start brainstorming session |
 | "break this into steps" | Write Plan | Create implementation plan |
 | "remember that we use Tailwind" | Memory Save | Save to memory |

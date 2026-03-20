@@ -957,20 +957,6 @@ Save this fix to error memory
 
 ### Workflow Automation
 
-#### `backtest`
-**Trigger:** Manual — `/backtest` or when mentioning backtesting, model evaluation, accuracy comparison
-
-**What it does:** Standardized workflow for running and evaluating prediction model backtests. Ensures visible output via `| tee`, compares against baseline accuracy, and commits only when metrics improve.
-
-**How to use:**
-```
-/backtest
-```
-
-**Workflow:** Verify DB → Run with `| tee` → Parse metrics → Compare to baseline → Commit if improved (or report regression)
-
----
-
 #### `audit`
 **Trigger:** Manual — `/audit` or when asked to scan for secrets, check security
 
@@ -998,30 +984,6 @@ Save this fix to error memory
 **Workflow:** Pre-flight → Snapshot → Deploy → Verify (HTTP 200 + key pages) → Rollback if failed → Tag release if passed
 
 **Rule:** NEVER deploy without passing tests. ALWAYS verify live site. ALWAYS rollback on failure.
-
----
-
-#### `site-update-protocol`
-**Trigger:** Light — fires when algorithm changes are committed or user mentions updating the website
-
-**What it does:** Universal checklist for fully updating sports prediction websites after any algorithm change. Covers data regeneration, frontend verification, deployment, and post-deploy validation across all tabs (Home, Picks, Dashboard, History, Admin).
-
-**Sites covered:**
-- **OctagonAI** (UFC) — octagonai.pages.dev
-- **Diamond Predictions** (MLB + NHL) — diamond-predict.pages.dev
-- **Courtside AI** (CBB + NBA) — courtside-ai.pages.dev
-
-**6-Phase Protocol:**
-1. **Regenerate Data** — Re-run algorithm/backtest, regenerate all static JSON files
-2. **Verify Data Files** — Confirm every JSON file has fresh timestamps and correct stats
-3. **Update Frontend** — Check for hardcoded stats (landing page hero, system counts)
-4. **Build & Deploy** — Clone to `/tmp/`, build, deploy to Cloudflare Pages
-5. **Post-Deploy Verification** — Open every tab, verify all stats/charts/tables reflect new data
-6. **Update Firestore** — Sync real-time data stores (OctagonAI, Courtside AI)
-
-**Key rule:** If the algorithm changed, the ENTIRE site must reflect the new state. No partial updates.
-
-**Coordinates with:** `deploy` (Cloudflare deployment mechanics), `backtest` (algorithm validation), `version-bump` (version incrementing)
 
 ---
 
@@ -1131,7 +1093,7 @@ D) Something else — tell me what you had in mind
 #### `intent-detection`
 **Trigger:** Always-on — evaluates every user message
 
-**What it does:** Automatically maps plain language to the right slash command or workflow. Instead of memorizing `/deploy`, `/backtest`, `/audit`, etc., just say what you want in natural language and the right workflow triggers.
+**What it does:** Automatically maps plain language to the right slash command or workflow. Instead of memorizing `/deploy`, `/audit`, etc., just say what you want in natural language and the right workflow triggers.
 
 **Examples:**
 | You say | Claude triggers |
@@ -1139,7 +1101,6 @@ D) Something else — tell me what you had in mind
 | "ship it" | `/deploy` |
 | "the tests are all broken" | `/fix-loop` |
 | "any leaked API keys?" | `/audit` |
-| "how's the model doing?" | `/backtest` |
 | "I want to add dark mode" | `/brainstorm` |
 | "break this into steps" | `/write-plan` |
 | "remember we use Tailwind" | `/mem save` |
@@ -1216,13 +1177,6 @@ D) Something else — tell me what you had in mind
 
 **Confusion signals:** Comparing numbers from different runs, re-reading files already read, contradicting own recent output, "wait, actually..." language patterns.
 
-### Domain (Additional)
-
-#### `profit-driven-development`
-**Trigger:** Always-on — sports prediction work
-
-**What it does:** The north star for all sports prediction work. Every change must answer: "will this make the NEXT picks more correct and more profitable?" Prevents overfitting to historical data and endless backtest spinning. Forces forward-looking accuracy focus.
-
 #### `screenshot-dissector`
 **Trigger:** Automatic — screenshot provided during debugging
 
@@ -1264,7 +1218,6 @@ Slash commands users can invoke directly.
 | Command | File | What It Does |
 |---------|------|-------------|
 | `/audit` | `commands/audit.md` | Scan for hardcoded secrets and quality issues |
-| `/backtest` | `commands/backtest.md` | Run model backtest with baseline comparison |
 | `/brainstorm` | `commands/brainstorm.md` | Shortcut to invoke brainstorming skill |
 | `/deploy` | `commands/deploy.md` | Full deploy pipeline with rollback |
 | `/execute-plan` | `commands/execute-plan.md` | Shortcut to invoke executing-plans skill |
@@ -1343,7 +1296,6 @@ Error occurs
 | Critical decision | `/fpf:propose-hypotheses` |
 | Check skill effectiveness | `/skill-insights` |
 | Search before coding | `search-first` |
-| Run a backtest | `/backtest` |
 | Scan for secrets | `/audit` |
 | Deploy to production | `/deploy` |
 | Fix all failing tests | `/fix-loop` |
@@ -1360,4 +1312,4 @@ Error occurs
 
 ---
 
-**69 skills. 4 hooks. 9 commands. One intelligence stack.**
+**67 skills. 4 hooks. 8 commands. One intelligence stack.**

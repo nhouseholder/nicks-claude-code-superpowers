@@ -4,14 +4,15 @@
 
 ## ⚡ 67 Skills at a Glance
 
+> **Note:** 3 domain-specific skills (backtest, site-update-protocol, profit-driven-development) are maintained privately and not included in this public repo.
+
 | # | Skill | What it does |
 |---|-------|------|
 | 1 | **adaptive-voice** | Matches the user's energy and pace — terse in flow, detailed when learning, calm when frustrated — so responses always feel natural. |
 | 2 | **always-improving** | When the to-do list is empty, suggests the top 1-3 highest-impact project improvements so nothing stagnates. |
 | 3 | **anti-slop** | Zero tolerance for placeholder data ("Unknown", "N/A", "TBD") in any deliverable — every field gets real data or an explicit gap explanation so the user never receives AI-generated garbage. |
 | 4 | **audit** | Scans codebases for hardcoded secrets, security issues, and anti-patterns so vulnerabilities don't ship. |
-| 5 | **backtest** | Runs prediction model backtests with walk-forward integrity, overfitting guards, and future-accuracy focus so model changes are data-driven. |
-| 6 | **brainstorming** | Explores intent, requirements, and design before complex implementations so you build the right thing. |
+| 5 | **brainstorming** | Explores intent, requirements, and design before complex implementations so you build the right thing. |
 | 7 | **calibrated-confidence** | Makes Claude honest about what it knows vs guesses — dynamically adjusts speed and flags uncertainty so the user knows when to trust and when to verify. |
 | 8 | **codebase-cartographer** | Maps codebase architecture with fast-path for documented projects so Claude navigates instantly without redundant exploration. |
 | 9 | **coding-standards** | Enforces universal best practices for TypeScript, JavaScript, React, and Node.js so code quality is consistent. |
@@ -24,7 +25,7 @@
 | 16 | **dispatching-parallel-agents** | Launches 2+ independent tasks as concurrent subagents so wall-clock time is cut in half (or more). |
 | 17 | **error-memory** | Captures failed approaches and working solutions so Claude never wastes tokens retrying known-bad fixes. |
 | 18 | **executing-plans** | Executes written implementation plans with review checkpoints so multi-step work stays on track. |
-| 19 | **expert-lens** | Activates domain-expert mental models with pre-loaded cannabis pharmacology and sports analytics so output meets professional-grade bars. |
+| 19 | **expert-lens** | Activates domain-expert mental models so output meets professional-grade bars. |
 | 20 | **finishing-a-development-branch** | Guides branch completion with structured merge/PR/cleanup options so work integrates cleanly. |
 | 21 | **fix-loop** | Self-healing CI loop that runs tests, diagnoses, fixes, and re-runs until all pass so broken builds resolve autonomously. |
 | 22 | **fpf-hypotheses** | Executes first-principles hypothesis cycles so complex decisions are grounded in evidence, not gut feeling. |
@@ -40,8 +41,7 @@
 | 32 | **pre-debug-check** | Checks known anti-patterns and past failures BEFORE attempting fixes so tokens aren't wasted on dead-end approaches. |
 | 33 | **precision-reading** | Grep-first, read-only-relevant-lines so large files don't waste thousands of tokens on irrelevant content. |
 | 34 | **predictive-next** | After completing a task, offers the most likely next step in one line so workflow momentum is maintained. |
-| 35 | **profit-driven-development** | The north star for all sports prediction work — every change must answer "will this make the NEXT picks more correct and more profitable?" Prevents overfitting and endless backtest loops. |
-| 36 | **proactive-qa** | Walks the user journey after every implementation, catching edge cases and fixing adjacent bugs before you notice. |
+| 35 | **proactive-qa** | Walks the user journey after every implementation, catching edge cases and fixing adjacent bugs before you notice. |
 | 37 | **process-monitor** | Detects hung processes, port conflicts, and zombie tasks so dev environment issues are caught before they cascade. |
 | 38 | **prompt-anchoring** | Keeps Claude anchored to the original prompt objective during long sessions — periodic drift checks prevent "Claude ADHD" without reducing proactivity. |
 | 39 | **prompt-architect** | Internally decomposes every prompt into intent, context, scope, and unstated requirements so execution is perfect first try. |
@@ -58,8 +58,7 @@
 | 50 | **seamless-resume** | On "continue", picks up exactly where it left off with zero re-reading or re-orientation so momentum is never lost. |
 | 51 | **search-first** | Searches for existing tools and libraries before writing custom code so wheels aren't reinvented. |
 | 52 | **senior-dev-mindset** | Ships complete, production-ready features with inferred requirements so nothing needs hand-holding or follow-up. |
-| 53 | **site-update-protocol** | Universal checklist for updating sports prediction websites after algorithm changes — covers all tabs, stats, data files, and deployment across all sites. |
-| 54 | **skill-manager** | Prevents skill overload — enforces weight classes (passive/light/heavy), 69-skill cap, resolves conflicts, and detects overthinking. |
+| 53 | **skill-manager** | Prevents skill overload — enforces weight classes (passive/light/heavy), skill cap, resolves conflicts, and detects overthinking. |
 | 55 | **smart-clarify** | Asks structured multiple-choice questions instead of open-ended ones so ambiguity resolves in one round, not three. |
 | 56 | **strategic-compact** | Suggests context compaction at logical task boundaries so important context survives rather than being arbitrarily truncated. |
 | 57 | **subagent-driven-development** | Executes implementation plans by dispatching independent tasks to subagents so parallel work happens within a single session. |
@@ -112,7 +111,7 @@ rm -rf ~/.claude-tmp
 | **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch, command-center |
 | **Research & Context** | search-first, deep-research, iterative-retrieval, strategic-compact, context-hydration, token-awareness, think-efficiently, precision-reading, codebase-cartographer |
 | **Review & Collaboration** | requesting-code-review, receiving-code-review |
-| **Workflow Automation** | backtest, audit, deploy, fix-loop, parallel-sweep, version-bump, profit-driven-development |
+| **Workflow Automation** | audit, deploy, fix-loop, parallel-sweep, version-bump |
 | **Git Intelligence** | git-sorcery |
 | **Meta** | prompt-improver, prompt-architect, skill-manager |
 
@@ -130,7 +129,6 @@ rm -rf ~/.claude-tmp
 | Command | Description |
 |---------|-------------|
 | /audit | Scan for hardcoded secrets and code quality issues |
-| /backtest | Run model backtest with baseline comparison |
 | /brainstorm | Start brainstorming session |
 | /deploy | Full deploy pipeline with rollback |
 | /execute-plan | Execute plan with checkpoints |
@@ -207,7 +205,6 @@ The `pre-debug-check` skill now includes barrier recognition — detecting famil
 
 ### 11. Workflow Automation
 Five purpose-built skills for common development workflows:
-- `backtest`: Run model backtests with `| tee`, compare against baseline, commit improvements
 - `audit`: Scan for hardcoded secrets/API keys, fix by moving to env vars, commit
 - `deploy`: Full Cloudflare Pages/Workers pipeline — lint, test, build, deploy, verify, rollback on failure
 - `fix-loop`: Self-healing CI — run tests, diagnose, fix source (never tests), re-run until green
@@ -258,7 +255,7 @@ Five purpose-built skills for common development workflows:
 
 ### 18. Expert Lens — Domain Expert Perspectives
 `expert-lens` activates professional-grade thinking for any domain:
-- **Explicit**: "You are an expert NBA statistician" → activates sports analytics mental models (WAR, regression to the mean, sample size)
+- **Explicit**: "You are an expert in X" → activates domain-specific mental models
 - **Implicit**: Detects domain from task context and auto-applies the right expert framework
 - Loads 4 layers: mental models, domain vocabulary, quality standards, and amateur-mistake avoidance
 - ~30-50 tokens per activation — expert framing often makes output SHORTER and more precise
@@ -297,7 +294,6 @@ Five purpose-built skills for common development workflows:
 | always-improving | No active tasks | Automatic |
 | anti-slop | Structured output | Always-on |
 | audit | `/audit` or security scan tasks | Manual |
-| backtest | `/backtest` or backtest tasks | Manual |
 | brainstorming | `/brainstorm` or large+ambiguous scope | Manual |
 | calibrated-confidence | Every response | Always-on |
 | codebase-cartographer | Session start | Automatic |
@@ -327,7 +323,6 @@ Five purpose-built skills for common development workflows:
 | precision-reading | Large file reads | Automatic |
 | predictive-next | After task completion | Automatic |
 | process-monitor | Background processes | Automatic |
-| profit-driven-development | Sports prediction work | Always-on |
 | proactive-qa | After implementation | Always-on |
 | prompt-anchoring | Long sessions | Always-on |
 | prompt-architect | Every prompt | Always-on |
@@ -466,6 +461,6 @@ MIT - Skills are from various sources with their own licenses.
 
 ---
 
-**69 skills. 4 hooks. 9 commands. One intelligence stack.**
+**67 skills. 4 hooks. 9 commands. One intelligence stack.**
 
 **Made with ❤️ for smarter AI-assisted development**

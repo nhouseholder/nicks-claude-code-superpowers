@@ -21,9 +21,9 @@ Watch for these signals that the user is setting a rule:
 |--------|---------|---------------|
 | "always [do X]" | "always run tests before committing" | Pre-commit: run tests |
 | "never [do Y]" | "never push directly to main" | Git: no direct push to main |
-| "max/min [value]" | "max backtest events is 70" | Backtest: NUM_EVENTS ≤ 70 |
+| "max/min [value]" | "max 100 results per page" | Pagination: limit ≤ 100 |
 | "don't [do X]" | "don't use mocks in integration tests" | Testing: no mocks in integration |
-| "use [X] not [Y]" | "use Weedmaps API, not Leafly for pricing" | Data: Weedmaps for pricing |
+| "use [X] not [Y]" | "use PostgreSQL, not SQLite for staging" | DB: PostgreSQL for staging |
 | "from now on" | "from now on, deploy to staging first" | Deploy: staging before production |
 | "remember that" | "remember that the DB is on port 5433 not 5432" | Env: DB port = 5433 |
 | "I told you" / "I already said" | "I already said max 70 events" | CRITICAL — rule was set before and violated. Find and re-enforce it. |
@@ -42,7 +42,7 @@ This is a zero-cost mental check — like a pilot checking instruments. It only 
 ~/.claude/projects/<project>/memory/user_rules.md
 ```
 
-This file is **project-scoped** — rules for the UFC project don't affect the MyStrainAI project.
+This file is **project-scoped** — rules for Project A don't affect Project B.
 
 For rules that span ALL projects, also write to:
 ```
@@ -54,8 +54,6 @@ For rules that span ALL projects, also write to:
 ```markdown
 # User Rules — [Project Name]
 > HARD CONSTRAINTS. Violating a rule is a bug. Last updated: [DATE]
-## Data & Backtesting
-- **Max backtest events**: 70 UFC events (set 2026-03-17)
 ## Git & Deploy
 - **Never push from iCloud**: Clone to /tmp first (set 2026-03-01)
 ## Code & Architecture
