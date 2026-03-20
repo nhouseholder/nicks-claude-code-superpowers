@@ -53,21 +53,10 @@ Here's what typically happens:
 
 **The fix:** After EVERY backtest result, ask: "Is this improvement because I found a real signal, or because I tried enough variations that one happened to fit the noise?"
 
-### Red Flags That You're Overfitting
-- Accuracy improves when you add a 4th decimal place to a weight
-- The "optimal" parameter is very different from what domain knowledge suggests
-- Improvement only shows on one subset of the data
-- You've tried 10+ variations and the "best" one is barely better than the baseline
-- The improvement disappears when you test on a different time period
-- You can't explain WHY the change should work in plain English
+### Signal vs Noise Checklist
+A change is likely **real signal** if: robust across time periods, parameter value makes domain sense, mechanism is explainable in plain English, meaningful effect size, confirmed on holdout data, model stays simple.
 
-### Green Flags That You Found a Real Signal
-- The improvement is robust across multiple time periods
-- The parameter value makes sense from a domain perspective
-- You can explain the mechanism: "X predicts Y because Z is a real-world dynamic"
-- The effect size is meaningful (not 0.1% accuracy improvement)
-- Holdout data confirms the improvement
-- The change makes the model SIMPLER (fewer parameters, not more)
+A change is likely **overfitting** if: improvement requires 4th decimal place precision, optimal parameter defies domain knowledge, only works on one data subset, 10+ variations tried with marginal gains, disappears on different time periods, you can't explain WHY it works.
 
 ## Profit Math — Keep It Real
 
@@ -111,14 +100,6 @@ After EVERY backtest result:
 - Every parameter must earn its place with a clear, explainable signal
 - If two features are correlated, keep the one with stronger domain justification
 - A simple model that's 53% accurate and robust > a complex model that's 58% on paper
-
-## Integration
-
-- **backtest**: Every backtest must answer: "Does this help predict FUTURE games?" Not just "Does this fit historical data?"
-- **think-efficiently**: Don't waste tokens on backtests that won't produce actionable information. Binary search, not linear sweep.
-- **never-give-up**: If a feature has proven independent profitability, persist. But persistence must be guided by THIS skill's future-first lens.
-- **parallel-sweep**: Sweep ranges should be domain-informed and the winner must pass the overfitting test.
-- **expert-lens**: Sports analytics expertise (CLV, vig-adjusted ROI, regression to the mean) should be active during all sports code work.
 
 ## Rules
 

@@ -23,23 +23,7 @@ It DOES:
 
 ## The Opportunistic Window
 
-```
-You're working on Task X
-    │
-    ├─ Reading file A for Task X
-    │   └─ NOTICE: dead import, unused variable, obvious inefficiency
-    │       └─ Is it a no-brainer fix? → Fix it NOW (same file, already open)
-    │
-    ├─ Editing file B for Task X
-    │   └─ NOTICE: duplicated logic, bad naming, missing error handling
-    │       └─ Is it in the area I'm already editing? → Fix it NOW
-    │       └─ Is it elsewhere in the file? → Note it, fix if trivial
-    │
-    └─ Done with Task X
-        └─ Report: "Also cleaned up: [list of improvements]"
-```
-
-The key: **you're already there.** The marginal cost of fixing something in a file you're already reading/editing is near zero.
+While reading/editing files for your current task, notice issues and fix no-brainers in-place (marginal cost is near zero since you're already there). Report all improvements at the end.
 
 ## What Counts as a No-Brainer
 
@@ -95,18 +79,6 @@ Also noticed (needs your call):
 - dispensaryService.js has duplicated geocoding logic (lines 45-67 and 112-134) — want me to extract a shared helper?
 ```
 
-## How It Stacks Over Time
-
-```
-Session 1: Fix 3 dead imports, rename 2 unclear variables
-Session 2: Fix a missing error handler, clean up commented code
-Session 3: Notice duplicated pattern, extract utility (with permission)
-Session 4: Code is noticeably cleaner, fewer things to flag
-Session 5: Almost nothing to flag — project is in great shape
-```
-
-The compounding effect: each session builds on the last. The project gets cleaner and cleaner without dedicated cleanup sessions.
-
 ## Token Economics
 
 ```
@@ -125,15 +97,6 @@ Average per task:  ~5-15 tokens (most code is fine)
 - **Not a refactoring engine** — Doesn't propose architectural changes
 - **Not opinionated** — Only fixes things that are objectively wrong or clearly better
 - **Never derails the task** — Primary objective always comes first. Improvements are marginal additions, never distractions.
-
-## Integration
-
-- **always-improving**: Always-improving suggests improvements at idle time. Opportunistic-improvement fixes things during active work. Different triggers, same goal.
-- **proactive-qa**: QA checks the work you just did. Opportunistic catches pre-existing issues in code you're passing through.
-- **coding-standards**: Standards define what "good" looks like. Opportunistic applies those standards to existing code encountered during work.
-- **pattern-propagation**: If an opportunistic fix reveals a pattern that exists elsewhere, pattern-propagation handles the sweep.
-- **sanity-check**: If an opportunistic improvement seems risky, the no-brainer test prevents it. If it fails the test, it gets flagged instead.
-- **prompt-anchoring**: Opportunistic improvements apply WITHIN the current task's scope. Prompt-anchoring is the fence — don't chase improvements that pull you away from the user's request.
 
 ## Rules
 

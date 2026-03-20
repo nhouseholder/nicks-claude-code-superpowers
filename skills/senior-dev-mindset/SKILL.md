@@ -168,8 +168,3 @@ Before submitting any implementation, pause and ask:
 
 If the answer to any of these is "no" or "maybe" — you're not done yet.
 
-## Integration
-
-- **prompt-anchoring**: Intent inference is constrained by scope. Infer HOW to build what they asked for, not WHAT to build beyond what they asked. If a login page could also use 2FA, don't add it unless the domain clearly expects it (e.g., banking). When unsure, mention what you could add but don't build it unprompted.
-- **take-your-time**: Take-your-time ensures each requirement gets its own implementation cycle — the same discipline that prevents shipping incomplete features.
-- **calibrated-confidence**: When confidence is LOW on how a feature should work, read existing patterns first. Don't infer requirements you're guessing about — only infer what you're confident the user expects.

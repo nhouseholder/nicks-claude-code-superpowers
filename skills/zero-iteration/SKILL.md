@@ -88,12 +88,6 @@ For any function you write, mentally run it with three inputs:
 If all three produce correct output → write the code.
 If any fails → fix the logic BEFORE writing.
 
-## Integration with Other Skills
-
-- **pre-debug-check**: Zero-iteration prevents bugs; pre-debug-check catches them if they slip through
-- **verification-before-completion**: Zero-iteration is pre-writing verification; VBC is post-writing verification
-- **coding-standards**: Zero-iteration catches logic bugs; coding-standards catches style issues
-
 ## Token Economics
 
 This skill costs zero tokens when code is correct (it's mental execution, not output). It only costs tokens when it catches a pre-bug — and those tokens are far cheaper than a debug cycle.

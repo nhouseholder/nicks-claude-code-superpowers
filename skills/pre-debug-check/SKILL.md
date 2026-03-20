@@ -20,21 +20,10 @@ If neither file exists, report "No anti-patterns or recurring bugs found" and pr
 
 ## Step 2: Search for Matches
 
-Search BOTH files for keywords from the current error:
-
-1. Extract key terms from the error message (package names, error codes, function names, component names)
-2. Search anti-patterns for matches
-3. **Search recurring bugs tracker** — this is critical for bugs that keep coming back
-4. Also search project memory for project-specific patterns:
+Extract key terms from the error message (package names, error codes, function names), then search all knowledge sources:
 
 ```bash
-# Search anti-patterns
-grep -i "KEYWORD" ~/.claude/anti-patterns.md 2>/dev/null
-
-# Search recurring bugs — HIGH PRIORITY
-grep -i "KEYWORD" ~/.claude/recurring-bugs.md 2>/dev/null
-
-# Search project memory
+grep -i "KEYWORD" ~/.claude/anti-patterns.md ~/.claude/recurring-bugs.md 2>/dev/null
 grep -ri "KEYWORD" ~/.claude/projects/*/memory/ 2>/dev/null
 ```
 
@@ -113,13 +102,6 @@ When a barrier is recognized mid-execution:
 5. **VERIFY** the redirect worked
 6. If redirect fails → **UPDATE** anti-patterns with new context
 7. If NO known fix exists → **ESCALATE**: tell the user what you tried, what pattern you see, and recommend next step (architectural review, different approach, or external help). Don't just stop — always leave the user with a clear path forward.
-
-## Integration
-
-- **error-memory**: Pre-debug-check reads anti-patterns AND recurring-bugs.md; error-memory writes to both. They're the read/write pair of the same knowledge base. Recurring bugs get escalated — never re-apply a fix that didn't hold.
-- **systematic-debugging**: Pre-debug-check fires FIRST to catch known patterns. If no match, systematic-debugging takes over for root-cause analysis.
-- **fix-loop**: When fix-loop encounters failures, pre-debug-check is consulted before each retry to avoid repeating known-bad approaches.
-- **calibrated-confidence**: A HIGH confidence anti-pattern match raises confidence to act immediately. No match lowers confidence and triggers deeper investigation.
 
 ## Critical Rules
 

@@ -162,14 +162,6 @@ Or do you want it standalone? Your call.
 - The skill addresses a genuinely new capability gap
 - The user says "just build it" — respect conviction
 
-## Integration
-
-- **prompt-architect**: Architect interprets intent; sanity-check evaluates whether the intent serves the user's actual goals
-- **adaptive-voice**: Sanity checks match the user's energy — brief in flow state, more detailed in planning mode
-- **senior-dev-mindset**: Senior devs push back on bad patterns — sanity-check is the mechanism
-- **proactive-qa**: QA catches issues in implementation; sanity-check catches issues in the REQUEST before work begins
-- **mid-task-triage**: If a course correction would make things worse, sanity-check fires before pivoting
-
 ## Token Economics
 
 - **When not triggered**: 0 tokens (silent on 95% of messages)

@@ -200,34 +200,9 @@ Bugs found: [list with file:line and description]
 Recommendation: SHIP or FIX FIRST
 ```
 
-## Token Economics — QA Must Be Efficient
+## Token Economics
 
-QA is not an excuse to burn tokens. Match testing effort to the tier:
-
-| Tier | Token Budget | Method |
-|------|-------------|--------|
-| **Tier 1** (quick sanity) | ~10-20 tokens | Mental trace only, no output |
-| **Tier 2** (inline verify) | ~50-100 tokens | Trace code with real inputs, check 2-3 scenarios |
-| **Tier 3** (full gate) | ~200-500 tokens | Subagent with focused brief, structured report |
-
-**Efficiency rules:**
-- Don't re-test what you just built and know works — focus on integration points and edge cases
-- Don't test obvious things (does a React component render JSX? Yes, that's what React does)
-- Do test non-obvious things (does the component handle null props? Does the API validate input?)
-- Subagent briefs should be FOCUSED — don't send the entire codebase context, send the changed files and specific test scenarios
-- One well-designed test that covers 3 scenarios > three separate tests that each cover one
-
-**Net impact**: Finding a bug before delivery costs ~50 tokens. The user finding it, reporting it, and Claude diagnosing + fixing it costs 500+. QA is always net-positive on tokens.
-
-## Integration
-
-- **verification-before-completion**: They fire in sequence: qa-gate DURING development (does the feature work?), then verification-before-completion as the FINAL gate before delivery (proof the commands pass, proof the claim is true). Order: build → qa-gate → fix → verification-before-completion → deliver.
-- **proactive-qa**: Proactive QA anticipates issues during development. QA gate is the structured checkpoint after development. They don't overlap — proactive-qa is a mindset, qa-gate is a process.
-- **fix-loop**: If QA gate finds failures, use fix-loop methodology to resolve them
-- **screenshot-dissector**: For frontend changes, if a preview is available, use screenshot-dissector to visually verify. For Tier 2 frontend changes where visual rendering is critical (layout, styling, responsive), run screenshot-dissector in parallel with code verification.
-- **calibrated-confidence**: If confidence is at GUESSING level on the change being tested, escalate from Tier 2 (inline) to Tier 3 (full subagent). Lack of confidence = lack of testing confidence.
-- **zero-iteration**: Zero-iteration catches bugs mentally before writing code. QA gate catches bugs that slipped through after writing code.
-- **test-driven-development**: TDD writes tests first. QA gate verifies the COMPLETE feature works, including aspects tests don't cover.
+Match testing effort to tier: Tier 1 ~10-20 tokens (mental trace), Tier 2 ~50-100 tokens (inline verify), Tier 3 ~200-500 tokens (subagent). Finding bugs before delivery is always net-positive on tokens.
 
 ## Rules
 

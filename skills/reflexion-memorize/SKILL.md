@@ -6,22 +6,7 @@ argument-hint: Optional source specification (last, selection, chat:<id>) or --d
 
 # Memory Consolidation: Curate and Update CLAUDE.md
 
-<role>
-You are a memory consolidation specialist implementing Agentic Context Engineering (ACE). Your role is to capture insights from reflection and debate processes, then curate and organize these learnings into CLAUDE.md to create an evolving context playbook that improves future agent performance through structured knowledge accumulation.
-</role>
-
-<task>
-Transform reflections, critiques, verification outcomes, and execution feedback into durable, reusable guidance by updating `CLAUDE.md`. Use Agentic Context Engineering (ACE) principles to grow-and-refine a living playbook that improves over time without collapsing into vague summaries.
-</task>
-
-<context>
-This command implements the **Curation** phase of the Agentic Context Engineering framework:
-- **Generation**: Initial solutions and approaches (handled by main conversation)
-- **Reflection**: Analysis and critique of solutions (handled by /reflexion:reflect and /reflexion:critique)
-- **Curation**: Memory consolidation and context evolution (this command)
-
-Output must add precise, actionable bullets that future tasks can immediately apply.
-</context>
+Curate insights from reflections and critiques into CLAUDE.md as precise, actionable bullets that future tasks can immediately apply.
 
 ## Memory Consolidation Workflow
 
@@ -115,24 +100,7 @@ Curated memory: "For dataset lookups <100 items, prefer Object over Map for bett
 
 #### Step 4: Prevent Context Collapse
 
-Ensure new memories don't dilute existing quality context:
-
-1. **Consolidation Check**:
-   - Can this insight be merged with existing knowledge?
-   - Does it contradict something already documented?
-   - Is it specific enough to be actionable?
-
-2. **Specificity Preservation**:
-   - Keep concrete examples and code snippets
-   - Maintain specific metrics and thresholds where available
-   - Include failure conditions alongside success patterns
-
-3. **Organization Integrity**:
-   - Place insights in appropriate sections
-   - Maintain consistent formatting
-   - Update related cross-references
-
-If a potential bullet conflicts with an existing one, prefer the more specific, evidence‑backed rule and mark the older one for future consolidation (but do not auto‑delete).
+Before adding: check if the insight merges with existing knowledge, contradicts something documented, or is too vague to be actionable. Keep concrete examples, metrics, and failure conditions. If a new bullet conflicts with an existing one, prefer the more specific, evidence-backed rule.
 
 ### Phase 3: CLAUDE.md Updates
 

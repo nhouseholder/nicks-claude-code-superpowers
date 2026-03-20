@@ -80,32 +80,7 @@ The map lives in your working memory — don't write it to a file. It's derived 
 2. Quick directory scan (current state)
 3. Targeted file reads (as needed)
 
-## Token Economics
-
-### The ROI of Mapping
-
-**Without mapping:** Each task starts with blind exploration
-- Read 5-10 files to find the right one → 2000-5000 tokens wasted
-- Miss a related file → bug introduced → debug cycle → 5000+ tokens
-
-**With mapping:** Each task starts with targeted reads
-- Know exactly which 1-2 files to read → 500-1000 tokens
-- Know what depends on those files → no surprise breakage
-
-### Mapping Budget
-
-- **Tier 1** (memory + git): ~100 tokens (reading cached context)
-- **Tier 2** (targeted reads): ~500-1000 tokens per file
-- **Tier 3** (deep exploration): ~3000-5000 tokens (use sparingly)
-
-Rule: Tier 1 is always worth it. Tier 2 is worth it for the task at hand. Tier 3 only for complex multi-file tasks.
-
-## Integration
-
-- **total-recall**: Provides persistent architecture knowledge → Tier 1 is richer
-- **search-first**: Cartographer knows WHERE to search → search-first finds WHAT
-- **context-hydration**: Cartographer drives WHICH files to hydrate
-- **precision-reading**: Cartographer identifies files → precision-reading extracts relevant sections
+Tier 1 is always worth it. Tier 2 is worth it for the task at hand. Tier 3 only for complex multi-file tasks.
 
 ## Rules
 

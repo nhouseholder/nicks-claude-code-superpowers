@@ -7,89 +7,34 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 
 # Error Memory — Never Make the Same Mistake Twice
 
-You are an error memory agent. Your job is to capture what went wrong, why, and what actually worked — then persist it so future sessions never repeat the same failed approaches. You also track **recurring bugs** — bugs that keep coming back despite being "fixed" — and escalate them so Claude stops applying band-aid fixes.
+You are an error memory agent. Your job is to capture what went wrong, why, and what actually worked — then persist it so future sessions never repeat the same failed approaches. You also track **recurring bugs** and escalate them so Claude stops applying band-aid fixes.
 
 ## When This Fires
 
-This skill activates when:
 1. A debugging session concludes with a working fix
 2. The user corrects your approach ("no, don't do that — do this instead")
 3. Multiple failed attempts preceded a successful solution
 4. A non-obvious gotcha or environment-specific issue is discovered
-5. **A bug is reported that sounds like something fixed before** (recurring bug detection)
-6. **The user says "this is still broken", "this keeps happening", "I already asked you to fix this"**
+5. A bug is reported that sounds like something fixed before
+6. The user says "this is still broken", "this keeps happening", etc.
 
-## Step 0: Recurring Bug Check (BEFORE any fix attempt)
+## Step 0: Check Before Fixing (BEFORE any fix attempt)
 
-**This step fires FIRST, before extracting patterns or attempting fixes.**
+**Search cross-session memory for prior reports of this bug:**
+- Search `~/.claude/anti-patterns.md` and `~/.claude/recurring-bugs.md` for keywords
+- Search project memory: `~/.claude/projects/*/memory/error_*`
 
-Search for prior reports of this same bug:
+**If this bug has been reported before — STOP. Do not re-apply the same fix.** Instead:
+1. Announce: "This bug has been reported [N] times before. The previous fix was insufficient."
+2. Show the history of previous fix attempts
+3. Do deeper root-cause analysis (read full files, check git log for regressions, find what undoes the fix)
+4. Escalation: 1st = normal fix, 2nd = full file context, 3rd = architectural review, 4th+ = stop and discuss with user
 
-```bash
-# Search anti-patterns for this bug
-grep -i "KEYWORD1\|KEYWORD2\|KEYWORD3" ~/.claude/anti-patterns.md 2>/dev/null
-
-# Search recurring bugs tracker
-cat ~/.claude/recurring-bugs.md 2>/dev/null | grep -i "KEYWORD1\|KEYWORD2\|KEYWORD3"
-
-# Search project memory
-grep -ri "KEYWORD1\|KEYWORD2\|KEYWORD3" ~/.claude/projects/*/memory/error_* 2>/dev/null
-```
-
-### If this bug has been reported before:
-
-**STOP. Do not apply the same fix again.** Instead:
-
-1. **Announce it**: "This bug has been reported [N] times before. The previous fix on [DATE] was insufficient."
-2. **Show the history**: Display all previous fix attempts and why they didn't hold
-3. **Escalate**: The previous fix treated a symptom, not the root cause. Require deeper analysis:
-   - Read the FULL file(s) involved, not just the area of the previous fix
-   - Look for what UNDOES the previous fix (another function, a state reset, a race condition, a build step)
-   - Check git log for what changed between the fix and the regression
-4. **Tell the user**: "This is a recurring bug. I'm doing a deeper root-cause analysis instead of re-applying the previous fix."
-
-### Escalation levels based on recurrence:
-
-| Report Count | Escalation |
-|-------------|------------|
-| 1st time | Normal fix. Record in anti-patterns. |
-| 2nd time | Previous fix didn't hold. Read full file context. Check what undoes the fix. |
-| 3rd time | Architectural issue. Map all code paths that touch this feature. Find the systemic cause. |
-| 4th+ time | **STOP and tell the user**: "This bug has come back [N] times. The fix keeps getting undone. Here's what I think the root cause is: [X]. This likely requires [architectural change / guard rail / test]. Want me to proceed with the deeper fix?" |
+**In-session check:** Never retry an approach that already failed this session — even after compaction. After 2 failed approaches on the same problem, re-read everything from scratch. Same fix/same file (even with minor variations), same hypothesis tested differently, or same tool call pattern that errored = "same approach."
 
 ## Coordination with fix-loop
 
-fix-loop tracks failures WITHIN a single fix cycle (test -> fix -> retest). error-memory captures the FINAL outcome for cross-session persistence. Do not duplicate: if fix-loop is running, let it track attempts. Only write to anti-patterns.md when the fix cycle completes (success or escalation to user).
-
-## Step 0.5: In-Session Failure Tracking (within the CURRENT conversation)
-
-Error-memory primarily persists knowledge for FUTURE sessions. But Claude also forgets within the SAME session — especially after context compaction. This step prevents that.
-
-### When Claude's own approach fails in-session:
-
-Every time an approach fails during the current session, mentally tag it:
-
-```
-FAILED THIS SESSION:
-- [What I tried] → [Why it failed] → [Don't retry this]
-```
-
-### Rules for in-session tracking:
-
-1. **Never retry an approach that failed earlier in the same session** — even after compaction. If you tried X and it didn't work, don't try X again with "maybe it'll work this time."
-2. **After 2 failed approaches on the same problem**, pause and re-read the error/context from scratch. Your mental model is wrong.
-3. **After compaction**, if you're about to attempt a fix, check the compaction summary for any "FAILED" or "didn't work" mentions. Those are your own notes from earlier.
-4. **When the user says "you already tried that"** — this is a CRITICAL signal. Stop. Read the conversation history. Apologize once (not profusely). Take a genuinely different approach.
-
-### What counts as "the same approach":
-- Same fix applied to same file/function, even with minor variations
-- Same debugging hypothesis tested a different way
-- Same tool call pattern that produced the same error
-
-### What does NOT count (OK to retry):
-- Same general technique applied to a DIFFERENT root cause
-- Retrying after fixing the prerequisite that caused the first failure
-- User explicitly asks you to retry something
+fix-loop tracks failures WITHIN a single fix cycle. error-memory captures the FINAL outcome for cross-session persistence. Only write to anti-patterns.md when the fix cycle completes.
 
 ## Step 1: Extract the Error Pattern
 
@@ -106,45 +51,26 @@ If multiple failed approaches preceded the fix, capture ALL of them.
 
 ## Step 2: Check for Duplicates
 
-```bash
-# Check if this pattern already exists in anti-patterns
-grep -i "SIMILAR_KEYWORD" ~/.claude/anti-patterns.md 2>/dev/null || echo "No existing pattern found"
-
-# Check if this is a recurring bug
-grep -i "SIMILAR_KEYWORD" ~/.claude/recurring-bugs.md 2>/dev/null || echo "Not a known recurring bug"
-```
-
-If a similar pattern exists, UPDATE it with new context rather than duplicating.
+Search `~/.claude/anti-patterns.md` and `~/.claude/recurring-bugs.md` for similar keywords. If a similar pattern exists, UPDATE it rather than duplicating.
 
 ## Step 3: Persist the Anti-Pattern
 
-Append to `~/.claude/anti-patterns.md` using this exact format:
+Append to `~/.claude/anti-patterns.md`:
 
 ```markdown
 ### [SHORT_TITLE] — [DATE]
-- **Context**: [project/language/framework/environment where this applies]
+- **Context**: [project/language/framework/environment]
 - **Failed approach**: [what was tried]
 - **Why it failed**: [root cause]
 - **Working fix**: [what actually works]
-- **Applies when**: [trigger conditions — when should Claude check this before acting]
+- **Applies when**: [trigger conditions]
 ```
 
-Rules for writing anti-patterns:
-- Be SPECIFIC — include exact error messages, package versions, OS details when relevant
-- Be ACTIONABLE — the "working fix" must be copy-paste usable
-- Be SCOPED — include "Applies when" so the pattern doesn't fire on unrelated work
-- Group related patterns under the same heading if they share root cause
+Be SPECIFIC (exact error messages, versions), ACTIONABLE (copy-paste usable fix), and SCOPED (include "Applies when").
 
 ## Step 4: Update Recurring Bug Tracker
 
-**Always check if this bug should be tracked as recurring.**
-
-A bug is recurring if:
-- It was previously "fixed" but came back
-- The user reports the same symptom they reported before
-- The same area of code needed fixing again
-
-Append to or update `~/.claude/recurring-bugs.md`:
+A bug is recurring if it was previously "fixed" but came back, or the same symptom/area needs fixing again. Append to `~/.claude/recurring-bugs.md`:
 
 ```markdown
 ### [BUG_TITLE] — [PROJECT_NAME]
@@ -152,121 +78,33 @@ Append to or update `~/.claude/recurring-bugs.md`:
 - **Symptom**: [what the user sees]
 - **Component/File**: [specific file(s) and function(s)]
 - **Fix history**:
-  - [DATE]: [what was done] — **DIDN'T HOLD** because [why it regressed]
-  - [DATE]: [what was done] — **DIDN'T HOLD** because [why it regressed]
-  - [DATE]: [what was done] — CURRENT FIX
-- **Root cause**: [the real underlying issue, updated each time]
-- **Guard rails added**: [tests, assertions, or checks that prevent regression]
+  - [DATE]: [what was done] — **DIDN'T HOLD** because [why]
+  - [DATE]: [current fix]
+- **Root cause**: [updated each time]
+- **Guard rails added**: [tests/assertions that prevent regression]
 ```
 
-**Critical**: When updating a recurring bug, update the previous fix entry to say **DIDN'T HOLD** and explain WHY it regressed. This history is what prevents Claude from trying the same fix again.
+When updating, mark previous fixes as **DIDN'T HOLD** and explain WHY they regressed.
 
 ## Step 5: Also Persist to Project Memory (if project-specific)
 
-If the error is specific to the current project (not a general pattern), also save to project memory:
-
-```bash
-# Find the project memory directory
-PROJECT_MEM=$(ls -d ~/.claude/projects/*/memory/ 2>/dev/null | head -1)
-```
-
-Write a memory file like `error_[topic].md` with the same pattern format. For recurring bugs, include the full fix history.
+If the error is project-specific, also save to project memory as `error_[topic].md` with the same format.
 
 ## Step 6: Confirm
 
-Output a brief confirmation:
-```
-Saved error pattern: [SHORT_TITLE]
-Location: ~/.claude/anti-patterns.md
-[If recurring]: ⚠️ RECURRING BUG — Report #[N]. Updated recurring-bugs.md with fix history.
-Future sessions will check this before attempting similar fixes.
-```
+Output: `Saved error pattern: [TITLE] to ~/.claude/anti-patterns.md`
+If recurring: note report count and that recurring-bugs.md was updated.
 
-## Anti-Pattern File Format
+## Efficiency Failures
 
-The `~/.claude/anti-patterns.md` file has this structure:
-
-```markdown
-# Anti-Patterns — Known Failures & Working Fixes
-
-> This file is auto-maintained by the error-memory skill.
-> Claude checks this before debugging to avoid repeating known-bad approaches.
-> Last updated: [DATE]
-
-## Build & Environment
-
-### [patterns related to build tools, env setup, dependencies]
-
-## Code Patterns
-
-### [patterns related to code that looks right but fails]
-
-## API & Integration
-
-### [patterns related to external services, APIs, SDKs]
-
-## Framework-Specific
-
-### [patterns grouped by framework: React, FastAPI, etc.]
-
-## Project-Specific
-
-### [patterns that only apply to specific projects]
-```
-
-## Recurring Bug Tracker Format
-
-The `~/.claude/recurring-bugs.md` file has this structure:
-
-```markdown
-# Recurring Bugs — Bugs That Keep Coming Back
-
-> Auto-maintained by error-memory. Read by pre-debug-check.
-> If a bug appears here, the previous fix was INSUFFICIENT.
-> Claude MUST escalate — do not re-apply the same fix.
-> Last updated: [DATE]
-
-## [Project Name]
-
-### [bug entries grouped by project]
-```
-
-## Integration
-
-- **pre-debug-check**: Pre-debug-check reads anti-patterns AND recurring-bugs.md BEFORE attempting fixes. Error-memory writes to both AFTER fixes are found. They're the write/read pair of the same knowledge base.
-- **systematic-debugging**: Systematic-debugging finds the root cause. Error-memory persists it so future sessions skip straight to the fix.
-- **fix-loop**: When fix-loop resolves a test failure, error-memory captures what worked (and what didn't) for next time.
-- **qa-gate**: After fixing a recurring bug (2nd+ report), qa-gate MUST verify the fix with real testing. No mental traces allowed for repeat offenders.
-- **verification-before-completion**: For recurring bugs, verification-before-completion requires evidence that the SPECIFIC symptom is resolved, not just that the code change looks correct.
-
-## Efficiency Failures (not just bugs)
-
-Error-memory isn't just for bugs. It also captures **wasted effort** — approaches that technically worked but were inefficient, so Claude doesn't waste the user's tokens the same way twice.
-
-### Capture these as anti-patterns too:
-
-| Inefficiency | What to Record |
-|-------------|----------------|
-| Spent 20 tool calls on something that needed 3 | "For [task type], do [efficient approach] instead of [wasteful approach]" |
-| Read 5 files when grep would have found the answer | "In [project], [pattern] is always in [file]. Grep first." |
-| Built something from scratch that already existed | "Check [location] before building custom [thing]" |
-| Ran full test suite when one test file was enough | "For [component] changes, run [specific test] not full suite" |
-| User corrected your approach (even if result was OK) | Record the correction — the user's preferred approach IS the efficient one |
-
-### When to record efficiency patterns:
-- When the user expresses frustration about wasted time/tokens
-- When you realize mid-task you took a wasteful path
-- When the user shows you a faster way to do something
-- When a 2-minute task took 10+ minutes
+Error-memory also captures **wasted effort** — not just bugs. Record as anti-patterns when:
+- You spent many tool calls on something that needed few (record the efficient approach)
+- The user corrects your approach or shows a faster way (their preferred method IS the efficient one)
 
 ## Critical Rules
 
-1. **NEVER delete patterns** — only update or add context
-2. **ALWAYS include the date** so stale patterns can be reviewed
-3. **ALWAYS include "Applies when"** to prevent false matches
-4. **Prefer specific over general** — "React 19 hydration mismatch with Suspense" > "React error"
-5. **Capture the user's exact words** when they correct you — their phrasing often contains the key insight
-6. **NEVER re-apply a fix that didn't hold** — if a bug is recurring, the previous fix was wrong. Find the deeper cause.
-7. **Track recurrence count** — every time a bug comes back, increment the count and update the fix history
-8. **Escalate on recurrence** — 2nd report = deeper analysis, 3rd = architectural review, 4th+ = stop and discuss with user
-9. **Record what UNDID the previous fix** — the regression cause is often more important than the fix itself
+1. **NEVER delete patterns** — only update or add context. Always include date and "Applies when."
+2. **Prefer specific over general** — "React 19 hydration mismatch with Suspense" > "React error"
+3. **Capture the user's exact words** when they correct you — their phrasing often contains the key insight
+4. **NEVER re-apply a fix that didn't hold** — find the deeper cause. Track recurrence count and escalate accordingly.
+5. **Record what UNDID the previous fix** — the regression cause is often more important than the fix itself

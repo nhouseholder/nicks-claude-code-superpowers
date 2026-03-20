@@ -30,23 +30,7 @@ Standard approaches fail:
 
 ## The Solution: Iterative Retrieval
 
-A 4-phase loop that progressively refines context:
-
-```
-┌─────────────────────────────────────────────┐
-│                                             │
-│   ┌──────────┐      ┌──────────┐            │
-│   │ DISPATCH │─────▶│ EVALUATE │            │
-│   └──────────┘      └──────────┘            │
-│        ▲                  │                 │
-│        │                  ▼                 │
-│   ┌──────────┐      ┌──────────┐            │
-│   │   LOOP   │◀─────│  REFINE  │            │
-│   └──────────┘      └──────────┘            │
-│                                             │
-│        Max 3 cycles, then proceed           │
-└─────────────────────────────────────────────┘
-```
+A 4-phase loop (DISPATCH → EVALUATE → REFINE → LOOP, max 3 cycles) that progressively refines context.
 
 ### Phase 1: DISPATCH
 
@@ -160,29 +144,6 @@ Cycle 2:
 Result: auth.ts, tokens.ts, session-manager.ts, jwt-utils.ts
 ```
 
-### Example 2: Feature Implementation
-
-```
-Task: "Add rate limiting to API endpoints"
-
-Cycle 1:
-  DISPATCH: Search "rate", "limit", "api" in routes/**
-  EVALUATE: No matches - codebase uses "throttle" terminology
-  REFINE: Add "throttle", "middleware" keywords
-
-Cycle 2:
-  DISPATCH: Search refined terms
-  EVALUATE: Found throttle.ts (0.9), middleware/index.ts (0.7)
-  REFINE: Need router patterns
-
-Cycle 3:
-  DISPATCH: Search "router", "express" patterns
-  EVALUATE: Found router-setup.ts (0.8)
-  REFINE: Sufficient context
-
-Result: throttle.ts, middleware/index.ts, router-setup.ts
-```
-
 ## Integration with Agents
 
 Use in agent prompts:
@@ -204,8 +165,3 @@ When retrieving context for this task:
 4. **Stop at "good enough"** - 3 high-relevance files beats 10 mediocre ones
 5. **Exclude confidently** - Low-relevance files won't become relevant
 
-## Related
-
-- [The Longform Guide](https://x.com/affaanmustafa/status/2014040193557471352) - Subagent orchestration section
-- `continuous-learning` skill - For patterns that improve over time
-- Agent definitions bundled with ECC (manual install path: `agents/`)

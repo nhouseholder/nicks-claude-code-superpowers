@@ -108,7 +108,7 @@ If any check fails → fix it before reporting. The user should receive a polish
 
 ## Decomposition Patterns
 
-### Feature Build
+### Example: Feature Build
 ```
 "Add a user profile page with avatar upload"
 → Agent 1: Frontend (React component, routing, UI states)
@@ -116,38 +116,7 @@ If any check fails → fix it before reporting. The user should receive a polish
 → Agent 3: Tests (unit + integration tests for both)
 ```
 
-### Research + Implementation
-```
-"Optimize our recommendation algorithm"
-→ Agent 1: Research (analyze current perf, identify bottlenecks, propose solutions)
-→ Agent 2: Benchmark (set up metrics, create baseline measurements)
-→ [Wait for both] → Agent 3: Implement (apply best solution from research)
-```
-
-### Multi-File Refactor
-```
-"Migrate from REST to GraphQL"
-→ Agent 1: Schema (design GraphQL schema from existing REST endpoints)
-→ Agent 2: Resolvers (implement resolvers matching current business logic)
-→ Agent 3: Client (update frontend API calls to use GraphQL)
-→ Agent 4: Tests (update test suite)
-```
-
-### Content + Code
-```
-"Build a landing page for our new feature"
-→ Agent 1: Copy (write compelling, accurate marketing copy)
-→ Agent 2: Design (component structure, responsive layout, animations)
-→ Agent 3: Integration (wire to real data, CTA actions, analytics)
-```
-
-### Analysis
-```
-"Audit our codebase for performance issues"
-→ Agent 1: Frontend perf (bundle size, render cycles, lazy loading)
-→ Agent 2: Backend perf (query optimization, caching, N+1)
-→ Agent 3: Infrastructure (CDN, compression, caching headers)
-```
+Other common patterns: Research + Implementation (research wave then build wave), Multi-File Refactor (one agent per subsystem), Content + Code (copy, design, integration agents), Analysis (one agent per audit dimension).
 
 ## Resource Management — The CEO's Playbook
 
@@ -326,20 +295,6 @@ Done. All 3 agents completed:
 - "My specialized agents are working on..."
 
 Just say what's happening. The user doesn't care about the metaphor — they care about the result.
-
-## Integration with Existing Skills
-
-```
-command-center (orchestrator)
-    │
-    ├─ Uses: dispatching-parallel-agents (agent launch mechanics)
-    ├─ Uses: expert-lens (agent specialization)
-    ├─ Uses: iterative-retrieval (agent context assembly)
-    ├─ Uses: pattern-propagation (cross-agent consistency)
-    ├─ Uses: verification-before-completion (quality gate)
-    ├─ Uses: git-sorcery (atomic commits per workstream)
-    └─ Uses: response-recap (unified result summary)
-```
 
 ## Rules
 

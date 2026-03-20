@@ -104,29 +104,6 @@ Task(subagent_type="general-purpose", prompt="
 - Markdown processing → `remark`, `unified`, `markdown-it`
 - Image optimization → `sharp`, `imagemin`
 
-## Integration Points
-
-### With planner agent
-The planner should invoke researcher before Phase 1 (Architecture Review):
-- Researcher identifies available tools
-- Planner incorporates them into the implementation plan
-- Avoids "reinventing the wheel" in the plan
-
-### With architect agent
-The architect should consult researcher for:
-- Technology stack decisions
-- Integration pattern discovery
-- Existing reference architectures
-
-### With iterative-retrieval skill
-Combine for progressive discovery:
-- Cycle 1: Broad search (npm, PyPI, MCP)
-- Cycle 2: Evaluate top candidates in detail
-- Cycle 3: Test compatibility with project constraints
-
-### With deep-research
-Search-first checks if tools/libraries exist. If nothing suitable is found, deep-research kicks in for domain knowledge needed to build custom. They sequence: search-first → deep-research.
-
 ## Examples
 
 ### Example 1: "Add dead link checking"

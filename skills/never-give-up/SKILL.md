@@ -17,12 +17,10 @@ Before deciding whether to persist or move on, answer ONE question:
 
 > **Is there independent evidence that this idea has value?**
 
-| Evidence Level | Examples | Action |
-|----------------|----------|--------|
-| **Strong evidence** — proven profitable in isolation, backed by data | System modifiers showed +15% ROI in independent testing; feature works in another context | **Fight for it.** The integration problem is solvable. Try different approaches. |
-| **Theoretical evidence** — makes domain sense but untested | "Recency weighting should matter because recent form is important" | **Test in isolation first.** Don't fight for integration until you prove it works alone. |
-| **No evidence** — just an idea with no supporting data | "Maybe we should weight by jersey number" | **Try once, cleanly. If it fails, move on.** Not every idea deserves persistence. |
-| **Counter-evidence** — data shows it doesn't help | Tested 3+ well-designed approaches, none improved anything | **Let it go.** Log detailed notes, shelve it, revisit if architecture changes. |
+| Evidence Level | Action |
+|----------------|--------|
+| **Strong evidence** — proven profitable in isolation, backed by data | **Fight for it.** The integration problem is solvable. Try different approaches. |
+| **No/counter evidence** — untested theory, no data, or 3+ failed well-designed attempts | **Test in isolation first** if theoretical. **Move on** if no evidence. **Shelve with notes** if counter-evidence. |
 
 **The key insight:** This skill only demands persistence when there IS evidence. It does NOT demand persistence on every idea.
 
@@ -123,15 +121,6 @@ If you can't fill in all 4, your experiment isn't ready. Design it better before
    - "Next: try conditional application only when differential exceeds threshold"
 6. **Escalate at 3 attempts**: Present findings to user, let them decide next steps
 7. **Optimize holistically when appropriate**: Variables interact — a feature that hurts at weight=0.15 might be essential at weight=0.03 with other coefficients adjusted
-
-## Integration with Other Skills
-
-- **backtest**: After a failed integration, backtest to understand WHERE and WHY it regressed. Use backtest to structure each retry attempt with metrics.
-- **think-efficiently**: Think-efficiently prevents burning tokens on retries that aren't fundamentally different. If think-efficiently says "this won't produce new info," respect it — redesign the attempt, don't just re-run.
-- **parallel-sweep**: Use multi-agent sweeps to search the joint parameter space efficiently — don't hand-tune. Think-efficiently informs sweep range selection.
-- **error-memory**: Log WHAT WAS LEARNED, never log the IDEA as failed
-- **sports_backtesting_protocol**: All retry attempts must follow the full protocol including overfitting checks
-- **token-awareness**: This skill respects token budgets — 3 attempts max before escalating
 
 ## Rules
 

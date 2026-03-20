@@ -87,43 +87,22 @@ The files survive compaction perfectly. The conversation doesn't.
 #### Checkpoint Format (`current_work.md`):
 
 ```markdown
----
-name: current-work
-description: In-progress task state — read this first when resuming after a crash or new session
-type: project
----
-
 ## Current Task
-[One-line description of what's being done]
-
+[One-line description]
 ## Status
-- **Phase**: [planning | implementing | testing | debugging | deploying]
-- **Progress**: [Step X of Y — what's done, what's next]
-- **Last action**: [The last thing Claude did before this checkpoint]
-
-## Completed So Far
-- [x] [Step 1 — done]
-- [x] [Step 2 — done]
-- [ ] [Step 3 — in progress / next]
-- [ ] [Step 4 — not started]
-
-## User's Requirements (near-verbatim)
-- [What they originally asked for]
-- [Corrections/clarifications they gave]
-- [Preferences: "do it this way", "don't do X"]
-
-## Decisions Made
-- [Chose X over Y because: user said / technical reason / tested and confirmed]
-
-## Key Context
-[Anything else a new session would need — approach chosen, gotchas discovered, failed attempts]
-
-## Files Modified This Session
-- `path/to/file.js` — [what was changed]
-- `path/to/other.py` — [what was changed]
-
+- **Phase**: [planning|implementing|testing|debugging] — Step X of Y
+- **Last action**: [last thing done]
+## Progress
+- [x] [Done steps]
+- [ ] [Next steps]
+## User Requirements (near-verbatim)
+- [Original ask + corrections + preferences]
+## Decisions & Context
+- [Key decisions with reasoning, gotchas, failed approaches]
+## Files Modified
+- `path/to/file` — [what changed]
 ## Resume Instructions
-[Exactly what to do next if picking up from this checkpoint]
+[Exactly what to do next]
 ```
 
 #### Checkpoint Rules:
@@ -211,19 +190,6 @@ After creating/updating memory files, ensure MEMORY.md has pointers to all of th
 
 ## Memory Organization
 
-### By Topic, Not Chronology
-```
-~/.claude/projects/<project>/memory/
-├── MEMORY.md                    ← Index (always loaded)
-├── architecture.md              ← Stack, patterns, key decisions
-├── gotchas.md                   ← Things that trip you up
-├── user_preferences.md          ← How the user likes to work
-├── current_work.md              ← In-progress tasks and next steps
-├── feedback_<topic>.md          ← User corrections and guidance
-├── decisions_<topic>.md         ← Why we chose X over Y
-└── reference_<topic>.md         ← External resources and pointers
-```
-
 ### Merge, Don't Duplicate
 Before creating a new memory file, check if an existing one covers the topic. Update existing files rather than creating new ones. Keep the total count manageable (aim for 5-15 files, not 50).
 
@@ -264,13 +230,8 @@ Whatever comes to mind → save it.
 
 ## Rules
 
-1. **Load silently** — don't announce memory hydration, just know the project
-2. **Save automatically** — don't wait for `/mem save`, capture important moments as they happen
-3. **Topic over time** — organize by subject, not by date
-4. **Merge, don't duplicate** — update existing memories, don't create parallel files
-5. **Prune stale** — outdated memories are worse than no memories (they mislead)
-6. **Reasoning matters** — save WHY decisions were made, not just WHAT was decided
-7. **User corrections are gold** — if the user corrects you, that's a high-priority save
-8. **The "Would I Forget?" test** — run it before every session end
-9. **Keep it under 200 lines** in MEMORY.md — it's always loaded, so keep it lean
-10. **Never save secrets** — no API keys, passwords, or credentials in memory files
+1. **Load silently, save automatically** — don't announce hydration; capture important moments as they happen
+2. **Merge, don't duplicate; prune stale** — update existing memories, remove outdated ones that mislead
+3. **Save reasoning and user corrections** — WHY decisions were made + user corrections are high-priority saves
+4. **"Would I Forget?" test** — run it before every session end
+5. **Never save secrets** — no API keys, passwords, or credentials in memory files

@@ -5,13 +5,7 @@ description: Zero tolerance for placeholder data, lazy defaults, and AI-generate
 
 # Anti-Slop — Zero Tolerance for Placeholder Garbage
 
-## The Problem This Solves
-
-Claude generates a database of 50 research papers. Every single author field says "Unknown." Every DOI is blank. Every journal is "N/A." The user asked for a research database and got a template filled with garbage.
-
-This is the worst kind of AI failure — it LOOKS like work was done, but the output is worthless. The user has to manually fix every record, which is MORE work than doing it from scratch. It's disrespectful of the user's time and trust.
-
-**This will never happen again.**
+Every field in structured output must contain real, researched data — not placeholders.
 
 ## When This Fires
 
@@ -117,16 +111,6 @@ If you cannot find any of these for a specific paper, flag that specific field f
 - No copy-paste templates with only the name changed
 - Factual claims must be verifiable or labeled as inference
 
-## The Delivery Checklist
-
-Before handing any structured data to the user:
-
-1. **Placeholder scan**: Search for "Unknown", "N/A", "TBD", empty strings, null values
-2. **Uniqueness check**: Are supposedly-unique fields actually unique across records?
-3. **Spot-check accuracy**: Pick 3 random records and verify the data is real
-4. **Completeness report**: "X/Y records fully populated. Z records have gaps in [fields] because [reasons]"
-5. **Confidence statement**: "I verified authors/dates/DOIs via [sources]" or "These are from memory — recommend verification for [specific fields]"
-
 ## What To Do When You Can't Find Real Data
 
 In order of preference:
@@ -136,15 +120,6 @@ In order of preference:
 3. **Flag specifically** — "Author not found: paper was published anonymously on [platform]"
 4. **Ask the user** — "I couldn't find authors for 5 of these papers. Want me to try [alternative approach] or should I mark them for your manual review?"
 5. **LAST RESORT: Deliver with explicit gap report** — Never silently deliver incomplete data
-
-## Integration
-
-- **qa-gate**: Anti-slop is a data-quality layer. QA-gate is a feature-quality layer. Both fire before delivery, but on different dimensions.
-- **verification-before-completion**: Verification checks that code RUNS. Anti-slop checks that output is REAL. Complementary, not redundant.
-- **calibrated-confidence**: If confidence is LOW on data accuracy, anti-slop demands research before filling. If GUESSING, stop and search.
-- **senior-dev-mindset**: A senior dev would never deliver a database of "Unknown" values. Anti-slop is the data equivalent of senior-dev's "ship complete" mentality.
-- **expert-lens**: When in expert mode (e.g., scientist, researcher), anti-slop standards are HIGHER. A scientist citing "Unknown" authors is professionally unacceptable.
-- **proactive-qa**: Proactive-qa catches functional issues. Anti-slop catches content issues. Both are proactive quality.
 
 ## Rules
 

@@ -155,14 +155,6 @@ This takes 5 tokens and prevents 500 tokens of confusion later.
 **Trap**: Run baseline, make 3 changes, run again. Results differ. Which change caused it?
 **Prevention**: One change at a time. Verify between each.
 
-## Integration
-
-- **think-efficiently**: Think-efficiently catches pointless actions. Confusion-prevention catches confused actions — different failure mode. A confused action looks productive but isn't.
-- **sanity-check**: Sanity-check flags risky user requests. Confusion-prevention flags risky Claude actions (git checkout without stash, comparing incompatible results).
-- **error-memory**: When a confusion spiral is resolved, record the root cause as an anti-pattern so future sessions skip the spiral entirely.
-- **pre-debug-check**: Pre-debug-check consults known patterns before debugging. Confusion-prevention fires during execution when the ground shifts mid-task.
-- **prompt-anchoring**: Confusion spirals are a form of drift. If anchoring detects drift, and the drift looks like confusion (multiple "wait" / "let me check" moments), escalate to the re-orientation protocol instead of just returning to the anchor.
-
 ## Rules
 
 1. **2 unproductive "wait" moments = STOP** — going in circles without learning anything new means you are confused. A 'wait' followed by genuinely new information is healthy iteration. Re-orient before continuing.

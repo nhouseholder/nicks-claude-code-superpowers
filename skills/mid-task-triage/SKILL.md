@@ -26,14 +26,7 @@ Every mid-task message falls into one of three categories. Classify in <1 second
 
 **Action:** Absorb the new information into your current work. Don't acknowledge separately — just incorporate it seamlessly. If you've already written code that contradicts the addendum, adjust it as you go.
 
-**Example:**
-```
-User: "Add a user profile page"
-[Claude starts building...]
-User: "with dark mode support"
-
-→ ADDENDUM. Don't stop. Add dark mode to the profile page you're already building.
-```
+**Example:** User says "with dark mode support" while you're building a profile page → absorb silently, add dark mode to the page you're already building.
 
 ### B) COURSE CORRECTION — "Change direction on what you're doing"
 
@@ -52,15 +45,7 @@ Pivoting to modal approach —
 ```
 Then continue working. No paragraph explaining why you're changing or what you were doing before.
 
-**Example:**
-```
-User: "Build an auth flow with email/password"
-[Claude starts building login page...]
-User: "actually let's use Google OAuth instead"
-
-→ COURSE CORRECTION. Pivot: keep any reusable UI, swap the auth method.
-  Say: "Switching to Google OAuth —" then keep building.
-```
+**Example:** User says "actually let's use Google OAuth instead" while you're building email/password auth → say "Switching to Google OAuth —" then pivot, keeping reusable UI.
 
 ### C) QUEUE — "Different topic, handle after current task"
 
@@ -80,15 +65,7 @@ Noted — I'll [queued task summary] after finishing this.
 
 Then keep working without pause.
 
-**Example:**
-```
-User: "Refactor the API service layer"
-[Claude is mid-refactor...]
-User: "also can you check if our tests are passing?"
-
-→ QUEUE. Say: "Noted — I'll run the test suite after this refactor."
-  Continue refactoring. Run tests when done.
-```
+**Example:** User says "also can you check if our tests are passing?" mid-refactor → say "Noted — I'll run the test suite after this refactor." Continue working.
 
 ## Classification Decision Tree
 
@@ -147,14 +124,6 @@ Classification is instant and invisible for normal messages (addendum, queue). E
 - Queue acknowledgment: ~15 tokens (one line + mental note)
 
 Total overhead: Near zero. This skill SAVES tokens by preventing stop-start cycles, re-orientation, and "where were we?" conversations.
-
-## Integration
-
-- **prompt-architect**: Triage classifies FIRST (addendum/correction/queue), THEN prompt-architect interprets based on triage result. Triage is the traffic cop, architect is the interpreter.
-- **seamless-resume**: Handles the "continue" after interruption case
-- **adaptive-voice**: Mid-task messages in flow state get even shorter acknowledgments
-- **predictive-next**: After completing current task + queued items, still predict what's next
-- **token-awareness**: Mid-task triage is the ultimate token saver — no wasted re-orientation
 
 ## Rules
 

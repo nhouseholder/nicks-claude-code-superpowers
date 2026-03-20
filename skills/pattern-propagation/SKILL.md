@@ -68,44 +68,13 @@ After all updates:
 
 ## Common Propagation Patterns
 
-### Rename Propagation
-```
-Rename: getUserData → fetchUserProfile
-Find: all imports, all call sites, all test references, all comments
-Update: every single one. No "unused import" warnings left behind.
-```
-
-### API Shape Change
-```
-Change: { data: items } → { results: items, total: count }
-Find: every fetch call that reads the response
-Update: every destructure, every property access
-Don't forget: error handling paths, loading states, TypeScript types
-```
-
-### Component Prop Change
-```
-Change: <Button color="primary"> → <Button variant="primary">
-Find: every usage of the Button component
-Update: every prop usage across all files
-Check: default props, prop types, storybook stories, tests
-```
-
-### Config/Env Change
-```
-Change: DATABASE_URL → DB_CONNECTION_STRING
-Find: every process.env reference, every .env file, every docker-compose
-Update: all references, all documentation, deployment configs
-Don't forget: CI/CD pipelines, README setup instructions
-```
-
-### File/Directory Move
-```
-Move: src/utils/helpers.js → src/lib/helpers.js
-Find: every import that references the old path
-Update: all import paths (relative paths change!)
-Check: path aliases in tsconfig/vite config, test configs
-```
+| Pattern | Find | Don't Forget |
+|---------|------|-------------|
+| **Rename** (`getUserData` → `fetchUserProfile`) | All imports, call sites, test refs, comments | No "unused import" warnings left behind |
+| **API Shape** (`{ data }` → `{ results, total }`) | Every fetch/destructure/property access | Error handling paths, TypeScript types |
+| **Component Props** (`color` → `variant`) | Every component usage across files | Default props, storybook, tests |
+| **Config/Env** (`DATABASE_URL` → `DB_CONNECTION_STRING`) | Every env reference, .env files, docker-compose | CI/CD pipelines, deployment configs |
+| **File Move** (`src/utils/` → `src/lib/`) | Every import referencing old path | Path aliases in tsconfig/vite, test configs |
 
 ## What NOT to Propagate
 

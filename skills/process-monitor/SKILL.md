@@ -32,16 +32,7 @@ EXPECTED: [should it still be running?]
 
 ### Common Processes to Monitor
 
-| Process | Typical Port | What to Watch |
-|---------|-------------|---------------|
-| Vite dev server | 5173 | Hot reload working? Memory climbing? |
-| React dev server | 3000 | Compilation errors? |
-| FastAPI/uvicorn | 8000 | Startup complete? Crash loops? |
-| Wrangler (CF) | 8788 | Bound correctly? Worker errors? |
-| Database | 5432/3306 | Accepting connections? |
-| Test watcher | — | Stuck in loop? |
-| Build process | — | Completed or hung? |
-| npm install | — | Frozen? Network issue? |
+Watch for: Vite (:5173), React (:3000), FastAPI (:8000), Wrangler (:8788), DB (:5432/:3306), test watchers, build processes, npm install. Check for: startup completion, crash loops, memory growth, compilation errors, hung/frozen state.
 
 ## Problem Detection
 
@@ -145,13 +136,6 @@ This skill operates on a "check only when relevant" basis:
 - **Normal operation with no issues**: Zero additional tokens
 
 No polling. No periodic checks. Only check when an event triggers it.
-
-## Integration
-
-- **proactive-qa**: Process monitor catches infrastructure issues; proactive-qa catches code issues
-- **pre-debug-check**: When debugging, check if the issue is a hung/crashed process first
-- **seamless-resume**: On resume, check if background processes from before the pause are still running
-- **git-sorcery**: Before git operations, check for processes that might have locks on files
 
 ## Rules
 

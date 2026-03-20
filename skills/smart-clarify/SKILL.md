@@ -145,24 +145,6 @@ Always use this structure:
 - If you're 80%+ confident → just do the thing
 - Clarification is for genuine ambiguity, not avoiding risk
 
-## Integration with Other Skills
-
-```
-User request arrives
-    │
-    ├─ intent-detection → maps to workflow
-    │
-    ├─ Ambiguous? → smart-clarify (multiple choice)
-    │                    │
-    │                    └─ User picks option → proceed immediately
-    │
-    ├─ Clear? → execute directly
-    │
-    └─ Vague? → prompt-improver (deeper research + questions)
-```
-
-**Key difference from prompt-improver:** prompt-improver is for genuinely vague prompts that need research and enrichment. smart-clarify is for prompts where the intent is almost clear but has 2-3 possible interpretations — resolved with one quick question, not a research phase.
-
 ## Rules
 
 1. **A and B should cover ~90% of cases** — design options so the user almost never needs C or D

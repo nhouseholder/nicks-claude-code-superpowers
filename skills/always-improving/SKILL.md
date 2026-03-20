@@ -96,20 +96,6 @@ Every suggestion must pass ALL of these:
 - **User declined previous suggestions** → Back off. Don't keep suggesting unless asked
 - **User said "what else?"** → Full scan, give them more options
 
-## Integration
-
-- **predictive-next**: Predictive-next suggests the logical NEXT step. Always-improving suggests ENHANCEMENTS when there is no next step.
-- **proactive-qa**: Proactive-QA catches issues during active work. Always-improving scans for opportunities at idle time.
-- **codebase-cartographer**: Uses the mental map to identify improvement targets efficiently
-- **expert-lens**: Applies domain expertise to judge improvement quality
-- **prompt-architect**: User model informs which improvements align with their goals and preferences
-
-## Token Economics
-
-- **During active work**: 0 tokens (completely silent)
-- **At idle points**: ~50-100 tokens for the scan + suggestion
-- **Net impact**: Positive ROI — surfaces improvements the user would eventually discover themselves, saving future debugging/refactoring time
-
 ## Rules
 
 1. **Only at idle** — Never interrupt active work or flow state

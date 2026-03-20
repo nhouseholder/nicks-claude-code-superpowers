@@ -5,21 +5,9 @@ description: Use when encountering any bug, test failure, or unexpected behavior
 
 # Systematic Debugging
 
-## Overview
+## Core Principle
 
-Random fixes waste time and create new bugs. Quick patches mask underlying issues.
-
-**Core principle:** ALWAYS find root cause before attempting fixes. Symptom fixes are failure.
-
-**Violating the letter of this process is violating the spirit of debugging.**
-
-## The Iron Law
-
-```
-ROOT CAUSE FIRST — except for obvious fixes (typos, missing imports, wrong variable names) where the cause IS the fix. For anything non-trivial, identify the root cause before applying a fix.
-```
-
-If you haven't completed Phase 1 and the issue is non-trivial, you cannot propose fixes.
+**ROOT CAUSE FIRST** — except for obvious fixes (typos, missing imports, wrong variable names) where the cause IS the fix. For anything non-trivial, complete Phase 1 before proposing fixes. Symptom fixes are failure.
 
 ## When to Use
 
@@ -275,18 +263,6 @@ If systematic investigation reveals issue is truly environmental, timing-depende
 4. Add monitoring/logging for future investigation
 
 **But:** 95% of "no root cause" cases are incomplete investigation.
-
-## Supporting Techniques
-
-These techniques are part of systematic debugging and available in this directory:
-
-- **Root cause tracing** - Trace backwards from the symptom: What changed? What's different from the working state? What assumptions are being violated? Follow the data flow backward through the call stack to find the original trigger.
-- **`defense-in-depth.md`** - Add validation at multiple layers after finding root cause
-- **`condition-based-waiting.md`** - Replace arbitrary timeouts with condition polling
-
-**Related skills:**
-- **superpowers:test-driven-development** - For creating failing test case (Phase 4, Step 1)
-- **superpowers:verification-before-completion** - Verify fix worked before claiming success
 
 ## Real-World Impact
 

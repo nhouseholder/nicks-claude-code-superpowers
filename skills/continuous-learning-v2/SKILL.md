@@ -77,51 +77,7 @@ Use functional patterns over classes when appropriate.
 - **Evidence-backed** -- tracks what observations created it
 - **Scope-aware** -- `project` (default) or `global`
 
-## How It Works
-
-```
-Session Activity (in a git repo)
-      |
-      | Hooks capture prompts + tool use (100% reliable)
-      | + detect project context (git remote / repo path)
-      v
-+---------------------------------------------+
-|  projects/<project-hash>/observations.jsonl  |
-|   (prompts, tool calls, outcomes, project)   |
-+---------------------------------------------+
-      |
-      | Observer agent reads (background, Haiku)
-      v
-+---------------------------------------------+
-|          PATTERN DETECTION                   |
-|   * User corrections -> instinct             |
-|   * Error resolutions -> instinct            |
-|   * Repeated workflows -> instinct           |
-|   * Scope decision: project or global?       |
-+---------------------------------------------+
-      |
-      | Creates/updates
-      v
-+---------------------------------------------+
-|  projects/<project-hash>/instincts/personal/ |
-|   * prefer-functional.yaml (0.7) [project]   |
-|   * use-react-hooks.yaml (0.9) [project]     |
-+---------------------------------------------+
-|  instincts/personal/  (GLOBAL)               |
-|   * always-validate-input.yaml (0.85) [global]|
-|   * grep-before-edit.yaml (0.6) [global]     |
-+---------------------------------------------+
-      |
-      | /evolve clusters + /promote
-      v
-+---------------------------------------------+
-|  projects/<hash>/evolved/ (project-scoped)   |
-|  evolved/ (global)                           |
-|   * commands/new-feature.md                  |
-|   * skills/testing-workflow.md               |
-|   * agents/refactor-specialist.md            |
-+---------------------------------------------+
-```
+Hooks capture session activity and project context, store observations in per-project JSONL files, a background observer detects patterns (corrections, error resolutions, repeated workflows) and creates/updates instincts (project-scoped or global), which can then be evolved into skills/commands/agents via `/evolve` and `/promote`.
 
 ## Project Detection
 
@@ -236,33 +192,17 @@ Other behavior (observation capture, instinct thresholds, project scoping, promo
 
 ## File Structure
 
-```
-~/.claude/homunculus/
-+-- identity.json           # Your profile, technical level
-+-- projects.json           # Registry: project hash -> name/path/remote
-+-- observations.jsonl      # Global observations (fallback)
-+-- instincts/
-|   +-- personal/           # Global auto-learned instincts
-|   +-- inherited/          # Global imported instincts
-+-- evolved/
-|   +-- agents/             # Global generated agents
-|   +-- skills/             # Global generated skills
-|   +-- commands/           # Global generated commands
-+-- projects/
-    +-- a1b2c3d4e5f6/       # Project hash (from git remote URL)
-    |   +-- project.json    # Per-project metadata mirror (id/name/root/remote)
-    |   +-- observations.jsonl
-    |   +-- observations.archive/
-    |   +-- instincts/
-    |   |   +-- personal/   # Project-specific auto-learned
-    |   |   +-- inherited/  # Project-specific imported
-    |   +-- evolved/
-    |       +-- skills/
-    |       +-- commands/
-    |       +-- agents/
-    +-- f6e5d4c3b2a1/       # Another project
-        +-- ...
-```
+All files under `~/.claude/homunculus/`:
+- `identity.json` — your profile/technical level
+- `projects.json` — registry: project hash -> name/path/remote
+- `observations.jsonl` — global observations (fallback)
+- `instincts/personal/` — global auto-learned instincts
+- `instincts/inherited/` — global imported instincts
+- `evolved/{agents,skills,commands}/` — global generated artifacts
+- `projects/<hash>/project.json` — per-project metadata
+- `projects/<hash>/observations.jsonl` — per-project observations
+- `projects/<hash>/instincts/{personal,inherited}/` — project-scoped instincts
+- `projects/<hash>/evolved/{skills,commands,agents}/` — project-scoped evolved artifacts
 
 ## Scope Decision Guide
 

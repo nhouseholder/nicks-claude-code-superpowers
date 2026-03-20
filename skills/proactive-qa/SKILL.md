@@ -137,12 +137,4 @@ Is there an established pattern in the codebase?
 
 ## What NOT to Be Proactive About
 
-- **Business logic decisions** — "Should free users see this?" → Ask
-- **Design choices** — "Should this be a modal or a new page?" → Ask (unless pattern exists)
-- **Data model changes** — Adding/removing database fields → Ask
-- **Third-party integrations** — Adding new dependencies → Ask
-- **Destructive operations** — Deleting data, resetting state → Ask
-- **Performance trade-offs** — Caching strategies, lazy loading approaches → Discuss
-- **Code outside the request scope** — Noticed a smell in an unrelated file? Mention it, don't fix it.
-
-These are product decisions, not engineering ones. Let the user decide.
+Be proactive about engineering decisions (error handling, edge cases, code quality). Ask first on product decisions (business logic, design choices, data model changes, new dependencies, destructive operations).

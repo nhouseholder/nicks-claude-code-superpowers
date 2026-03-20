@@ -45,16 +45,11 @@ Every domain has specific frameworks that experts use instinctively:
 
 | Domain | Key Mental Models |
 |--------|------------------|
-| **Sports Analytics / Betting** | WAR, expected value, regression to the mean, sample size warnings, survivorship bias, replacement-level thinking, walk-forward validation, overfitting detection, Kelly criterion, closing line value, sharp vs public money, vig-adjusted ROI |
-| **Cannabis Pharmacology** | Entourage effect, terpene-cannabinoid synergy, receptor binding (CB1/CB2/TRPV1/5-HT1A/PPARγ/GPR55), biphasic dosing, chemotype classification, terpene profiles, strain lineage, phenotype expression |
-| **Web Design** | Visual hierarchy, Gestalt principles, Fitts's law, progressive disclosure, design systems, accessibility (WCAG) |
-| **Medicine/Health** | Differential diagnosis, evidence tiers, NNT/NNH, sensitivity vs specificity, pretest probability |
-| **Finance** | DCF, risk-adjusted returns, Monte Carlo, fat tails, correlation ≠ causation, base rates |
+| **Sports Analytics / Betting** | WAR, expected value, regression to the mean, sample size warnings, survivorship bias, walk-forward validation, overfitting detection, Kelly criterion, closing line value, vig-adjusted ROI |
+| **Cannabis Pharmacology** | Entourage effect, terpene-cannabinoid synergy, receptor binding (CB1/CB2/TRPV1/5-HT1A/PPARγ/GPR55), biphasic dosing, chemotype classification, terpene profiles |
 | **Data Science** | Bias-variance tradeoff, feature importance, cross-validation, data leakage, confounders |
-| **Marketing** | AIDA, customer journey, conversion funnels, A/B testing rigor, CAC/LTV |
-| **Legal** | Burden of proof, precedent, statutory construction, risk assessment, materiality |
-| **Education/Tutoring** | Scaffolding, zone of proximal development, retrieval practice, spaced repetition, misconception mapping |
-| **Engineering** | Systems thinking, failure modes, redundancy, technical debt, load analysis |
+| **Finance** | DCF, risk-adjusted returns, Monte Carlo, fat tails, correlation ≠ causation, base rates |
+| **Web Design** | Visual hierarchy, Gestalt principles, Fitts's law, progressive disclosure, design systems, accessibility (WCAG) |
 
 Load the relevant models and apply them to the task.
 
@@ -101,14 +96,6 @@ Sometimes a task spans multiple domains:
 
 **Rule:** Identify the PRIMARY domain (the one that drives decisions) and SECONDARY domains (supporting knowledge). Lead with the primary lens, supplement with secondary.
 
-## What Expert Lens Does NOT Do
-
-- **Does not fabricate credentials** — Never say "As a licensed doctor..." or "In my 20 years of experience..."
-- **Does not override safety** — Medical, legal, and financial tasks still get appropriate disclaimers
-- **Does not replace real experts** — For critical decisions, recommend consulting an actual professional
-- **Does not hallucinate domain knowledge** — If unsure about a domain fact, say so. Research first (deep-research skill).
-- **Does not announce itself** — Don't say "Activating expert lens for sports analytics." Just produce expert-quality output.
-
 ## Token Economics
 
 - **Detection:** ~0 tokens (pattern matching on user message)
@@ -117,13 +104,6 @@ Sometimes a task spans multiple domains:
 - **During output:** Net ZERO — expert framing doesn't add length, it adds precision. Often makes output SHORTER because experts are more direct.
 
 Total overhead: ~30-50 tokens per activation. The quality improvement is massive relative to cost.
-
-## Integration
-
-- **adaptive-voice**: Expert lens determines WHAT to say; adaptive-voice determines HOW to say it
-- **deep-research**: When expert lens reveals a knowledge gap, deep-research fills it
-- **senior-dev-mindset**: For software tasks, senior-dev-mindset IS the expert lens (they stack naturally)
-- **zero-iteration**: Expert lens for code = zero-iteration (they complement — lens provides domain context, zero-iteration provides execution rigor)
 
 ## Rules
 

@@ -15,19 +15,10 @@ This skill enhances all git operations automatically. No manual trigger needed.
 
 ### Commit Message Craft
 
-Analyze the actual diff to write messages that capture intent, not just changes:
-
-```
-BAD:  "update files"
-BAD:  "fix bug"
-BAD:  "changes to user component"
-
-GOOD: "Fix race condition in auth token refresh — stale tokens caused 401 cascade"
-GOOD: "Add dispensary search radius filter (5/10/25mi) with URL persistence"
-GOOD: "Optimize strain matching: cache terpene profiles, 3x faster for repeat queries"
-```
+Analyze the actual diff to write messages that capture intent, not just changes.
 
 **Formula**: `[Action] [What] — [Why/Impact]`
+Example: `"Fix race condition in auth token refresh — stale tokens caused 401 cascade"`
 
 - Action: Fix, Add, Remove, Refactor, Optimize, Update, Migrate
 - What: The specific thing that changed
@@ -159,12 +150,6 @@ git blame path/to/file        → Who last touched each line
 - Frequently changed files → potential hotspots that need refactoring
 - Large commits → might need to be split in the future
 - Commit message patterns → follow the project's established style
-
-## Integration
-
-- **pattern-propagation**: Git sorcery commits the propagated changes with clear messages
-- **codebase-cartographer**: Uses git log to understand recent changes and active areas
-- **total-recall**: Git history supplements memory for understanding project evolution
 
 ## Rules
 

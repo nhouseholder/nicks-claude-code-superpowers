@@ -5,8 +5,6 @@ description: Self-healing CI loop — run test suite, diagnose failures, fix sou
 
 # Fix Loop — Self-Healing CI
 
-Autonomous test-driven fix cycle: run tests → diagnose → fix → re-run → repeat until green → commit.
-
 ## Workflow
 
 ### 1. Run Full Test Suite

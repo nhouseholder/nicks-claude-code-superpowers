@@ -46,27 +46,6 @@ The `suggest-compact.js` script runs on PreToolUse (Edit/Write) and:
 2. **Threshold detection** — Suggests at configurable threshold (default: 50 calls)
 3. **Periodic reminders** — Reminds every 25 calls after threshold
 
-## Hook Setup
-
-Add to your `~/.claude/settings.json`:
-
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Edit",
-        "hooks": [{ "type": "command", "command": "node ~/.claude/skills/strategic-compact/suggest-compact.js" }]
-      },
-      {
-        "matcher": "Write",
-        "hooks": [{ "type": "command", "command": "node ~/.claude/skills/strategic-compact/suggest-compact.js" }]
-      }
-    ]
-  }
-}
-```
-
 ## Configuration
 
 Environment variables:
@@ -96,47 +75,21 @@ When auto-handoff triggers, write a structured handoff file:
 **File**: `~/.claude/projects/<project>/memory/handoff.md`
 
 ```markdown
----
-name: session-handoff
-description: Full context handoff from previous session — read this FIRST when resuming
-type: project
----
-
-## Handoff from [date] [time]
-
+## Handoff from [date]
 ## Original Objective
-[The user's original request — verbatim or near-verbatim. This is the anchor.]
-
-## Current Status
-- **Phase**: [planning | implementing | testing | debugging | deploying]
-- **Progress**: [Step X of Y — what's done, what's next]
-- **Blockers**: [Any issues preventing progress]
-
+[User's request — verbatim]
+## Status
+- **Phase**: [planning|implementing|testing|debugging] — Step X of Y
+- **Blockers**: [Any]
 ## Work Completed
-- [x] [Step 1 — what was done + which files]
-- [x] [Step 2 — what was done + which files]
-- [ ] [Step 3 — in progress or next]
-- [ ] [Step 4+ — remaining work]
-
-## Key Decisions Made
-- [Decision 1]: chose X over Y because [reason]
-- [Decision 2]: user specified [preference]
-
-## User Requirements & Preferences (This Session)
-- [Anything the user said about how they want it done]
-- [Corrections they gave]
-- [Preferences expressed]
-
+- [x] [Step — files touched]
+- [ ] [Next step]
+## Key Decisions
+- [Decision]: chose X over Y because [reason]
 ## Files Modified
-- `path/to/file.js` — [what changed and why]
-- `path/to/other.py` — [what changed and why]
-
-## Context the Next Session Needs
-[Anything not captured above — API quirks discovered, gotchas encountered,
-approaches tried and failed, environment setup notes]
-
-## Exact Resume Instructions
-[Step-by-step: what to do first, what to do next, what to verify]
+- `path/to/file` — [what changed]
+## Resume Instructions
+[Exactly what to do next]
 ```
 
 ### Handoff Delivery
@@ -198,34 +151,6 @@ Understanding what persists helps you compact with confidence:
 4. **Read the suggestion** — The hook tells you *when*, you decide *if*
 5. **Write before compacting** — Save important context to files or memory before compacting
 6. **Use `/compact` with a summary** — Add a custom message: `/compact Focus on implementing auth middleware next`
-
-## Token Optimization Patterns
-
-### Trigger-Table Lazy Loading
-Instead of loading full skill content at session start, use a trigger table that maps keywords to skill paths. Skills load only when triggered, reducing baseline context by 50%+:
-
-| Trigger | Skill | Load When |
-|---------|-------|-----------|
-| "test", "tdd", "coverage" | tdd-workflow | User mentions testing |
-| "security", "auth", "xss" | security-review | Security-related work |
-| "deploy", "ci/cd" | deployment-patterns | Deployment context |
-
-### Context Composition Awareness
-Monitor what's consuming your context window:
-- **CLAUDE.md files** — Always loaded, keep lean
-- **Loaded skills** — Each skill adds 1-5K tokens
-- **Conversation history** — Grows with each exchange
-- **Tool results** — File reads, search results add bulk
-
-### Duplicate Instruction Detection
-Common sources of duplicate context:
-- Same rules in both `~/.claude/rules/` and project `.claude/rules/`
-- Skills that repeat CLAUDE.md instructions
-- Multiple skills covering overlapping domains
-
-### Context Optimization Tools
-- `token-optimizer` MCP — Automated 95%+ token reduction via content deduplication
-- `context-mode` — Context virtualization (315KB to 5.4KB demonstrated)
 
 ## Related
 

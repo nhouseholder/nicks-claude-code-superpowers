@@ -80,48 +80,12 @@ python backtest.py --start-date HOLDOUT_START --end-date HOLDOUT_END | tee holdo
 - If holdout performance is comparable → improvement is likely genuine
 - Log both training and holdout results in commit message
 
-## Backtest Window Limits
+## Mandatory Rules (defined in CLAUDE.md — not repeated here)
 
-Hard rules — never backtest on less data than specified:
-
-| Sport | Minimum Window |
-|-------|---------------|
-| UFC | 70 events (growing — starts at 70, auto-increments via track_results.py, never shrinks) |
-| NHL | 3 seasons |
-| MLB | 3 seasons |
-| NBA | 3 seasons |
-| CBB | 3 seasons |
-
-## Walk-Forward Integrity (MANDATORY — #1 RULE)
-
-Every backtest MUST be temporally legitimate. For each game/event being evaluated, the model may ONLY use data available BEFORE that game occurred.
-
-**What this means in practice:**
-- Stats must be computed using only games played BEFORE the prediction date
-- Season-long averages that include the game being predicted are INVALID (this is the most common violation)
-- Point-in-time only: predicting Game 50 = model sees Games 1-49, never Game 50+
-- Odds, injuries, lineups must reflect pre-game state only
-
-**Why this is non-negotiable:**
-Using full-season averages (which include the game being predicted and future games) inflates accuracy by 10-20% and produces completely misleading results. This is called **winner bias** — the backtest looks amazing but the model will fail on live bets because it was secretly using information it won't have in production.
-
-**How to verify:**
-1. Stat functions must accept `cutoff_date` or `before_event` parameter
-2. Rolling/expanding windows must exclude the current game
-3. Any `.mean()`, `.avg()`, or aggregate must filter by date
-4. If accuracy is 80%+ on sports, suspect data leakage FIRST
-
-**If walk-forward integrity cannot be confirmed, the backtest result is WORTHLESS. Do not commit, do not celebrate, do not report it as real.**
-
-## Data Caching (MANDATORY)
-
-All scraped data must be cached locally and committed to GitHub. Never re-scrape what already exists.
-
-- **Before scraping:** Check the cache file first. Only fetch data points not already cached (new events, new games, new dates).
-- **After scraping:** Write results to the cache file immediately. Use JSON, SQLite, or CSV.
-- **Commit caches:** Cache files belong in the repo — they enable fast backtests on any machine.
-- **Naming:** `<sport>_<data_type>_cache.json` (e.g., `ufc_odds_cache.json`, `mlb_stats_cache.json`)
-- **Result:** A full backtest reads cached data in seconds. Re-scraping thousands of games is fragile and slow — only do it for genuinely new data.
+These are enforced globally via CLAUDE.md. See those sections for full details:
+- **Backtest Window Limits** — UFC: 70 events growing, NHL/MLB/NBA/CBB: 3 seasons
+- **Walk-Forward Integrity** — point-in-time stats only, no post-event data leakage
+- **Data Caching** — cache all scraped data locally, commit to GitHub, never re-scrape
 
 ## Rules
 - Never suppress backtest output

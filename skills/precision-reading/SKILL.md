@@ -63,31 +63,14 @@ Grep(pattern="dispensary", path="frontend/src/", output_mode="files_with_matches
 | 500-1000 lines | Always grep first, then targeted read |
 | 1000+ lines | ALWAYS grep first. Never read the whole thing unless you genuinely need it all |
 
-## Common Patterns
+## Common Pattern
 
-### Finding a function definition
 ```
-Grep(pattern="(function|const|def|class)\s+targetName", path="file.js", output_mode="content", -n=true)
-→ Read(offset=matched_line - 5, limit=function_length + 10)
-```
-
-### Understanding imports/exports
-```
-Grep(pattern="(import|export|require)", path="file.js", output_mode="content")
-→ Usually enough — no need to read the full file
+Grep(pattern="targetName", path="file_or_dir", output_mode="content", -C=3)
+→ If context is sufficient, done. If not, Read(offset=matched_line - 5, limit=50)
 ```
 
-### Finding where something is called
-```
-Grep(pattern="functionName\\(", path="src/", output_mode="content", -C=3)
-→ Context lines usually give you enough — read more only if needed
-```
-
-### Checking config values
-```
-Grep(pattern="KEY_NAME", path="config/", output_mode="content")
-→ One-liner result, no need to read any file
-```
+Applies to: function definitions, imports/exports, call sites, config values. Grep with context lines is usually enough without a full file read.
 
 ## Rules
 

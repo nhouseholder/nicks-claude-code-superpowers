@@ -5,11 +5,7 @@ description: Keeps Claude anchored to the original prompt objective during long,
 
 # Prompt Anchoring — Stay On Task Without Losing Intelligence
 
-## The Problem This Solves
-
-During long sessions — especially backtests, multi-file implementations, and complex debugging — Claude drifts. It starts fixing tangential issues, exploring interesting-but-irrelevant paths, and losing sight of what the user actually asked for. The user's original objective becomes background noise buried under layers of proactive problem-solving.
-
-This happens because Claude's other skills (opportunistic-improvement, proactive-qa, systematic-debugging) each pull attention toward legitimate-but-secondary concerns. Individually they're valuable. Collectively they can create "ADHD" — constant context-switching away from the main goal.
+Prevents drift during long sessions where proactive skills collectively pull attention away from the user's actual objective.
 
 ## When This Fires
 
@@ -44,7 +40,7 @@ The anchor must be **specific enough to evaluate drift against**. "Fix the bug" 
 ### When to Check
 
 Perform a silent drift check:
-- Every 8-10 tool calls during sustained work
+- Every 8-10 tool calls during sustained work (every 20+ calls, do an explicit re-anchor: what was the original request? what's done? what remains?)
 - When about to start working on something that feels tangentially related
 - After completing a sub-task, before starting the next action
 - When you notice you're 3+ files away from where you started
@@ -87,18 +83,6 @@ Not all detours are bad. Some are essential. The rule:
 
 **Clarification on opportunistic-improvement:** Fixing code in the same function/component you're already editing is NOT a detour — it's in-scope editing (same file, same context, no extra reads needed). Opportunistic-improvement only becomes a detour when it pulls you into OTHER files or takes >2 tool calls beyond the current edit.
 
-## Long Session Recovery
-
-For sessions that have been running a long time (20+ tool calls), do an explicit re-anchor:
-
-Internally revisit:
-- What was the original request?
-- What have I accomplished toward it?
-- What remains?
-- Am I currently working on something that serves the original request?
-
-This prevents the slow drift where each action is locally reasonable but the session as a whole has wandered far from the goal.
-
 ## Balancing Focus with Proactivity
 
 This skill does NOT suppress:
@@ -120,16 +104,6 @@ This skill DOES suppress:
 **Proactivity within scope is valuable. Proactivity outside scope is distraction.**
 
 A senior engineer fixing a bug doesn't redesign the module. They fix the bug, note anything else they saw, and file tickets for the rest. Claude should work the same way — focused execution with a notebook for later, not a wandering mind that chases every shiny problem.
-
-## Integration
-
-- **mid-task-triage**: Triage handles NEW user input. Prompt-anchoring handles Claude's OWN tendency to drift. They're independent — triage is reactive (new message), anchoring is proactive (self-monitoring).
-- **think-efficiently**: Think-efficiently asks "is this action worth the tokens?" Prompt-anchoring asks "is this action serving the user's goal?" A drift action fails BOTH checks.
-- **opportunistic-improvement**: Anchoring scopes opportunistic-improvement to the current task's files and components. It doesn't suppress it — it focuses it.
-- **profit-driven-development**: For sports sessions, profit-driven-development IS the anchor. They reinforce each other.
-- **take-your-time**: Take-your-time says "don't rush requirements." Prompt-anchoring says "don't add requirements the user didn't ask for." Complementary disciplines.
-- **never-give-up**: Never-give-up persists on proven-valuable work. Prompt-anchoring ensures that persistence is directed at the USER'S goal, not a tangent Claude got attached to.
-- **skill-manager**: Prompt-anchoring is the counterweight to the proactive skill cluster. It ensures those skills enhance focus rather than fragment it.
 
 ## Rules
 

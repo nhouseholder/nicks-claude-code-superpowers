@@ -101,22 +101,8 @@ When two skills at the SAME priority tier conflict:
 | Conflict | Resolution |
 |----------|-----------|
 | brainstorming says "design first" vs user says "just do it" | User wins. Skip brainstorming. |
-| brainstorming triggers on 3+ files vs task is clear (not ambiguous) | Clear intent wins. Brainstorm only when BOTH scope is large AND approach is ambiguous. |
-| test-driven-development says "write tests first" vs task is a config change | TDD stands down. Not all tasks need tests. |
-| always-improving suggests improvements vs user is mid-flow | Suppress. Don't interrupt flow with suggestions. |
-| predictive-next vs always-improving at idle | Predictive-next fires when there's a logical NEXT step in the current workflow. Always-improving fires when there IS no next step. Never both. |
-| sanity-check wants to flag a concern vs user has given conviction signal | Conviction overrides sanity-check. User knows what they want. |
-| sanity-check flags twice + user overrides twice on same idea | Never-give-up takes over. Evidence-backed persistence wins. |
-| never-give-up says "keep trying" vs token budget is exhausted | Escalate to user rather than burning more tokens. |
 | never-give-up says "persist" vs think-efficiently says "stop" | Check evidence gate: proven-valuable → never-give-up. No evidence → think-efficiently. |
-| mid-task-triage receives new message vs prompt-architect wants to interpret | Triage classifies FIRST (addendum/correction/queue), THEN prompt-architect interprets based on triage result. |
-| qa-gate Tier 1 vs think-efficiently mental check | Same thing. QA-gate owns quality verification. Think-efficiently owns action selection. Don't run both. |
-| prompt-anchoring vs opportunistic-improvement/proactive-qa | Prompt-anchoring scopes the others: proactive skills apply WITHIN the current task's scope, not outside it. Anchoring is the fence, not the leash. |
-| prompt-anchoring drift check vs think-efficiently action check | Complementary. Think-efficiently: "is this worth tokens?" Prompt-anchoring: "is this serving the user's goal?" A drift action fails both. |
-| calibrated-confidence LOW vs prompt-anchoring drift check | Confidence gate fires first. If confidence is low, don't act (read more context). If confident and WOULD act, then check drift. |
 | senior-dev-mindset infers scope expansion vs prompt-anchoring says stay focused | Senior-dev infers HOW to build what was asked, not WHAT beyond the ask. Prompt-anchoring is the fence. |
-| take-your-time + 10+ requirements vs skill-manager activation budget | Decompose into logical feature groups (3-4 bullets per group). Implement each group fully with 5-6 active skills, then move to next group. |
-| multiple skills all want to add sections to the response | Pick the 1-2 most relevant. Don't stack 5 "sections" onto a simple answer. |
 
 ### Sequencing Rules — When Multiple Skills Fire
 
@@ -126,22 +112,6 @@ When two skills at the SAME priority tier conflict:
 | **Research pipeline** | search-first → deep-research (if unfamiliar) → iterative-retrieval (for subagents) | search-first checks for existing solutions. deep-research only if the domain is genuinely unfamiliar. iterative-retrieval refines context for subagents. |
 | **Parallel execution hierarchy** | parallel-tool-routing (always, tool-level) → dispatching-parallel-agents (agent-level, known tasks) → command-center (orchestration, unknown decomposition) → parallel-sweep (specialized parameter search) | Lowest to highest abstraction. Lower levels are always active. Higher levels only when needed. |
 | **Improvement pipeline** | opportunistic-improvement (during work, same files) → pattern-propagation (if pattern changed, all files) → always-improving (at idle, suggests new work) | Opportunistic finds issues in touched files. Pattern-propagation spreads fixes. Always-improving suggests at idle only. |
-
-## The Overthinking Detector
-
-Before responding, check: **Am I about to THINK about this task, or DO this task?**
-
-Signs of overthinking (STOP and just execute):
-- About to explain what you're going to do before doing it (Exception: Explaining a plan IS appropriate when the user asked for a plan, when the task has 5+ steps, or when using /write-plan.)
-- About to propose multiple approaches when one is obviously right
-- About to ask a clarifying question you could answer yourself from context
-- About to brainstorm/plan for a task that has a clear solution
-- About to read 5 files when you could grep for the one line you need
-- About to run a research phase for something you already know
-- Writing a response longer than 3 sentences before the first tool call
-- The word "approach" appears in your draft response for a simple task
-
-**The fix:** Delete the analysis. Make the first tool call. Execute.
 
 ## The Skill Overload Test
 
@@ -182,12 +152,6 @@ When the user asks about skills or when reviewing the stack:
 **Skills exist to make Claude's natural intelligence MORE effective, not to REPLACE it.**
 
 If Claude would produce a better answer by ignoring a skill and using its own judgment — ignore the skill. Skills are guardrails and enhancements, not straitjackets. Claude's base model is extremely capable; skills should channel that capability, not constrain it.
-
-## Integration
-
-- **prompt-architect**: Skill manager works WITH the complexity gate — simple messages already bypass most skills via fast path
-- **token-awareness**: Skill manager reduces token waste by preventing unnecessary skill processing
-- **adaptive-voice**: If the response feels unnatural because too many skills shaped it, adaptive-voice should win
 
 ## Rules
 

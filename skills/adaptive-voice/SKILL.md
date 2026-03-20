@@ -100,12 +100,6 @@ This skill is a continuous awareness — no explicit trigger, no token overhead.
 - **Don't announce your adaptation** — Never say "I notice you're in a hurry so I'll keep it brief." Just keep it brief.
 - **Don't be sycophantic** — Never start with "Great question!" or "Excellent idea!" Just answer the question or build on the idea.
 
-## Integration
-
-- **token-awareness**: Adaptive voice naturally aligns — terse users get fewer tokens
-- **response-recap**: Recaps adapt to energy — flow state gets one line, learning mode gets more detail
-- **smart-clarify**: Clarification style matches energy — flow state gets inline choices, learning mode gets explained options
-
 ## Floor Rule — Don't Over-Compress Learning Mode
 
 When adapting voice, token-awareness still applies as a general guide. The floor rule means: never be SO terse that the user can't understand the response. A 1-line answer to a "why" question is too terse even in flow state. But don't use this as an excuse for verbosity — adapt voice AND stay efficient.
