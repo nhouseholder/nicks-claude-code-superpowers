@@ -92,11 +92,31 @@ Hard rules — never backtest on less data than specified:
 | NBA | 3 seasons |
 | CBB | 3 seasons |
 
+## Walk-Forward Integrity (MANDATORY — #1 RULE)
+
+Every backtest MUST be temporally legitimate. For each game/event being evaluated, the model may ONLY use data available BEFORE that game occurred.
+
+**What this means in practice:**
+- Stats must be computed using only games played BEFORE the prediction date
+- Season-long averages that include the game being predicted are INVALID (this is the most common violation)
+- Point-in-time only: predicting Game 50 = model sees Games 1-49, never Game 50+
+- Odds, injuries, lineups must reflect pre-game state only
+
+**Why this is non-negotiable:**
+Using full-season averages (which include the game being predicted and future games) inflates accuracy by 10-20% and produces completely misleading results. This is called **winner bias** — the backtest looks amazing but the model will fail on live bets because it was secretly using information it won't have in production.
+
+**How to verify:**
+1. Stat functions must accept `cutoff_date` or `before_event` parameter
+2. Rolling/expanding windows must exclude the current game
+3. Any `.mean()`, `.avg()`, or aggregate must filter by date
+4. If accuracy is 80%+ on sports, suspect data leakage FIRST
+
+**If walk-forward integrity cannot be confirmed, the backtest result is WORTHLESS. Do not commit, do not celebrate, do not report it as real.**
+
 ## Rules
 - Never suppress backtest output
 - Always show the comparison to baseline
 - Commit only improvements (or explicitly ask before committing regressions)
 - Break long sweeps into chunks that can be committed incrementally
-- **Walk-forward only** — never use future data to predict past outcomes
 - **Overfitting check** — validate on holdout data before committing sports model changes
 - **Future-first** — every change must have a hypothesis for why it improves future accuracy
