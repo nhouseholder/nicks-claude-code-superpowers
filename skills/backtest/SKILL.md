@@ -113,6 +113,16 @@ Using full-season averages (which include the game being predicted and future ga
 
 **If walk-forward integrity cannot be confirmed, the backtest result is WORTHLESS. Do not commit, do not celebrate, do not report it as real.**
 
+## Data Caching (MANDATORY)
+
+All scraped data must be cached locally and committed to GitHub. Never re-scrape what already exists.
+
+- **Before scraping:** Check the cache file first. Only fetch data points not already cached (new events, new games, new dates).
+- **After scraping:** Write results to the cache file immediately. Use JSON, SQLite, or CSV.
+- **Commit caches:** Cache files belong in the repo — they enable fast backtests on any machine.
+- **Naming:** `<sport>_<data_type>_cache.json` (e.g., `ufc_odds_cache.json`, `mlb_stats_cache.json`)
+- **Result:** A full backtest reads cached data in seconds. Re-scraping thousands of games is fragile and slow — only do it for genuinely new data.
+
 ## Rules
 - Never suppress backtest output
 - Always show the comparison to baseline
