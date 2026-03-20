@@ -9,11 +9,11 @@
 
 ## What This Is
 
-75 custom Claude Code skills, 9 commands, 4 hooks that shape how Claude Code operates. The system makes Claude faster, smarter, and more consistent across sessions while preventing common failure modes (overthinking, drifting off-task, repeating mistakes, losing context).
+67 custom Claude Code skills, 9 commands, 4 hooks that shape how Claude Code operates. The system makes Claude faster, smarter, and more consistent across sessions while preventing common failure modes (overthinking, drifting off-task, repeating mistakes, losing context).
 
 ## Stack Summary
 
-### Skills (75 total, at cap — one-in-one-out rule)
+### Skills (67 total — one-in-one-out rule)
 
 **Weight Classes** (enforced by skill-manager):
 - **Passive** (27 skills): Behavioral guidance, zero token cost, unlimited per message
@@ -74,11 +74,22 @@ All documentation was out of sync. Fixed:
 
 - **README.md** — Updated from "73 skills, 11 commands, 3 hooks" → "75 skills, 9 commands, 4 hooks". Added confusion-prevention and user-rules to skill table. Added track-skill-performance.js to hooks table. Added /skill-insights to commands table. Fixed duplicate section numbering (two "### 21" sections). Replaced incomplete skill matrix (was ~40 skills) with complete 75-skill matrix. Updated categories table. Fixed bottom tagline.
 - **SKILLS-QUICK-REFERENCE.md** — Updated from 73 → 75 skills. Added confusion-prevention (#11) and user-rules (#69). Updated descriptions for enhanced skills (skill-manager, think-efficiently, total-recall, seamless-resume, error-memory, prompt-architect, reflexion-reflect, verification-before-completion).
-- **SKILLS-REFERENCE.md** — Updated from "61 skills, 3 hooks, 11 commands" → "75 skills, 4 hooks, 9 commands". Added 14 missing skill entries (anti-slop, calibrated-confidence, confusion-prevention, data-pipeline-guardian, never-give-up, profit-driven-development, prompt-anchoring, qa-gate, screenshot-dissector, skill-manager, take-your-time, think-efficiently, user-rules, version-bump). Added track-skill-performance.js to hooks table. Added /skill-insights to commands table. Fixed Quick Reference Card.
+- **SKILLS-REFERENCE.md** — Updated from "61 skills, 3 hooks, 11 commands" → "67 skills, 4 hooks, 9 commands". Added 14 missing skill entries (anti-slop, calibrated-confidence, confusion-prevention, data-pipeline-guardian, never-give-up, profit-driven-development, prompt-anchoring, qa-gate, screenshot-dissector, skill-manager, take-your-time, think-efficiently, user-rules, version-bump). Added track-skill-performance.js to hooks table. Added /skill-insights to commands table. Fixed Quick Reference Card.
 - **Removed "learned" directory** — Empty data directory (no SKILL.md) removed from all 3 locations (git clone, installed, iCloud). Was inflating directory count to 76.
 
 ### Verified State
-All three locations (git clone, `~/.claude/skills/`, iCloud backup) now have exactly 75 skill directories, each containing a SKILL.md file. All documentation files agree on counts: **75 skills, 4 hooks, 9 commands**.
+All three locations (git clone, `~/.claude/skills/`, iCloud backup) now have exactly 67 skill directories, each containing a SKILL.md file. All documentation files agree on counts: **67 skills, 4 hooks, 9 commands**.
+
+## Skill Removal (2026-03-19)
+
+Removed 8 skills that were either external dependencies (OpenViking), redundant with built-in Claude Code behavior, or low-value:
+- **ov-add-data**, **ov-search-context**, **ov-server-operate**, **memory-recall** — OpenViking Context DB skills removed (external dependency no longer in use)
+- **parallel-tool-routing** — Redundant; Claude Code already parallelizes independent tool calls natively
+- **shared-memory** — Low adoption; AGENT-MEMORY.md protocol rarely used in practice
+- **data-pipeline-guardian** — Too niche; data pipeline work handled adequately by existing skills
+- **writing-skills** — Meta skill for creating skills; not needed as a permanent always-loaded skill
+
+Count reduced from 75 to 67. All documentation updated to reflect new counts.
 
 ## Full Skill Audit & Fixes (Current Session — 2026-03-19 late, part 2)
 
@@ -151,7 +162,7 @@ Audited all 75 skills for pitfalls, contradictions, broken dependencies, and roo
 
 1. **No supervisor agent** — A real-time babysitter agent would double token cost and latency. Existing skills (prompt-anchoring, skill-manager, think-efficiently) already cover 80% of the use case at near-zero cost.
 2. **Weight classes over merges** — Instead of merging overlapping meta-skills (risky, loses nuance), added weight classification to throttle expensive skills. Simpler, safer, same effect.
-3. **75-skill hard cap** — Prevents gradual bloat. One-in-one-out rule forces discipline.
+3. **Skill cap discipline** — Prevents gradual bloat. One-in-one-out rule forces discipline. Currently at 67 after pruning 8 skills.
 4. **Lite brainstorm as default** — 9-step ceremony was the biggest source of unnecessary slowdown. 3-step lite covers 90% of cases.
 5. **Reflexion opt-in** — Auto-firing reflection on every response was the second biggest slowdown. Now only fires when explicitly needed.
 
@@ -159,7 +170,7 @@ Audited all 75 skills for pitfalls, contradictions, broken dependencies, and roo
 
 - **Compaction still loses nuance** — Pre-compaction capture mitigates this but doesn't eliminate it. Very long sessions (3+ compactions) will degrade.
 - **Hook reliability** — PostToolUse hooks may not receive full transcript data. The tracker does best-effort signal detection from whatever context is available.
-- **Skill count at cap** — At 75/75. Any new skill requires merging or removing an existing one.
+- **Skill count** — At 67 after removing 8 skills. Any new skill should still follow the one-in-one-out discipline.
 - **iCloud + git warning** — Never push/pull git from the iCloud copy. Always use the `/tmp/` clone or a fresh clone to a non-iCloud path.
 
 ## How to Resume

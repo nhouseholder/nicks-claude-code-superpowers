@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 75 skills, 4 hooks, 9 commands, and the continuous learning system.
+> Complete documentation for all 67 skills, 4 hooks, 9 commands, and the continuous learning system.
 > Last updated: 2026-03-19
 
 ---
@@ -25,7 +25,6 @@
   - [Agent Orchestration](#agent-orchestration)
   - [Research & Context](#research--context)
   - [Review & Collaboration](#review--collaboration)
-  - [OpenViking Context DB](#openviking-context-db)
   - [Meta Skills](#meta-skills)
 - [Hooks](#hooks)
 - [Commands](#commands)
@@ -869,28 +868,6 @@ Save this fix to error memory
 
 ---
 
-#### `parallel-tool-routing`
-**Trigger:** Always-on — evaluates every multi-tool response
-
-**What it does:** Before making 2+ tool calls, classifies which are independent (can run concurrently) vs dependent (must be sequential). Always batches independent calls into a single response for concurrent execution.
-
-**Key rule:** If call B doesn't need the *result* of call A, they're independent → parallelize.
-
-**Common parallel patterns:**
-- Reading multiple files → always parallel
-- Multiple grep searches → always parallel
-- Edit file A + read file B → parallel (different files)
-- Git status + npm build → parallel (independent commands)
-
-**Common sequential patterns:**
-- Read then edit (same file)
-- Edit then test (verification depends on edit)
-- Grep then targeted read (need line number from grep)
-
-**Time savings:** 3 parallel reads = 1 round trip. 3 sequential reads = 3 round trips. Cuts wall-clock time proportionally.
-
----
-
 #### `prompt-improver`
 **Trigger:** Automatic (hook) — fires on every user message
 
@@ -955,75 +932,6 @@ Save this fix to error memory
 - Push back with technical reasoning if the suggestion is wrong
 - Implement one item at a time
 - Actions speak louder than acknowledgments
-
----
-
-### OpenViking Context DB
-
-#### `ov-add-data`
-**Trigger:** Manual — when adding resources, files, URLs, or memories to persistent storage
-
-**What it does:** Wrapper for OpenViking CLI commands to import content into the context database.
-
-**Commands:**
-```bash
-ov add-resource ./docs/api-spec.md           # Local file
-ov add-resource https://github.com/user/repo  # Git repo
-ov add-resource https://example.com/doc.pdf   # URL
-ov add-memory "User prefers Tailwind CSS"     # Plain text memory
-ov add-skill ./skills/my-skill/               # Skill file
-```
-
-**Prerequisites:** OpenViking server running, CLI configured at `~/.openviking/ovcli.conf`
-
----
-
-#### `ov-search-context`
-**Trigger:** Manual — when searching stored memories, skills, or resources
-
-**What it does:** Semantic and pattern-based search across all OpenViking content.
-
-**Commands:**
-```bash
-ov find "authentication flow"                # Semantic search
-ov ls viking://resources/                     # List directory
-ov tree viking://resources/ --level-limit 2   # Tree view
-ov grep "viking://resources" "TODO:"          # Pattern match
-ov glob "**/*.md"                             # File path match
-ov read viking://resources/docs/api.md        # Full content
-```
-
----
-
-#### `ov-server-operate`
-**Trigger:** Manual — for server setup, management, and maintenance
-
-**What it does:** Complete operational procedures: install, configure, start, stop, cleanup, and troubleshoot the OpenViking server.
-
-**Quick reference:**
-```bash
-# Start
-source ~/.openviking/ov-venv/bin/activate
-nohup openviking-server > ~/.openviking/log/openviking-server.log 2>&1 &
-
-# Health check
-curl http://localhost:1933/health
-
-# Stop
-pkill -f openviking-server
-```
-
----
-
-#### `memory-recall`
-**Trigger:** Automatic — when user asks about past decisions, fixes, or historical context
-
-**What it does:** Sub-agent that searches OpenViking memory bridge for relevant historical memories. Returns actionable facts with source URIs.
-
-**How to use:** Fires automatically when historical context is needed. Can also invoke:
-```
-What did we decide about the auth flow last week?
-```
 
 ---
 
@@ -1174,34 +1082,6 @@ D) Something else — tell me what you had in mind
 
 ---
 
-### Cross-Agent Collaboration
-
-#### `shared-memory`
-**Trigger:** Always-on — fires at session end when significant decisions or changes were made
-
-**What it does:** Maintains `AGENT-MEMORY.md` in the repo root — a living document that ANY AI agent (Claude, Cursor, Copilot, Windsurf, Aider) can read to understand the project's decisions, architecture, conventions, and gotchas. Auto-updates after significant sessions.
-
-**File structure:**
-- **Project Identity** — what this is, stack, URLs
-- **Architecture Decisions** — table with decision, choice, reasoning, date, agent
-- **Active Conventions** — coding standards and patterns
-- **Current State** — version, branch strategy, deploy target, known issues
-- **Recent Significant Changes** — table of what changed, why, files, agent
-- **Gotchas & Warnings** — things that trip up new agents
-- **Agent Instructions** — protocol for maintaining this file
-
-**Update protocol (for all agents):**
-1. Read before writing — never update without reading first
-2. Append, don't rewrite — old entries are historical context
-3. Timestamp everything — ISO date + agent name on every entry
-4. Be concise — table rows and bullets only, no paragraphs
-5. Resolve, don't conflict — mark disputes with `⚠️ DISPUTED`, never silently overwrite
-6. Prune quarterly — archive entries >90 days from "Recent Changes"
-
-**The significance test:** "Would a new AI agent make a mistake without knowing this?" YES → update. NO → skip.
-
----
-
 ### Natural Language Interface
 
 #### `intent-detection`
@@ -1233,26 +1113,16 @@ D) Something else — tell me what you had in mind
 
 ### Meta Skills
 
-#### `writing-skills`
-**Trigger:** Manual — when creating or editing skills
-
-**What it does:** TDD approach to skill creation. RED: baseline test of skill failure → GREEN: write minimal skill → REFACTOR: close loopholes. Covers technique, pattern, and reference skill types.
-
-**How to use:** When creating a new skill:
-1. **RED:** Create pressure scenario without the skill, document baseline failures
-2. **GREEN:** Write minimal SKILL.md that addresses those failures
-3. **REFACTOR:** Identify new loopholes, add explicit counters
-
 #### `skill-manager`
 **Trigger:** Always-on (meta) — fires on every message
 
-**What it does:** Prevents skill overload by enforcing weight classes and budgets. Skills are classified as Passive (behavioral guidance, unlimited), Light (quick checks, max 5/message), or Heavy (spawn agents/run commands, max 2/message). Enforces the 75-skill hard cap with a one-in-one-out rule. Includes overthinking detector.
+**What it does:** Prevents skill overload by enforcing weight classes and budgets. Skills are classified as Passive (behavioral guidance, unlimited), Light (quick checks, max 5/message), or Heavy (spawn agents/run commands, max 2/message). Enforces the 67-skill hard cap with a one-in-one-out rule. Includes overthinking detector.
 
 **Key rules:**
 - Passive skills: zero token cost, always allowed
 - Light skills: max 5 per message
 - Heavy skills: max 2 per message
-- 75-skill cap: adding a new skill requires removing or merging an existing one
+- 67-skill cap: adding a new skill requires removing or merging an existing one
 
 ### Execution Discipline
 
@@ -1303,11 +1173,6 @@ D) Something else — tell me what you had in mind
 **Confusion signals:** Comparing numbers from different runs, re-reading files already read, contradicting own recent output, "wait, actually..." language patterns.
 
 ### Domain (Additional)
-
-#### `data-pipeline-guardian`
-**Trigger:** Automatic — data pipeline tasks
-
-**What it does:** Guards scrapers, cron jobs, and harvest workflows with idempotency, incremental fetching, and self-healing. Detects stale data, failed fetches, missing records, and schema drift so data pipelines never fail silently.
 
 #### `profit-driven-development`
 **Trigger:** Always-on — sports prediction work
@@ -1427,15 +1292,13 @@ Error occurs
 | Design a feature | `/brainstorm` → `/write-plan` → `/execute-plan` |
 | Fix a bug | `pre-debug-check` → `systematic-debugging` → `error-memory` |
 | Remember something | `/mem save <text>` |
-| Recall past work | `/mem recall <query>` or `memory-recall` |
+| Recall past work | `/mem recall <query>` |
 | Review my code | `requesting-code-review` |
 | Reflect on output | `/reflexion:reflect` → `/reflexion:memorize` |
 | Deep analysis | `/reflexion:critique` (3-judge panel) |
 | Critical decision | `/fpf:propose-hypotheses` |
 | Check skill effectiveness | `/skill-insights` |
 | Search before coding | `search-first` |
-| Add to context DB | `ov add-resource <path>` |
-| Search context DB | `ov find <query>` |
 | Run a backtest | `/backtest` |
 | Scan for secrets | `/audit` |
 | Deploy to production | `/deploy` |
@@ -1453,4 +1316,4 @@ Error occurs
 
 ---
 
-**61 skills. 3 hooks. 11 commands. One intelligence stack.**
+**67 skills. 4 hooks. 9 commands. One intelligence stack.**
