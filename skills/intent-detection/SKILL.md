@@ -44,10 +44,11 @@ Trigger phrases:
 - "update mmalogic", "update diamondpredictions"
 
 **Auto-enforced rules when ANY website update intent is detected:**
-1. Follow the full 6-phase site-update-protocol (regenerate data → verify → update frontend → build & deploy → post-deploy verify → update Firestore)
+1. Follow the full 7-phase site-update-protocol (regenerate data → verify → update frontend → build & deploy → post-deploy verify → update Firestore → consistency review)
 2. No partial updates — if the algorithm changed, ALL data files and ALL tabs must reflect the new state
 3. Never build from iCloud — clone to `/tmp/` first
 4. Version bump every deploy
+5. Full consistency review (Phase 7) — cross-check algorithm ↔ backtester ↔ predictor ↔ website ↔ local/iCloud files. No drift allowed between any layer.
 
 ### Audit Intents → `/audit`
 Trigger phrases:

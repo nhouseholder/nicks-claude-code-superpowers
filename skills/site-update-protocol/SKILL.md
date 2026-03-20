@@ -240,6 +240,43 @@ git push
 # 9. Sync back to iCloud (for backup)
 ```
 
+### Phase 7: Consistency Review
+
+Full cross-check across all layers — algorithm, backtester, predictor, website, and local files. This catches drift between components.
+
+**Algorithm ↔ Backtester Consistency:**
+- [ ] Backtester uses the SAME coefficients/weights as the live predictor
+- [ ] Backtester feature engineering matches predictor feature engineering exactly
+- [ ] Any new feature added to the predictor is also in the backtester (and vice versa)
+- [ ] Backtest results are reproducible — re-running produces the same output
+
+**Predictor ↔ Website Consistency:**
+- [ ] Current picks on the website match what the predictor would generate right now
+- [ ] Accuracy/ROI stats on the website match the latest backtest output
+- [ ] System rankings on the website match the backtest system breakdown
+- [ ] Algorithm parameters displayed on Admin tab match actual config values
+
+**Website Tab-to-Tab Consistency:**
+- [ ] Home page hero stats match Dashboard stats (accuracy, ROI, record)
+- [ ] Pick count on Home matches total picks in History
+- [ ] Profit curve on Dashboard matches profit curve on Home (if both exist)
+- [ ] System count on Home matches number of systems on Admin → Systems
+- [ ] All tabs show the same version number
+
+**Local ↔ Deployed Consistency:**
+- [ ] Local data JSON files match what's deployed (no stale deploy)
+- [ ] Local git repo is pushed — deployed site reflects latest commit
+- [ ] iCloud backup has the same data files as the git repo
+- [ ] Firestore data (if applicable) matches the static JSON files
+
+**Forward Predictor ↔ Backtester Integrity:**
+- [ ] Forward predictor uses walk-forward stats (point-in-time only, no future data)
+- [ ] Backtester enforces walk-forward integrity (no post-event leakage)
+- [ ] Both use the same data sources and stat functions
+- [ ] Edge calculations are identical between forward and backward modes
+
+If ANY inconsistency is found, fix it before completing the update. Do not ship a site where the backtester says one thing and the website shows another.
+
 ## Rules
 
 1. **No partial updates.** If the algorithm changed, regenerate ALL data files and verify ALL tabs.
@@ -248,3 +285,4 @@ git push
 4. **Never deploy from iCloud.** Clone to `/tmp/` first.
 5. **Verify after deploy.** Open every tab in the browser and confirm fresh data.
 6. **Commit data files.** The regenerated JSON files are the audit trail — commit them.
+7. **Consistency review is mandatory.** Every update ends with the Phase 7 cross-check. No exceptions.
