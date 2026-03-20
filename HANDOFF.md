@@ -158,11 +158,41 @@ Audited all 75 skills for pitfalls, contradictions, broken dependencies, and roo
 - **adaptive-voice** — Clarified floor rule as complementary to token-awareness
 - **anti-slop** — Spot-check scoped by stakes level
 
+## What Was Done (Session — 2026-03-19, session 3)
+
+### Diagnosed Debug Spiral in UFC Alg Session
+User shared output from another Claude session stuck in a hours-long debug loop. Diagnosed root cause: 30-40 minute feedback loops (running full backtests to debug single functions), scope creep (public betting → line movements), and event name mismatching bug being chased in circles.
+
+### New Skills Created
+1. **isolate-before-iterate** (#68) — Passive weight. Prevents running full pipelines to debug single functions. Forces writing 5-15 line isolation scripts. Escalation ladder: <30s fine, 30s-5m acceptable first time, 5-15m must isolate, 15m+ stop everything.
+2. **site-update-protocol** (#69) — Light weight. Universal 6-phase checklist for updating OctagonAI, Diamond Predictions, and Courtside AI after algorithm changes. Covers data regeneration, frontend verification, deployment, and post-deploy validation across all tabs.
+
+### Universal Rules Added to Global CLAUDE.md
+These apply across ALL projects and sessions:
+
+1. **Backtest Window Limits** — UFC: 70 events (growing), NHL/MLB/NBA/CBB: 3 seasons minimum.
+2. **Walk-Forward Backtesting (MANDATORY)** — Every bet tested using only pre-game data. No post-event data leakage. Season-long averages including the predicted game are INVALID (winner bias inflates accuracy 10-20%). Includes verification checklist.
+3. **Backtest Data Caching (MANDATORY)** — All scraped data cached locally and committed to GitHub. Never re-scrape cached data. Subsequent backtests read from cache (seconds, not hours).
+
+### Skills Enhanced
+- **predictive-next** — Three enhancements:
+  1. Multi-step menus (2-4 items) when multiple next steps are valuable
+  2. "My recommendation:" format for decision points with opinionated reasoning
+  3. Changed all framing from "Want me to...?" → "I recommend we..." — proactive, confident tone
+- **backtest** — Added Walk-Forward Integrity section (mandatory, #1 rule) and Data Caching section
+- **skill-manager** — Updated cap from 67 → 69, updated passive/light skill lists
+
+### Documentation Updated
+- README.md, SKILLS-QUICK-REFERENCE.md, SKILLS-REFERENCE.md — All updated to 69 skills with new entries, renumbered tables, and updated debugging flow diagrams.
+
+### Verified State
+All three locations (git clone, `~/.claude/skills/`, iCloud backup) have exactly 69 skill directories. GitHub is up to date at commit `2ed2c64`. All documentation files agree on counts: **69 skills, 4 hooks, 9 commands**.
+
 ## Architecture Decisions Made
 
 1. **No supervisor agent** — A real-time babysitter agent would double token cost and latency. Existing skills (prompt-anchoring, skill-manager, think-efficiently) already cover 80% of the use case at near-zero cost.
 2. **Weight classes over merges** — Instead of merging overlapping meta-skills (risky, loses nuance), added weight classification to throttle expensive skills. Simpler, safer, same effect.
-3. **Skill cap discipline** — Prevents gradual bloat. One-in-one-out rule forces discipline. Currently at 67 after pruning 8 skills.
+3. **Skill cap discipline** — Prevents gradual bloat. One-in-one-out rule forces discipline. Currently at 69 (added isolate-before-iterate and site-update-protocol after pruning 8 skills).
 4. **Lite brainstorm as default** — 9-step ceremony was the biggest source of unnecessary slowdown. 3-step lite covers 90% of cases.
 5. **Reflexion opt-in** — Auto-firing reflection on every response was the second biggest slowdown. Now only fires when explicitly needed.
 
@@ -170,7 +200,7 @@ Audited all 75 skills for pitfalls, contradictions, broken dependencies, and roo
 
 - **Compaction still loses nuance** — Pre-compaction capture mitigates this but doesn't eliminate it. Very long sessions (3+ compactions) will degrade.
 - **Hook reliability** — PostToolUse hooks may not receive full transcript data. The tracker does best-effort signal detection from whatever context is available.
-- **Skill count** — At 67 after removing 8 skills. Any new skill should still follow the one-in-one-out discipline.
+- **Skill count** — At 69 after adding isolate-before-iterate and site-update-protocol. Any new skill should still follow the one-in-one-out discipline.
 - **iCloud + git warning** — Never push/pull git from the iCloud copy. Always use the `/tmp/` clone or a fresh clone to a non-iCloud path.
 
 ## How to Resume
