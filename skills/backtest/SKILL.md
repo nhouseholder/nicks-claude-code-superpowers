@@ -80,6 +80,18 @@ python backtest.py --start-date HOLDOUT_START --end-date HOLDOUT_END | tee holdo
 - If holdout performance is comparable → improvement is likely genuine
 - Log both training and holdout results in commit message
 
+## Backtest Window Limits
+
+Hard rules — never backtest on less data than specified:
+
+| Sport | Minimum Window |
+|-------|---------------|
+| UFC | 70 events (growing — starts at 70, auto-increments via track_results.py, never shrinks) |
+| NHL | 3 seasons |
+| MLB | 3 seasons |
+| NBA | 3 seasons |
+| CBB | 3 seasons |
+
 ## Rules
 - Never suppress backtest output
 - Always show the comparison to baseline
