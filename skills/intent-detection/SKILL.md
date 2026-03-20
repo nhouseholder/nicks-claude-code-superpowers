@@ -11,6 +11,8 @@ Interpret the user's plain language and automatically trigger the right skill or
 
 This skill runs on EVERY user message. Before responding, evaluate whether the user's request maps to an existing command or workflow.
 
+**Fast path:** If the user's message is a direct instruction with no ambiguity ('run the tests', 'commit this', 'read file X'), do NOT run intent detection — just execute the instruction. Intent detection adds value only when the user's message maps to a non-obvious skill or command.
+
 ## Intent Map
 
 ### Deployment Intents → `/deploy`
@@ -130,6 +132,6 @@ Don't trigger workflows for:
 
 1. **Always announce** what workflow you're triggering — no silent execution
 2. **Respect explicit overrides** — if the user says "don't" or "just", honor that
-3. **Execute fully** — don't half-trigger a workflow; run the complete skill
+3. **Execute fully when confident (HIGH)** — for MEDIUM confidence, state what you'll do in one line before doing it, so the user can correct if wrong
 4. **Chain logically** — multi-intent requests execute in dependency order
 5. **Default to confirming** — for workflow triggers that consume significant tokens (deploy, backtest, fix-loop, brainstorm), confirm intent if confidence is below HIGH. Simple actions (mem save, recall) can lean toward doing.

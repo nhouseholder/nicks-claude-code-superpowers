@@ -16,9 +16,9 @@ Suggests manual `/compact` at strategic points in your workflow rather than rely
 - After completing a major milestone and starting new work
 - When responses slow down or become less coherent (context pressure)
 
-## The #1 Rule: Files Beat Memory
+## The #1 Rule: Files Are More Reliable Than Memory After Compaction
 
-**Anything important that only exists in conversation context WILL be lost.** Either by compaction, crash, or session end. The only things that survive perfectly are files.
+Files are more reliable than conversation memory after compaction. Write critical state (current progress, decisions, blockers) to files before compaction. But compaction summaries still help with orientation — they're complementary, not useless.
 
 Before any compaction or handoff, ask: **"What do I know right now that exists ONLY in conversation context?"** Write it to a file. Then compact.
 
@@ -83,7 +83,8 @@ Environment variables:
 | Situation | Action |
 |-----------|--------|
 | **First time context is low** | Compact — fidelity loss is minimal |
-| **Already compacted once this session** | Auto-handoff — don't compound fidelity loss |
+| **After 2+ compactions in a session** | Suggest a handoff document — fidelity is degrading |
+| **After 3+ compactions in a session** | Strongly recommend pausing and resuming in a fresh session — context quality degrades significantly beyond this point |
 | **Complex multi-step task still in progress** | Auto-handoff — too much state to survive compaction |
 | **User has given detailed requirements this session** | Auto-handoff — requirements MUST survive intact |
 | **Debugging session with deep context** | Auto-handoff — root cause analysis needs full detail |

@@ -5,6 +5,10 @@ description: "Explore intent, requirements, and design before implementing compl
 
 # Brainstorming Ideas Into Designs
 
+## Relationship to writing-plans
+
+Brainstorming explores WHAT to build and WHY. Writing-plans defines HOW to build it. They are sequential: brainstorm first (if needed), then write-plan. If the user already knows what they want, skip brainstorming and go straight to /write-plan. Brainstorming should NOT produce implementation details — that's writing-plans' job.
+
 Help turn ideas into fully formed designs and specs through natural collaborative dialogue.
 
 Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you're building, present the design and get user approval.

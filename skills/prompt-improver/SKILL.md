@@ -54,7 +54,7 @@ Create a dynamic research plan using TodoWrite before asking questions.
 - Check conversation history before exploring codebase
 - Questions must be grounded in actual findings, not assumptions or base knowledge
 
-For detailed research strategies, patterns, and examples, see [references/research-strategies.md](references/research-strategies.md).
+**Research strategies:** Use WebSearch and Grep to gather context. Search the codebase for related patterns, check documentation, and look up best practices online when needed.
 
 ### Phase 2: Generate Targeted Questions
 
@@ -72,7 +72,7 @@ Based on research findings, formulate 1-6 questions that will clarify the ambigu
 - **3-4 questions**: Moderate complexity (scope + approach + validation)
 - **5-6 questions**: Complex scenarios (major feature with multiple decision points)
 
-For question templates, effective patterns, and examples, see [references/question-patterns.md](references/question-patterns.md).
+**Question patterns:** Ask 2-3 specific multiple-choice questions focused on scope, approach, and constraints. Ground each option in codebase findings or established patterns rather than abstract possibilities.
 
 ### Phase 3: Get Clarification
 
@@ -140,7 +140,7 @@ Execute the request as if it had been clear from the start.
 
 **Skill invoked:** No (prompt is clear, proceeds immediately without skill invocation)
 
-For comprehensive examples showing various prompt types and transformations, see [references/examples.md](references/examples.md).
+See the examples above for how prompt types are evaluated and transformed.
 
 ## Key Principles
 
@@ -153,10 +153,4 @@ For comprehensive examples showing various prompt types and transformations, see
 
 ## Progressive Disclosure
 
-This SKILL.md contains the core workflow and essentials. For deeper guidance:
-
-- **Research strategies**: [references/research-strategies.md](references/research-strategies.md)
-- **Question patterns**: [references/question-patterns.md](references/question-patterns.md)
-- **Comprehensive examples**: [references/examples.md](references/examples.md)
-
-Load these references only when detailed guidance is needed on specific aspects of prompt improvement.
+This SKILL.md contains the complete workflow, research strategies, question patterns, and examples needed for prompt improvement. All guidance is inline — no external reference files required.

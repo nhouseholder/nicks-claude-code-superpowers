@@ -217,6 +217,8 @@ fi
 
 ## Data Cleanup Procedure
 
+> **SAFETY GUARD**: NEVER auto-execute destructive operations (data deletion, factory reset, cache purge). These require explicit user confirmation. Present the command but do not run it until the user approves.
+
 ### When to Use This Procedure
 
 Perform full data cleanup in these scenarios:

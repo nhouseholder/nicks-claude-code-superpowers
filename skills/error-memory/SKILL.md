@@ -57,6 +57,10 @@ grep -ri "KEYWORD1\|KEYWORD2\|KEYWORD3" ~/.claude/projects/*/memory/error_* 2>/d
 | 3rd time | Architectural issue. Map all code paths that touch this feature. Find the systemic cause. |
 | 4th+ time | **STOP and tell the user**: "This bug has come back [N] times. The fix keeps getting undone. Here's what I think the root cause is: [X]. This likely requires [architectural change / guard rail / test]. Want me to proceed with the deeper fix?" |
 
+## Coordination with fix-loop
+
+fix-loop tracks failures WITHIN a single fix cycle (test -> fix -> retest). error-memory captures the FINAL outcome for cross-session persistence. Do not duplicate: if fix-loop is running, let it track attempts. Only write to anti-patterns.md when the fix cycle completes (success or escalation to user).
+
 ## Step 0.5: In-Session Failure Tracking (within the CURRENT conversation)
 
 Error-memory primarily persists knowledge for FUTURE sessions. But Claude also forgets within the SAME session — especially after context compaction. This step prevents that.

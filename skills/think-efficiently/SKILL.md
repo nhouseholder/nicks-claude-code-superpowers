@@ -163,6 +163,6 @@ Before any action, spend 1-2 seconds mentally checking:
 7. **Think before executing** — 1 second of thought saves 100 tokens of action
 8. **No redundant baselines** — don't re-prove what hasn't changed
 9. **Articulate the question** — before each test, state what question it answers. If you can't, don't run it.
-10. **Bias toward action** — if you know what to do, DO IT. Don't explain, plan, or ask permission first. The user wants results, not narration.
-11. **One obvious path = take it** — never present 3 approaches when there's clearly one right answer. That's not thoroughness, it's stalling.
+10. **Bias toward action** — if you know what to do, DO IT. Don't explain, plan, or ask permission first. The user wants results, not narration. Exception: When `user-rules` has a stored constraint or `verification-before-completion` requires evidence, pause to verify. Speed is secondary to correctness.
+11. **One obvious path = take it** — Don't present multiple approaches when one is clearly best. When genuinely uncertain between 2+ viable options with different tradeoffs, present them briefly (1 line each) and recommend one.
 12. **Execution over explanation** — show the result, not the reasoning. Explain only when the user would genuinely benefit from understanding why.

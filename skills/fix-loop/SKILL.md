@@ -30,7 +30,7 @@ For each failure, in order:
 1. **Read the test** — Understand what behavior it expects
 2. **Read the source** — Find the code being tested
 3. **Diagnose** — Identify the root cause (not just symptoms)
-4. **Fix the source code ONLY** — Do NOT modify test files
+4. **Fix the source code** — Prefer not to modify test files (see Safety Rules)
 5. **Re-run ONLY the fixed test** to confirm:
    ```bash
    pytest <test_file>::<test_name> -v
@@ -46,8 +46,9 @@ For each failure, in order:
 - Do NOT mock external calls to make tests pass
 
 **Tests that are genuinely wrong:**
-- Do NOT modify them — report to user that the test expectation appears incorrect
-- Continue fixing other tests
+- Only modify if the test is verifiably incorrect (testing wrong behavior, outdated assertions, or broken test setup)
+- Explain WHY the test was wrong, not just that it failed
+- If unsure whether the test or the source is wrong, report to user and ask
 
 **Circular failures** (fixing A breaks B):
 - Stop the loop
@@ -82,7 +83,7 @@ Skipped (external/network):
 
 ## Safety Rules
 
-1. **NEVER modify test files** — only fix source code
+1. **PREFER not to modify test files** — Only modify tests when the test itself is verifiably incorrect (testing wrong behavior, outdated assertions, or broken test setup). If you must modify a test, explain WHY the test was wrong, not just that it failed.
 2. **NEVER suppress test output** — always use `| tee`
 3. **NEVER commit with failing tests** — the loop continues until green
 4. **Max 3 full-suite iterations** — if tests still fail after 3 rounds, stop and report

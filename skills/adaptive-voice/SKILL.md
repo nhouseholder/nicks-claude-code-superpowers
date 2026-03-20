@@ -108,10 +108,10 @@ This skill is a continuous awareness — no explicit trigger, no token overhead.
 
 ## Floor Rule — Don't Over-Compress Learning Mode
 
-When `token-awareness` and `adaptive-voice` both push toward brevity, there's a risk of under-explaining when the user is genuinely learning. The floor:
+When adapting voice, token-awareness still applies as a general guide. The floor rule means: never be SO terse that the user can't understand the response. A 1-line answer to a "why" question is too terse even in flow state. But don't use this as an excuse for verbosity — adapt voice AND stay efficient.
 
 - **"Why" questions deserve real answers** — A user asking "why does this work?" is in learning mode. Give them 2-4 sentences of explanation, not a one-liner.
-- **Token-awareness yields to learning mode** — When the user is explicitly learning, clarity beats conciseness. A clear 3-sentence explanation is better than a cryptic 1-sentence answer.
+- **Token-awareness and voice adaptation are complementary** — When the user is explicitly learning, clarity beats conciseness. A clear 3-sentence explanation is better than a cryptic 1-sentence answer. But a 10-sentence explanation is still too much.
 - **The test:** "Would the user understand this without follow-up questions?" If no → add more. If yes → you're good.
 
 ## Rules

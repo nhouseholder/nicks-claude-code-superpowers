@@ -31,12 +31,15 @@ Before deciding whether to persist or move on, answer ONE question:
 ### Budget Per Retry Cycle
 Each retry attempt gets a budget. If you can't make progress within budget, **stop and escalate to the user** — don't silently burn tokens.
 
+Default cap: 3 attempts with the SAME approach. If each attempt uses a genuinely DIFFERENT strategy (not just tweaking parameters), the cap resets. After 3 same-approach failures, either try a fundamentally different approach OR escalate to user. The evidence gate determines whether a new approach is worth trying.
+
 - **Attempt 1**: Full implementation + backtest. If it fails, diagnose thoroughly.
 - **Attempt 2**: Different approach informed by Attempt 1's diagnosis. Smaller, targeted change.
-- **Attempt 3**: If still failing, STOP. Present findings to the user:
+- **Attempt 3**: If still failing with the same approach, STOP. Present findings to the user:
   - "Here's what I tried, here's what I learned, here's what I think the issue is"
   - "I recommend trying X next — want me to proceed?"
   - Let the user decide whether to continue, pivot, or shelve
+- **Beyond 3**: If the next attempt is a genuinely different strategy, proceed. The cap applies per-approach, not per-idea.
 
 ### Signs You Should STOP Retrying
 - You're trying the same approach with slightly different numbers (that's not learning, that's gambling)
@@ -133,7 +136,7 @@ If you can't fill in all 4, your experiment isn't ready. Design it better before
 ## Rules
 
 1. **Evidence gates persistence** — Only fight for ideas with proven independent value
-2. **3 attempts then escalate** — Don't silently burn tokens. Present findings, let the user decide.
+2. **3 same-approach attempts then escalate or change strategy** — Don't silently burn tokens. Genuinely different strategies reset the cap.
 3. **Each retry must be fundamentally different** — Same approach + different numbers = not learning
 4. **Log lessons, not labels** — Write what you learned, never "X is a failed feature"
 5. **Preserve baseline always** — Every attempt must be safely revertible

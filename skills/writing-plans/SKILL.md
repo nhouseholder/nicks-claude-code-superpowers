@@ -114,8 +114,7 @@ git commit -m "feat: add specific feature"
 
 After completing each chunk of the plan:
 
-1. Dispatch plan-document-reviewer subagent (see plan-document-reviewer-prompt.md) with precisely crafted review context — never your session history. This keeps the reviewer focused on the plan, not your thought process.
-   - Provide: chunk content, path to spec document
+1. Use the Agent tool to dispatch a plan review subagent. Prompt it with: "Review this implementation plan for completeness, correct ordering, missing edge cases, and realistic scope. Return concerns as a numbered list." Provide the chunk content and path to spec document. If subagents are unavailable, self-review the plan against the original requirements before proceeding.
 2. If ❌ Issues Found:
    - Fix the issues in the chunk
    - Re-dispatch reviewer for that chunk

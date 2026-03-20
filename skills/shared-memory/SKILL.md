@@ -98,6 +98,9 @@ Always read the full AGENT-MEMORY.md before making changes. Your update must be 
 - Add new bullets to lists — don't reorganize unless structure is broken
 - Old entries are historical context — they have value even if outdated
 
+### Concurrency
+When updating AGENT-MEMORY.md, read the current file first, merge your additions, then write. Never overwrite the entire file — append to or update specific sections. If the file changed between your read and write (unlikely but possible), re-read and re-merge.
+
 ### Rule 3: Timestamp Everything
 Every entry must include:
 - **Date**: ISO format (YYYY-MM-DD)

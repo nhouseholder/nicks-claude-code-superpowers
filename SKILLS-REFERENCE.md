@@ -1,7 +1,7 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 61 skills, 3 hooks, 11 commands, and the continuous learning system.
-> Last updated: 2026-03-16
+> Complete documentation for all 75 skills, 4 hooks, 9 commands, and the continuous learning system.
+> Last updated: 2026-03-19
 
 ---
 
@@ -1243,6 +1243,96 @@ D) Something else — tell me what you had in mind
 2. **GREEN:** Write minimal SKILL.md that addresses those failures
 3. **REFACTOR:** Identify new loopholes, add explicit counters
 
+#### `skill-manager`
+**Trigger:** Always-on (meta) — fires on every message
+
+**What it does:** Prevents skill overload by enforcing weight classes and budgets. Skills are classified as Passive (behavioral guidance, unlimited), Light (quick checks, max 5/message), or Heavy (spawn agents/run commands, max 2/message). Enforces the 75-skill hard cap with a one-in-one-out rule. Includes overthinking detector.
+
+**Key rules:**
+- Passive skills: zero token cost, always allowed
+- Light skills: max 5 per message
+- Heavy skills: max 2 per message
+- 75-skill cap: adding a new skill requires removing or merging an existing one
+
+### Execution Discipline
+
+#### `think-efficiently`
+**Trigger:** Always-on — before every action
+
+**What it does:** Before executing anything, checks three questions: (1) Will this produce new information? (2) Is there a faster path? (3) Is the effort proportional to the value? Includes overthinking test and three rules: bias toward action, one obvious path = take it, execution over explanation.
+
+#### `prompt-anchoring`
+**Trigger:** Always-on — during long sessions
+
+**What it does:** Keeps Claude anchored to the original prompt objective. Periodic drift checks prevent "Claude ADHD" — going off on tangents or expanding scope beyond what was asked — without reducing proactivity on the actual task.
+
+#### `calibrated-confidence`
+**Trigger:** Always-on — every response
+
+**What it does:** Makes Claude honest about what it knows vs what it's guessing. Dynamically adjusts speed and depth based on confidence level. Flags uncertainty explicitly so the user knows when to trust and when to verify.
+
+#### `take-your-time`
+**Trigger:** Always-on — complex multi-item prompts
+
+**What it does:** Matches effort to prompt complexity. A 20-bullet detailed prompt gets 20 individual implementations, not one rushed pass. Prevents AI slop on complex work while staying fast on simple tasks. Each requirement is treated as its own unit of work.
+
+### Quality & Output
+
+#### `anti-slop`
+**Trigger:** Always-on — structured output generation
+
+**What it does:** Zero tolerance for placeholder data ("Unknown", "N/A", "TBD") in any deliverable. Every field gets real data or an explicit gap explanation. Prevents AI-generated garbage from reaching the user.
+
+#### `qa-gate`
+**Trigger:** Automatic — before feature delivery
+
+**What it does:** Tiered QA checkpoint scaled to change complexity. Tier 1 (config changes): mental trace. Tier 2 (single function): quick check. Tier 3 (multi-file): full subagent testing. Includes bug-fix verification protocol and repeat-bug escalation.
+
+#### `version-bump`
+**Trigger:** Automatic — commits with version changes
+
+**What it does:** Automated semantic versioning. Determines patch/minor/major from the nature of changes, bumps package.json version, and formats commit messages with version prefix.
+
+### Debugging (Additional)
+
+#### `confusion-prevention`
+**Trigger:** Always-on — confusion signals detected
+
+**What it does:** Detects when Claude is confused about its own state — what version of a file is active, what config values are set, what results came from which run. Instead of spiraling ("wait... actually... let me check..."), forces a STOP-ORIENT-ACT protocol. Snapshots critical state before destructive actions, recognizes ground-shift signals (config changed, file reverted), prevents comparing incompatible results.
+
+**Confusion signals:** Comparing numbers from different runs, re-reading files already read, contradicting own recent output, "wait, actually..." language patterns.
+
+### Domain (Additional)
+
+#### `data-pipeline-guardian`
+**Trigger:** Automatic — data pipeline tasks
+
+**What it does:** Guards scrapers, cron jobs, and harvest workflows with idempotency, incremental fetching, and self-healing. Detects stale data, failed fetches, missing records, and schema drift so data pipelines never fail silently.
+
+#### `profit-driven-development`
+**Trigger:** Always-on — sports prediction work
+
+**What it does:** The north star for all sports prediction work. Every change must answer: "will this make the NEXT picks more correct and more profitable?" Prevents overfitting to historical data and endless backtest spinning. Forces forward-looking accuracy focus.
+
+#### `screenshot-dissector`
+**Trigger:** Automatic — screenshot provided during debugging
+
+**What it does:** Methodical pixel-level screenshot analysis during debugging. Catches layout bugs, state issues, console errors, and UI regressions beyond the obvious. Systematic visual inspection rather than just looking at the most prominent element.
+
+### Persistence (Additional)
+
+#### `never-give-up`
+**Trigger:** Automatic — integration failure of validated idea
+
+**What it does:** Never abandon a proven-valuable idea because integration failed. Uses an evidence gate + think-efficiently integration to persist smartly, not stubbornly. Failed execution is not a failed idea — iterate, learn, try harder. But also never burn tokens on endless retries without new information.
+
+#### `user-rules`
+**Trigger:** Always-on — hard constraint detected
+
+**What it does:** Captures and enforces user-defined hard constraints across sessions. When the user sets a rule ("max 70 events", "always use approach X", "never do Y"), it's saved to `~/.claude/projects/<project>/memory/user_rules.md` and checked before every relevant action. Rules survive compaction, crashes, and session boundaries. These are NOT preferences — they are hard constraints that must never be violated.
+
+**Detection signals:** "always", "never", "must", "max/min", "from now on", "don't ever"
+
 ---
 
 ## Hooks
@@ -1254,6 +1344,7 @@ Hooks are shell scripts that fire automatically on specific Claude Code events.
 | **Prompt Improver** | `hooks/improve-prompt.py` | UserPromptSubmit | Fast-paths clear prompts (short, specific, detailed). Only evaluates mid-length ambiguous prompts. Enriches genuinely vague ones with research and clarification. |
 | **Observer** | `hooks/observe.py` | PostToolUse | Captures all tool calls (except Glob/Grep/Read/ToolSearch) with timestamps. Stores to `observations.jsonl` per project. Powers continuous-learning-v2. |
 | **Memory Save** | `hooks/stop-memory-save.py` | Stop | At session end (if >4 messages), reminds Claude to save learnings to project or global memory. |
+| **Skill Tracker** | `hooks/track-skill-performance.js` | Stop + PostToolUse (every 30 calls) | Collects skill effectiveness data during sessions. Generates reports for `/skill-insights` on which skills help vs hurt. |
 
 ---
 
@@ -1263,17 +1354,15 @@ Slash commands users can invoke directly.
 
 | Command | File | What It Does |
 |---------|------|-------------|
-| `/mem show` | `commands/mem.md` | Display memory structure and contents |
-| `/mem save <text>` | `commands/mem.md` | Save observation to appropriate topic in `~/.claude/memory/` |
-| `/mem recall <query>` | `commands/mem.md` | Search and retrieve relevant memories |
-| `/mem forget <topic>` | `commands/mem.md` | Remove a topic from memory |
-| `/brainstorm` | `commands/brainstorm.md` | Shortcut to invoke brainstorming skill |
-| `/write-plan` | `commands/write-plan.md` | Shortcut to invoke writing-plans skill |
-| `/execute-plan` | `commands/execute-plan.md` | Shortcut to invoke executing-plans skill |
-| `/backtest` | `commands/backtest.md` | Run model backtest with baseline comparison |
 | `/audit` | `commands/audit.md` | Scan for hardcoded secrets and quality issues |
+| `/backtest` | `commands/backtest.md` | Run model backtest with baseline comparison |
+| `/brainstorm` | `commands/brainstorm.md` | Shortcut to invoke brainstorming skill |
 | `/deploy` | `commands/deploy.md` | Full deploy pipeline with rollback |
+| `/execute-plan` | `commands/execute-plan.md` | Shortcut to invoke executing-plans skill |
 | `/fix-loop` | `commands/fix-loop.md` | Self-healing CI: test, fix, re-run until green |
+| `/mem` | `commands/mem.md` | Memory management (show, save, recall, forget) |
+| `/skill-insights` | `commands/skill-insights.md` | Report on which skills help vs hurt effectiveness |
+| `/write-plan` | `commands/write-plan.md` | Shortcut to invoke writing-plans skill |
 
 ---
 
@@ -1343,7 +1432,7 @@ Error occurs
 | Reflect on output | `/reflexion:reflect` → `/reflexion:memorize` |
 | Deep analysis | `/reflexion:critique` (3-judge panel) |
 | Critical decision | `/fpf:propose-hypotheses` |
-| Check skill status | `/instinct-status` |
+| Check skill effectiveness | `/skill-insights` |
 | Search before coding | `search-first` |
 | Add to context DB | `ov add-resource <path>` |
 | Search context DB | `ov find <query>` |

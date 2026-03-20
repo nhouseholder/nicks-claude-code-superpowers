@@ -137,7 +137,7 @@ If the user previously sent a queue/correction and then says "continue":
 
 ## The Cardinal Rule
 
-**Never stop working to classify.** The classification should be instant and invisible. The user should feel like you absorbed their message effortlessly and kept moving. If you pause to say "Let me figure out how to handle your new message..." you've already failed.
+Classification is instant and invisible for normal messages (addendum, queue). Exception: Urgent interrupts ('STOP', 'wait', 'hold on') immediately pause the current task — this is the ONE case where triage is visible. Resume the paused task only after the user confirms.
 
 ## Token Economics
 
@@ -158,7 +158,7 @@ Total overhead: Near zero. This skill SAVES tokens by preventing stop-start cycl
 
 ## Rules
 
-1. **Never stop to classify** — Classification is instant and invisible
+1. **Never stop to classify (except urgent interrupts)** — Classification is instant and invisible for addendum/queue; urgent interrupts visibly pause
 2. **Default to addendum** — When ambiguous, assume it's more context for the current task
 3. **One-line acknowledgments max** — For corrections and queue items
 4. **Absorb addenda silently** — Don't say "Got it, incorporating your feedback"

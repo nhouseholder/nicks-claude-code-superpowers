@@ -13,14 +13,9 @@ When you have multiple unrelated failures (different test files, different subsy
 
 **Core principle:** Dispatch one agent per independent problem domain. Let them work concurrently.
 
-## Boundary with `command-center`
+## Boundary with command-center
 
-`dispatching-parallel-agents` and `command-center` both deal with parallel agents but serve different complexity levels:
-
-- **Use `dispatching-parallel-agents`** when you already know the 2-3 independent tasks and just need to launch them. You've done the decomposition yourself. Simple, direct, low overhead.
-- **Use `command-center`** when the user gives you a big goal and you need to figure out the team — decompose the mission, assign expert roles, manage priority, budget context, and integrate results.
-
-**Rule of thumb:** If the user already told you exactly what to parallelize → dispatching. If the user gave you a goal and you need to figure out the strategy → command-center.
+Use dispatching-parallel-agents when you already KNOW the 2-3 independent tasks (e.g., 'fix tests in fileA, fileB, fileC in parallel'). Use command-center when you need to FIGURE OUT the task decomposition first (e.g., 'build this entire feature' requires analysis before parallelization). If in doubt, default to dispatching-parallel-agents — it's simpler and cheaper.
 
 ## When to Use
 

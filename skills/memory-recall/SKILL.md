@@ -12,7 +12,13 @@ Find the most relevant historical memories for: $ARGUMENTS
 
 ## Steps
 
-1. Resolve the memory bridge script path.
+1. Check if OpenViking CLI is available.
+
+First check if the OpenViking CLI (`ov`) is available by running `which ov`. If not available, fall back to reading memory files directly from `~/.claude/memory/` and project memory directories using Read/Grep tools. Search for relevant content matching the query in `me.md`, `core.md`, `topics/*.md`, and `projects/*.md`. Also check project-scoped memory at `~/.claude/projects/.../memory/` if applicable.
+
+If `ov` is available, proceed with the bridge script approach below.
+
+2. Resolve the memory bridge script path.
 ```bash
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$PWD}"
 STATE_FILE="$PROJECT_DIR/.openviking/memory/session_state.json"
@@ -23,7 +29,7 @@ if [ ! -f "$BRIDGE" ]; then
 fi
 ```
 
-2. Run memory recall search.
+3. Run memory recall search.
 ```bash
 python3 "$BRIDGE" --project-dir "$PROJECT_DIR" --state-file "$STATE_FILE" recall --query "$ARGUMENTS" --top-k 5
 ```

@@ -59,7 +59,7 @@ BEFORE [action]: [key] was [value]. If this changes, [consequence].
 | Comparing outputs that came from different states | "The sweep showed X but now I see Y" |
 | "Must have been" / "might have" | Speculating instead of verifying |
 
-**The rule: After 2 "wait" or "let me check" moments, STOP EVERYTHING.**
+**The rule: 2 'wait/actually' moments in sequence without new information = STOP and re-orient. A 'wait' followed by genuinely new information (reading a file, getting test output) is healthy iteration, not confusion. The signal is UNPRODUCTIVE 'wait' — going in circles without learning anything new.**
 
 ### 3. Comparing Incompatible Results
 
@@ -165,7 +165,7 @@ This takes 5 tokens and prevents 500 tokens of confusion later.
 
 ## Rules
 
-1. **2 "wait" moments = STOP** — you are confused. Re-orient before continuing.
+1. **2 unproductive "wait" moments = STOP** — going in circles without learning anything new means you are confused. A 'wait' followed by genuinely new information is healthy iteration. Re-orient before continuing.
 2. **Snapshot before state changes** — git checkout, config edits, file reverts all require noting what was there.
 3. **Every result has provenance** — before comparing, verify both came from the same state.
 4. **One change at a time** — don't make 3 changes then wonder which one mattered.

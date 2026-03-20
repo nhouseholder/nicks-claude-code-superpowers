@@ -21,9 +21,9 @@ description: Ensures all relevant files and context are loaded before making any
 
 Before ANY Edit or Write, verify:
 
-1. **I have read the file I'm editing**
+1. **Always read before editing — unless the file was already read in this conversation turn (within the last 5 tool calls). Recently-read files don't need re-reading. For files read more than ~10 tool calls ago, re-read to catch any changes.**
    - If editing `app.tsx`, I must first `Read app.tsx`
-   - No exceptions — no "I remember from earlier"
+   - Exception: if the file was read within the last 5 tool calls in this turn, skip re-reading
 
 2. **I have read related files**
    - Parent components that render this component

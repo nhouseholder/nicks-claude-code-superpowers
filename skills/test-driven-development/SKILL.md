@@ -359,8 +359,7 @@ When adding mocks or test utilities, read @testing-anti-patterns.md to avoid com
 ## Final Rule
 
 ```
-Production code → test exists and failed first
-Otherwise → not TDD
+Default to TDD for all business logic. For trivial changes (config tweaks, copy changes, style fixes),
+use judgment — TDD adds overhead without value. When skipping TDD, ensure the change is verified
+by other means (manual check, existing tests, type system).
 ```
-
-No exceptions without your human partner's permission.

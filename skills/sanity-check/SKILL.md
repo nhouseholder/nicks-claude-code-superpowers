@@ -140,7 +140,7 @@ This skill exists to SAVE the user time and protect their project. It does NOT e
 
 ## New Skill Necessity Check
 
-When the user suggests a **new skill**, run this quick evaluation before building it:
+When the user suggests a **new skill**, run this quick evaluation before building it. This evaluation is for NEW skill proposals from the user. For managing which EXISTING skills fire on a given message, defer to skill-manager — that's its job, not sanity-check's.
 
 | Question | If "No" → |
 |----------|-----------|

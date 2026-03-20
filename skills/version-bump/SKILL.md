@@ -48,22 +48,36 @@ git diff --cached
 
 Map changes to PATCH/MINOR/MAJOR using the rules above.
 
-### 2. Read Current Version
+### 2. Detect and Read Current Version
+
+Detect the project's version file: package.json (Node.js), pyproject.toml (Python), Cargo.toml (Rust), or similar. If no standard version file exists, track version in the most prominent config file or skip version bumping for that project.
+
 ```bash
+# Node.js
 node -p "require('./package.json').version"
+
+# Python (pyproject.toml)
+grep 'version' pyproject.toml
+
+# Rust (Cargo.toml)
+grep '^version' Cargo.toml
 ```
 
 ### 3. Bump Version
-```bash
-# For the determined bump type:
-npm version patch --no-git-tag-version  # or minor, or major
-```
 
-If no package.json exists, track version in the most appropriate config file.
+Use the appropriate tool for the detected version file:
+
+```bash
+# Node.js (package.json):
+npm version patch --no-git-tag-version  # or minor, or major
+
+# Python (pyproject.toml): edit the version field directly
+# Rust (Cargo.toml): edit the version field directly or use cargo-bump
+```
 
 ### 4. Commit with Version Prefix
 ```bash
-git add package.json
+git add package.json  # or pyproject.toml, Cargo.toml, etc.
 git add <other-changed-files>
 git commit -m "vX.Y.Z: Short description of what changed"
 ```
@@ -115,7 +129,7 @@ If the project has AGENT-MEMORY.md (shared-memory skill), update the version ent
 1. **Always bump** — Every meaningful commit gets a version number
 2. **Semver strictly** — PATCH for fixes, MINOR for features, MAJOR for breaking
 3. **Version in commit message** — Always prefix with `vX.Y.Z:`
-4. **package.json sync** — Version in commit message must match package.json
+4. **Version file sync** — Version in commit message must match the project's version file (package.json, pyproject.toml, Cargo.toml, etc.)
 5. **No skipping** — Don't jump from v5.64.0 to v5.70.0; increment sequentially
 6. **Ask on ambiguity** — If unsure between MINOR and MAJOR, ask the user
 7. **Update displayed versions** — If users can see the version, update it everywhere

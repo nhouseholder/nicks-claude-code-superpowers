@@ -62,11 +62,11 @@ After completing a substantive task where the next step is **high-confidence and
 - The task was self-contained (nothing obviously follows)
 - The user seems to be exploring, not executing a plan
 
-### Never Predict
-- Destructive operations ("Want me to delete the old version?")
-- Deployment ("Want me to deploy to production?")
-- External communications ("Want me to open a PR?")
+### Never Predict Irreversible Destructive Operations
+- Force push, database drop, production deploy ("Want me to force push?" / "Want me to drop the table?")
 - These require explicit user initiation
+
+Normal workflow actions (commit, run tests, create PR) are fine to suggest.
 
 ## Format
 
@@ -106,6 +106,6 @@ Cost: ~10-15 tokens per prediction (one line). Value: saves an entire user promp
 1. **One prediction, one line** — Never list options. Pick the most likely next step.
 2. **"Next:" prefix** — Consistent format so the user recognizes it instantly
 3. **Easy to ignore** — If the prediction is wrong, the user just sends their actual request
-4. **Never predict destructive actions** — No deletes, deploys, or external communications
+4. **Never predict irreversible destructive actions** — No force pushes, database drops, or production deploys. Normal workflow actions (commit, tests, create PR) are fine.
 5. **Suppress in flow state** — Fast-moving users don't need suggestions
 6. **Base it on evidence** — Codebase patterns, session history, common workflows. Not guessing.

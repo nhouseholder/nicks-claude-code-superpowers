@@ -11,8 +11,8 @@ The user types naturally. You execute as if they gave the perfect prompt. Every 
 
 This skill fires on EVERY user message — but its depth is proportional to message complexity.
 
-### Fast Path (messages under 20 words OR clear single-intent messages)
-Skip ALL decomposition. Just act. Examples: "yes", "fix it", "that didn't work", "try something else", "continue", "add tests for that". These messages get zero overhead — respond naturally using conversation context.
+### Fast Path (zero overhead)
+Messages under 20 words, single-action requests ('fix the typo', 'run tests', 'commit'), follow-up messages ('yes', 'continue', 'looks good'). On fast path, do NOT decompose — just execute. Full decomposition only for messages with ambiguous scope, multiple requirements, or complex constraints.
 
 ### Medium Path (clear intent, moderate complexity)
 Most messages land here. Do the 7-component decomposition MENTALLY in ~0 tokens, then EXECUTE IMMEDIATELY. Do NOT:
@@ -23,15 +23,7 @@ Most messages land here. Do the 7-component decomposition MENTALLY in ~0 tokens,
 
 **The anti-inflation rule:** Never upgrade a simple request into a complex one. "Add a logout button" does not become a 3-approach design discussion. It becomes a logout button.
 
-**Global Complexity Gate:** On fast-path messages, the following skills should also stand down (zero overhead):
-- brainstorming (no design phase needed)
-- reflexion-reflect (no reflection needed)
-- prompt-improver (no enrichment needed)
-- test-driven-development (use judgment, not mandatory)
-- always-improving (don't suggest improvements)
-- predictive-next (only if obvious continuation)
-
-This prevents the "Simple Request Gauntlet" where 14+ skills fire on a typo fix.
+When this skill identifies a fast-path message, other skills should also use their fast path. This prevents the "Simple Request Gauntlet" where 14+ skills fire on a typo fix.
 
 ### Full Path (complex, multi-part, or ambiguous messages)
 Apply the 7-component decomposition below. This is for messages where intent could genuinely be lost without careful interpretation.

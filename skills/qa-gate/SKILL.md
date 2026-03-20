@@ -5,6 +5,16 @@ description: Mandatory QA gate before delivering any feature, fix, or component.
 
 # QA Gate — Test It Before You Ship It
 
+## Review Pipeline Coordination
+
+QA gate is ONE part of the review pipeline — not the entire pipeline. Avoid stacking:
+
+- **If subagent-driven-development already ran spec + code review**: QA gate should do Tier 1 (mental trace) only — the heavy review is already done.
+- **If requesting-code-review dispatched a reviewer**: QA gate should skip — the code is already being reviewed.
+- **If neither ran**: QA gate operates at full tier (1/2/3) based on change complexity.
+
+Never dispatch more than 2 total review agents for a single change.
+
 ## The Problem This Solves
 
 Claude delivers a feature, says "done," and the user immediately finds bugs. This is unacceptable. The user should NEVER be the first person to discover that something doesn't work. Claude must be its own QA department — testing every deliverable before handing it back.
@@ -18,7 +28,7 @@ Claude delivers a feature, says "done," and the user immediately finds bugs. Thi
 | **Tier 3 — Full QA Gate** | New feature (multi-file), full-stack changes, algorithm overhaul, deployment-bound work | Dispatch independent QA subagent, full checklist, fix before delivery |
 | **Tier 2 — Inline Verification** | Single-component change, bug fix, API endpoint tweak, algorithm parameter change | Trace the code path with real inputs, check edge cases inline, no subagent needed |
 | **Tier 1 — Quick Sanity Check** | Small fix (1-2 lines), style/layout tweak, single function change | Mentally verify correctness, check for obvious breakage, move on |
-| **Skip** | Config-only, docs, git ops, memory/skill files, unused code deletion, user says "just push it" | No QA needed |
+| **Skip** | Config-only, docs, git ops, memory/skill files, unused code deletion, User explicitly requests skipping QA (acknowledge the skip in your response so it's visible) | No QA needed |
 
 **The rule:** Tier 3 is the mandatory full gate. Tiers 1-2 scale down proportionally. Never skip entirely on behavioral changes.
 

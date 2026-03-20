@@ -34,38 +34,21 @@ Do NOT fire when:
 
 When this skill DOES fire, categorize the task to apply appropriate depth:
 
-### Quick Path (5-second check)
+Two paths only:
 
-For simple tasks like:
+### Quick Path (default)
 
-- Single file edits
-- Documentation updates
-- Simple queries or explanations
-- Straightforward bug fixes
+For all standard work — verify output is correct, complete, and matches the request. Takes 5-10 seconds mentally.
 
 → **Skip to "Final Verification" section**
 
-### Standard Path (Full reflection)
+### Deep Path (opt-in)
 
-For tasks involving:
+For high-risk changes (auth, payments, data migrations), explicit user request, or after 2+ failed bug fixes. Full multi-step verification.
 
-- Multiple file changes
-- New feature implementation
-- Architecture decisions
-- Complex problem solving
+→ **Follow complete framework below**
 
-→ **Follow complete framework + require confidence (>4.0/5.0)**
-
-### Deep Reflection Path
-
-For critical tasks:
-
-- Core system changes
-- Security-related code
-- Performance-critical sections
-- API design decisions
-
-→ **Follow framework + require confidence (>4.5/5.0)**
+No intermediate paths — quick or deep.
 
 ## IMMEDIATE REFLECTION PROTOCOL
 

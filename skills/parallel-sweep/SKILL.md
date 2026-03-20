@@ -13,6 +13,8 @@ Spawn multiple Claude Code headless agents to search parameter spaces in paralle
 - Any parameter search that can be divided into independent subspaces
 - Tasks that would take hours single-threaded but minutes in parallel
 
+While designed for coefficient sweeps in sports prediction, this skill works for any parameter optimization task. Adapt the parameter space and evaluation metrics to the domain.
+
 ## Sports Model Integration
 When sweeping sports prediction model parameters:
 - **Walk-forward only**: Each backtest in the sweep must use only pre-game data
@@ -36,21 +38,11 @@ Divide the parameter space into N equal partitions (default: 4 agents):
 - Agent 3: parameter range [50%, 75%)
 - Agent 4: parameter range [75%, 100%)
 
-### 3. Create the Sweep Script
+### 3. Set Up Results Database
 
 ```bash
-#!/bin/bash
-# parallel_sweep.sh — Launch N parallel Claude Code agents
-
-set -e
-
-NUM_AGENTS=${1:-4}
 DB_PATH="sweep_results.db"
-CONFIG="config.json"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-LOG_DIR="sweep_logs_${TIMESTAMP}"
-
-mkdir -p "$LOG_DIR"
 
 # Create results table if it doesn't exist
 sqlite3 "$DB_PATH" "CREATE TABLE IF NOT EXISTS sweep_results (
@@ -61,55 +53,31 @@ sqlite3 "$DB_PATH" "CREATE TABLE IF NOT EXISTS sweep_results (
   roi REAL,
   timestamp TEXT DEFAULT CURRENT_TIMESTAMP
 );"
+```
 
-# Launch agents in parallel
-for i in $(seq 1 $NUM_AGENTS); do
-  echo "Launching agent $i of $NUM_AGENTS..."
-  claude -p "You are sweep agent $i of $NUM_AGENTS.
-Read $CONFIG for coefficient ranges.
-Your partition: take the range and split into $NUM_AGENTS equal parts, you handle part $i.
+### 4. Dispatch Sweep Agents
+
+Use the Agent tool to dispatch a subagent for each parameter set. Each subagent receives:
+- Its agent number and total agent count
+- The parameter partition it is responsible for
+- The path to the shared SQLite database
+- Instructions to run backtests and record results
+
+**Subagent prompt template:**
+```
+You are sweep agent {i} of {N}.
+Read config.json for coefficient ranges.
+Your partition: take the full range and split into {N} equal parts, you handle part {i}.
 For each configuration in your partition:
 1. Run the backtest
-2. Record results to SQLite: INSERT INTO sweep_results (agent_id, coefficients_json, accuracy, roi) VALUES ($i, '<json>', <accuracy>, <roi>)
-DB path: $DB_PATH
-Use | tee for all output. Never suppress stdout." \
-    --allowedTools "Read,Edit,Bash,Grep" \
-    > "$LOG_DIR/agent_${i}.log" 2>&1 &
-
-  PIDS+=($!)
-done
-
-echo "All $NUM_AGENTS agents launched. PIDs: ${PIDS[*]}"
-echo "Logs: $LOG_DIR/"
-
-# Wait for all agents
-FAILED=0
-for pid in "${PIDS[@]}"; do
-  if ! wait "$pid"; then
-    echo "Agent (PID $pid) failed"
-    ((FAILED++))
-  fi
-done
-
-echo ""
-echo "=== SWEEP COMPLETE ==="
-echo "Agents: $NUM_AGENTS total, $((NUM_AGENTS - FAILED)) succeeded, $FAILED failed"
-echo ""
-
-# Generate summary
-echo "=== TOP 5 CONFIGURATIONS ==="
-sqlite3 -header -column "$DB_PATH" \
-  "SELECT agent_id, coefficients_json, accuracy, roi, timestamp
-   FROM sweep_results
-   ORDER BY accuracy DESC
-   LIMIT 5;"
+2. Record results to SQLite: INSERT INTO sweep_results (agent_id, coefficients_json, accuracy, roi) VALUES ({i}, '<json>', <accuracy>, <roi>)
+DB path: {DB_PATH}
+Use | tee for all output. Never suppress stdout.
 ```
 
-### 4. Run and Monitor
-```bash
-chmod +x parallel_sweep.sh
-./parallel_sweep.sh 4 | tee sweep_summary.log
-```
+Dispatch all N subagents (default: 4) in parallel using the Agent tool. Wait for all to complete before proceeding to analysis.
+
+**Fallback:** If subagents are unavailable, run sweeps sequentially. Iterate through each partition one at a time in the current session, recording results to the same SQLite database after each partition completes.
 
 ### 5. Analyze Results
 After completion:

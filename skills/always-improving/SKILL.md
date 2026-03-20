@@ -14,6 +14,8 @@ When the work is done and the to-do list is empty, don't just stop. Look at the 
 - User has previously indicated they want proactive suggestions for this project
 - All requested tasks are complete AND user seems receptive (not in flow state)
 
+**Boundary with predictive-next:** predictive-next suggests the next step in an ACTIVE workflow (e.g., 'want me to add tests?' after writing code). always-improving suggests improvements when there IS no active workflow — the task is done and no obvious next step exists. If predictive-next already suggested something, always-improving should not fire.
+
 **Never fires when:**
 - Mid-task (that's mid-task-triage's domain)
 - User is in flow state sending rapid messages

@@ -9,17 +9,12 @@ You are not a passive code generator. You are an active, thinking developer who 
 
 ## When This Activates
 
-This mindset is ALWAYS active but **calibrated by request size**:
-- **Small request** (bug fix, config change, copy update) → Only check the specific thing you changed. Don't hunt for edge cases in surrounding code.
-- **Medium request** (new component, feature addition) → Full QA loop on your new code only. Don't refactor surrounding code.
-- **Large request** (new flow, major refactor) → Full proactive QA across all touched files.
-
-Specifically heightened when:
-- Implementing any new feature or component
-- Modifying existing functionality
-- Fixing a bug (look for related bugs)
-- Changing data structures or APIs
-- Updating dependencies or configuration
+Calibration rules:
+- **Off**: User said 'just push it' or 'skip QA' → acknowledge and skip
+- **Light** (mental trace only): Config changes, copy/text edits, style changes, single-line fixes
+- **Medium** (quick functional check): Single-function changes, API endpoint modifications
+- **Full** (walk the user journey): Multi-file features, auth/payment flows, data migrations
+Default to Light. Only escalate when the change touches user-facing behavior or data integrity.
 
 ## The Proactive Developer Loop
 
@@ -91,20 +86,14 @@ When fixing bug A, if you notice bug B in the same file or closely related code:
 
 ## The "Ship It" Test
 
-Before declaring any work complete, simulate a demo:
+Before delivering, mentally verify: 'If the user immediately uses this feature in production, will it work correctly on the first try?' This replaces the demo simulation — focus on real-world usage, not theatrical scenarios.
 
-```
-Imagine: You're screen-sharing with the user.
-You click through the feature. They're watching.
-
-- Does the page load without errors?
+Key checks:
 - Does the happy path work end-to-end?
 - Does it handle an obvious error gracefully?
 - Does it look consistent with the rest of the app?
-- Would you feel confident showing this?
-```
 
-If you'd hesitate during the demo — fix it first.
+If the answer to any of these is "no" — fix it first.
 
 ## Architecture Smell Detection
 

@@ -206,6 +206,8 @@ When the user reports the SAME issue again after you claimed it was fixed:
 
 **The escalation rule**: Each repeated bug report DOUBLES your verification obligation. If mental trace was enough the first time and failed, real testing is required. If real testing failed, reproduce-first is required. Never apply the same level of verification that already failed.
 
+Escalation cap: After 3 escalations (8x base verification), stop escalating and flag to user: "This may be a flaky test or infrastructure issue rather than a code bug. Recommend investigating the test environment." External failures (network, CI infra, flaky tests) do NOT trigger escalation — only genuine code bugs do.
+
 ## The Bottom Line
 
 **No shortcuts for verification.**

@@ -17,7 +17,9 @@ If the answer isn't clearly "yes" — stop, step back, and ask why you're doing 
 
 ## When This Fires
 
-Always-on during any session that touches sports prediction code, betting algorithms, or backtesting infrastructure. This skill is the permanent background voice that asks "but will it actually work on FUTURE games?"
+This skill ONLY activates when working on code in directories containing sports prediction files (e.g., files with 'backtest', 'picks', 'odds', 'predictions', 'coefficients' in their names or paths), OR when the user explicitly mentions sports/betting/prediction work. Do NOT fire on general-purpose code.
+
+When active, this skill is the permanent background voice that asks "but will it actually work on FUTURE games?"
 
 ## The Three Questions — Before Every Change
 
@@ -88,6 +90,7 @@ If you've run 5+ backtests on the same feature with minor tweaks and haven't fou
 - **STOP.** Present findings to the user.
 - Say: "I've tested [feature] at [values]. The signal is [weak/inconsistent/absent]. Here's what I think is happening: [analysis]. Want me to try a fundamentally different approach, or move on?"
 - Do NOT run backtest #6 with weight=0.127 instead of 0.125.
+- This 5-backtest stop rule overrides never-give-up's 3-attempt rule for sports prediction work specifically.
 
 ### Start with the Hypothesis
 Before ANY backtest:

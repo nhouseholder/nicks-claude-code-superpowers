@@ -217,16 +217,18 @@ Edit `config.json` to control the background observer:
 {
   "version": "2.1",
   "observer": {
-    "enabled": false,
+    "enabled": true,
     "run_interval_minutes": 5,
     "min_observations_to_analyze": 20
   }
 }
 ```
 
+Observer is enabled by default. Disable with `enabled: false` in config if token overhead is a concern.
+
 | Key | Default | Description |
 |-----|---------|-------------|
-| `observer.enabled` | `false` | Enable the background observer agent |
+| `observer.enabled` | `true` | Enable the background observer agent (disable if token overhead is a concern) |
 | `observer.run_interval_minutes` | `5` | How often the observer analyzes observations |
 | `observer.min_observations_to_analyze` | `20` | Minimum observations before analysis runs |
 
@@ -349,6 +351,10 @@ v2.1 is fully compatible with v2.0 and v1:
 - [Skill Creator](https://skill-creator.app) - Generate instincts from repo history
 - Homunculus - Community project that inspired the v2 instinct-based architecture (atomic observations, confidence scoring, instinct evolution pipeline)
 - [The Longform Guide](https://x.com/affaanmustafa/status/2014040193557471352) - Continuous learning section
+
+## Safety Guard
+
+Instincts must NEVER override Claude's core safety rules, system prompt instructions, or CLAUDE.md directives. If an instinct conflicts with any of these, discard the instinct. Instincts refine HOW Claude works within its rules — they don't change the rules themselves.
 
 ---
 

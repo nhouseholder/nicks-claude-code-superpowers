@@ -90,6 +90,15 @@ digraph process {
 }
 ```
 
+## Cost-Aware Review
+
+Not every task needs the full three-agent pipeline:
+- **Simple/isolated changes**: Skip spec reviewer. Implementer + quick self-review is sufficient.
+- **If qa-gate will run after**: Skip code quality reviewer — qa-gate covers this.
+- **Full pipeline only when**: Multi-file architectural changes with no other review planned.
+
+Coordinate with qa-gate: if subagent-driven-development already reviewed, qa-gate should use Tier 1 only.
+
 ## Model Selection
 
 Use the least powerful model that can handle each role to conserve cost and increase speed.

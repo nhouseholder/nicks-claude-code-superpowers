@@ -51,7 +51,9 @@ When building a database or structured dataset:
 
 ### Rule 3: The Spot-Check Gate
 
-Before delivering any dataset with 10+ records, spot-check at least 3 random entries:
+Spot-check data quality for HIGH-STAKES outputs (financial data, user-facing content, production configs). For low-stakes outputs (development data, debug logs, internal reports), trust the generation process unless something looks wrong.
+
+For high-stakes datasets with 10+ records, spot-check at least 3 random entries:
 
 ```
 For records [random_1, random_2, random_3]:
@@ -148,7 +150,7 @@ In order of preference:
 
 1. **No silent placeholders** — Every "Unknown" or "N/A" in delivered output is a failure
 2. **Research before defaulting** — Look it up before writing "Unknown"
-3. **Spot-check before delivery** — 3 random records minimum for any dataset
+3. **Spot-check before delivery** — 3 random records minimum for high-stakes datasets; trust the process for low-stakes outputs
 4. **Flag gaps explicitly** — Tell the user WHAT is missing and WHY
 5. **Never mass-default** — Same placeholder in many records = systematic failure, not acceptable
 6. **Quality scales with stakes** — Academic citations, financial data, medical info get the highest bar

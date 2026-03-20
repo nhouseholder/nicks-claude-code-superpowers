@@ -77,6 +77,19 @@ When skills conflict, resolve using this priority order:
 5. **Process skills** (brainstorming, writing-plans, TDD) — they suggest workflow
 6. **Enhancement skills** (opportunistic-improvement, predictive-next) — lowest priority, suppress if busy
 
+## Conflict Resolution Protocol
+
+When two skills give contradictory guidance, resolve with these rules IN ORDER:
+
+1. **User rules always win** — If `user-rules` has a stored constraint, it overrides everything else.
+2. **Explicit beats implicit** — A skill the user explicitly invoked (via slash command) beats an auto-firing skill.
+3. **Safety beats speed** — When `verification-before-completion` conflicts with `think-efficiently`, verify first. Speed is a preference; correctness is a requirement.
+4. **Specific beats general** — A domain skill (profit-driven-development) beats a general skill (senior-dev-mindset) in its domain.
+5. **Current task beats improvement** — `prompt-anchoring` beats `opportunistic-improvement` when they conflict. Finish the task first.
+6. **Action beats analysis** — When stuck choosing between doing and planning, do. But verify after.
+
+If none of these rules resolve the conflict, follow the skill that was designed for the SPECIFIC situation (not the general-purpose one).
+
 ### Same-Tier Tiebreakers
 When two skills at the SAME priority tier conflict:
 - **More specific wins** — A domain skill for THIS exact task beats a general domain skill
@@ -119,7 +132,7 @@ When two skills at the SAME priority tier conflict:
 Before responding, check: **Am I about to THINK about this task, or DO this task?**
 
 Signs of overthinking (STOP and just execute):
-- About to explain what you're going to do before doing it
+- About to explain what you're going to do before doing it (Exception: Explaining a plan IS appropriate when the user asked for a plan, when the task has 5+ steps, or when using /write-plan.)
 - About to propose multiple approaches when one is obviously right
 - About to ask a clarifying question you could answer yourself from context
 - About to brainstorm/plan for a task that has a clear solution

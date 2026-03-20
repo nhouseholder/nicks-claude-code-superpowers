@@ -84,7 +84,7 @@ const updatedUser = {
 
 const updatedArray = [...items, newItem]
 
-// ❌ NEVER mutate directly
+// ❌ NEVER mutate directly (Exception: when performance-critical code requires it and the mutation is contained/documented.)
 user.name = 'New Name'  // BAD
 items.push(newItem)     // BAD
 ```
@@ -528,3 +528,27 @@ setTimeout(callback, DEBOUNCE_DELAY_MS)
 ```
 
 **Remember**: Code quality is not negotiable. Clear, maintainable code enables rapid development and confident refactoring.
+
+## Python Standards
+
+### Style & Structure
+- Follow PEP 8 for formatting (snake_case functions/variables, PascalCase classes)
+- Use type hints for function signatures: `def process(data: list[dict]) -> bool:`
+- Prefer f-strings over .format() or % formatting
+- Use pathlib over os.path for file operations
+- Use dataclasses or Pydantic models over raw dicts for structured data
+
+### Error Handling
+- Catch specific exceptions, never bare `except:`
+- Use `logging` module over print() for production code
+- Return early on validation failures
+
+### Project Structure
+- Use virtual environments (venv/conda)
+- Requirements in requirements.txt or pyproject.toml
+- Entry points via `if __name__ == "__main__":` or CLI frameworks (click, argparse)
+
+### Testing
+- pytest over unittest
+- Fixtures for shared setup
+- Parametrize for multiple test cases

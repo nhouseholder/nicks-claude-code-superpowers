@@ -16,10 +16,10 @@ Random fixes waste time and create new bugs. Quick patches mask underlying issue
 ## The Iron Law
 
 ```
-NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
+ROOT CAUSE FIRST — except for obvious fixes (typos, missing imports, wrong variable names) where the cause IS the fix. For anything non-trivial, identify the root cause before applying a fix.
 ```
 
-If you haven't completed Phase 1, you cannot propose fixes.
+If you haven't completed Phase 1 and the issue is non-trivial, you cannot propose fixes.
 
 ## When to Use
 
@@ -111,11 +111,10 @@ You MUST complete each phase before proceeding to the next.
 
    **WHEN error is deep in call stack:**
 
-   See `root-cause-tracing.md` in this directory for the complete backward tracing technique.
+   Trace backwards from the symptom: What changed? What's different from the working state? What assumptions are being violated?
 
-   **Quick version:**
-   - Where does bad value originate?
-   - What called this with bad value?
+   - Where does the bad value originate?
+   - What called this with the bad value?
    - Keep tracing up until you find the source
    - Fix at source, not at symptom
 
@@ -281,7 +280,7 @@ If systematic investigation reveals issue is truly environmental, timing-depende
 
 These techniques are part of systematic debugging and available in this directory:
 
-- **`root-cause-tracing.md`** - Trace bugs backward through call stack to find original trigger
+- **Root cause tracing** - Trace backwards from the symptom: What changed? What's different from the working state? What assumptions are being violated? Follow the data flow backward through the call stack to find the original trigger.
 - **`defense-in-depth.md`** - Add validation at multiple layers after finding root cause
 - **`condition-based-waiting.md`** - Replace arbitrary timeouts with condition polling
 

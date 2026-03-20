@@ -16,7 +16,7 @@ Historical performance is a tool, not the goal. Before running any backtest, ask
 - Is this generalizable across time periods, or fitting noise?
 - Would a domain expert agree this factor matters?
 
-If working on Nick's sports prediction models, the full Sports Backtesting Protocol in project memory is MANDATORY — including overfitting checks, walk-forward validation, and out-of-sample holdouts.
+Check project memory for a Sports Backtesting Protocol. If one exists, follow it. If not, use these defaults: walk-forward validation, no future data leakage, compare against baseline accuracy, output results with `| tee` to both stdout and log file.
 
 ## Overfitting Guard
 
