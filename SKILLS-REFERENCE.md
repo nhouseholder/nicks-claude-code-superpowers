@@ -1,6 +1,6 @@
 # Skills Reference — Nick's Claude Code Superpowers
 
-> Complete documentation for all 68 skills, 4 hooks, 9 commands, and the continuous learning system.
+> Complete documentation for all 69 skills, 4 hooks, 9 commands, and the continuous learning system.
 > Last updated: 2026-03-19
 
 ---
@@ -1001,6 +1001,30 @@ Save this fix to error memory
 
 ---
 
+#### `site-update-protocol`
+**Trigger:** Light — fires when algorithm changes are committed or user mentions updating the website
+
+**What it does:** Universal checklist for fully updating sports prediction websites after any algorithm change. Covers data regeneration, frontend verification, deployment, and post-deploy validation across all tabs (Home, Picks, Dashboard, History, Admin).
+
+**Sites covered:**
+- **OctagonAI** (UFC) — octagonai.pages.dev
+- **Diamond Predictions** (MLB + NHL) — diamond-predict.pages.dev
+- **Courtside AI** (CBB + NBA) — courtside-ai.pages.dev
+
+**6-Phase Protocol:**
+1. **Regenerate Data** — Re-run algorithm/backtest, regenerate all static JSON files
+2. **Verify Data Files** — Confirm every JSON file has fresh timestamps and correct stats
+3. **Update Frontend** — Check for hardcoded stats (landing page hero, system counts)
+4. **Build & Deploy** — Clone to `/tmp/`, build, deploy to Cloudflare Pages
+5. **Post-Deploy Verification** — Open every tab, verify all stats/charts/tables reflect new data
+6. **Update Firestore** — Sync real-time data stores (OctagonAI, Courtside AI)
+
+**Key rule:** If the algorithm changed, the ENTIRE site must reflect the new state. No partial updates.
+
+**Coordinates with:** `deploy` (Cloudflare deployment mechanics), `backtest` (algorithm validation), `version-bump` (version incrementing)
+
+---
+
 #### `fix-loop`
 **Trigger:** Manual — `/fix-loop` or when asked to fix all tests, make tests pass
 
@@ -1336,4 +1360,4 @@ Error occurs
 
 ---
 
-**68 skills. 4 hooks. 9 commands. One intelligence stack.**
+**69 skills. 4 hooks. 9 commands. One intelligence stack.**

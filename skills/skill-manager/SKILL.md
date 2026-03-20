@@ -5,9 +5,9 @@ description: Prevents skill overload — detects when too many skills are compet
 
 # Skill Manager — Keep the Stack From Drowning the Signal
 
-68 skills is powerful. 68 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
+69 skills is powerful. 69 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
 
-**Stack cap: 68 skills maximum.** Adding skill #69 requires merging two existing skills or removing one. This prevents gradual bloat.
+**Stack cap: 69 skills maximum.** Adding skill #70 requires merging two existing skills or removing one. This prevents gradual bloat.
 
 ## The Core Problem
 
@@ -51,7 +51,7 @@ Not all skills cost the same. Weight classes prevent expensive skills from stack
 adaptive-voice, anti-slop, calibrated-confidence, coding-standards, confusion-prevention, expert-lens, isolate-before-iterate, mid-task-triage, never-give-up, opportunistic-improvement, pattern-propagation, precision-reading, predictive-next, process-monitor, prompt-anchoring, prompt-architect, response-recap, sanity-check, seamless-resume, senior-dev-mindset, skill-manager, strategic-compact, take-your-time, think-efficiently, token-awareness, total-recall, user-rules, zero-iteration
 
 **Light** (quick checks — max 5 per message):
-always-improving, brainstorming, calibrated-confidence (when it triggers research), context-hydration, data-pipeline-guardian, error-memory, intent-detection, pre-debug-check, proactive-qa, search-first, smart-clarify, verification-before-completion, version-bump, writing-skills
+always-improving, brainstorming, calibrated-confidence (when it triggers research), context-hydration, error-memory, intent-detection, pre-debug-check, proactive-qa, search-first, site-update-protocol, smart-clarify, verification-before-completion, version-bump
 
 **Heavy** (expensive operations — max 2 per message):
 audit, backtest, codebase-cartographer, command-center, continuous-learning-v2, deep-research, deploy, dispatching-parallel-agents, fix-loop, fpf-hypotheses, iterative-retrieval, parallel-sweep, qa-gate, reflexion-critique, reflexion-reflect, screenshot-dissector, shared-memory, subagent-driven-development, systematic-debugging, test-driven-development

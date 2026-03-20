@@ -58,22 +58,23 @@
 | 50 | **seamless-resume** | On "continue", picks up exactly where it left off with zero re-reading or re-orientation so momentum is never lost. |
 | 51 | **search-first** | Searches for existing tools and libraries before writing custom code so wheels aren't reinvented. |
 | 52 | **senior-dev-mindset** | Ships complete, production-ready features with inferred requirements so nothing needs hand-holding or follow-up. |
-| 53 | **skill-manager** | Prevents skill overload — enforces weight classes (passive/light/heavy), 68-skill cap, resolves conflicts, and detects overthinking. |
-| 54 | **smart-clarify** | Asks structured multiple-choice questions instead of open-ended ones so ambiguity resolves in one round, not three. |
-| 55 | **strategic-compact** | Suggests context compaction at logical task boundaries so important context survives rather than being arbitrarily truncated. |
-| 56 | **subagent-driven-development** | Executes implementation plans by dispatching independent tasks to subagents so parallel work happens within a single session. |
-| 57 | **systematic-debugging** | Root-cause-first debugging methodology so bugs are actually fixed, not band-aided. |
-| 58 | **take-your-time** | Matches effort to prompt complexity — a 20-bullet spec gets 20 careful implementations, not one rushed pass. Prevents AI slop by treating each requirement as its own unit of work. |
-| 59 | **test-driven-development** | RED-GREEN-REFACTOR cycle for business logic so code is tested from the start, not as an afterthought. |
-| 60 | **think-efficiently** | Before every action, checks if it will produce new information, if there's a faster path, and if effort is proportional — prevents token-burning non-actions. |
-| 61 | **token-awareness** | Makes Claude conscious of token costs so responses and tool usage stay concise and efficient. |
-| 62 | **total-recall** | Lazy-loads project context at session start and saves everything at session end — with crash-safe checkpointing and pre-compaction capture. |
-| 63 | **user-rules** | Captures and enforces hard constraints the user sets ("max 70 events", "always use X") — persists across sessions, checked before every relevant action. |
-| 64 | **using-git-worktrees** | Creates isolated git worktrees for feature work so experiments don't risk the current workspace. |
-| 65 | **verification-before-completion** | Requires running verification commands and reading output before any success claim — with speed tiers and repeat-bug escalation. |
-| 66 | **version-bump** | Automated semantic versioning — determines patch/minor/major from changes, bumps package.json, and formats commit messages with version prefix. |
-| 67 | **writing-plans** | Creates comprehensive implementation plans with file mapping and TDD cycles so multi-step work has a roadmap before code is touched. |
-| 68 | **zero-iteration** | Mentally traces code execution before writing it so bugs are caught in the mind, not in the test suite. |
+| 53 | **site-update-protocol** | Universal checklist for updating sports prediction websites after algorithm changes — covers all tabs, stats, data files, and deployment across all sites. |
+| 54 | **skill-manager** | Prevents skill overload — enforces weight classes (passive/light/heavy), 69-skill cap, resolves conflicts, and detects overthinking. |
+| 55 | **smart-clarify** | Asks structured multiple-choice questions instead of open-ended ones so ambiguity resolves in one round, not three. |
+| 56 | **strategic-compact** | Suggests context compaction at logical task boundaries so important context survives rather than being arbitrarily truncated. |
+| 57 | **subagent-driven-development** | Executes implementation plans by dispatching independent tasks to subagents so parallel work happens within a single session. |
+| 58 | **systematic-debugging** | Root-cause-first debugging methodology so bugs are actually fixed, not band-aided. |
+| 59 | **take-your-time** | Matches effort to prompt complexity — a 20-bullet spec gets 20 careful implementations, not one rushed pass. Prevents AI slop by treating each requirement as its own unit of work. |
+| 60 | **test-driven-development** | RED-GREEN-REFACTOR cycle for business logic so code is tested from the start, not as an afterthought. |
+| 61 | **think-efficiently** | Before every action, checks if it will produce new information, if there's a faster path, and if effort is proportional — prevents token-burning non-actions. |
+| 62 | **token-awareness** | Makes Claude conscious of token costs so responses and tool usage stay concise and efficient. |
+| 63 | **total-recall** | Lazy-loads project context at session start and saves everything at session end — with crash-safe checkpointing and pre-compaction capture. |
+| 64 | **user-rules** | Captures and enforces hard constraints the user sets ("max 70 events", "always use X") — persists across sessions, checked before every relevant action. |
+| 65 | **using-git-worktrees** | Creates isolated git worktrees for feature work so experiments don't risk the current workspace. |
+| 66 | **verification-before-completion** | Requires running verification commands and reading output before any success claim — with speed tiers and repeat-bug escalation. |
+| 67 | **version-bump** | Automated semantic versioning — determines patch/minor/major from changes, bumps package.json, and formats commit messages with version prefix. |
+| 68 | **writing-plans** | Creates comprehensive implementation plans with file mapping and TDD cycles so multi-step work has a roadmap before code is touched. |
+| 69 | **zero-iteration** | Mentally traces code execution before writing it so bugs are caught in the mind, not in the test suite. |
 
 ---
 
@@ -465,6 +466,6 @@ MIT - Skills are from various sources with their own licenses.
 
 ---
 
-**68 skills. 4 hooks. 9 commands. One intelligence stack.**
+**69 skills. 4 hooks. 9 commands. One intelligence stack.**
 
 **Made with ❤️ for smarter AI-assisted development**
