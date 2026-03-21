@@ -70,6 +70,14 @@ arr.sort()  ← Mutates in place, doesn't return new array (well, it does, but i
 ```
 **Rule**: When "copying" objects/arrays, verify it's a real copy if mutation matters.
 
+### Environment Variable / Config Traps
+```
+UFC_NUM_EVENTS=0 → num_events = int(os.environ.get("UFC_NUM_EVENTS", 71))
+  → num_events = 0
+  → if len(events) >= 0: break  ← Loop exits IMMEDIATELY
+```
+**Rule**: When setting env vars or config values, trace them through ALL downstream logic. Zero, empty string, and negative values are the most dangerous. `0` is especially treacherous — it's falsy AND satisfies `>= 0`.
+
 ### Import/Export Mismatches
 ```
 export default function X()  →  import { X }  ← WRONG: import X
@@ -99,4 +107,5 @@ This skill costs zero tokens when code is correct (it's mental execution, not ou
 3. **Check the callers** — Your function is only correct if it satisfies its consumers
 4. **Three-value test** — Happy path, empty case, boundary case. Every time.
 5. **Silent when clean** — Don't announce "I traced through the code mentally." Just write correct code.
+7. **Trace env vars end-to-end** — Before setting ANY env var or config value, trace it through all code paths that read it. Zero and empty string are the most common traps.
 6. **Speak up when caught** — If you catch a pre-bug, briefly mention it: "Caught an off-by-one before writing — using `<` not `<=`"

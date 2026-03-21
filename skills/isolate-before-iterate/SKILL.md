@@ -88,6 +88,25 @@ print(f"Keys: {len(data)}")
 print(f"Sample: {list(data.items())[:2]}")
 ```
 
+### 5. A/B Parameter Testing
+
+When testing "does value X vs Y improve results?", **never run the full pipeline twice**. Instead:
+
+```python
+# BAD: Run full 71-event backtest twice with different MIN_OPP_UFC_FIGHTS values
+# GOOD: Extract the specific calculation, run it on cached data
+from algorithm import compute_sl_ratio
+import json
+
+fights = json.load(open("cached_fights.json"))
+for min_fights in [1, 2, 3]:
+    results = [compute_sl_ratio(f, min_opp_fights=min_fights) for f in fights]
+    valid = [r for r in results if r is not None]
+    print(f"min_fights={min_fights}: {len(valid)} data points, avg={sum(valid)/len(valid):.3f}")
+```
+
+This answers the question in 2 seconds instead of 2 full pipeline runs (potentially hours with environment issues).
+
 ## Boundary with Other Debugging Skills
 
 - **systematic-debugging**: Finds the root cause. This skill controls HOW you test each hypothesis — fast, not slow.
