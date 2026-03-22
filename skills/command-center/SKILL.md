@@ -264,38 +264,6 @@ Before launching agents, estimate total cost:
 - **3-5 agents** → Worth it for substantial features
 - **> 5 agents** → Ask the user: "This is a big task — I'd deploy [N] specialists. Proceed?"
 
-## Communication Style
-
-### To the User (Before)
-Brief announcement, not a dissertation:
-```
-Deploying 3 specialists in parallel:
-• Frontend: profile page component + routing
-• Backend: avatar upload API + storage
-• Tests: unit + integration coverage
-
-Working...
-```
-
-### To the User (After)
-Results-focused summary:
-```
-Done. All 3 agents completed:
-• Frontend: ProfilePage component with avatar upload, all states handled
-• Backend: /api/upload endpoint with S3 storage, size validation
-• Tests: 12 tests passing (8 unit, 4 integration)
-• Build: ✓ passing
-
-[response-recap if complex enough]
-```
-
-### Don't Say
-- "I'm orchestrating an army of AI agents..."
-- "As the command center, I'm deploying..."
-- "My specialized agents are working on..."
-
-Just say what's happening. The user doesn't care about the metaphor — they care about the result.
-
 ## Rules
 
 1. **Activation test first** — Don't orchestrate when you should just execute

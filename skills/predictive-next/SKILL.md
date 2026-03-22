@@ -89,14 +89,6 @@ Next steps:
 - Update the API docs
 ```
 
-### Decision points (when the user needs to choose a direction)
-When the work reveals a decision the user should make, frame it as options with your recommendation:
-```
-My recommendation: Go with approach A (Redis cache). It handles the 50K daily requests
-without adding infrastructure complexity. Approach B (PostgreSQL materialized views) is
-more robust but overkill for current traffic.
-```
-
 **Always give your recommendation.** The user wants to know what you think, not just a neutral list. Be opinionated — if you have a clear preference, say so and say why in one sentence. The user can override you, but they shouldn't have to guess what you'd do.
 
 ### Key principles

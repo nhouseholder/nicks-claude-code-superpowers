@@ -129,18 +129,6 @@ Execute the request as if it had been clear from the start.
 
 **Execution:** Fix the error handling in auth.py:145 that's causing login failures
 
-### Example 2: Clear Prompt (Skill Not Invoked)
-
-**Original prompt:** "Refactor the getUserById function in src/api/users.ts to use async/await instead of promises"
-
-**Hook evaluation:** Passes all checks
-- Specific target: getUserById in src/api/users.ts
-- Clear action: refactor to async/await
-- Success criteria: use async/await instead of promises
-
-**Skill invoked:** No (prompt is clear, proceeds immediately without skill invocation)
-
-See the examples above for how prompt types are evaluated and transformed.
 
 ## Key Principles
 

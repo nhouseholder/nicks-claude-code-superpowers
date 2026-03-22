@@ -17,22 +17,9 @@ Stay aware of what's running in the background. Dev servers, build watchers, tes
 
 ## Process Tracking
 
-### What to Track
-
-When you start or encounter a background process, note:
-
-```
-PROCESS: [name/command]
-PID: [if known]
-PORT: [if applicable]
-PURPOSE: [why it's running]
-STARTED: [when]
-EXPECTED: [should it still be running?]
-```
-
 ### Common Processes to Monitor
 
-Watch for: Vite (:5173), React (:3000), FastAPI (:8000), Wrangler (:8788), DB (:5432/:3306), test watchers, build processes, npm install. Check for: startup completion, crash loops, memory growth, compilation errors, hung/frozen state.
+Watch for: Vite, React, FastAPI, Wrangler, database servers, test watchers, build processes, npm install. Check for: startup completion, crash loops, memory growth, compilation errors, hung/frozen state.
 
 ## Problem Detection
 

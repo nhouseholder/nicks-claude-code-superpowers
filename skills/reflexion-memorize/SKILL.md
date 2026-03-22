@@ -176,66 +176,6 @@ examples:
 
 **Source**: [reflection/critique/experience date]
 
-### Phase 4: Memory Validation
-
-#### Quality Gates (Must Pass)
-
-After updating CLAUDE.md:
-
-1. **Coherence Check**:
-   - Do new entries fit with existing context?
-   - Are there any contradictions introduced?
-   - Is the structure still logical and navigable?
-
-2. **Actionability Test**:  A developer should be able to use the bullet immediately
-   - Could a future agent use this guidance effectively?
-   - Are examples concrete enough?
-   - Are success/failure criteria clear?
-
-3. **Consolidation Review**: No near‑duplicates; consolidate wording if similar exists
-   - Can similar insights be grouped together?
-   - Are there duplicate concepts that should be merged?
-   - Is anything too verbose or too vague?
-
-4. **Scoped**: Names technologies, files, or flows when relevant
-5. **Evidence‑backed**: Derived from reflection/critique/tests or official docs
-
-#### Memory Quality Indicators
-
-Track the effectiveness of memory updates:
-
-##### Successful Memory Patterns
-
-- **Specific Thresholds**: "Use pagination for lists >50 items"
-- **Contextual Patterns**: "When user mentions performance, always measure first"
-- **Failure Prevention**: "Always validate input before database operations"
-- **Domain Language**: "In this system, 'customer' means active subscribers only"
-
-##### Memory Anti-Patterns to Avoid
-
-- **Vague Guidelines**: "Write good code" (not actionable)
-- **Personal Preferences**: "I like functional style" (not universal)
-- **Outdated Context**: "Use jQuery for DOM manipulation" (may be obsolete)
-- **Over-Generalization**: "Always use microservices" (ignores context)
-
-##### Implementation Notes
-
-1. **Incremental Updates**: Add insights gradually rather than massive rewrites
-2. **Evidence-Based**: Only memorize patterns with clear supporting evidence
-3. **Context-Aware**: Consider project phase, team size, constraints when curating
-4. **Version Awareness**: Note when insights become obsolete due to tech changes
-5. **Cross-Reference**: Link related concepts within CLAUDE.md for better navigation
-
-##### Expected Outcomes
-
-After effective memory consolidation:
-
-- **Faster Problem Recognition**: Agent quickly identifies similar patterns
-- **Better Solution Quality**: Leverages proven approaches from past success
-- **Fewer Repeated Mistakes**: Avoids anti-patterns that caused issues before
-- **Domain Fluency**: Uses correct terminology and understands business context
-- **Quality Consistency**: Applies learned quality standards automatically
-
 ## Usage
 
 ```bash
