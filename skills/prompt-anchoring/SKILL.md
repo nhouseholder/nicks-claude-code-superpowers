@@ -35,6 +35,23 @@ When work begins on a complex task, distill the user's request to its essence:
 
 The anchor must be **specific enough to evaluate drift against**. "Fix the bug" is too vague. "Fix the infinite re-render on the Compare page when switching strains" is an anchor.
 
+## Anchor Persistence — Surviving Context Pressure
+
+The anchor MUST survive context compaction, agent returns, and session interruptions. If you lose the anchor, you lose the user's goal.
+
+### How to Persist the Anchor
+- **Write it to TodoWrite** — The first task should be the anchor itself (e.g., "Build AI post-event analysis system")
+- **Write it to current_work.md** — For crash recovery
+- **After agent calls return** — Immediately re-read the anchor before doing anything else
+
+### Post-Agent Recovery
+When a spawned agent completes:
+1. Re-read your TodoWrite tasks — what was the user's original request?
+2. Report the agent's results
+3. Continue the ORIGINAL task, not random other work
+
+**The #1 failure mode:** Agent returns → Claude picks up unrelated smaller tasks instead of continuing the original request. This happens because the agent result fills context and pushes the original request out of immediate memory. The TodoWrite anchor prevents this.
+
 ## The Drift Check — Automatic and Invisible
 
 ### When to Check

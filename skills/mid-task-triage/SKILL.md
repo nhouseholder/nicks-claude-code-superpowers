@@ -100,6 +100,14 @@ Some messages override everything:
 
 These are NOT queue items — they're interrupts. Handle immediately.
 
+### Re-Pasted or Repeated Requests
+If the user sends a message that repeats or re-pastes a previous request:
+- This is **ALWAYS a COURSE CORRECTION**, never a queue item
+- The user is saying: "You dropped/forgot my request. Do it NOW."
+- Drop whatever you're currently doing and address the repeated request immediately
+- One-line ack: "On it —" then execute the request
+- This is the #1 misclassification: treating a re-pasted request as "different topic → queue" when it's actually "you forgot this → course correct"
+
 ### Contradictory Corrections
 If the new message contradicts something you JUST completed:
 - If it's the last file you edited → quick fix, minimal token cost
