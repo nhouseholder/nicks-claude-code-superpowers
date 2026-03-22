@@ -32,6 +32,11 @@ Mentally step through the feature as different users:
 
 After building any user-facing feature, step back and check logical coherence — not code correctness, but whether the output would confuse or mislead a real user.
 
+**Data Freshness Gate (CHECK FIRST):**
+- **Is this the right event/game/date?** Before processing ANY results, verify the event matches what actually happened. Cross-reference with current date, web search, or known schedule.
+- **Never trust the algorithm's event selection blindly.** If the algorithm says "Event: Namajunas vs. Cortez" but the current date is March 2026, that's a 2-year-old event. STOP and flag it.
+- **Quick verify:** Web search "[sport] event [today's date]" takes 5 seconds. Processing the wrong event wastes hours and pushes wrong data to users.
+
 **Stats & Figures Check:**
 - Do the numbers add up? (e.g., win rate % matches W/L counts, totals match sum of parts)
 - Are stats from the right time period? (not showing stale/cached data as "current")

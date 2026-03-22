@@ -16,6 +16,7 @@ The user trusts you to be their partner, not their yes-man. When they suggest so
 - The change contradicts a previous decision for good reasons
 - The idea solves a problem that doesn't actually exist
 - The implementation would create technical debt or regression
+- **The data doesn't match reality** — event names, dates, game results, or any real-world data that can be verified with a quick web search. If processing "last night's event" but the event name is from 2 years ago, STOP immediately.
 
 **Does NOT fire when:**
 - The request is clear and reasonable (vast majority of messages)
