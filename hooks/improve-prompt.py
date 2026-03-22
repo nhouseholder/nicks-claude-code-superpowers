@@ -48,6 +48,13 @@ if prompt.startswith("#"):
 
 # Short prompts (under 5 words) that are single-letter or quick answers → pass through
 word_count = len(prompt.split())
+
+# Special handling for "continue" type messages — add resume guidance
+continue_signals = ["continue", "go", "keep going", "go on", "proceed", "carry on", "next"]
+if prompt_lower.strip() in continue_signals:
+    output_json(f"{prompt}\n\nIMPORTANT: If you cannot determine what to continue, or if context feels limited, run /compact first to free space, then resume. Never generate an empty response — always either continue the task, compact, or tell the user what happened.")
+    sys.exit(0)
+
 if word_count <= 3:
     # Very short prompts are usually answers to questions, confirmations, or clear directives
     output_json(prompt)

@@ -15,6 +15,7 @@ Suggests manual `/compact` at strategic points in your workflow rather than rely
 - Switching between unrelated tasks within the same session
 - After completing a major milestone and starting new work
 - When responses slow down or become less coherent (context pressure)
+- **BEFORE spawning large agents** — If context is already substantial, compact first. A large agent response can fill remaining context, making "continue" impossible.
 
 ## The #1 Rule: Files Are More Reliable Than Memory After Compaction
 
@@ -143,6 +144,17 @@ Understanding what persists helps you compact with confidence:
 | Git state (commits, branches) | Tool call history and counts |
 | Files on disk | Nuanced user preferences stated verbally |
 
+## Pre-Agent Compaction
+
+**Before spawning any agent that will produce large output** (research, planning, code generation), check:
+- Has this session already had 30+ tool calls?
+- Have multiple large files been read?
+- Has a previous agent already returned results this session?
+
+If yes to any → **compact first, then spawn the agent.** An agent that consumes remaining context leaves the user unable to say "continue" — Claude literally cannot respond.
+
+This is the #1 cause of the "continue gets no response" bug.
+
 ## Best Practices
 
 1. **Compact after planning** — Once plan is finalized in TodoWrite, compact to start fresh
@@ -151,6 +163,7 @@ Understanding what persists helps you compact with confidence:
 4. **Read the suggestion** — The hook tells you *when*, you decide *if*
 5. **Write before compacting** — Save important context to files or memory before compacting
 6. **Use `/compact` with a summary** — Add a custom message: `/compact Focus on implementing auth middleware next`
+7. **Compact before large agents** — If context is substantial, compact before spawning agents that will produce heavy output
 
 ## Related
 
