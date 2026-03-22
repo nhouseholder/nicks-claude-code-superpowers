@@ -5,7 +5,7 @@ description: Prevents skill overload — detects when too many skills are compet
 
 # Skill Manager — Keep the Stack From Drowning the Signal
 
-67 skills is powerful. 67 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
+70 skills is powerful. 70 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
 
 **Stack cap: 70 skills maximum.** Adding skill #71 requires merging two existing skills or removing one. This prevents gradual bloat.
 
@@ -48,13 +48,13 @@ Not all skills cost the same. Weight classes prevent expensive skills from stack
 ### Classification
 
 **Passive** (behavioral shaping — unlimited):
-adaptive-voice, anti-slop, calibrated-confidence, coding-standards, confusion-prevention, expert-lens, isolate-before-iterate, mid-task-triage, model-router, never-give-up, opportunistic-improvement, pattern-propagation, precision-reading, predictive-next, process-monitor, prompt-anchoring, prompt-architect, response-recap, sanity-check, seamless-resume, senior-dev-mindset, skill-manager, strategic-compact, take-your-time, think-efficiently, token-awareness, total-recall, user-rules, zero-iteration
+adaptive-voice, anti-slop, auto-handoff, calibrated-confidence, coding-standards, confusion-prevention, expert-lens, isolate-before-iterate, mid-task-triage, model-router, never-give-up, opportunistic-improvement, pattern-propagation, precision-reading, predictive-next, process-monitor, prompt-anchoring, prompt-architect, response-recap, sanity-check, seamless-resume, senior-dev-mindset, skill-manager, strategic-compact, take-your-time, think-efficiently, token-awareness, total-recall, user-rules, zero-iteration
 
 **Light** (quick checks — max 5 per message):
-always-improving, brainstorming, calibrated-confidence (when it triggers research), context-hydration, error-memory, intent-detection, pre-debug-check, proactive-qa, search-first, smart-clarify, verification-before-completion, version-bump
+always-improving, brainstorming, calibrated-confidence (when it triggers research), context-hydration, error-memory, intent-detection, pre-debug-check, proactive-qa, search-first, site-update-protocol, smart-clarify, verification-before-completion, version-bump
 
 **Heavy** (expensive operations — max 2 per message):
-audit, codebase-cartographer, command-center, continuous-learning-v2, deep-research, deploy, dispatching-parallel-agents, fix-loop, fpf-hypotheses, iterative-retrieval, parallel-sweep, qa-gate, reflexion-critique, reflexion-reflect, screenshot-dissector, shared-memory, subagent-driven-development, systematic-debugging, test-driven-development
+audit, backtest, codebase-cartographer, command-center, continuous-learning-v2, deep-research, deploy, dispatching-parallel-agents, fix-loop, fpf-hypotheses, iterative-retrieval, parallel-sweep, qa-gate, reflexion-critique, reflexion-reflect, screenshot-dissector, shared-memory, subagent-driven-development, systematic-debugging, test-driven-development
 
 ### Enforcement
 
@@ -72,7 +72,7 @@ Example violations to prevent:
 When skills conflict, resolve using this priority order:
 1. **User's explicit instruction** — always wins over any skill
 2. **Feedback memories** — corrections from the user override skill defaults
-3. **Domain-specific skills** (deploy, data-pipeline-guardian) — they know their domain
+3. **Domain-specific skills** (backtest, deploy, data-pipeline-guardian) — they know their domain
 4. **Behavioral skills** (never-give-up, sanity-check) — they guard against mistakes
 5. **Process skills** (brainstorming, writing-plans, TDD) — they suggest workflow
 6. **Enhancement skills** (opportunistic-improvement, predictive-next) — lowest priority, suppress if busy
@@ -84,7 +84,7 @@ When two skills give contradictory guidance, resolve with these rules IN ORDER:
 1. **User rules always win** — If `user-rules` has a stored constraint, it overrides everything else.
 2. **Explicit beats implicit** — A skill the user explicitly invoked (via slash command) beats an auto-firing skill.
 3. **Safety beats speed** — When `verification-before-completion` conflicts with `think-efficiently`, verify first. Speed is a preference; correctness is a requirement.
-4. **Specific beats general** — A domain skill beats a general skill (senior-dev-mindset) in its domain.
+4. **Specific beats general** — A domain skill (profit-driven-development) beats a general skill (senior-dev-mindset) in its domain.
 5. **Current task beats improvement** — `prompt-anchoring` beats `opportunistic-improvement` when they conflict. Finish the task first.
 6. **Action beats analysis** — When stuck choosing between doing and planning, do. But verify after.
 
