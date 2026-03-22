@@ -171,6 +171,28 @@ Run through this mentally:
   → Save to memory: current_work.md with status and next steps
 ```
 
+### Curation Rules (Quality Gate for All Saves)
+
+Before writing ANY memory, apply these filters:
+
+| Filter | Test |
+|--------|------|
+| **Relevance** | Will this help in future sessions for THIS project? |
+| **Non-redundancy** | Does this duplicate something already in memory/CLAUDE.md? Merge or skip. |
+| **Atomicity** | One idea per bullet. Short, imperative, self-contained. |
+| **Verifiability** | Can you back this with code evidence or repeated observation? No speculation. |
+| **Stability** | Will this remain true? Call out version-specifics. |
+
+**Categorize by impact before writing:**
+- **Critical**: Prevents major issues or unlocks big improvements → always save
+- **High**: Consistent quality/efficiency patterns → save
+- **Medium**: Useful context → save if space allows
+- **Low**: Minor preferences → skip unless pattern repeats
+
+**Transformation example:**
+- Raw: "Using Map instead of Object for lookup caused perf issues because dataset was small"
+- Curated: "For lookups <100 items, prefer Object over Map. Map optimal for 10K+. Benchmark to validate."
+
 ### Memory File Format
 
 Each memory file should use the standard format:
