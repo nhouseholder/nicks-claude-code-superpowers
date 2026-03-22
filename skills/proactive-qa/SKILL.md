@@ -28,7 +28,35 @@ Mentally step through the feature as different users:
 - **Mobile user** — Does the layout work? Are touch targets big enough?
 - **Impatient user** — What happens with slow network? Does anything look broken while loading?
 
-### 2. Check the Blast Radius
+### 2. "Does This Make Sense?" Audit
+
+After building any user-facing feature, step back and check logical coherence — not code correctness, but whether the output would confuse or mislead a real user.
+
+**Stats & Figures Check:**
+- Do the numbers add up? (e.g., win rate % matches W/L counts, totals match sum of parts)
+- Are stats from the right time period? (not showing stale/cached data as "current")
+- Do labels match what they describe? ("Last 10 games" actually shows 10, not 8)
+- Are units consistent? (mixing percentages and decimals, dollars and cents)
+
+**Description & Copy Check:**
+- Does the feature description match what the feature actually does?
+- Are there outdated references? ("Our 3-sport system" when it's now 5 sports)
+- Do tooltips/help text explain what the user actually sees?
+
+**Logical Consistency Check:**
+- If Page A says "65% accuracy" and Page B says "72% accuracy" for the same model — which is right?
+- Do filters/sorts actually produce the expected results?
+- Are rankings consistent with the scores shown?
+- Does "best pick" actually have the highest confidence score?
+
+**User Perspective Check:**
+- Would a first-time visitor understand what this means without insider context?
+- Are there jargon/abbreviations without explanation? ("SL ratio", "HC parlay" — do users know these?)
+- Does the visual hierarchy match importance? (most important info most prominent?)
+
+**Fix immediately** if you find inconsistencies. This is the #1 source of "it works but it's wrong" bugs — code passes all tests but shows misleading information to users.
+
+### 3. Check the Blast Radius
 Every change has ripple effects. Check:
 - **Imports** — Did anything that imports this module break?
 - **Types** — If you changed a shape/interface, did consumers update?
@@ -37,7 +65,7 @@ Every change has ripple effects. Check:
 - **API contracts** — If frontend expects `{ data: [] }`, does the backend send that exact shape?
 - **Environment** — Does this work in dev AND production? Any environment-specific assumptions?
 
-### 3. Hunt for Edge Cases
+### 4. Hunt for Edge Cases
 
 Every data type has predictable edge cases. Check these automatically:
 
@@ -52,7 +80,7 @@ Every data type has predictable edge cases. Check these automatically:
 | **Network** | Timeout, 404, 500, CORS, rate limited, offline |
 | **Auth** | Expired token, no token, wrong permissions, concurrent sessions |
 
-### 4. Anticipate the Next Problem
+### 5. Anticipate the Next Problem
 
 Think one step ahead:
 - "This list will grow. Does it paginate or virtualize?"
