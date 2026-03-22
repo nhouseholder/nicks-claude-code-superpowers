@@ -59,23 +59,7 @@ AGENT BRIEF:
 
 ### Phase 3: Parallel Dispatch
 
-Launch all independent agents simultaneously using the Agent tool:
-
-```
-┌─────────────────────────────────────────────┐
-│              COMMAND CENTER                   │
-│                                               │
-│   ┌──────────┐  ┌──────────┐  ┌──────────┐  │
-│   │ Agent 1  │  │ Agent 2  │  │ Agent 3  │  │
-│   │ Frontend │  │ Backend  │  │ Tests    │  │
-│   │ Expert   │  │ Expert   │  │ Expert   │  │
-│   └────┬─────┘  └────┬─────┘  └────┬─────┘  │
-│        │              │              │        │
-│        └──────────────┼──────────────┘        │
-│                       │                       │
-│              UNIFIED RESULT                   │
-└─────────────────────────────────────────────┘
-```
+Launch all independent agents simultaneously using the Agent tool. Independent workstreams run concurrently; dependent workstreams wait for their prerequisites and launch in the next wave.
 
 - Use `Agent` tool with `subagent_type: "general-purpose"`
 - Launch all independent agents in a SINGLE message (parallel execution)
@@ -122,59 +106,15 @@ Other common patterns: Research + Implementation (research wave then build wave)
 
 ### How Many Agents?
 
-The number of agents is a strategic decision, not "more is better":
-
-```
-SIZING GUIDE:
-┌────────────────────────────────┬──────────┬────────────────────────────┐
-│ Task Type                      │ Agents   │ Why                        │
-├────────────────────────────────┼──────────┼────────────────────────────┤
-│ Feature (1 domain)             │ 1-2      │ Main + tests               │
-│ Feature (multi-domain)         │ 2-3      │ Frontend + backend + tests │
-│ Major refactor                 │ 3-4      │ One per subsystem          │
-│ Full-stack feature build       │ 3-5      │ UI + API + DB + tests + docs│
-│ Research + implement           │ 2-3      │ Research wave, then build  │
-│ Codebase-wide audit            │ 2-4      │ One per audit dimension    │
-└────────────────────────────────┴──────────┴────────────────────────────┘
-
-RULE: Use the MINIMUM agents needed. 2 focused agents > 5 fragmented ones.
-```
+The number of agents is a strategic decision, not "more is better". Use 2 agents for single-domain features, 3-4 for multi-domain, max 5 for full-stack builds. Use the MINIMUM agents needed — 2 focused agents beat 5 fragmented ones.
 
 ### Research-First vs Execute-First
 
-Before deploying, decide the strategy:
-
-```
-RESEARCH-FIRST (use when uncertain):
-  Wave 1: Research agent(s) → gather info, analyze, propose
-  Wave 2: Implementation agent(s) → build based on research findings
-
-  Examples: "optimize performance", "choose the best library", "fix an unknown bug"
-
-EXECUTE-FIRST (use when the path is clear):
-  All agents deploy simultaneously → each executes independently
-
-  Examples: "add user profile page", "migrate to TypeScript", "add tests for module X"
-
-HYBRID (use for complex features):
-  Wave 1: Research + scaffold agents in parallel
-  Wave 2: Implementation agents use research + scaffold as input
-
-  Examples: "build a recommendation engine", "add payment processing"
-```
+Use **Research-First** when the path is unclear (unknown bugs, library choices, optimization targets): run a research wave first, then an implementation wave. Use **Execute-First** when the path is clear (add feature, migrate code, write tests): deploy all agents simultaneously. Use **Hybrid** for complex features — research + scaffold in parallel, then implementation uses those outputs.
 
 ### Priority Assignment
 
-Not all agents are equal. Assign priority to manage attention:
-
-```
-CRITICAL:  Core functionality — blocks everything else if it fails
-HIGH:      Direct user-facing — quality must be production-grade
-MEDIUM:    Supporting work — tests, docs, utilities
-LOW:       Nice-to-have — optimization, cleanup, minor improvements
-
-On failure: Retry CRITICAL. Report HIGH. Note MEDIUM/LOW for later.
-```
+Assign CRITICAL to core functionality that blocks everything, HIGH to direct user-facing work, MEDIUM/LOW to tests, docs, and cleanup. On failure: retry CRITICAL, report HIGH, note MEDIUM/LOW for later.
 
 ### Agent Monitoring
 
@@ -225,44 +165,9 @@ LOGIC CONFLICTS: The agent working on the PRIMARY domain wins
 TRUE CONFLICTS:  Escalate to user with both options + recommendation
 ```
 
-## Agent Specialization
-
-Each agent inherits the full skill stack but FOCUSES on its domain:
-
-| Agent Role | Primary Skills Activated |
-|-----------|------------------------|
-| **Frontend Expert** | coding-standards, proactive-qa (UI focus), zero-iteration |
-| **Backend Expert** | coding-standards, zero-iteration, systematic-debugging |
-| **Test Expert** | test-driven-development, verification-loop |
-| **Research Expert** | deep-research, search-first, expert-lens |
-| **Data Expert** | expert-lens (statistician), precision-reading |
-| **Design Expert** | expert-lens (designer), proactive-qa (UX focus) |
-| **DevOps Expert** | process-monitor, deploy, git-sorcery |
-
 ## Token Economics
 
-### Cost Model
-```
-Command Center overhead:     ~200 tokens (decomposition + briefing)
-Per agent:                   ~2000-8000 tokens (depends on task complexity)
-Integration:                 ~500 tokens (review + merge + verify)
-```
-
-### When It Saves Tokens
-- **3 parallel agents** finish in ~1/3 wall-clock time vs sequential
-- Each agent has FOCUSED context (reads fewer files, makes fewer mistakes)
-- Specialist agents produce higher-quality first drafts (fewer revision cycles)
-
-### When It Wastes Tokens
-- Task is too small (overhead > savings)
-- Task is strictly sequential (no parallelism possible)
-- Context is heavily shared (agents duplicate reads)
-
-### Budget Guard
-Before launching agents, estimate total cost:
-- **< 3 agents** → Always worth it if task is decomposable
-- **3-5 agents** → Worth it for substantial features
-- **> 5 agents** → Ask the user: "This is a big task — I'd deploy [N] specialists. Proceed?"
+Parallel agents save wall-clock time and produce focused, higher-quality first drafts. Orchestration wastes tokens when the task is too small, strictly sequential, or context is heavily shared across agents. Before launching, estimate: under 3 agents is always worth it for decomposable tasks; 3-5 for substantial features; over 5 → ask the user before proceeding.
 
 ## Rules
 

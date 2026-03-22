@@ -43,40 +43,7 @@ If you wrote implementation code before the test and it's complex logic: conside
 
 ### RED - Write Failing Test
 
-Write one minimal test showing what should happen.
-
-<Good>
-```typescript
-test('retries failed operations 3 times', async () => {
-  let attempts = 0;
-  const operation = () => {
-    attempts++;
-    if (attempts < 3) throw new Error('fail');
-    return 'success';
-  };
-
-  const result = await retryOperation(operation);
-
-  expect(result).toBe('success');
-  expect(attempts).toBe(3);
-});
-```
-Clear name, tests real behavior, one thing
-</Good>
-
-<Bad>
-```typescript
-test('retry works', async () => {
-  const mock = jest.fn()
-    .mockRejectedValueOnce(new Error())
-    .mockRejectedValueOnce(new Error())
-    .mockResolvedValueOnce('success');
-  await retryOperation(mock);
-  expect(mock).toHaveBeenCalledTimes(3);
-});
-```
-Vague name, tests mock not code
-</Bad>
+Write one minimal test showing what should happen. Use a clear name describing the behavior, test real code (not mocks), and test one thing.
 
 **Requirements:**
 - One behavior
@@ -102,41 +69,7 @@ Confirm:
 
 ### GREEN - Minimal Code
 
-Write simplest code to pass the test.
-
-<Good>
-```typescript
-async function retryOperation<T>(fn: () => Promise<T>): Promise<T> {
-  for (let i = 0; i < 3; i++) {
-    try {
-      return await fn();
-    } catch (e) {
-      if (i === 2) throw e;
-    }
-  }
-  throw new Error('unreachable');
-}
-```
-Just enough to pass
-</Good>
-
-<Bad>
-```typescript
-async function retryOperation<T>(
-  fn: () => Promise<T>,
-  options?: {
-    maxRetries?: number;
-    backoff?: 'linear' | 'exponential';
-    onRetry?: (attempt: number) => void;
-  }
-): Promise<T> {
-  // YAGNI
-}
-```
-Over-engineered
-</Bad>
-
-Don't add features, refactor other code, or "improve" beyond the test.
+Write the simplest code to pass the test. Don't add features, refactor other code, or over-engineer beyond what the test requires (YAGNI).
 
 ### Verify GREEN - Watch It Pass
 
@@ -182,54 +115,11 @@ Tests-after answer "what does this code do?" Tests-first answer "what should thi
 
 ## Common Rationalizations (All Wrong)
 
-| Excuse | Reality |
-|--------|---------|
-| "I'll test after" | Tests passing immediately prove nothing — you never saw them catch a bug |
-| "Too simple to test" | Simple code breaks. Test takes 30 seconds. |
-| "Already manually tested" | Ad-hoc ≠ systematic. No record, can't re-run. |
-| "Deleting X hours is wasteful" | Sunk cost fallacy. Keeping unverified code is debt. |
-| "TDD will slow me down" | TDD is faster than debugging in production. |
-| "Need to explore first" | Fine. Throw away exploration, then start with TDD. |
-| "Test hard = design unclear" | Hard to test = hard to use. Listen to the test. |
-
-**Red flag phrases:** "just this once", "tests after achieve the same purpose", "keep as reference", "this is different because..." — all mean: delete code, start over with TDD.
+Common excuses ("test after", "too simple", "manual tested") are all wrong. Default to TDD.
 
 ## Example: Bug Fix
 
-**Bug:** Empty email accepted
-
-**RED**
-```typescript
-test('rejects empty email', async () => {
-  const result = await submitForm({ email: '' });
-  expect(result.error).toBe('Email required');
-});
-```
-
-**Verify RED**
-```bash
-$ npm test
-FAIL: expected 'Email required', got undefined
-```
-
-**GREEN**
-```typescript
-function submitForm(data: FormData) {
-  if (!data.email?.trim()) {
-    return { error: 'Email required' };
-  }
-  // ...
-}
-```
-
-**Verify GREEN**
-```bash
-$ npm test
-PASS
-```
-
-**REFACTOR**
-Extract validation for multiple fields if needed.
+Write a failing test that reproduces the bug. Watch it fail. Fix the code. Watch it pass. The test proves the fix and prevents regression. Never fix bugs without a test.
 
 ## Verification Checklist
 
@@ -248,18 +138,7 @@ Can't check all boxes? You skipped TDD. Start over.
 
 ## When Stuck
 
-| Problem | Solution |
-|---------|----------|
-| Don't know how to test | Write wished-for API. Write assertion first. Ask your human partner. |
-| Test too complicated | Design too complicated. Simplify interface. |
-| Must mock everything | Code too coupled. Use dependency injection. |
-| Test setup huge | Extract helpers. Still complex? Simplify design. |
-
-## Debugging Integration
-
-Bug found? Write failing test reproducing it. Follow TDD cycle. Test proves fix and prevents regression.
-
-Never fix bugs without a test.
+If you can't write a test: write the wished-for API first. If the test is complicated: the design is complicated — simplify it. If you must mock everything: the code is too coupled, use dependency injection.
 
 ## Testing Anti-Patterns
 

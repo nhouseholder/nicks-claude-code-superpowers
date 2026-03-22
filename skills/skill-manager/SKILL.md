@@ -5,9 +5,9 @@ description: Prevents skill overload — detects when too many skills are compet
 
 # Skill Manager — Keep the Stack From Drowning the Signal
 
-70 skills is powerful. 70 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
+68 skills is powerful. 68 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
 
-**Stack cap: 70 skills maximum.** Adding skill #71 requires merging two existing skills or removing one. This prevents gradual bloat.
+**Stack cap: 75 skills maximum.** Adding a new skill past 75 requires merging or removing an existing one. This prevents gradual bloat.
 
 ## The Core Problem
 
@@ -48,13 +48,13 @@ Not all skills cost the same. Weight classes prevent expensive skills from stack
 ### Classification
 
 **Passive** (behavioral shaping — unlimited):
-adaptive-voice, anti-slop, auto-handoff, calibrated-confidence, coding-standards, confusion-prevention, expert-lens, isolate-before-iterate, mid-task-triage, model-router, never-give-up, opportunistic-improvement, pattern-propagation, precision-reading, predictive-next, process-monitor, prompt-anchoring, prompt-architect, response-recap, sanity-check, seamless-resume, senior-dev-mindset, skill-manager, strategic-compact, take-your-time, think-efficiently, total-recall, user-rules, zero-iteration
+adaptive-voice, anti-slop, auto-handoff, calibrated-confidence, coding-standards, confusion-prevention, expert-lens, isolate-before-iterate, mid-task-triage, model-router, never-give-up, opportunistic-improvement, pattern-propagation, precision-reading, predictive-next, process-monitor, profit-driven-development, prompt-anchoring, prompt-architect, response-recap, root-cause-reflection, sanity-check, seamless-resume, senior-dev-mindset, skill-manager, strategic-compact, take-your-time, think-efficiently, total-recall, user-rules, zero-iteration
 
 **Light** (quick checks — max 5 per message):
-always-improving, brainstorming, calibrated-confidence (when it triggers research), context-hydration, error-memory, intent-detection, pre-debug-check, proactive-qa, search-first, site-update-protocol, smart-clarify, verification-before-completion, version-bump
+always-improving, brainstorming, content-research-writer, context-hydration, error-memory, finishing-a-development-branch, git-sorcery, intent-detection, pre-debug-check, proactive-qa, prompt-improver, requesting-code-review, search-first, site-update-protocol, smart-clarify, verification-before-completion, version-bump
 
 **Heavy** (expensive operations — max 2 per message):
-audit, backtest, codebase-cartographer, command-center, continuous-learning-v2, deep-research, deploy, dispatching-parallel-agents, fix-loop, fpf-hypotheses, iterative-retrieval, parallel-sweep, qa-gate, reflexion-critique, reflexion-reflect, screenshot-dissector, shared-memory, subagent-driven-development, systematic-debugging, test-driven-development
+audit, backtest, codebase-cartographer, command-center, continuous-learning-v2, deep-research, deploy, dispatching-parallel-agents, executing-plans, fix-loop, fpf-hypotheses, iterative-retrieval, parallel-sweep, qa-gate, receiving-code-review, reflexion, screenshot-dissector, systematic-debugging, test-driven-development, using-git-worktrees, writing-plans
 
 ### Enforcement
 
@@ -163,5 +163,5 @@ If Claude would produce a better answer by ignoring a skill and using its own ju
 6. **Audit periodically** — When reviewing the stack, honestly evaluate what's helping and what's noise
 7. **No skill is sacred** — If a skill consistently makes output worse, remove it
 8. **Weight limits are hard** — Never exceed 2 heavy skills per message. Defer or suppress the third.
-9. **Cap at 75** — Adding a new skill past 75 requires merging or removing an existing one. No exceptions.
+9. **Cap at 75** — Adding a new skill past 75 requires merging or removing an existing one
 10. **Passive is free, heavy is expensive** — When in doubt about whether a skill should fire, check its weight class first

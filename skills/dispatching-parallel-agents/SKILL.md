@@ -120,18 +120,37 @@ Return: Summary of what you found and what you fixed.
 **Exploratory debugging:** You don't know what's broken yet
 **Shared state:** Agents would interfere (editing same files, using same resources)
 
-## Key Benefits
+## Plan Execution Mode (from subagent-driven-development)
 
-1. **Parallelization** - Multiple investigations happen simultaneously
-2. **Focus** - Each agent has narrow scope, less context to track
-3. **Independence** - Agents don't interfere with each other
-4. **Speed** - 3 problems solved in time of 1
+When executing an implementation plan with independent tasks:
+
+1. Read plan, extract all tasks, create TodoWrite
+2. **Per Task**: Dispatch implementer → review → mark complete
+3. After all tasks → final review of entire implementation
+
+### Cost-Aware Review
+
+Not every task needs the full review pipeline:
+- **Simple/isolated changes**: Implementer + self-review sufficient
+- **If qa-gate runs after**: Skip code quality reviewer — qa-gate covers it
+- **Full pipeline only for**: Multi-file architectural changes with no other review planned
+
+### Implementer Status Handling
+
+| Status | Action |
+|--------|--------|
+| **DONE** | Proceed to review |
+| **DONE_WITH_CONCERNS** | Read concerns, address if correctness/scope, then review |
+| **NEEDS_CONTEXT** | Provide missing context, re-dispatch |
+| **BLOCKED** | Assess: more context? more capable model? break into smaller pieces? escalate? |
+
+**Never** force same model to retry without changes. If stuck, something needs to change.
 
 ## Verification
 
 After agents return:
-1. **Review each summary** - Understand what changed
-2. **Check for conflicts** - Did agents edit same code?
-3. **Run full suite** - Verify all fixes work together
-4. **Spot check** - Agents can make systematic errors
+1. **Review each summary** — understand what changed
+2. **Check for conflicts** — did agents edit same code?
+3. **Run full suite** — verify all fixes work together
+4. **Spot check** — agents can make systematic errors
 

@@ -39,11 +39,7 @@ Anti-patterns are NOT optional debugging context — they're lessons that preven
 
 The MEMORY.md index tells you WHAT memories exist. Only read the full memory files when the current task actually needs that knowledge.
 
-### What to Extract
-From loaded sources, build a mental model of what's relevant to the current task. Don't try to hold everything — just know where to find it.
-
-### Don't Announce It
-Load silently. Don't say "I've loaded your project memory" — just know it. The user should feel like you've always known this project.
+Load silently — don't announce. Build a mental model of what's relevant. Know where to find things, don't try to hold everything.
 
 ## Phase 2: During Session — Continuous Capture + Crash-Safe Checkpoints
 
@@ -223,39 +219,15 @@ If a memory entry is clearly outdated (references removed features, old versions
 - Remove it if the topic is no longer relevant
 - Never let stale memories mislead future sessions
 
-## Integration with Existing Memory Systems
+## Integration
 
-This skill orchestrates, not replaces, existing memory infrastructure:
-
-```
-total-recall (orchestrator)
-    │
-    ├─ Reads from:
-    │   ├─ MEMORY.md + memory files (project memory)
-    │   ├─ anti-patterns.md (error memory)
-    │   ├─ AGENT-MEMORY.md (shared agent memory)
-    │   └─ git log/status (recent history)
-    │
-    ├─ Writes to:
-    │   ├─ MEMORY.md + memory files (primary store)
-    │   └─ anti-patterns.md (via error-memory skill)
-    │
-    └─ Coordinates with:
-        ├─ error-memory (debugging failures → anti-patterns)
-        ├─ stop-memory-save.py hook (session end reminder)
-        └─ shared-memory (AGENT-MEMORY.md updates)
-```
-
-## The "Would I Forget?" Test
-
-Before ending a session, ask: **"If I started a new session tomorrow on this same project, what would I wish I knew?"**
-
-Whatever comes to mind → save it.
+Orchestrates existing memory: reads MEMORY.md + memory files, anti-patterns.md, AGENT-MEMORY.md, git log/status. Writes to MEMORY.md + memory files. Coordinates with error-memory (anti-patterns) and shared-memory (AGENT-MEMORY.md).
 
 ## Rules
 
 1. **Load silently, save automatically** — don't announce hydration; capture important moments as they happen
 2. **Merge, don't duplicate; prune stale** — update existing memories, remove outdated ones that mislead
 3. **Save reasoning and user corrections** — WHY decisions were made + user corrections are high-priority saves
-4. **"Would I Forget?" test** — run it before every session end
+4. **"Would I Forget?" test** — before ending a session: "If I started tomorrow, what would I wish I knew?" Save it.
 5. **Never save secrets** — no API keys, passwords, or credentials in memory files
+6. **Review anti-patterns proactively** — at session start, scan anti-patterns.md for reasoning failures relevant to today's task, not just when debugging
