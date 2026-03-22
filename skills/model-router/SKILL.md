@@ -24,6 +24,8 @@ Use Opus 4.6 for tasks that require reasoning, judgment, or experimentation:
 - **Research** — deep-research, evaluating alternatives, domain learning
 - **Ambiguous requests** — intent is unclear, multiple valid interpretations
 - **New feature design** — first-time implementations with unknowns
+- **Data/math correctness** — any task where numbers must be verified, formulas validated, or calculations checked. "Fix the P/L table" is NOT execution — it requires understanding how payouts work and verifying the math.
+- **Fixing something that was already "fixed"** — if the user says "still broken," the first approach was wrong. This needs thinking, not more mechanical editing.
 
 ## Sonnet Tier (straightforward execution)
 
@@ -61,6 +63,10 @@ If the current main model doesn't match the task tier:
 Ask: **"Could a junior dev follow written instructions to do this?"**
 - Yes → Sonnet (execution)
 - No → Opus (thinking)
+
+**Second test for data tasks:** "Do the output numbers need to make sense?"
+- Yes → Opus (must verify math/logic, not just edit code)
+- No → Sonnet (formatting, display, cosmetic)
 
 ## Rules
 
