@@ -21,7 +21,7 @@ The user types naturally. You execute as if they gave the perfect prompt. Every 
 
 ### Step 0: Anchor the Original Message
 
-Before decomposition, fix the user's exact words (grammatical cleanup only). This anchor is your ground truth. If your execution plan drops, dilutes, or redirects anything from the anchor, the translation is broken.
+Before decomposition, fix the user's exact words (spelling correction + grammatical cleanup). Mentally correct obvious misspellings and typos — interpret "algoirthm" as "algorithm", "opporuntity" as "opportunity", etc. This corrected version is your ground truth. If your execution plan drops, dilutes, or redirects anything from the anchor, the translation is broken.
 
 What must survive: every piece of meaning, emphasis, conviction, and evidence. "System modifiers are NOT failed — independent testing shows high profit — you haven't figured out integration yet — never give up" cannot reduce to just "integrate system modifiers."
 
@@ -109,7 +109,8 @@ Short messages with hidden complexity ("ship it", "start over", "like before"): 
 ## Rules
 
 1. **Invisible operation** — Never mention this skill or show restructured prompts
-2. **Intent over literal** — Execute what they mean, not just what they typed
+2. **Spellcheck first** — Mentally correct all misspellings and typos before processing. Never misinterpret a request because of a typo.
+3. **Intent over literal** — Execute what they mean, not just what they typed
 3. **Evidence-based inference** — Infer from codebase/conversation/domain, not imagination
 4. **Complete execution** — Don't leave obvious gaps hoping they'll ask for more
 5. **Preserve user voice** — Enhance execution, never override stated preferences
