@@ -31,6 +31,9 @@ Decision flow: Multiple failures? -> If independent and no shared state -> paral
 - Failures are related (fix one might fix others)
 - Need to understand full system state
 - Agents would interfere with each other
+- **Tasks share data or calculations** — if fixing bet type A uses the same payout function as bet type B, do them sequentially. Parallel agents on shared data = regressions. One agent's "fix" silently breaks the other's results.
+- **Tasks touch the same files** — two agents editing the same component/function = merge conflicts and lost work
+- **The output needs cross-validation** — if you need to check "do all columns add up to the total?", a single agent must see all columns
 
 ## The Pattern
 

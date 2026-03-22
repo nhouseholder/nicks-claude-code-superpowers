@@ -27,17 +27,26 @@ Use Opus 4.6 for tasks that require reasoning, judgment, or experimentation:
 - **Data/math correctness** — any task where numbers must be verified, formulas validated, or calculations checked. "Fix the P/L table" is NOT execution — it requires understanding how payouts work and verifying the math.
 - **Fixing something that was already "fixed"** — if the user says "still broken," the first approach was wrong. This needs thinking, not more mechanical editing.
 
-## Sonnet Tier (straightforward execution)
+## Sonnet Tier (ONLY when output correctness is trivially verifiable)
 
-Use Sonnet 4.6 for tasks where the path is clear and thinking is minimal:
+Use Sonnet 4.6 ONLY when the task meets ALL of these criteria:
+1. The path is completely clear (no judgment calls)
+2. Output correctness is obvious at a glance (no math, no domain knowledge needed)
+3. No user-facing data that could be wrong in non-obvious ways
 
-- **Executing a plan** — following steps already laid out by Opus
-- **Simple edits** — cosmetic changes, typo fixes, variable renames
-- **Repetitive operations** — applying the same pattern across files
-- **Config changes** — updating values, toggling flags, env vars
+**Sonnet-safe tasks:**
+- **Cosmetic edits** — CSS changes, copy updates, variable renames
+- **Repetitive mechanical ops** — applying the same rename across files
+- **Config changes** — toggling flags, updating env vars, version bumps
 - **Running commands** — tests, builds, deploys with known outcomes
-- **Data formatting** — JSON updates, file moves, template fills
-- **Code review execution** — applying specific review feedback
+- **File organization** — moves, template fills, boilerplate generation
+
+**NOT Sonnet-safe (route to Opus even if they seem "simple"):**
+- Anything with numbers that need to be correct (P/L, stats, percentages)
+- Anything the user will look at and judge ("does this make sense?")
+- Fixing something that was already attempted and failed
+- Any table, chart, or data display — the DATA must be right, not just the code
+- Business logic changes — even one-line changes to formulas or conditions
 
 ## How to Apply
 
