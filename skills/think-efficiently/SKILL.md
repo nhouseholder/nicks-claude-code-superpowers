@@ -141,16 +141,14 @@ Before any action, spend 1-2 seconds mentally checking:
 - **Backtesting savings**: Often 50-70% token reduction by using efficient search instead of linear sweep
 - **Net impact**: One of the highest-ROI skills in the entire stack
 
-## Integration
+## Output Efficiency (formerly token-awareness)
 
-- **token-awareness**: Think-efficiently handles the WHAT (don't do pointless things), token-awareness handles the HOW (be concise in what you do)
-- **backtest**: Before each backtest run, think-efficiently validates the test design is worth the tokens
-- **parallel-sweep**: Think-efficiently informs sweep range selection — don't sweep 0.0-1.0 when the useful range is 0.05-0.30
-- **never-give-up**: Check evidence gate first. If proven-valuable → never-give-up logic applies (persist smartly). If no evidence → think-efficiently logic applies (stop wasting tokens). They're complementary, not competing.
-- **qa-gate**: QA-gate owns quality verification (did it work?). Think-efficiently owns action selection (should I even do this?). Don't duplicate the mental check.
-- **zero-iteration**: Both prevent waste — zero-iteration catches bugs mentally, think-efficiently catches pointless actions mentally
-- **profit-driven-development**: For sports code, profit-driven-development is the anchor that determines which backtests are worth running. Think-efficiently enforces the HOW (binary search, no redundant baselines), profit-driven-development enforces the WHY (future predictive accuracy, not historical fit).
-- **take-your-time**: They work in sequence: think-efficiently validates the approach is sound (don't build 15 widgets before testing the architecture), THEN take-your-time ensures each validated piece gets full attention (no corners cut on the 15 widgets once the architecture is proven).
+When producing output, be concise:
+- **Glob/Grep results**: Only show relevant matches, not full lists
+- **File reads**: Summarize key sections, don't quote everything
+- **Error messages**: Show only the relevant part
+- **Code over explanation**: Show the fix, don't explain every line unless asked
+- **Parallel tool calls**: Chain independent calls in one response, never sequential when parallel works
 
 ## Rules
 

@@ -69,54 +69,9 @@ Environment variables:
 | **User has given detailed requirements this session** | Auto-handoff — requirements MUST survive intact |
 | **Debugging session with deep context** | Auto-handoff — root cause analysis needs full detail |
 
-### Handoff Document Protocol
+### Handoff Protocol
 
-When auto-handoff triggers, write a structured handoff file:
-
-**File**: `~/.claude/projects/<project>/memory/handoff.md`
-
-```markdown
-## Handoff from [date]
-## Original Objective
-[User's request — verbatim]
-## Status
-- **Phase**: [planning|implementing|testing|debugging] — Step X of Y
-- **Blockers**: [Any]
-## Work Completed
-- [x] [Step — files touched]
-- [ ] [Next step]
-## Key Decisions
-- [Decision]: chose X over Y because [reason]
-## Files Modified
-- `path/to/file` — [what changed]
-## Resume Instructions
-[Exactly what to do next]
-```
-
-### Handoff Delivery
-
-After writing the handoff document, tell the user:
-
-```
-Context is getting thin. I've saved a complete handoff document with all our
-progress, decisions, and next steps.
-
-To continue with full fidelity, start a new session and say:
-"Read handoff.md and continue where the last session left off"
-
-Everything is preserved — your requirements, our approach, files modified,
-and exactly what to do next.
-```
-
-### Handoff Rules
-
-1. **Verbatim requirements** — Copy the user's original request as close to verbatim as possible. Don't summarize their intent.
-2. **Include failed approaches** — The next session needs to know what NOT to try.
-3. **Include file paths** — Every file touched, with what was changed.
-4. **Include the WHY** — For every decision, include why it was made.
-5. **Overwrite previous handoffs** — `handoff.md` is always the latest. Old handoffs are stale.
-6. **Also update `current_work.md`** — Handoff is the detailed version; `current_work.md` is the quick-reference version. Write both.
-7. **Don't wait until empty** — Trigger when context is LOW, not when it's GONE. You need enough context to write a good handoff.
+When auto-handoff triggers, follow the `auto-handoff` skill's handoff document protocol — it owns the template, format, and delivery message. Write to `~/.claude/projects/<project>/memory/handoff.md` and commit to GitHub.
 
 ## Compaction Decision Guide
 
