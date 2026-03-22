@@ -42,6 +42,26 @@ BEFORE claiming any status or expressing satisfaction:
 Skip any step = lying, not verifying
 ```
 
+## Output Verification — Check What the User Actually Sees
+
+**"I edited the code" is NOT verification. Verification means checking the OUTPUT.**
+
+For web/UI changes:
+- Use Claude in Chrome, preview tools, or curl to check the ACTUAL rendered page
+- Don't just verify "the code looks right" — verify "the page shows the right thing"
+- Check the actual numbers/text that appear, not just that something appears
+
+For data/table changes:
+- Pick one specific row and manually verify the values are correct
+- Check that ALL categories/columns are present (see proactive-qa completeness check)
+- Verify totals match the sum of their parts
+
+For algorithm/pipeline changes:
+- Check the actual output file/JSON, not just the console log saying "success"
+- Verify the output data against a known-correct example
+
+**The "I edited the code" trap:** This is the #1 failure mode. Claude edits 3 files, says "Fixed! The table now shows all bet types with correct units." But never actually looked at the rendered table. The user opens the page and finds 2 missing columns and wrong math. THIS IS WHAT WE'RE PREVENTING.
+
 ## Common Failures
 
 | Claim | Requires | Not Sufficient |
@@ -50,8 +70,8 @@ Skip any step = lying, not verifying
 | Linter clean | Linter output: 0 errors | Partial check, extrapolation |
 | Build succeeds | Build command: exit 0 | Linter passing, logs look good |
 | Bug fixed | Test original symptom: passes | Code changed, assumed fixed |
-| Regression test works | Red-green cycle verified | Test passes once |
-| Agent completed | VCS diff shows changes | Agent reports "success" |
+| UI looks right | Screenshot or DOM check of actual page | "I updated the component" |
+| Table is correct | Verify actual cell values against expected | "I added the column" |
 | Requirements met | Line-by-line checklist | Tests passing |
 
 ## Red Flags - STOP

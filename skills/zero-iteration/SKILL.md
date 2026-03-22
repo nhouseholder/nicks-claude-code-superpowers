@@ -85,6 +85,22 @@ export function X()  →  import X  ← WRONG: import { X }
 ```
 **Rule**: Before writing an import, check the export style.
 
+## Arithmetic Spot-Check
+
+When writing code that produces numbers (P/L, units, stats, percentages, scores):
+
+1. **Pick ONE concrete example** — a specific bet, game, row, or data point
+2. **Calculate the expected output by hand** — what should this cell/field show?
+3. **Trace through your code with that example** — does it produce the same number?
+4. If the numbers don't match → your formula is wrong. Fix BEFORE writing.
+
+**Common math bugs this catches:**
+- Loss not tracked (wins show +units but losses show nothing instead of -1)
+- Totals that don't sum correctly (missing a category from the total)
+- Wrong sign (showing -2.5 instead of +2.5 for a win)
+- Integer division when you need float (Python 2 style bug)
+- Off-by-one in count-based stats
+
 ## The Three-Value Test
 
 For any function you write, mentally run it with three inputs:

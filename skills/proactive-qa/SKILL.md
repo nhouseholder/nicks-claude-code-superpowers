@@ -37,11 +37,20 @@ After building any user-facing feature, step back and check logical coherence �
 - **Never trust the algorithm's event selection blindly.** If the algorithm says "Event: Namajunas vs. Cortez" but the current date is March 2026, that's a 2-year-old event. STOP and flag it.
 - **Quick verify:** Web search "[sport] event [today's date]" takes 5 seconds. Processing the wrong event wastes hours and pushes wrong data to users.
 
+**Completeness Check (ENUMERATE FIRST):**
+- Before building ANY feature with categories/types/columns, LIST ALL OF THEM first
+- Example: "bet types = straight, method, round, combo, parlay" — then verify EACH ONE has a column, row, or handler
+- Example: "events = all 71 events" — then verify ALL 71 appear in the dropdown/table
+- If you can't enumerate all categories, ASK before building. Delivering 3 of 5 types = broken feature.
+- After building, go through the list and check each one off. Any missing = fix before claiming done.
+
 **Stats & Figures Check:**
 - Do the numbers add up? (e.g., win rate % matches W/L counts, totals match sum of parts)
+- **Arithmetic spot-check:** pick ONE concrete row/cell and manually calculate the expected value. Does the code produce that exact number? If not, the formula is wrong.
 - Are stats from the right time period? (not showing stale/cached data as "current")
 - Do labels match what they describe? ("Last 10 games" actually shows 10, not 8)
 - Are units consistent? (mixing percentages and decimals, dollars and cents)
+- **Loss tracking:** every system that tracks wins MUST also track losses. If wins show +units, losses must show -1 unit. Check both sides.
 
 **Description & Copy Check:**
 - Does the feature description match what the feature actually does?

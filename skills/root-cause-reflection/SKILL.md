@@ -18,6 +18,13 @@ error-memory records WHAT broke and HOW to fix it. This skill records WHY Claude
 - The same category of mistake has happened before
 - The user had to point out the bug (Claude didn't catch it proactively)
 
+**ALSO fires when the user CORRECTS your work:**
+- User says "this is still broken" or "that's not right" → reflect on why you claimed it was done
+- User has to re-explain what they wanted → reflect on why you misunderstood
+- User lists multiple things you missed → reflect on why your completeness check failed
+- User is frustrated or sends a long correction message → this is the STRONGEST signal. Stop, reflect, and change your approach.
+- **The multi-correction pattern:** If the user has corrected you 2+ times on the same feature, your approach is fundamentally wrong. Don't keep patching — step back and re-think from scratch.
+
 **Does NOT fire for:**
 - Typos, missing imports, syntax errors (mechanical mistakes)
 - Bugs caught and fixed before the user saw them
