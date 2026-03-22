@@ -100,6 +100,18 @@ If any fails → fix the logic BEFORE writing.
 
 This skill costs zero tokens when code is correct (it's mental execution, not output). It only costs tokens when it catches a pre-bug — and those tokens are far cheaper than a debug cycle.
 
+## Cross-Check Against Known Reasoning Failures
+
+Before writing code, mentally scan anti-patterns.md lessons (loaded at session start via total-recall). Ask: **"Am I about to make a mistake I've made before?"**
+
+Common reasoning failure categories to check:
+- **Data freshness** — Am I assuming this data is current without verifying?
+- **Sort/order assumption** — Am I assuming a list is ordered a certain way without checking?
+- **Scope assumption** — Am I assuming this change only affects one place?
+- **Trusting without verifying** — Am I trusting algorithm/API output without a sanity check?
+
+If the current task matches a known reasoning failure category → apply the lesson BEFORE writing code, not after finding the bug.
+
 ## Rules
 
 1. **Trace before you type** — Never write a function without mentally running it first
@@ -107,5 +119,6 @@ This skill costs zero tokens when code is correct (it's mental execution, not ou
 3. **Check the callers** — Your function is only correct if it satisfies its consumers
 4. **Three-value test** — Happy path, empty case, boundary case. Every time.
 5. **Silent when clean** — Don't announce "I traced through the code mentally." Just write correct code.
-7. **Trace env vars end-to-end** — Before setting ANY env var or config value, trace it through all code paths that read it. Zero and empty string are the most common traps.
-6. **Speak up when caught** — If you catch a pre-bug, briefly mention it: "Caught an off-by-one before writing — using `<` not `<=`"
+6. **Trace env vars end-to-end** — Before setting ANY env var or config value, trace it through all code paths that read it. Zero and empty string are the most common traps.
+7. **Speak up when caught** — If you catch a pre-bug, briefly mention it: "Caught an off-by-one before writing — using `<` not `<=`"
+8. **Cross-check past failures** — Before writing, scan known reasoning failures. Don't repeat mistakes that are already documented.

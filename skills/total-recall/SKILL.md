@@ -25,17 +25,19 @@ At the beginning of every session, load project context from ALL available sourc
 ```
 1. Read ~/.claude/projects/<project>/memory/MEMORY.md (index)
 2. Check git status (current state)
+3. Read ~/.claude/anti-patterns.md (past mistakes + reasoning failures)
 ```
+
+Anti-patterns are NOT optional debugging context — they're lessons that prevent repeating mistakes during ANY task (writing new code, building features, processing data). A reasoning failure like "didn't verify event dates" applies when writing new features, not just when debugging old ones.
 
 **Load on demand (when the task requires it):**
 ```
-3. Read specific memory files referenced in MEMORY.md — only when relevant to the current task
-4. Read ~/.claude/anti-patterns.md — only when debugging or fixing errors
+4. Read specific memory files referenced in MEMORY.md — only when relevant to the current task
 5. Read AGENT-MEMORY.md — only when coordinating with other agents
 6. Check git log --oneline -20 — only when context about recent work is needed
 ```
 
-The MEMORY.md index tells you WHAT memories exist. Only read the full memory files when the current task actually needs that knowledge. This avoids loading thousands of tokens of context that may be irrelevant to a simple "fix this typo" request.
+The MEMORY.md index tells you WHAT memories exist. Only read the full memory files when the current task actually needs that knowledge.
 
 ### What to Extract
 From loaded sources, build a mental model of what's relevant to the current task. Don't try to hold everything — just know where to find it.
