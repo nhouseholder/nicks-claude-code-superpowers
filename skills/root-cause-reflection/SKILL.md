@@ -94,6 +94,14 @@ Based on the severity and category:
 - Strengthen that skill with the specific check that was missing
 - Note in anti-patterns which skill was updated
 
+**Codebase-wide sweep (MANDATORY for Medium+ severity):**
+- The same flawed thinking that produced THIS bug likely produced similar bugs elsewhere
+- Search the entire codebase for the same anti-pattern: grep for the same function, same assumption, same unchecked condition
+- Example: if the bug was "didn't verify event date", search for ALL places where dates/events are used without verification
+- Example: if the bug was "assumed list was sorted", search for ALL places where sort order is assumed
+- Fix every instance found — don't just fix the one the user reported
+- Report: "Found N other instances of the same pattern. Fixed all of them."
+
 **If it's a recurring category:**
 - Check anti-patterns for similar reasoning failures
 - If 2+ failures share the same root cause category, escalate:
