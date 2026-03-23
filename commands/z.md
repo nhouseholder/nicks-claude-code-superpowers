@@ -1,27 +1,36 @@
-Toggle between Claude (Anthropic) and Z AI (GLM-5) APIs.
+Switch to Z AI (GLM-5) mid-session using anyclaude.
 
-## Steps to execute:
+## If anyclaude is running (this session was started with anyclaude):
 
-1. Check which API is currently active:
-```bash
-jq -r '.env.ANTHROPIC_BASE_URL // "anthropic (native)"' ~/.claude/settings.json
+Just tell the user to type:
+```
+/model openai/glm-5
+```
+That's it. Mid-session switch. No restart needed.
+
+To switch back to Claude:
+```
+/model opus
+```
+or
+```
+/model sonnet
 ```
 
-2. If currently on Anthropic (no ANTHROPIC_BASE_URL), switch TO Z AI:
+## If this is a regular Claude session (not started with anyclaude):
+
+Tell the user:
+"This session was started with native Claude, which doesn't support mid-session provider switching. To get mid-session switching:
+1. Quit Claude Code
+2. Open a terminal and type: `zai`
+3. This starts Claude Code through anyclaude with Z AI support
+4. You can then switch between Claude and GLM-5 anytime with `/model openai/glm-5` and `/model opus`
+
+Or start anyclaude normally with: `anyclaude` (starts on Claude, switch anytime)"
+
+## Verify current API:
 ```bash
-jq '.env.ANTHROPIC_AUTH_TOKEN = .env.Z_AI_API_KEY | .env.ANTHROPIC_BASE_URL = "https://api.z.ai/api/anthropic"' ~/.claude/settings.json > ~/.claude/settings.json.tmp && mv ~/.claude/settings.json.tmp ~/.claude/settings.json
+echo $ANTHROPIC_BASE_URL
 ```
-Then tell the user: "Switched to **Z AI (GLM-5)**. Quit and reopen Claude Code to activate."
-
-3. If currently on Z AI (ANTHROPIC_BASE_URL exists), switch BACK to Claude:
-```bash
-jq 'del(.env.ANTHROPIC_AUTH_TOKEN) | del(.env.ANTHROPIC_BASE_URL)' ~/.claude/settings.json > ~/.claude/settings.json.tmp && mv ~/.claude/settings.json.tmp ~/.claude/settings.json
-```
-Then tell the user: "Switched back to **Claude (Anthropic)**. Quit and reopen Claude Code to activate."
-
-4. Save a handoff document before the user restarts:
-   - What was being worked on
-   - What's done, what's next
-   Save to `~/.claude/handoff.md`
-
-5. Tell the user: "Your handoff is saved. After reopening, type 'load my handoff' to resume."
+- If empty or anthropic.com → native Claude
+- If localhost:* → anyclaude (supports mid-session switching)
