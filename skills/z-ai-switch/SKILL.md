@@ -1,39 +1,29 @@
 ---
 name: z-ai-switch
-description: Switch to Z AI (GLM-5) when rate limited on Claude. Two-instance approach — no restart needed. Just open a new terminal and type 'zai', or double-click 'Claude (Z AI).command' on Desktop.
+description: Switch between Claude (Anthropic) and Z AI (GLM-5) APIs from within Claude Code desktop app. Type /z to switch to Z AI when rate limited. Type /zback to return to Claude. Saves handoff doc automatically.
 user_invocable: true
 ---
 
-# Z AI Fallback — When Rate Limited
+# Z AI API Switch (Desktop App)
 
-When you hit Anthropic API rate limits, switch to a Z AI-backed Claude Code instance.
+When rate limited on Claude, type `/z` to switch to Z AI (GLM-5). Type `/zback` to return.
 
-## How to Switch (no restart needed)
+## How It Works
 
-**Option A — Terminal:** Open a new terminal tab/window and type:
-```bash
-zai
-```
+1. `/z` saves a handoff doc, updates settings.json to route through Z AI, then tells you to reload
+2. After reload, Claude Code talks to Z AI's Anthropic-compatible endpoint (GLM-5)
+3. All skills, CLAUDE.md, and memory load normally — they're local files
+4. `/zback` reverses it — removes Z AI routing, tells you to reload
 
-**Option B — Desktop:** Double-click `Claude (Z AI).command` on your Desktop.
+## Desktop App Reload
 
-Both launch a fresh Claude Code session backed by GLM-5 via Z AI's Anthropic-compatible API. Your skills, CLAUDE.md, memory, and project context all load normally — they're local files.
+After `/z` or `/zback`, reload the app:
+- **Cmd+Shift+P → type "reload"** or
+- **Quit (Cmd+Q) and reopen**
 
-## What Happens
+## Important
 
-- A NEW Claude Code session starts on Z AI (separate from your rate-limited one)
-- Z AI has its own rate limits (independent of Anthropic)
-- All 67 skills work (they're loaded from `~/.claude/skills/`)
-- Tool use (Read, Edit, Bash, Agent) works through Z AI's Anthropic-compatible endpoint
-
-## When to Use
-
-- "API Error: Rate limit reached" on Claude
-- "You've hit your limit" message
-- Want to keep working while Anthropic limits reset
-
-## Limitations
-
-- GLM-5 may not match Opus 4.6 on complex reasoning tasks
-- It's a new session — doesn't carry over conversation from the rate-limited session
-- Use auto-handoff to transfer context: write a handoff doc in the old session, load it in the new one
+- Z AI endpoint: `https://api.z.ai/api/anthropic`
+- API key stored in settings.json as `Z_AI_API_KEY`
+- Handoff saved to `~/.claude/handoff.md` — paste "load my handoff" in the new session
+- GLM-5 may differ from Opus on complex reasoning — use for routine work when rate limited

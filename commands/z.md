@@ -1,11 +1,21 @@
-You're rate limited on Claude. Here's how to keep working:
+Switch this Claude Code session to use Z AI (GLM-5) as the API backend.
 
-1. **Open a new terminal** (don't close this session)
-2. Type: `zai`
-3. A new Claude Code session starts on Z AI (GLM-5) — all your skills and memory work normally
+## Steps to execute:
 
-Or double-click **Claude (Z AI).command** on your Desktop.
+1. First, write a handoff document capturing the current session state:
+   - What was being worked on
+   - What's done, what's in progress, what's next
+   - Any important context or decisions made
+   Save it to `~/.claude/handoff.md`
 
-Your current session stays open. When Anthropic limits reset, come back to it.
+2. Run this command to update settings.json with Z AI routing:
+```bash
+jq '.env.ANTHROPIC_AUTH_TOKEN = .env.Z_AI_API_KEY | .env.ANTHROPIC_BASE_URL = "https://api.z.ai/api/anthropic"' ~/.claude/settings.json > ~/.claude/settings.json.tmp && mv ~/.claude/settings.json.tmp ~/.claude/settings.json
+```
 
-To transfer context to the Z AI session, write a quick handoff: what you were working on, what's done, what's next.
+3. Tell the user:
+   "Settings updated to Z AI (GLM-5). To activate:
+   - **Cmd+Shift+P → 'Reload Window'** or **quit and reopen Claude Code**
+   - Your handoff is saved at `~/.claude/handoff.md` — paste 'load handoff' in the new session
+   - All skills and memory will load automatically
+   - To switch back later, type `/zback`"
