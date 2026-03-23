@@ -18,7 +18,8 @@ def detect_model():
             data = json.loads(resp.read())
             model = data.get("model", "")
         except Exception:
-            pass
+            # Proxy unreachable or slow — assume Opus/Sonnet (safe default, no injection)
+            return "opus"
     return model.lower()
 
 

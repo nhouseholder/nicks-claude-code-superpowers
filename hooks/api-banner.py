@@ -79,17 +79,25 @@ try:
         label = "Claude"
         is_glm5 = False
 
-    # UserPromptSubmit: inject icon prefix + optional GLM-5 scaffolding
+    # UserPromptSubmit: only inject for GLM-5 (Haiku). Opus/Sonnet don't need scaffolding.
     if event == "UserPromptSubmit":
-        context = f'Place exactly "{icon}" as the very first character of your FIRST message only. Do NOT repeat the emoji mid-response, after tool calls, or when subagent results return. One emoji total, at the very start. You are running on {label}.'
         if is_glm5:
+            context = f'Place exactly "{icon}" as the very first character of your FIRST message only. Do NOT repeat the emoji mid-response, after tool calls, or when subagent results return. One emoji total, at the very start. You are running on {label}.'
             context += GLM5_SCAFFOLDING
-        print(json.dumps({
-            "hookSpecificOutput": {
-                "hookEventName": "UserPromptSubmit",
-                "additionalContext": context
-            }
-        }))
+            print(json.dumps({
+                "hookSpecificOutput": {
+                    "hookEventName": "UserPromptSubmit",
+                    "additionalContext": context
+                }
+            }))
+        else:
+            # Opus/Sonnet: emit minimal icon instruction only — no scaffolding overhead
+            print(json.dumps({
+                "hookSpecificOutput": {
+                    "hookEventName": "UserPromptSubmit",
+                    "additionalContext": f'Begin your response with exactly "{icon}" (the single emoji, nothing else before it). This indicates you are running on {label}.'
+                }
+            }))
 
     # SessionStart: show info banner with proxy status
     elif event == "SessionStart":
