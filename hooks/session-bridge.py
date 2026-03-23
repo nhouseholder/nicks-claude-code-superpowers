@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Session Bridge — Ensures GLM-5 picks up from the VERY LAST message when switching models.
-Prevents re-processing older messages in the same session.
+Session Bridge — Anchors GLM-5 to the most recent conversation context.
+Fires on EVERY UserPromptSubmit when Haiku/GLM-5 is active.
+Extracts the last user+assistant exchange and injects it as priority context.
 """
 import json
 import sys
@@ -23,6 +24,23 @@ def detect_model():
     return model.lower()
 
 
+def extract_text(content):
+    """Extract plain text from a message content field (str or list of blocks)."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        texts = []
+        for block in content:
+            if isinstance(block, dict):
+                if block.get("type") == "text":
+                    texts.append(block.get("text", ""))
+                elif block.get("type") == "tool_result":
+                    # Skip tool results — too noisy
+                    pass
+        return " ".join(texts)
+    return ""
+
+
 try:
     hook_input = json.load(sys.stdin)
     event = hook_input.get("hook_event_name", "")
@@ -37,79 +55,59 @@ try:
     prompt = hook_input.get("prompt", "")
     transcript_path = hook_input.get("transcript_path", "")
 
-    # Extract the VERY LAST exchange from the transcript
+    if not transcript_path or not Path(transcript_path).exists():
+        sys.exit(0)
+
+    # Read transcript and extract last user + assistant exchange
     last_user_msg = ""
     last_assistant_msg = ""
 
-    if transcript_path and Path(transcript_path).exists():
-        try:
-            with open(transcript_path) as f:
-                lines = f.readlines()
+    try:
+        with open(transcript_path) as f:
+            lines = f.readlines()
 
-            # Scan from END to find the last user message and last assistant response
-            for line in reversed(lines):
-                try:
-                    entry = json.loads(line)
-                    role = entry.get("role", "")
-                    content = entry.get("content", "")
+        # Scan from END — find last assistant response, then last user message before it
+        found_assistant = False
+        for line in reversed(lines):
+            try:
+                entry = json.loads(line)
+                role = entry.get("role", "")
+                content = entry.get("content", "")
+                text = extract_text(content)
 
-                    if role == "assistant" and not last_assistant_msg:
-                        # Get first 500 chars of last assistant response
-                        if isinstance(content, str):
-                            last_assistant_msg = content[:500]
-                        elif isinstance(content, list):
-                            # Extract text from content blocks
-                            texts = []
-                            for block in content:
-                                if isinstance(block, dict) and block.get("type") == "text":
-                                    texts.append(block.get("text", ""))
-                            last_assistant_msg = " ".join(texts)[:500]
+                if not text or len(text.strip()) < 5:
+                    continue
 
-                    elif role == "user" and not last_user_msg:
-                        # Get first 300 chars of last user message
-                        if isinstance(content, str):
-                            last_user_msg = content[:300]
-                        elif isinstance(content, list):
-                            texts = []
-                            for block in content:
-                                if isinstance(block, dict) and block.get("type") == "text":
-                                    texts.append(block.get("text", ""))
-                            last_user_msg = " ".join(texts)[:300]
-
-                except:
-                    pass
-
-                if last_user_msg and last_assistant_msg:
+                if role == "assistant" and not found_assistant:
+                    # Last meaningful assistant response (first 600 chars)
+                    last_assistant_msg = text.strip()[:600]
+                    found_assistant = True
+                elif role == "user" and found_assistant and not last_user_msg:
+                    # Last user message before that assistant response
+                    last_user_msg = text.strip()[:400]
                     break
+            except Exception:
+                pass
 
-        except Exception:
-            pass
-
-    # Build the continuation instruction
-    if last_user_msg or last_assistant_msg:
-        bridge_context = f"""
-[CONTINUATION INSTRUCTION — READ THIS FIRST]
-
-You are continuing a session that was interrupted. The previous model (Opus) was working on:
-
-LAST USER REQUEST: {last_user_msg}
-
-LAST ASSISTANT RESPONSE (what Opus was doing): {last_assistant_msg}...
-
-YOUR TASK: Continue EXACTLY where Opus left off. Do NOT re-process earlier messages in this session. Do NOT go back to older topics. Pick up from the last message and continue forward.
-
-User's current request: {prompt}
-"""
-        output = {
-            "hookSpecificOutput": {
-                "hookEventName": "UserPromptSubmit",
-                "additionalContext": bridge_context
-            }
-        }
-        print(json.dumps(output))
-    else:
-        # No transcript context available — pass through
+    except Exception:
         sys.exit(0)
+
+    # Only inject if we found meaningful context
+    if not last_assistant_msg:
+        sys.exit(0)
+
+    bridge = f"""[SESSION CONTEXT — Most recent exchange before your current message]
+USER ASKED: {last_user_msg[:400] if last_user_msg else '(see conversation history)'}
+ASSISTANT WAS DOING: {last_assistant_msg[:600]}
+[END CONTEXT]
+INSTRUCTION: Address the user's CURRENT message below. Use the above only for continuity — do not re-explain or re-summarize it."""
+
+    print(json.dumps({
+        "hookSpecificOutput": {
+            "hookEventName": "UserPromptSubmit",
+            "additionalContext": bridge
+        }
+    }))
 
 except Exception:
     sys.exit(0)
