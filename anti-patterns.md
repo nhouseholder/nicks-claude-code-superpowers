@@ -27,6 +27,15 @@
 - **Working fix**: Use `"host": "127.0.0.1"` for local-only access without API key
 - **Applies when**: Running OpenViking server locally without authentication
 
+## Data & Infrastructure
+
+### FIRESTORE_REGISTRY_OVERWRITE — 2026-03-22
+- **Context**: OctagonAI profit registry in Firestore, track_results.py upload
+- **Bug**: track_results.py uploaded a 25-event registry to Firestore, overwriting the full 71-event registry that existed there from the backtest. The 71-event data was never committed to git, so it was permanently lost. Required re-running the entire backtest to restore.
+- **Root cause**: (1) No size check before upload — Claude didn't compare new data size vs existing. (2) Full replacement instead of merge — upload overwrote the entire collection instead of adding/updating records. (3) No git backup — the authoritative data only existed in Firestore, violating the "git is source of truth" rule.
+- **Fix**: Added "Destructive Write Protection" rules to CLAUDE.md: always check existing data size before writing, abort if new < existing, backup before overwrite, merge don't replace, commit to git first.
+- **Applies when**: ANY upload to Firestore, database, S3, or external store. ESPECIALLY when running track_results.py, score_predictions.py, or any script that writes to production data stores.
+
 ## Code Patterns
 
 ### Import/reference errors — minimal fix first — 2026-03-16
