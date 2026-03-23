@@ -36,6 +36,13 @@
 - **Fix**: Added "Destructive Write Protection" rules to CLAUDE.md: always check existing data size before writing, abort if new < existing, backup before overwrite, merge don't replace, commit to git first.
 - **Applies when**: ANY upload to Firestore, database, S3, or external store. ESPECIALLY when running track_results.py, score_predictions.py, or any script that writes to production data stores.
 
+### BACKTEST_FROM_WRONG_DIRECTORY — 2026-03-22
+- **Context**: UFC backtest run from /tmp worktree instead of actual ufc-predict repo
+- **Bug**: Backtest tried to scrape all UFC stats from scratch (70+ events), timed out. Caches existed in the real repo but Claude was running from a worktree clone that had no caches.
+- **Root cause**: (1) Claude didn't verify working directory before running scripts. (2) Didn't read project handoff docs or shared memory. (3) Auto-created worktree ("gifted-wu") isolated Claude from the project's cached data.
+- **Fix**: Added "Session Orientation" rules to CLAUDE.md: verify directory, read shared docs, use caches, don't run scripts from /tmp.
+- **Applies when**: ANY backtest, build, deploy, or data-heavy script. ALWAYS verify you're in the actual project directory with caches available before running.
+
 ## Code Patterns
 
 ### Import/reference errors — minimal fix first — 2026-03-16
