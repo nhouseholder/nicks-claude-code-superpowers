@@ -5,7 +5,7 @@ description: Prevents skill overload — detects when too many skills are compet
 
 # Skill Manager — Keep the Stack From Drowning the Signal
 
-67 skills is powerful. 67 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
+68 skills is powerful. 68 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
 
 **Stack cap: 75 skills maximum.** Adding a new skill past 75 requires merging or removing an existing one. This prevents gradual bloat.
 
@@ -24,7 +24,7 @@ Always-on at a meta level, but with near-zero overhead. The skill manager is a *
 
 ## The Skill Budget — Max Active Skills Per Message
 
-Not every message needs 67 skills paying attention. Most messages need 2-5.
+Not every message needs 68 skills paying attention. Most messages need 2-5.
 
 | Message Type | Max Active Skills | Examples |
 |-------------|-------------------|---------|
