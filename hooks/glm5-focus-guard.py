@@ -7,20 +7,9 @@ Prevents the model from dumping large amounts of text after reading files.
 import json
 import sys
 import os
-import urllib.request
 
-
-def detect_model():
-    model = os.environ.get("CLAUDE_MODEL", "")
-    if not model:
-        try:
-            resp = urllib.request.urlopen("http://127.0.0.1:17532/last-route", timeout=1)
-            data = json.loads(resp.read())
-            model = data.get("model", "")
-        except Exception:
-            # Proxy unreachable or slow — assume Opus/Sonnet (safe default, no injection)
-            return "opus"
-    return model.lower()
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from detect_model import is_glm5
 
 
 try:
@@ -30,8 +19,7 @@ try:
     if event != "PostToolUse":
         sys.exit(0)
 
-    model_lower = detect_model()
-    if "haiku" not in model_lower:
+    if not is_glm5():
         sys.exit(0)
 
     tool_name = hook_input.get("tool_name", "")

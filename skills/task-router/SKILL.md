@@ -92,3 +92,4 @@ Ask: **"Could a junior dev follow written instructions to do this?"**
 3. **Don't over-suggest switches** — suggest once when tier changes, then stop. The user can override.
 4. **Opus plans, Sonnet executes** — the most common pattern is Opus writes a plan, then Sonnet-tier agents execute it
 5. **When in doubt, use Opus** — wrong model on a hard task wastes more tokens than wrong model on an easy task
+6. **NEVER route to Haiku** — Haiku in the model picker is remapped to GLM-5 via Z AI proxy. Never set `model: "haiku"` on subagents. Only use `model: "opus"` or `model: "sonnet"`. GLM-5 is for the user to switch to manually when rate-limited, not for task routing.

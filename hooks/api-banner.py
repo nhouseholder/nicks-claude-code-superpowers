@@ -14,7 +14,9 @@ On SessionStart:
 import json
 import sys
 import os
-import urllib.request
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from detect_model import detect_model
 
 # GLM-5 reasoning scaffolding — injected ONLY when Haiku is active.
 # This replaces the glm5-boost skill with zero-cost dynamic injection.
@@ -39,21 +41,6 @@ HARD RULES — VIOLATING THESE MEANS YOUR RESPONSE FAILED:
 
 You have the SAME tools, skills, memory, and CLAUDE.md as Opus. Use them."""
 
-
-def detect_model():
-    """Detect current model from CLAUDE_MODEL env var or proxy's /last-route."""
-    model = os.environ.get("CLAUDE_MODEL", "")
-
-    # Fallback: query proxy's /last-route endpoint
-    if not model:
-        try:
-            resp = urllib.request.urlopen("http://127.0.0.1:17532/last-route", timeout=1)
-            data = json.loads(resp.read())
-            model = data.get("model", "")
-        except Exception:
-            pass
-
-    return model.lower()
 
 
 try:

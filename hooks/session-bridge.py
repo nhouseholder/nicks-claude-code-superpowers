@@ -7,21 +7,10 @@ Extracts the last user+assistant exchange and injects it as priority context.
 import json
 import sys
 import os
-import urllib.request
 from pathlib import Path
 
-
-def detect_model():
-    """Detect current model from CLAUDE_MODEL env var or proxy's /last-route."""
-    model = os.environ.get("CLAUDE_MODEL", "")
-    if not model:
-        try:
-            resp = urllib.request.urlopen("http://127.0.0.1:17532/last-route", timeout=1)
-            data = json.loads(resp.read())
-            model = data.get("model", "")
-        except Exception:
-            pass
-    return model.lower()
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from detect_model import detect_model
 
 
 def extract_text(content):
@@ -63,8 +52,13 @@ try:
     last_assistant_msg = ""
 
     try:
-        with open(transcript_path) as f:
-            lines = f.readlines()
+        # Read only the last 50 lines — avoids loading entire transcript into memory
+        import subprocess
+        result = subprocess.run(
+            ["tail", "-50", transcript_path],
+            capture_output=True, text=True, timeout=2
+        )
+        lines = result.stdout.strip().split("\n") if result.stdout else []
 
         # Scan from END — find last assistant response, then last user message before it
         found_assistant = False
