@@ -1,63 +1,56 @@
 ---
 name: z-ai-switch
-description: Z AI GLM-5 fallback when Anthropic rate limits hit. Uses environment variables only (NEVER settings.json). Type /z for setup help.
+description: Dynamic model routing — Haiku 4.5 in picker = GLM-5 via Z AI. Opus/Sonnet = Anthropic. No restart needed. Type /z for help.
 user_invocable: true
 ---
 
-# Z AI GLM-5 — Rate Limit Escape Hatch
-
-## CRITICAL SAFETY RULE
-
-**NEVER put `ANTHROPIC_BASE_URL` in `~/.claude/settings.json`.** Settings.json is shared across ALL sessions. If the endpoint fails, EVERY session breaks. Use environment variables via the launch script only.
-
-## Session Start Banner
-
-At the start of EVERY session, check and announce:
-
-If `ZAI_ACTIVE` env var is set OR `ANTHROPIC_BASE_URL` contains "z.ai":
-```
-🟢 Z AI MODE — GLM-5 Active | Anthropic rate limits bypassed
-```
-
-If NOT set (normal Anthropic):
-```
-🔵 Anthropic API — Claude Opus/Sonnet Active
-```
-
-## How to Switch (Desktop App)
-
-**To Z AI (when rate limited):**
-1. Quit Claude Code (Cmd+Q)
-2. Open Terminal.app
-3. Type: `zai`
-4. Claude Code opens with GLM-5 — green banner confirms
-
-**Back to Anthropic:**
-1. Quit the Z AI session (Cmd+Q)
-2. Open Claude Code normally (from Dock/Spotlight)
-3. Blue banner confirms Anthropic API
+# Dynamic Model Router — Z AI Integration
 
 ## How It Works
 
-The `zai` command runs `~/.claude/scripts/zai-launch.sh` which:
-1. **Failsafe:** checks settings.json is clean (auto-removes any stale ANTHROPIC_BASE_URL)
-2. **Connectivity test:** pings Z AI endpoint (2s timeout)
-3. **Auto-fallback:** if Z AI unreachable, falls back to normal Anthropic Claude
-4. **Launches Claude Code** with Z AI env vars (affects ONLY this session)
-5. All skills, memory, CLAUDE.md, and anti-patterns load normally
+A local proxy runs permanently (started at login via LaunchAgent):
+- **Opus/Sonnet** in model picker → routed to **Anthropic** (native Claude)
+- **Haiku 4.5** in model picker → routed to **Z AI (GLM-5)**
+- If Z AI fails → **auto-fallback to Anthropic** (never breaks)
 
-## Verifying Which API Is Active
+Switch models mid-session by clicking the model dropdown. No restart needed.
 
-Ask Claude: "which API am I using?" — it should check:
+## Setup (one-time)
+
 ```bash
-echo $ANTHROPIC_BASE_URL
-echo $ZAI_ACTIVE
+bash ~/.claude/scripts/setup-model-router.sh
 ```
-- Empty / not set = Anthropic (normal)
-- Contains "z.ai" = Z AI GLM-5
+Then restart Claude Code. The proxy runs forever via LaunchAgent.
 
-## Rate Limits
+## Emergency Uninstall
 
-Z AI has its own rate limits (separate from Anthropic). They're per-account and dynamic. Check yours at: z.ai/manage-apikey/rate-limits
+If anything breaks:
+```bash
+bash ~/.claude/scripts/uninstall-model-router.sh
+```
+Then restart Claude Code. Direct Anthropic connection restored.
 
-Tool calls (Read, Edit, Bash, Agent) go through Z AI's Anthropic-compatible endpoint which translates them to Z AI's native format.
+## Verifying Active API
+
+The `glm5-boost` skill automatically prints a banner on every model switch:
+- 🟢 = Z AI (GLM-5) active
+- 🔵 = Anthropic (Claude) active
+
+You can also check: `curl http://127.0.0.1:17532/health`
+
+## Files
+
+| File | Purpose |
+|---|---|
+| `~/.claude/scripts/model-router-proxy.py` | The proxy (routes by model ID) |
+| `~/Library/LaunchAgents/com.claude.model-router.plist` | Keeps proxy alive (auto-restart) |
+| `~/.claude/scripts/setup-model-router.sh` | One-time setup |
+| `~/.claude/scripts/uninstall-model-router.sh` | Emergency teardown |
+
+## Safety Rules
+
+1. Proxy uses LaunchAgent with KeepAlive — auto-restarts if it crashes
+2. If Z AI is unreachable, proxy forwards to Anthropic (never fails)
+3. Health check at `http://127.0.0.1:17532/health`
+4. All state is in the proxy process — settings.json only has the localhost URL
+5. Uninstall script restores everything in one command
