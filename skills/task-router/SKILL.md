@@ -1,5 +1,5 @@
 ---
-name: model-router
+name: task-router
 description: Automatically routes tasks to Opus 4.6 or Sonnet 4.6 based on complexity. Opus for debugging, planning, strategy, experimentation. Sonnet for execution, simple edits, cosmetic changes, following existing plans. Fires on every message to classify and route.
 weight: passive
 category: meta

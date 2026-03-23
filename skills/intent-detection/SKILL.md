@@ -129,6 +129,7 @@ Execute them in logical order. If one fails (e.g., tests don't pass), stop befor
 ## What NOT to Auto-Trigger
 
 Don't trigger workflows for:
+- **Built-in CLI commands** — `/model`, `/help`, `/clear`, `/compact`, `/config`, `/cost`, `/doctor`, `/init`, `/login`, `/logout`, `/memory`, `/permissions`, `/review`, `/status`, `/vim` are harness commands. NEVER intercept, remap, or suggest a skill for these. If the user types `/model`, they want to change the model — not invoke model-router.
 - Questions ABOUT a workflow ("what does /deploy do?" — just explain it)
 - Hypothetical discussion ("if we were to deploy..." — just discuss)
 - Past tense ("we deployed yesterday" — just acknowledge)
