@@ -1,38 +1,34 @@
 ---
 name: z-ai-switch
-description: Mid-session switching between Claude (Anthropic) and Z AI (GLM-5). When started via anyclaude, switch anytime with /model openai/glm-5 (no restart). Type /z for instructions.
+description: Mid-session model switching via anyclaude proxy. Switch between Claude Opus/Sonnet and Z AI GLM-5 with /model command — no restart needed. Proxy runs as background daemon, auto-starts on login.
 user_invocable: true
 ---
 
-# Z AI Mid-Session Switching
+# Multi-Model Switching (Built Into Desktop App)
 
 ## How It Works
 
-**anyclaude** is a local proxy that translates between Anthropic's API format and other providers. When Claude Code runs through anyclaude, you can switch models mid-session:
+An anyclaude proxy runs as a background daemon on localhost. Claude Code connects through it via `ANTHROPIC_BASE_URL`. The proxy translates between Anthropic format and other providers (Z AI, OpenAI, Google, xAI).
 
-- `/model openai/glm-5` → switches to Z AI (GLM-5)
-- `/model opus` → switches back to Claude Opus
-- `/model sonnet` → switches to Claude Sonnet
+## Mid-Session Commands
 
-No restart. No handoff. Same session, same context, same skills.
+Type these in the chat — they switch INSTANTLY, same session:
+- `/model opus` → Claude Opus 4.6
+- `/model sonnet` → Claude Sonnet 4.6
+- `/model openai/glm-5` → Z AI GLM-5
 
-## Starting anyclaude
+## Proxy Management
 
-From terminal: `zai` (alias) or `anyclaude`
+- **Start proxy:** `bash ~/.claude/scripts/start-anyclaude-proxy.sh`
+- **Stop proxy:** `bash ~/.claude/scripts/stop-proxy.sh`
+- **Auto-start:** LaunchAgent at `~/Library/LaunchAgents/com.nick.anyclaude-proxy.plist`
+- **Status check:** `cat ~/.claude/anyclaude-proxy.pid && kill -0 $(cat ~/.claude/anyclaude-proxy.pid) 2>/dev/null`
 
-## Session Start Check
+## Session Start
 
-At session start, check if running through anyclaude:
+Check proxy status and announce:
 ```bash
-echo $ANTHROPIC_BASE_URL
+kill -0 $(cat ~/.claude/anyclaude-proxy.pid 2>/dev/null) 2>/dev/null && echo "Proxy: ACTIVE" || echo "Proxy: INACTIVE"
 ```
-- `http://localhost:*` → anyclaude active, mid-session switching available
-- Empty or anthropic.com → native Claude, no mid-session switching
-
-Announce: "API: [Claude/anyclaude]. Mid-session switching: [available/not available]."
-
-## Z AI Config
-
-- OpenAI-compatible endpoint: `https://api.z.ai/api/paas/v4/`
-- API key: stored in settings.json as `OPENAI_API_KEY`
-- Model ID: `openai/glm-5` (for anyclaude's `/model` command)
+- ACTIVE → "Multi-model switching available. Use `/model openai/glm-5` for Z AI."
+- INACTIVE → normal Claude session

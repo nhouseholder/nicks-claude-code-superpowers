@@ -1,36 +1,25 @@
-Switch to Z AI (GLM-5) mid-session using anyclaude.
+Switch models mid-session via the anyclaude proxy.
 
-## If anyclaude is running (this session was started with anyclaude):
+## Steps to execute:
 
-Just tell the user to type:
-```
-/model openai/glm-5
-```
-That's it. Mid-session switch. No restart needed.
-
-To switch back to Claude:
-```
-/model opus
-```
-or
-```
-/model sonnet
-```
-
-## If this is a regular Claude session (not started with anyclaude):
-
-Tell the user:
-"This session was started with native Claude, which doesn't support mid-session provider switching. To get mid-session switching:
-1. Quit Claude Code
-2. Open a terminal and type: `zai`
-3. This starts Claude Code through anyclaude with Z AI support
-4. You can then switch between Claude and GLM-5 anytime with `/model openai/glm-5` and `/model opus`
-
-Or start anyclaude normally with: `anyclaude` (starts on Claude, switch anytime)"
-
-## Verify current API:
+1. Check if the anyclaude proxy is running:
 ```bash
-echo $ANTHROPIC_BASE_URL
+cat ~/.claude/anyclaude-proxy.pid 2>/dev/null && kill -0 $(cat ~/.claude/anyclaude-proxy.pid) 2>/dev/null && echo "RUNNING: $(cat ~/.claude/anyclaude-proxy.url)" || echo "NOT RUNNING"
 ```
-- If empty or anthropic.com → native Claude
-- If localhost:* → anyclaude (supports mid-session switching)
+
+2. If proxy is running, tell the user they can switch models right now:
+   - `/model openai/glm-5` → Z AI GLM-5
+   - `/model opus` → Claude Opus
+   - `/model sonnet` → Claude Sonnet
+   Just type the /model command — it switches instantly, same session.
+
+3. If proxy is NOT running, start it:
+```bash
+bash ~/.claude/scripts/start-anyclaude-proxy.sh
+```
+Then tell user: "Proxy started. Quit and reopen Claude Code to connect through it. After reopening, `/model openai/glm-5` will switch to Z AI mid-session."
+
+4. To stop the proxy and go back to direct Anthropic:
+```bash
+bash ~/.claude/scripts/stop-proxy.sh
+```
