@@ -1,30 +1,46 @@
 ---
 name: z-ai-switch
-description: Mid-session model switching via anyclaude proxy. Haiku 4.5 in picker = GLM-5 via Z AI. Always confirm which API is active with a banner message on every switch and session start. Type /z for help.
+description: Z AI GLM-5 fallback when Anthropic rate limits hit. Uses anyclaude proxy via environment variables (NEVER settings.json). Type /z for setup help.
 user_invocable: true
 ---
 
-# Multi-Model Switching
+# Z AI Fallback — Rate Limit Escape Hatch
 
-## Model Picker Mapping
+## CRITICAL SAFETY RULE
 
-| Dropdown Label | Actual Model | API Provider |
-|---|---|---|
-| Opus 4.6 | Claude Opus 4.6 | Anthropic |
-| Sonnet 4.6 | Claude Sonnet 4.6 | Anthropic |
-| **Haiku 4.5** | **GLM-5** | **Z AI** (rate limits bypassed) |
+**NEVER modify `ANTHROPIC_BASE_URL` in `~/.claude/settings.json`.** That file is shared across ALL sessions. If the proxy dies, every session breaks.
 
-"Haiku 4.5" in the picker is remapped to GLM-5 via the anyclaude proxy.
+Use environment variables or launch scripts instead — they only affect the specific session.
 
-## Switching
+## How to Use (Desktop App)
 
-Click the model dropdown (bottom right) and select. Or type:
-- `/model opus` → Claude Opus
-- `/model sonnet` → Claude Sonnet
-- `/model openai/glm-5` → Z AI GLM-5 (same as selecting Haiku)
+When you hit Anthropic rate limits:
 
-## Proxy Management
+1. **Quit Claude Code** (Cmd+Q)
+2. **Open Terminal**, run: `zai`
+3. Claude Code opens with Z AI backend — all skills and memory work normally
+4. When done, quit and reopen normally for Anthropic
 
-- **Start:** `bash ~/.claude/scripts/start-anyclaude-proxy.sh`
-- **Stop:** `bash ~/.claude/scripts/stop-proxy.sh`
-- **Auto-starts on login** via LaunchAgent
+## Setup
+
+Add to `~/.zshrc`:
+```bash
+alias zai='ANTHROPIC_BASE_URL=https://open.bigmodel.cn/api/paas/v4 ANTHROPIC_API_KEY=your_zai_key claude'
+```
+
+Or for anyclaude proxy (if installed):
+```bash
+alias zai='anyclaude --provider zai --key your_key -- claude'
+```
+
+## Confirming Active API
+
+At session start, check:
+- `echo $ANTHROPIC_BASE_URL` — if empty or `https://api.anthropic.com`, you're on Anthropic
+- If set to Z AI URL, you're on GLM-5
+
+## Limitations
+
+- Requires restarting Claude Code (no mid-session hot-swap)
+- GLM-5 may handle complex tool use differently than Claude
+- Use `glm5-boost` skill (auto-activates) to compensate for reasoning gaps
