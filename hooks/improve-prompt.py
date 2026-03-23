@@ -15,6 +15,7 @@ except json.JSONDecodeError as e:
     sys.exit(1)
 
 prompt = input_data.get("prompt", "")
+prompt_lower = prompt.lower().strip()
 
 def output_json(text):
     """Output text in UserPromptSubmit JSON format"""
@@ -51,7 +52,7 @@ word_count = len(prompt.split())
 
 # Special handling for "continue" type messages — add resume guidance
 continue_signals = ["continue", "go", "keep going", "go on", "proceed", "carry on", "next"]
-if prompt_lower.strip() in continue_signals:
+if prompt_lower in continue_signals:
     output_json(f"{prompt}\n\nIMPORTANT: If you cannot determine what to continue, or if context feels limited, run /compact first to free space, then resume. Never generate an empty response — always either continue the task, compact, or tell the user what happened.")
     sys.exit(0)
 
@@ -68,7 +69,6 @@ clear_signals = [
     "show me", "read ", "open ", "check ", "look at", "what is",
     "how do", "why does", "can you", "please ",
 ]
-prompt_lower = prompt.lower().strip()
 if any(prompt_lower.startswith(signal) for signal in clear_signals):
     output_json(prompt)
     sys.exit(0)

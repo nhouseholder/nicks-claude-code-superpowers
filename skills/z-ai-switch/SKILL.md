@@ -32,9 +32,10 @@ Then restart Claude Code. Direct Anthropic connection restored.
 
 ## Verifying Active API
 
-The `glm5-boost` skill automatically prints a banner on every model switch:
-- 🟢 = Z AI (GLM-5) active
-- 🔵 = Anthropic (Claude) active
+The `api-banner.py` hook automatically:
+- Prefixes every response with 🟢 (GLM-5) or 🟠 (Anthropic)
+- Injects reasoning scaffolding when GLM-5 is active (zero cost on Opus)
+- Shows session banner on start
 
 You can also check: `curl http://127.0.0.1:17532/health`
 
