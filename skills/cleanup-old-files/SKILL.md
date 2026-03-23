@@ -1,6 +1,6 @@
 ---
 name: cleanup-old-files
-description: When code advances significantly (new architecture, replaced files, renamed scripts), identify and remove or archive stale files that would confuse future agents. Prevents the anti-pattern where old backtestors, deprecated configs, or superseded scripts sit alongside new ones and get picked up by mistake.
+description: When code advances significantly (new architecture, replaced files, renamed scripts), identify and archive or mark stale files so future agents cannot confuse them with the current version. NEVER delete — always archive or rename with a clear marker. Prevents the anti-pattern where old backtestors, deprecated configs, or superseded scripts sit alongside new ones and get picked up by mistake.
 weight: light
 triggers:
   - "we replaced X with Y"
@@ -67,24 +67,42 @@ git log --oneline -3 -- <suspect_file>
 
 ### Step 3 — Choose Disposition
 
+**NEVER delete old files.** Always archive or mark them so the history is preserved but the confusion is eliminated.
+
 | Situation | Action |
 |-----------|--------|
-| Clearly replaced, nothing imports it | Delete |
-| Has unique logic not yet ported | Archive to `archive/` subdirectory + add deprecation notice at top |
-| Unclear if still needed | Add prominent `# DEPRECATED — replaced by <new_file>` header, flag to user |
-| User explicitly wants history | Keep but rename to `<name>.archived.py` |
+| Clearly replaced, nothing imports it | Rename to `<name>.archived.py` + add `# ARCHIVED` header |
+| Has unique logic not yet ported | Move to `archive/` subdirectory + add deprecation notice at top |
+| Unclear if still needed | Add prominent `# DEPRECATED — replaced by <new_file>` header at top of file |
+| Already in archive/ | Add `# ARCHIVED` header if missing |
+
+**Naming conventions for archived files:**
+- Rename in-place: `backtest_25.py` → `backtest_25.ARCHIVED.py`
+- Or move to subdirectory: `archive/backtest_25.py`
+- Always add a header comment explaining what replaced it and when
+
+**Header template to add to every archived file:**
+```python
+# ============================================================
+# ARCHIVED — 2026-03-23
+# This file has been superseded by: <new_file.py>
+# Reason: <brief explanation, e.g. "migrated from 25→71 event window">
+# Do NOT run this file. Do NOT import from this file.
+# Kept for historical reference only.
+# ============================================================
+```
 
 ### Step 4 — Document the Cleanup
 
-After removing/archiving files, leave a breadcrumb so future agents know what happened:
+After archiving files, leave a breadcrumb in the new canonical file:
 
 ```python
 # In the new canonical file, add a comment:
 # NOTE: Replaced backtest_25.py (25-event window). This file uses 71-event window.
-# Old file removed 2026-03-23.
+# Old file archived as backtest_25.ARCHIVED.py — 2026-03-23.
 ```
 
-Or create a `MIGRATION.md` in the directory noting what changed and when.
+Optionally create or update a `MIGRATION.md` in the directory noting what changed and when.
 
 ### Step 5 — Verify Clean State
 
@@ -102,17 +120,18 @@ grep -r "new_name" . --include="*.py"
 Report cleanups concisely:
 
 ```
-Cleaned up stale files after UFC backtestor migration (25→71 events):
-- DELETED: backtest_25.py (replaced by backtest.py, nothing imported it)
-- ARCHIVED: weights_25.json → archive/weights_25.json (kept for reference)
-- FLAGGED: old_features.py — has unique normalization logic not yet ported, needs manual review
+Archived stale files after UFC backtestor migration (25→71 events):
+- ARCHIVED: backtest_25.py → backtest_25.ARCHIVED.py (header added, replaced by backtest.py)
+- ARCHIVED: weights_25.json → archive/weights_25.json (header added, replaced by weights_71.json)
+- FLAGGED: old_features.py — has unique normalization logic not yet ported, added DEPRECATED header
 
 New canonical files: backtest.py, weights_71.json
 ```
 
 ## Anti-Patterns to Prevent
 
-- **Silent stale files**: Old files sitting quietly, waiting to confuse the next agent
-- **Name collision**: `backtest.py` and `backtest_old.py` both present — agent picks wrong one
+- **Silent stale files**: Old files sitting quietly with no marker — agent treats them as valid
+- **Name collision**: `backtest.py` and `backtest_25.py` both present with no indication which is current
 - **Config drift**: New code, old config → model runs with wrong parameters
-- **Soft deletes that aren't**: Files "moved" to a subfolder that's still on the Python path
+- **Soft archives that still confuse**: Files moved to `archive/` but without a header — agent reads them anyway
+- **Deleting history**: Never delete — the original logic may contain useful reference or catch regressions
