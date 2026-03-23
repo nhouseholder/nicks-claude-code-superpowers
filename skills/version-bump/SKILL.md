@@ -119,10 +119,9 @@ For MINOR+ bumps on primary projects, update the GitHub repo description/name if
 gh repo edit --description "Project Name vX.Y.Z — description"
 ```
 
-### 9. Update Shared Memory
-If the project has AGENT-MEMORY.md (shared-memory skill), update the version entry:
+### 9. Update Project Memory
+If the project has a memory system (MEMORY.md or project memory), update with the version:
 - Record: version number, date, what changed
-- This ensures any AI agent that reads the repo knows the current state
 
 ## Rules
 

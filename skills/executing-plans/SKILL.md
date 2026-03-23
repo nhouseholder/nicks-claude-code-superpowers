@@ -9,14 +9,14 @@ description: Use when you have a written implementation plan to execute in a sep
 
 Load plan, review critically, execute all tasks, report when complete.
 
-**Note:** Tell your human partner that Superpowers works much better with access to subagents. The quality of its work will be significantly higher if run on a platform with subagent support (such as Claude Code or Codex). If subagents are available, use superpowers:dispatching-parallel-agents instead of this skill.
+**Note:** If subagents are available, use dispatching-parallel-agents for parallel execution of independent tasks.
 
 ## The Process
 
 ### Step 1: Load and Review Plan
 1. Read plan file
 2. Review critically - identify any questions or concerns about the plan
-3. If concerns: Raise them with your human partner before starting
+3. If concerns: Raise them with your user before starting
 4. If no concerns: Create TodoWrite and proceed
 
 ### Step 2: Execute Tasks
