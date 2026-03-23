@@ -9,7 +9,7 @@ description: Mandatory QA gate before delivering any feature, fix, or component.
 
 QA gate is ONE part of the review pipeline — avoid stacking:
 
-- **If subagent-driven-development already ran spec + code review**: QA gate does Tier 1 only.
+- **If dispatching-parallel-agents already ran spec + code review**: QA gate does Tier 1 only.
 - **If a code review subagent already ran**: QA gate should skip.
 - **If neither ran**: QA gate operates at full tier based on change complexity.
 

@@ -5,7 +5,7 @@ weight: passive
 category: meta
 ---
 
-# Model Router — Right Model for the Right Task
+# Task Router — Right Model for the Right Task
 
 Classify every task and route to the optimal model. Opus thinks. Sonnet executes.
 

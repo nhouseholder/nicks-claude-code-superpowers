@@ -48,7 +48,7 @@ Not all skills cost the same. Weight classes prevent expensive skills from stack
 ### Classification
 
 **Passive** (behavioral shaping — unlimited):
-adaptive-voice, anti-slop, auto-handoff, calibrated-confidence, coding-standards, confusion-prevention, expert-lens, isolate-before-iterate, mid-task-triage, model-router, never-give-up, opportunistic-improvement, pattern-propagation, precision-reading, predictive-next, process-monitor, profit-driven-development, prompt-anchoring, prompt-architect, response-recap, sanity-check, seamless-resume, senior-dev-mindset, skill-manager, strategic-compact, take-your-time, think-efficiently, total-recall, user-rules, zero-iteration
+adaptive-voice, anti-slop, auto-handoff, calibrated-confidence, coding-standards, confusion-prevention, expert-lens, isolate-before-iterate, mid-task-triage, task-router, never-give-up, opportunistic-improvement, pattern-propagation, precision-reading, predictive-next, process-monitor, profit-driven-development, prompt-anchoring, prompt-architect, response-recap, sanity-check, seamless-resume, senior-dev-mindset, skill-manager, strategic-compact, take-your-time, think-efficiently, total-recall, user-rules, zero-iteration
 
 **Light** (quick checks — max 5 per message):
 brainstorming, content-research-writer, error-memory, finishing-a-development-branch, git-sorcery, intent-detection, pre-debug-check, proactive-qa, prompt-improver, search-first, site-update-protocol, smart-clarify, verification-before-completion, version-bump
@@ -72,7 +72,7 @@ Example violations to prevent:
 When skills conflict, resolve using this priority order:
 1. **User's explicit instruction** — always wins over any skill
 2. **Feedback memories** — corrections from the user override skill defaults
-3. **Domain-specific skills** (backtest, deploy, data-pipeline-guardian) — they know their domain
+3. **Domain-specific skills** (backtest, deploy, site-update-protocol) — they know their domain
 4. **Behavioral skills** (never-give-up, sanity-check) — they guard against mistakes
 5. **Process skills** (brainstorming, writing-plans, TDD) — they suggest workflow
 6. **Enhancement skills** (opportunistic-improvement, predictive-next) — lowest priority, suppress if busy
@@ -110,7 +110,7 @@ When two skills at the SAME priority tier conflict:
 |----------|----------|-------|
 | **Debugging pipeline** | pre-debug-check → (systematic-debugging OR fix-loop) → never-give-up (if stuck) → error-memory (when fixed) | pre-debug consults anti-patterns FIRST. fix-loop for test failures, systematic-debugging for unknown bugs. Never both. |
 | **Research pipeline** | search-first → deep-research (if unfamiliar) → iterative-retrieval (for subagents) | search-first checks for existing solutions. deep-research only if the domain is genuinely unfamiliar. iterative-retrieval refines context for subagents. |
-| **Parallel execution hierarchy** | parallel-tool-routing (always, tool-level) → dispatching-parallel-agents (agent-level, known or unknown decomposition) → parallel-sweep (specialized parameter search) | Lowest to highest abstraction. Lower levels are always active. Higher levels only when needed. |
+| **Parallel execution hierarchy** | dispatching-parallel-agents (agent-level, known or unknown decomposition) → parallel-sweep (specialized parameter search) | Agent-level orchestration for general tasks. Parallel-sweep for parameter optimization. |
 | **Improvement pipeline** | opportunistic-improvement (during work: fix same files; at idle: suggest improvements) → pattern-propagation (if pattern changed, all files) | Opportunistic finds issues in touched files and suggests at idle. Pattern-propagation spreads fixes. |
 
 ## The Skill Overload Test

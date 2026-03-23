@@ -159,7 +159,7 @@ git worktree remove <worktree-path>
 
 **Automatic worktree cleanup**
 - **Problem:** Remove worktree when might need it (Option 2, 3)
-- **Fix:** Only cleanup for Options 1 and 4
+- **Fix:** Only cleanup for Options 1, 2, and 4 (Option 3 keeps worktree for future work)
 
 **No confirmation for discard**
 - **Problem:** Accidentally delete work

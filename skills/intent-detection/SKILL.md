@@ -129,7 +129,7 @@ Execute them in logical order. If one fails (e.g., tests don't pass), stop befor
 ## What NOT to Auto-Trigger
 
 Don't trigger workflows for:
-- **Built-in CLI commands** — `/model`, `/help`, `/clear`, `/compact`, `/config`, `/cost`, `/doctor`, `/init`, `/login`, `/logout`, `/memory`, `/permissions`, `/review`, `/status`, `/vim` are harness commands. NEVER intercept, remap, or suggest a skill for these. If the user types `/model`, they want to change the model — not invoke model-router.
+- **Built-in CLI commands** — `/model`, `/help`, `/clear`, `/compact`, `/config`, `/cost`, `/doctor`, `/init`, `/login`, `/logout`, `/memory`, `/permissions`, `/review`, `/status`, `/vim` are harness commands. NEVER intercept, remap, or suggest a skill for these. If the user types `/model`, they want to change the model — not invoke task-router.
 - Questions ABOUT a workflow ("what does /deploy do?" — just explain it)
 - Hypothetical discussion ("if we were to deploy..." — just discuss)
 - Past tense ("we deployed yesterday" — just acknowledge)
@@ -143,7 +143,7 @@ Don't trigger workflows for:
 | "the tests are all broken, fix them" | Fix Loop | Run fix-loop skill |
 | "are there any API keys in the code?" | Audit | Run security audit |
 | "let's see how the model does now" | Backtest | Run backtest with walk-forward + caching rules |
-| "update the website" | Website Update | Run full site-update-protocol (all 6 phases) |
+| "update the website" | Website Update | Run full site-update-protocol (all 7 phases) |
 | "update octagonai with the new stats" | Website Update | Site-update-protocol for OctagonAI specifically |
 | "I want to add dark mode" | Brainstorm | Start brainstorming session |
 | "break this into steps" | Write Plan | Create implementation plan |
