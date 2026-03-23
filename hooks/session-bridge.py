@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-Session Bridge — Ensures context continuity when switching models mid-session.
-Fires on UserPromptSubmit when model is Haiku (GLM-5) to inject recent context
-from the current session transcript.
+Session Bridge — Ensures GLM-5 picks up from the VERY LAST message when switching models.
+Prevents re-processing older messages in the same session.
 """
 import json
 import sys
@@ -13,7 +12,6 @@ try:
     hook_input = json.load(sys.stdin)
     event = hook_input.get("hook_event_name", "")
 
-    # Only fire on UserPromptSubmit when Haiku is active
     if event != "UserPromptSubmit":
         sys.exit(0)
 
@@ -24,69 +22,79 @@ try:
     prompt = hook_input.get("prompt", "")
     transcript_path = hook_input.get("transcript_path", "")
 
-    # If user says "continue" or similar, try to extract recent context
-    continue_signals = ["continue", "go", "keep going", "go on", "proceed", "carry on", "next", "resume"]
-    if prompt.lower().strip() not in continue_signals:
-        sys.exit(0)
+    # Extract the VERY LAST exchange from the transcript
+    last_user_msg = ""
+    last_assistant_msg = ""
 
-    # Try to read the last few exchanges from the transcript
-    recent_context = ""
     if transcript_path and Path(transcript_path).exists():
         try:
             with open(transcript_path) as f:
                 lines = f.readlines()
 
-            # Get last 10 exchanges (user + assistant pairs)
-            recent = lines[-20:] if len(lines) > 20 else lines
-
-            # Extract the most recent user message and assistant response
-            last_user_msg = ""
-            last_assistant_summary = ""
-
-            for line in reversed(recent):
+            # Scan from END to find the last user message and last assistant response
+            for line in reversed(lines):
                 try:
                     entry = json.loads(line)
-                    if entry.get("role") == "user" and not last_user_msg:
-                        content = entry.get("content", "")
+                    role = entry.get("role", "")
+                    content = entry.get("content", "")
+
+                    if role == "assistant" and not last_assistant_msg:
+                        # Get first 500 chars of last assistant response
                         if isinstance(content, str):
-                            last_user_msg = content[:200]  # First 200 chars
-                    elif entry.get("role") == "assistant" and not last_assistant_summary:
-                        content = entry.get("content", "")
+                            last_assistant_msg = content[:500]
+                        elif isinstance(content, list):
+                            # Extract text from content blocks
+                            texts = []
+                            for block in content:
+                                if isinstance(block, dict) and block.get("type") == "text":
+                                    texts.append(block.get("text", ""))
+                            last_assistant_msg = " ".join(texts)[:500]
+
+                    elif role == "user" and not last_user_msg:
+                        # Get first 300 chars of last user message
                         if isinstance(content, str):
-                            last_assistant_summary = content[:300]  # First 300 chars
+                            last_user_msg = content[:300]
+                        elif isinstance(content, list):
+                            texts = []
+                            for block in content:
+                                if isinstance(block, dict) and block.get("type") == "text":
+                                    texts.append(block.get("text", ""))
+                            last_user_msg = " ".join(texts)[:300]
+
                 except:
                     pass
 
-                if last_user_msg and last_assistant_summary:
+                if last_user_msg and last_assistant_msg:
                     break
 
-            if last_user_msg or last_assistant_summary:
-                recent_context = f"""
-[SESSION BRIDGE — Recent Context]
-Last user message: {last_user_msg}
-Last assistant response: {last_assistant_summary[:300]}...
-[END BRIDGE]
-"""
         except Exception:
             pass
 
-    # Inject the recent context
-    if recent_context:
-        output = {
-            "hookSpecificOutput": {
-                "hookEventName": "UserPromptSubmit",
-                "additionalContext": f"{prompt}\n\n{recent_context}\n\nContinue from where we left off."
-            }
-        }
-    else:
-        output = {
-            "hookSpecificOutput": {
-                "hookEventName": "UserPromptSubmit",
-                "additionalContext": f"{prompt}\n\nNote: Could not extract recent context from transcript. Please check conversation history and continue the most recent task."
-            }
-        }
+    # Build the continuation instruction
+    if last_user_msg or last_assistant_msg:
+        bridge_context = f"""
+[CONTINUATION INSTRUCTION — READ THIS FIRST]
 
-    print(json.dumps(output))
+You are continuing a session that was interrupted. The previous model (Opus) was working on:
+
+LAST USER REQUEST: {last_user_msg}
+
+LAST ASSISTANT RESPONSE (what Opus was doing): {last_assistant_msg}...
+
+YOUR TASK: Continue EXACTLY where Opus left off. Do NOT re-process earlier messages in this session. Do NOT go back to older topics. Pick up from the last message and continue forward.
+
+User's current request: {prompt}
+"""
+        output = {
+            "hookSpecificOutput": {
+                "hookEventName": "UserPromptSubmit",
+                "additionalContext": bridge_context
+            }
+        }
+        print(json.dumps(output))
+    else:
+        # No transcript context available — pass through
+        sys.exit(0)
 
 except Exception:
     sys.exit(0)
