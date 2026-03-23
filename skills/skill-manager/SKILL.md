@@ -48,7 +48,7 @@ Not all skills cost the same. Weight classes prevent expensive skills from stack
 ### Classification
 
 **Passive** (behavioral shaping — unlimited):
-adaptive-voice, anti-slop, auto-handoff, calibrated-confidence, coding-standards, confusion-prevention, expert-lens, isolate-before-iterate, mid-task-triage, task-router, never-give-up, opportunistic-improvement, pattern-propagation, precision-reading, predictive-next, process-monitor, profit-driven-development, prompt-anchoring, prompt-architect, response-recap, sanity-check, seamless-resume, senior-dev-mindset, skill-manager, strategic-compact, take-your-time, think-efficiently, total-recall, user-rules, zero-iteration
+adaptive-voice, anti-slop, auto-handoff, calibrated-confidence, coding-standards, confusion-prevention, expert-lens, implicit-preferences, isolate-before-iterate, mid-task-triage, task-router, never-give-up, opportunistic-improvement, pattern-propagation, precision-reading, predictive-next, pre-mortem, process-monitor, profit-driven-development, progressive-disclosure, prompt-anchoring, prompt-architect, response-recap, sanity-check, seamless-resume, self-challenge, senior-dev-mindset, skill-manager, strategic-compact, take-your-time, think-efficiently, total-recall, user-rules, zero-iteration
 
 **Light** (quick checks — max 5 per message):
 brainstorming, content-research-writer, error-memory, finishing-a-development-branch, git-sorcery, intent-detection, pre-debug-check, proactive-qa, prompt-improver, search-first, site-update-protocol, smart-clarify, verification-before-completion, version-bump

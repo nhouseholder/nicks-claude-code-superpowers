@@ -58,9 +58,21 @@ Keep it tight — 2-5 lines, not a full report:
 4. **No filler** — no "I've gone ahead and...", "As requested..."
 5. **Connect to user impact** — "This means quiz results will now..." not just "modified recommend.js"
 
+## Mid-Task Progress (Long-Running Work)
+
+For tasks taking 5+ tool calls, give a brief status at natural milestones:
+```
+Step 3/7 done — [what just completed]. Moving to [next step].
+```
+
+- One line, inline with the work — not a separate message
+- Only at logical boundaries (file completed, phase changed, agent returned)
+- Never interrupt flow to give status — attach it to an action you're already taking
+- Skip if the task is nearly done (80%+) — just finish
+
 ## Adaptive Detail
 
 - **Quick fix** → skip recap entirely
-- **Multi-step task** → 3-4 line recap
+- **Multi-step task** → 3-4 line recap + mid-task progress
 - **Complex debugging** → include root cause insight
 - **Architecture decisions** → include the tradeoff considered
