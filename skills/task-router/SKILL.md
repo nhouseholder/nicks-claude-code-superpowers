@@ -47,6 +47,8 @@ Use Sonnet 4.6 ONLY when the task meets ALL of these criteria:
 - Fixing something that was already attempted and failed
 - Any table, chart, or data display — the DATA must be right, not just the code
 - Business logic changes — even one-line changes to formulas or conditions
+- **Website front pages, dashboards, or performance displays** — these are the user's public-facing product. Every number must be verified against data invariants (see CLAUDE.md). ALWAYS Opus.
+- **Any scoring, tracking, or results pipeline** — the code that PRODUCES the stats is as critical as the display
 
 ## How to Apply
 
