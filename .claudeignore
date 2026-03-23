@@ -1,0 +1,61 @@
+# Build artifacts
+node_modules/
+.next/
+dist/
+build/
+out/
+.nuxt/
+.output/
+*.min.js
+*.min.css
+*.bundle.js
+
+# Package locks (huge, not useful for Claude)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Large data files
+*.sqlite
+*.db
+
+# Assets Claude doesn't need
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.woff
+*.woff2
+*.ttf
+*.eot
+*.mp4
+*.mp3
+
+# Coverage and test artifacts
+coverage/
+.nyc_output/
+htmlcov/
+
+# Environment
+.env
+.env.*
+
+# Wrangler / Cloudflare
+.wrangler/
