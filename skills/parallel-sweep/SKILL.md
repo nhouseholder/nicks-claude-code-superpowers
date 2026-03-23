@@ -92,6 +92,31 @@ sqlite3 -header sweep_results.db "SELECT * FROM sweep_results ORDER BY roi DESC 
 sqlite3 sweep_results.db "SELECT agent_id, COUNT(*), AVG(accuracy), MAX(accuracy) FROM sweep_results GROUP BY agent_id;"
 ```
 
+## Resumability (MANDATORY for sweeps > 50 combinations)
+
+Long sweeps get interrupted by rate limits, timeouts, and session crashes. Every sweep must be resumable:
+
+1. **Batch processing.** Break the sweep into batches of 50-100 combinations. After each batch, save results and print top 5 so far.
+2. **Check for existing results before starting.** Query the SQLite database for already-completed configurations. Skip any that already have results.
+3. **Resume detection.** At sweep start, check: `SELECT COUNT(*) FROM sweep_results` — if results exist, announce "Resuming sweep — X configurations already completed, Y remaining."
+4. **Intermediate reporting.** After each batch, print: current batch number, total completed, top 5 results so far, estimated remaining time.
+5. **Checkpoint commits.** Every 100 combinations, commit the SQLite database to git so results survive session crashes.
+
+```python
+# Resume-aware sweep loop
+completed = db.execute("SELECT coefficients_json FROM sweep_results").fetchall()
+completed_set = {row[0] for row in completed}
+remaining = [c for c in all_configs if json.dumps(c) not in completed_set]
+print(f"Resuming: {len(completed_set)} done, {len(remaining)} remaining")
+
+for batch in chunks(remaining, batch_size=100):
+    for config in batch:
+        result = run_backtest(config)
+        db.execute("INSERT INTO sweep_results ...")
+    db.commit()
+    print_top_5(db)
+```
+
 ## Rules
 - Each agent writes to the SAME SQLite database (SQLite handles concurrent writes)
 - If one agent fails, others continue
@@ -100,3 +125,4 @@ sqlite3 sweep_results.db "SELECT agent_id, COUNT(*), AVG(accuracy), MAX(accuracy
 - Never suppress output — use `| tee` for everything
 - For sports models: validate the winning config on holdout data before committing
 - Prefer robust configurations (good neighborhood) over isolated peaks
+- **Never re-run configurations that already have results** — always check the database first
