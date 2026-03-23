@@ -81,7 +81,7 @@ try:
 
     # UserPromptSubmit: inject icon prefix + optional GLM-5 scaffolding
     if event == "UserPromptSubmit":
-        context = f'Begin your response with exactly "{icon}" (the single emoji, nothing else before it). This indicates you are running on {label}.'
+        context = f'Place exactly "{icon}" as the very first character of your FIRST message only. Do NOT repeat the emoji mid-response, after tool calls, or when subagent results return. One emoji total, at the very start. You are running on {label}.'
         if is_glm5:
             context += GLM5_SCAFFOLDING
         print(json.dumps({
