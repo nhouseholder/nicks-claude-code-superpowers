@@ -34,7 +34,11 @@ Before compression is forced, watch for:
 
 ## The Handoff Protocol
 
-### Step 1: Create the Handoff Document
+**ALL 4 STEPS ARE MANDATORY. Step 3 (notify user) WITHOUT Step 1 (create file) is a FAILURE.**
+
+The handoff document IS the deliverable. Saying "I recommend a new session" without writing the actual file is useless — the next agent has nothing to work from. If you didn't write the file, you didn't do a handoff.
+
+### Step 1: Create the Handoff Document (MANDATORY — do this FIRST)
 
 Write to `~/.claude/projects/<project>/memory/handoff.md`:
 
@@ -81,7 +85,9 @@ git push
 
 This ensures the next agent can access it from any machine.
 
-### Step 3: Notify the User
+### Step 3: Notify the User (ONLY after Steps 1-2 are done)
+
+**Do NOT send this message until the file is written and committed.** If you tell the user "I've prepped a handoff document" but the file doesn't exist, you've lied.
 
 Say exactly:
 
