@@ -15,8 +15,8 @@ fi
 
 # Remove ANTHROPIC_BASE_URL from settings.json (restore direct connection)
 if command -v jq &> /dev/null; then
-    jq 'del(.env.ANTHROPIC_BASE_URL)' ~/.claude/settings.json > ~/.claude/settings.json.tmp && mv ~/.claude/settings.json.tmp ~/.claude/settings.json
-    echo "Restored direct Anthropic connection in settings.json."
+    jq 'del(.env.ANTHROPIC_BASE_URL) | del(.env.ANTHROPIC_DEFAULT_HAIKU_MODEL)' ~/.claude/settings.json > ~/.claude/settings.json.tmp && mv ~/.claude/settings.json.tmp ~/.claude/settings.json
+    echo "Restored direct Anthropic connection. Haiku restored to native."
 fi
 
 echo "Restart Claude Code to reconnect directly to Anthropic."

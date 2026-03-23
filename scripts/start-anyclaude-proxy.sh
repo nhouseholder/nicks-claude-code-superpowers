@@ -40,8 +40,8 @@ echo "$PROXY_URL" > "$URLFILE"
 
 # Update settings.json to point at the proxy
 if command -v jq &> /dev/null; then
-    jq --arg url "$PROXY_URL" '.env.ANTHROPIC_BASE_URL = $url' ~/.claude/settings.json > ~/.claude/settings.json.tmp && mv ~/.claude/settings.json.tmp ~/.claude/settings.json
-    echo "Updated settings.json: ANTHROPIC_BASE_URL = $PROXY_URL"
+    jq --arg url "$PROXY_URL" '.env.ANTHROPIC_BASE_URL = $url | .env.ANTHROPIC_DEFAULT_HAIKU_MODEL = "openai/glm-5"' ~/.claude/settings.json > ~/.claude/settings.json.tmp && mv ~/.claude/settings.json.tmp ~/.claude/settings.json
+    echo "Updated settings.json: ANTHROPIC_BASE_URL = $PROXY_URL, Haiku → GLM-5"
 fi
 
 echo ""

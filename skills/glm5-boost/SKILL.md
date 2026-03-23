@@ -5,12 +5,7 @@ description: When running on Z AI (GLM-5), activates enhanced reasoning scaffold
 
 # GLM-5 Intelligence Boost
 
-**Activation check:** At session start, check if running on Z AI:
-```bash
-jq -r '.env.ANTHROPIC_BASE_URL // empty' ~/.claude/settings.json
-```
-If result is `https://api.z.ai/api/anthropic` → this skill is ACTIVE.
-If empty → this skill is DORMANT (Opus doesn't need it).
+**Activation:** This skill fires when the user selects "Haiku 4.5" from the model picker (which is remapped to GLM-5 via anyclaude proxy), OR when `/model openai/glm-5` is used mid-session. It is DORMANT when Opus or Sonnet is selected (they don't need scaffolding).
 
 ## When Active: Mandatory Reasoning Protocol
 
