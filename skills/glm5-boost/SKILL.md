@@ -7,6 +7,31 @@ description: When running on Z AI (GLM-5), activates enhanced reasoning scaffold
 
 **Activation:** This skill fires when the user selects "Haiku 4.5" from the model picker (which is remapped to GLM-5 via anyclaude proxy), OR when `/model openai/glm-5` is used mid-session. It is DORMANT when Opus or Sonnet is selected (they don't need scaffolding).
 
+## MANDATORY: Model Switch Confirmation Messages
+
+**When switching TO Haiku/GLM-5 (any message after model changes to Haiku):**
+Print this FIRST, before any other response:
+```
+🟢 API: Z AI (GLM-5) — Anthropic rate limits BYPASSED
+   GLM-5 Intelligence Boost: ACTIVE
+   All skills & memory: loaded
+   Tip: "Haiku 4.5" in the picker = GLM-5 via Z AI
+```
+
+**When switching BACK to Opus or Sonnet (any message after model changes from Haiku):**
+Print this FIRST, before any other response:
+```
+🔵 API: Anthropic (Claude {Opus/Sonnet})
+   Native Claude intelligence: ACTIVE
+   GLM-5 Boost: dormant
+```
+
+**On EVERY session start**, announce the active API:
+- If model is Haiku → print the green Z AI banner above
+- If model is Opus/Sonnet → print the blue Anthropic banner above
+
+This ensures the user ALWAYS knows which API is active. No ambiguity, ever.
+
 ## When Active: Mandatory Reasoning Protocol
 
 GLM-5 is capable but needs explicit structure that Opus handles implicitly. Follow ALL of these on EVERY non-trivial task:

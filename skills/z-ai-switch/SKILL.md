@@ -1,34 +1,30 @@
 ---
 name: z-ai-switch
-description: Mid-session model switching via anyclaude proxy. Switch between Claude Opus/Sonnet and Z AI GLM-5 with /model command — no restart needed. Proxy runs as background daemon, auto-starts on login.
+description: Mid-session model switching via anyclaude proxy. Haiku 4.5 in picker = GLM-5 via Z AI. Always confirm which API is active with a banner message on every switch and session start. Type /z for help.
 user_invocable: true
 ---
 
-# Multi-Model Switching (Built Into Desktop App)
+# Multi-Model Switching
 
-## How It Works
+## Model Picker Mapping
 
-An anyclaude proxy runs as a background daemon on localhost. Claude Code connects through it via `ANTHROPIC_BASE_URL`. The proxy translates between Anthropic format and other providers (Z AI, OpenAI, Google, xAI).
+| Dropdown Label | Actual Model | API Provider |
+|---|---|---|
+| Opus 4.6 | Claude Opus 4.6 | Anthropic |
+| Sonnet 4.6 | Claude Sonnet 4.6 | Anthropic |
+| **Haiku 4.5** | **GLM-5** | **Z AI** (rate limits bypassed) |
 
-## Mid-Session Commands
+"Haiku 4.5" in the picker is remapped to GLM-5 via the anyclaude proxy.
 
-Type these in the chat — they switch INSTANTLY, same session:
-- `/model opus` → Claude Opus 4.6
-- `/model sonnet` → Claude Sonnet 4.6
-- `/model openai/glm-5` → Z AI GLM-5
+## Switching
+
+Click the model dropdown (bottom right) and select. Or type:
+- `/model opus` → Claude Opus
+- `/model sonnet` → Claude Sonnet
+- `/model openai/glm-5` → Z AI GLM-5 (same as selecting Haiku)
 
 ## Proxy Management
 
-- **Start proxy:** `bash ~/.claude/scripts/start-anyclaude-proxy.sh`
-- **Stop proxy:** `bash ~/.claude/scripts/stop-proxy.sh`
-- **Auto-start:** LaunchAgent at `~/Library/LaunchAgents/com.nick.anyclaude-proxy.plist`
-- **Status check:** `cat ~/.claude/anyclaude-proxy.pid && kill -0 $(cat ~/.claude/anyclaude-proxy.pid) 2>/dev/null`
-
-## Session Start
-
-Check proxy status and announce:
-```bash
-kill -0 $(cat ~/.claude/anyclaude-proxy.pid 2>/dev/null) 2>/dev/null && echo "Proxy: ACTIVE" || echo "Proxy: INACTIVE"
-```
-- ACTIVE → "Multi-model switching available. Use `/model openai/glm-5` for Z AI."
-- INACTIVE → normal Claude session
+- **Start:** `bash ~/.claude/scripts/start-anyclaude-proxy.sh`
+- **Stop:** `bash ~/.claude/scripts/stop-proxy.sh`
+- **Auto-starts on login** via LaunchAgent
