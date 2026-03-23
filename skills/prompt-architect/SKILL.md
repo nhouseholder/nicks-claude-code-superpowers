@@ -99,12 +99,27 @@ Simple + ambiguous context → One clarifying question.
 
 Short messages with hidden complexity ("ship it", "start over", "like before"): the complexity is in the TASK, not the MESSAGE. Skip decomposition, start executing.
 
+## Deep Clarification (for genuinely vague prompts)
+
+When ALL of these are true — use the research-then-ask path instead of inference:
+- The message lacks a clear target (what to change)
+- Conversation context doesn't clarify intent
+- Codebase evidence doesn't narrow it to one interpretation
+- Getting it wrong would waste significant effort
+
+**Steps:**
+1. Research first — check conversation history, grep codebase, read docs
+2. Formulate 1-4 multiple-choice questions grounded in research findings
+3. Use AskUserQuestion to present options (not open-ended questions)
+4. Execute with the user's answers + research context
+
+**Skip this path for:** short messages with clear context, messages where inference works, cases where `smart-clarify` can handle it with a single quick question.
+
 ## What This Skill Does NOT Do
 
 - Rewrite prompts visibly or add latency
 - Override explicit user instructions
 - Ask unnecessary questions — infer when possible
-- Conflict with prompt-improver (improver catches vague; architect optimizes all)
 
 ## Rules
 

@@ -75,6 +75,21 @@ If you can't complete all: "Completed items 1-3 of 5. Items 4-5 (X, Y) still nee
 - Data/tables: Pick one row and manually verify values. Verify totals match sums.
 - Algorithm/pipeline: Check actual output file, not just console "success"
 
+### Self-Challenge (for data/math outputs)
+
+Before delivering ANY output with numbers, pick ONE concrete data point and verify it:
+1. **Select the most suspicious value** — the one easiest to get wrong
+2. **Trace it from source to output** — follow the actual data path
+3. **Does it make sense?** — 20 wins with $0 profit is wrong. 95% accuracy in sports is wrong.
+
+**Red flags that demand a challenge:**
+- Round numbers where messy ones are expected ($0.00, 100%, exactly 50)
+- All values identical in a column that should vary
+- "Fixed!" after changing only one line of a multi-path function
+- Output that perfectly matches your prediction (confirmation bias)
+
+**Always fires on re-fixes** — if it was wrong once, assume it could be wrong again.
+
 ## Common Failures
 
 | Claim | Requires | Not Sufficient |

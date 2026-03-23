@@ -129,6 +129,15 @@ Before any action, spend 1-2 seconds mentally checking:
 - Don't run build + lint + test when only test matters
 - Don't verify something you just created 2 lines ago
 
+### Pre-Mortem (for complex tasks)
+
+Before committing to an approach on multi-file changes, data tasks, or shared-logic edits, answer silently:
+1. **What assumption am I making that could be wrong?** — verify it
+2. **What will this break that I'm not currently looking at?** — check other callers, other bet types, other tabs
+3. **What's my rollback plan?** — commit before changing, record baseline values
+
+If any answer reveals risk, address it before coding. Skip for single-file edits, config changes, cosmetic updates.
+
 ### Fail Fast
 - If the first test shows the idea doesn't work, stop testing variations of it
 - If the approach is wrong, don't keep tweaking parameters — change the approach
