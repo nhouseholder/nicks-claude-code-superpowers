@@ -1,6 +1,6 @@
 # Claude Code Superpowers — Session Handoff
 
-**Date**: 2026-03-19
+**Date**: 2026-03-23
 **GitHub Repo**: https://github.com/nhouseholder/nicks-claude-code-superpowers
 **Local Copy**: `/Users/nicholashouseholder/Library/Mobile Documents/com~apple~CloudDocs/superpowers/`
 **Installed To**: `~/.claude/skills/`, `~/.claude/commands/`, `~/.claude/hooks/`
@@ -188,11 +188,38 @@ These apply across ALL projects and sessions:
 ### Verified State
 All three locations (git clone, `~/.claude/skills/`, iCloud backup) have exactly 69 skill directories. GitHub is up to date at commit `2ed2c64`. All documentation files agree on counts: **69 skills, 4 hooks, 9 commands**.
 
+## What Was Done (Session — 2026-03-23)
+
+### Repo Sync & Documentation Fix
+The repo had drifted: `/tmp/` clone was 40 commits behind, README said 67 skills, actual count was 62, three locations had different skill sets.
+
+Actions taken:
+- Pulled `/tmp/` clone to HEAD (was 40 commits behind)
+- Rebuilt README skill table to match actual 62 skills on GitHub (added 8 new skills, removed 15 no-longer-present ones)
+- Fixed skill count in README header, categories table, skill matrix, and tagline
+- Updated HANDOFF date from 2026-03-19 → 2026-03-23 and corrected skill count references
+
+### New Skill Created
+1. **cleanup-old-files** (#63) — Light weight. Fires after major refactors/architecture changes. Finds stale files (old backtestors, deprecated configs, superseded scripts) that would cause future agents to pick the wrong version. Confirms nothing imports before deleting. Adds deprecation breadcrumbs in new canonical files. Motivated by real UFC incident: old 25-event backtestor sat alongside new 71-event one, agents kept running wrong file.
+
+### Verified State
+- GitHub: 63 skills (62 existing + cleanup-old-files)
+- `/tmp/` clone: synced and up to date
+- README, HANDOFF, skill matrix: all agree on 63 skills
+- `~/.claude/skills/` and iCloud: **NOT YET UPDATED** — run install step to sync
+
+### Next: Install New Skill
+```bash
+cp -r ~/tmp/nicks-claude-code-superpowers/skills/cleanup-old-files ~/.claude/skills/
+```
+
+---
+
 ## Architecture Decisions Made
 
 1. **No supervisor agent** — A real-time babysitter agent would double token cost and latency. Existing skills (prompt-anchoring, skill-manager, think-efficiently) already cover 80% of the use case at near-zero cost.
 2. **Weight classes over merges** — Instead of merging overlapping meta-skills (risky, loses nuance), added weight classification to throttle expensive skills. Simpler, safer, same effect.
-3. **Skill cap discipline** — Prevents gradual bloat. One-in-one-out rule forces discipline. Currently at 69 (added isolate-before-iterate and site-update-protocol after pruning 8 skills).
+3. **Skill cap discipline** — Prevents gradual bloat. One-in-one-out rule forces discipline. Currently at 63.
 4. **Lite brainstorm as default** — 9-step ceremony was the biggest source of unnecessary slowdown. 3-step lite covers 90% of cases.
 5. **Reflexion opt-in** — Auto-firing reflection on every response was the second biggest slowdown. Now only fires when explicitly needed.
 
@@ -200,7 +227,7 @@ All three locations (git clone, `~/.claude/skills/`, iCloud backup) have exactly
 
 - **Compaction still loses nuance** — Pre-compaction capture mitigates this but doesn't eliminate it. Very long sessions (3+ compactions) will degrade.
 - **Hook reliability** — PostToolUse hooks may not receive full transcript data. The tracker does best-effort signal detection from whatever context is available.
-- **Skill count** — At 69 after adding isolate-before-iterate and site-update-protocol. Any new skill should still follow the one-in-one-out discipline.
+- **Skill count** — At 63 as of 2026-03-23. Any new skill should still follow the one-in-one-out discipline.
 - **iCloud + git warning** — Never push/pull git from the iCloud copy. Always use the `/tmp/` clone or a fresh clone to a non-iCloud path.
 
 ## How to Resume
