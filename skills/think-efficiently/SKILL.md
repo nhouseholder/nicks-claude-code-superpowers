@@ -152,6 +152,21 @@ When producing output, be concise:
 - **Code over explanation**: Show the fix, don't explain every line unless asked
 - **Parallel tool calls**: Chain independent calls in one response, never sequential when parallel works
 
+### Sanity Check (before risky actions)
+
+When a request could break existing functionality, lose data, or waste significant effort — flag it briefly:
+```
+Quick heads up — [specific concern]. [Better alternative if exists]. Want me to go ahead or try [alternative]?
+```
+
+**Severity levels:**
+- **Green** (mild): do it, mention alternative in one line
+- **Yellow** (moderate risk): ask which approach they prefer
+- **Red** (high risk): clear flag with consequences, recommend alternative
+- **Hard stop** (irreversible): explicit warning, will not proceed without confirmation
+
+95% of requests execute immediately. Flag once, respect their decision. If user says "do it anyway" — do it.
+
 ## Rules
 
 1. **Every action should produce new, useful information** — if it won't, don't do it

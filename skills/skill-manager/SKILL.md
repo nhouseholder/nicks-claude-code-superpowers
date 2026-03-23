@@ -5,7 +5,7 @@ description: Prevents skill overload — detects when too many skills are compet
 
 # Skill Manager — Keep the Stack From Drowning the Signal
 
-67 skills is powerful. 67 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
+66 skills is powerful. 66 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
 
 **Stack cap: 75 skills maximum.** Adding a new skill past 75 requires merging or removing an existing one. This prevents gradual bloat.
 
@@ -24,7 +24,7 @@ Always-on at a meta level, but with near-zero overhead. The skill manager is a *
 
 ## The Skill Budget — Max Active Skills Per Message
 
-Not every message needs 67 skills paying attention. Most messages need 2-5.
+Not every message needs 66 skills paying attention. Most messages need 2-5.
 
 | Message Type | Max Active Skills | Examples |
 |-------------|-------------------|---------|
@@ -48,7 +48,7 @@ Not all skills cost the same. Weight classes prevent expensive skills from stack
 ### Classification
 
 **Passive** (behavioral shaping — unlimited):
-adaptive-voice, anti-slop, auto-handoff, calibrated-confidence, coding-standards, confusion-prevention, data-consistency-check, expert-lens, implicit-preferences, isolate-before-iterate, mid-task-triage, task-router, never-give-up, opportunistic-improvement, pattern-propagation, precision-reading, predictive-next, process-monitor, profit-driven-development, progressive-disclosure, prompt-anchoring, prompt-architect, response-recap, sanity-check, seamless-resume, senior-dev-mindset, skill-manager, strategic-compact, take-your-time, think-efficiently, total-recall, user-rules, zero-iteration
+adaptive-voice, anti-slop, auto-handoff, calibrated-confidence, coding-standards, confusion-prevention, data-consistency-check, expert-lens, implicit-preferences, isolate-before-iterate, mid-task-triage, task-router, never-give-up, opportunistic-improvement, pattern-propagation, precision-reading, predictive-next, process-monitor, profit-driven-development, progressive-disclosure, prompt-anchoring, prompt-architect, response-recap, seamless-resume, senior-dev-mindset, skill-manager, strategic-compact, take-your-time, think-efficiently, total-recall, user-rules, zero-iteration
 
 **Light** (quick checks — max 5 per message):
 brainstorming, content-research-writer, error-memory, finishing-a-development-branch, git-sorcery, intent-detection, pre-debug-check, proactive-qa, receiving-code-review, search-first, site-update-protocol, smart-clarify, spec-interview, verification-before-completion, version-bump

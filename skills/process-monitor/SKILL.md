@@ -83,6 +83,14 @@ When reporting, keep it to one line:
 ⚠ Build process appears hung (no output for 45s) — restart?
 ```
 
+## Escalation Rule — Diagnose, Don't Poll
+
+After 2 consecutive status checks with no new output, STOP polling and DIAGNOSE:
+1. Check CPU: `ps aux | grep <process>` — is it consuming CPU or idle?
+2. Check I/O: `lsof -p <pid>` — is it waiting on network, disk, or stdin?
+3. Check logs: read the log file for errors or stuck messages
+4. Never poll more than 3 times without diagnosing. Polling without diagnosing is token waste.
+
 ## Cleanup Protocol
 
 ### Safe to Kill (Do it, mention it)
