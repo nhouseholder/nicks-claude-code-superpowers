@@ -1,29 +1,24 @@
 ---
 name: z-ai-switch
-description: Switch between Claude (Anthropic) and Z AI (GLM-5) APIs from within Claude Code desktop app. Type /z to switch to Z AI when rate limited. Type /zback to return to Claude. Saves handoff doc automatically.
+description: Toggle between Claude (Anthropic) and Z AI (GLM-5) APIs. Single command /z toggles between them. At session start, always check and announce which API is active.
 user_invocable: true
 ---
 
-# Z AI API Switch (Desktop App)
+# Z AI API Toggle
 
-When rate limited on Claude, type `/z` to switch to Z AI (GLM-5). Type `/zback` to return.
+## Session Start — Always Announce Active API
 
-## How It Works
+At the start of EVERY session, check which API is active:
+```bash
+jq -r '.env.ANTHROPIC_BASE_URL // empty' ~/.claude/settings.json
+```
+- If empty → announce: "API: Claude (Anthropic)"
+- If `https://api.z.ai/api/anthropic` → announce: "API: Z AI (GLM-5)"
 
-1. `/z` saves a handoff doc, updates settings.json to route through Z AI, then tells you to reload
-2. After reload, Claude Code talks to Z AI's Anthropic-compatible endpoint (GLM-5)
-3. All skills, CLAUDE.md, and memory load normally — they're local files
-4. `/zback` reverses it — removes Z AI routing, tells you to reload
+## /z — Toggle API
 
-## Desktop App Reload
-
-After `/z` or `/zback`, reload the app:
-- **Cmd+Shift+P → type "reload"** or
-- **Quit (Cmd+Q) and reopen**
-
-## Important
-
-- Z AI endpoint: `https://api.z.ai/api/anthropic`
-- API key stored in settings.json as `Z_AI_API_KEY`
-- Handoff saved to `~/.claude/handoff.md` — paste "load my handoff" in the new session
-- GLM-5 may differ from Opus on complex reasoning — use for routine work when rate limited
+Single command toggles between Claude and Z AI:
+- If currently Claude → switch to Z AI
+- If currently Z AI → switch back to Claude
+- Always saves handoff before switching
+- User must quit and reopen app to activate
