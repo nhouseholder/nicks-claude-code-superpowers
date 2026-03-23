@@ -1,16 +1,11 @@
-Switch to Z AI (GLM-5) API as a fallback when rate limited on Claude.
+You're rate limited on Claude. Here's how to keep working:
 
-Run the swap script:
-```bash
-~/.claude/scripts/swap-to-zai.sh
-```
+1. **Open a new terminal** (don't close this session)
+2. Type: `zai`
+3. A new Claude Code session starts on Z AI (GLM-5) — all your skills and memory work normally
 
-After running, tell the user:
-1. **Restart Claude Code** (quit and reopen) for the API change to take effect
-2. Once restarted, select `/model haiku` — this now routes to GLM-5
-3. To switch back later: run `~/.claude/scripts/swap-to-claude.sh` and restart
+Or double-click **Claude (Z AI).command** on your Desktop.
 
-If the user says "switch back" or "go back to claude", run:
-```bash
-~/.claude/scripts/swap-to-claude.sh
-```
+Your current session stays open. When Anthropic limits reset, come back to it.
+
+To transfer context to the Z AI session, write a quick handoff: what you were working on, what's done, what's next.

@@ -1,44 +1,39 @@
 ---
 name: z-ai-switch
-description: Switch between Claude (Anthropic) and Z AI (GLM-5) APIs. Use /z to toggle. When rate limited on Claude, switch to Z AI as fallback. Haiku model slot maps to GLM-5.
+description: Switch to Z AI (GLM-5) when rate limited on Claude. Two-instance approach — no restart needed. Just open a new terminal and type 'zai', or double-click 'Claude (Z AI).command' on Desktop.
 user_invocable: true
 ---
 
-# Z AI API Switch
+# Z AI Fallback — When Rate Limited
 
-Toggle between native Claude (Anthropic) and Z AI (GLM-5) as the backing API.
+When you hit Anthropic API rate limits, switch to a Z AI-backed Claude Code instance.
 
-## How It Works
+## How to Switch (no restart needed)
 
-Z AI provides an Anthropic-compatible API endpoint. When activated:
-- **Haiku 4.5 → GLM-5** (select via `/model haiku` to use GLM-5)
-- **Opus/Sonnet → remain on Claude** (unless you override)
-- All skills, CLAUDE.md, and memory still load (they're local files)
-
-## Commands
-
-### Switch TO Z AI
+**Option A — Terminal:** Open a new terminal tab/window and type:
 ```bash
-~/.claude/scripts/swap-to-zai.sh
+zai
 ```
-Then restart Claude Code. Select `/model haiku` to use GLM-5.
 
-### Switch BACK to Claude
-```bash
-~/.claude/scripts/swap-to-claude.sh
-```
-Then restart Claude Code.
+**Option B — Desktop:** Double-click `Claude (Z AI).command` on your Desktop.
+
+Both launch a fresh Claude Code session backed by GLM-5 via Z AI's Anthropic-compatible API. Your skills, CLAUDE.md, memory, and project context all load normally — they're local files.
+
+## What Happens
+
+- A NEW Claude Code session starts on Z AI (separate from your rate-limited one)
+- Z AI has its own rate limits (independent of Anthropic)
+- All 67 skills work (they're loaded from `~/.claude/skills/`)
+- Tool use (Read, Edit, Bash, Agent) works through Z AI's Anthropic-compatible endpoint
 
 ## When to Use
 
-- **Rate limited on Claude API** — switch to Z AI to keep working
-- **Cost optimization** — GLM-5 for routine tasks, Claude Opus for complex reasoning
-- **After switching**, remind user: "Restart Claude Code, then `/model haiku` for GLM-5"
+- "API Error: Rate limit reached" on Claude
+- "You've hit your limit" message
+- Want to keep working while Anthropic limits reset
 
-## Important Notes
+## Limitations
 
-- Z AI endpoint: `https://api.z.ai/api/anthropic`
-- API key stored in settings.json as `Z_AI_API_KEY`
-- **Restart required** — settings.json env vars only load at startup
-- GLM-5 may not handle all Claude-specific tool formats perfectly — flag issues
-- Your skills and memory work normally (they're loaded from local files, not the API)
+- GLM-5 may not match Opus 4.6 on complex reasoning tasks
+- It's a new session — doesn't carry over conversation from the rate-limited session
+- Use auto-handoff to transfer context: write a handoff doc in the old session, load it in the new one
