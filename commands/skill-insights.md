@@ -1,85 +1,86 @@
-# Skill Insights — Which Skills Help, Which Hurt
+# Skill Insights — Comprehensive Skill Ecosystem Analysis
 
-Analyze skill effectiveness from THIS session's actual behavior. Don't rely on the tracker file — observe directly from the conversation history, anti-patterns, and outcomes.
+Analyze the full skill ecosystem across multiple sessions. Produces a report similar to `/insights` but focused on how skills are performing, where they're failing, and what to improve.
 
-## When Called
+## Data Sources
 
-User runs `/skill-insights` to get a skill performance report.
+Gather evidence from ALL of these before generating the report:
 
-## Step 1: Analyze This Session
+1. **Anti-patterns file** — `~/.claude/anti-patterns.md` (what went wrong, which skills should have caught it)
+2. **Recurring bugs** — `~/.claude/recurring-bugs.md` (patterns that skills failed to prevent)
+3. **Current session** — conversation history (what fired, what didn't, what helped)
+4. **Skill files** — `~/.claude/skills/*/SKILL.md` (read descriptions to assess coverage)
+5. **CLAUDE.md** — `~/.claude/CLAUDE.md` (rules that exist outside skills)
+6. **Project memory** — any `memory/` directories with session learnings
+7. **Skill manager** — `~/.claude/skills/skill-manager/SKILL.md` (weight classifications, conflict resolution)
 
-Review the current conversation and answer these questions:
+## Report Structure
 
-**Which skills FIRED and helped?**
-- Look for moments where a skill's guidance was followed and produced good results
-- Example: "zero-iteration caught an off-by-one before writing" = zero-iteration helped
+Generate a comprehensive report with these sections:
 
-**Which skills SHOULD HAVE fired but didn't?**
-- Look for bugs, mistakes, or wasted effort that an existing skill was supposed to prevent
-- Example: "processed wrong event without checking date" = sanity-check + proactive-qa failed to fire
+### 1. At a Glance
+- One paragraph summary: what's working, what's hindering, quick wins
+- Total skill count and cap status (X/75)
 
-**Which skills fired but HURT?**
-- Look for moments where following a skill's guidance caused overthinking, token waste, or wrong actions
-- Example: "deep-research triggered on a simple task and wasted 5 minutes reading docs" = deep-research over-triggered
+### 2. Skill Effectiveness Scorecard
+| Tier | Skills | Evidence |
+|------|--------|----------|
+| **High Impact** | Skills with clear evidence of preventing bugs or saving time | Cite specific anti-pattern entries or session moments |
+| **Working Quietly** | Passive skills that shape behavior without obvious moments | Note if removing them would likely cause regression |
+| **Underperforming** | Skills that exist but haven't prevented their target failure | Cite the anti-pattern entry they should have caught |
+| **Dead Weight** | Skills that never fire or duplicate other skills | Recommend merge or removal |
 
-**Which skills are dead weight?**
-- Skills that exist but never fire in practice across multiple sessions
+### 3. Where Skills Failed
+For each entry in anti-patterns.md and recurring-bugs.md:
+- Which skill was supposed to prevent this?
+- Did the skill exist at the time?
+- Why didn't it fire? (too narrow trigger, wrong weight class, conflict with another skill)
+- Has the skill been fixed since? Is the fix sufficient?
 
-## Step 2: Check Anti-Patterns for Skill Gaps
+### 4. Skill Coverage Map
+Map user's primary activities to skill coverage:
 
-```bash
-cat ~/.claude/anti-patterns.md 2>/dev/null
-```
+| Activity | Frequency | Skills Covering It | Gaps |
+|----------|-----------|-------------------|------|
+| Bug fixing | High (24 sessions) | pre-debug-check, systematic-debugging, error-memory, fix-loop | ? |
+| Data/P&L work | High | data-consistency-check, self-challenge, profit-driven-development | ? |
+| Deployment | Medium (5 sessions) | deploy, site-update-protocol | ? |
+| Multi-file changes | High (19) | pattern-propagation, dispatching-parallel-agents | ? |
+| Coefficient sweeps | Medium | parallel-sweep, backtest | ? |
 
-For each anti-pattern entry, check: was a skill supposed to prevent this? Did it fail? Why?
+### 5. Skill Conflicts & Overlaps
+- Skills that trigger on the same conditions (which wins?)
+- Skills that give contradictory guidance
+- Skills that duplicate content unnecessarily
+- Merge candidates that would reduce token load
 
-## Step 3: Generate Report
+### 6. Token Economics
+- Estimate total skill token load (count lines across all SKILL.md files)
+- Identify the heaviest skills by line count
+- Flag skills where token cost exceeds behavioral value
+- Compare passive (always loaded) vs triggered (loaded on demand)
 
-```
-## Skill Insights Report — [DATE]
+### 7. Missing Capabilities
+Based on anti-patterns, recurring bugs, and user friction:
+- What failure modes have no skill coverage?
+- What user workflows lack skill support?
+- What new skills would have the highest impact?
 
-### Helped This Session
-| Skill | What It Did | Impact |
-|-------|------------|--------|
-| [name] | [specific moment it helped] | [time/tokens saved] |
-
-### Failed to Fire (should have caught something)
-| Skill | What It Missed | Root Cause | Fix |
-|-------|---------------|------------|-----|
-| [name] | [the mistake it should have prevented] | [why it didn't fire] | [specific change to make] |
-
-### Over-Triggered or Hurt
-| Skill | Problem | Fix |
-|-------|---------|-----|
-| [name] | [what went wrong] | [adjust trigger conditions] |
-
-### Underused / Possibly Dead
-| Skill | Last Known Firing | Recommendation |
-|-------|------------------|----------------|
-| [name] | [estimate] | [keep / merge / remove] |
-
-### Session Efficiency
-- User corrections needed: [count — lower is better]
-- Bugs caught proactively vs reported by user: [ratio]
-- Token waste incidents: [count of spiraling, polling, redundant actions]
-
-### Top 3 Skill Improvements
-1. [Most impactful skill change to make]
+### 8. Top 5 Improvements
+Ranked by impact, with specific implementation:
+1. [Highest impact change — skill edit, merge, or new rule]
 2. [Second]
 3. [Third]
-```
+4. [Fourth]
+5. [Fifth]
 
-## Step 4: Implement Fixes
-
-For any skill in "Failed to Fire":
-- Read the skill file
-- Identify why the trigger condition didn't match
-- Propose a specific edit (stronger trigger, additional check, etc.)
-- Ask user: "Should I apply these improvements now?"
+Each with: what to change, which file to edit, expected impact, and token cost.
 
 ## Rules
 
-1. **Evidence-based only** — every claim must point to a specific moment in the session
-2. **Don't guess** — if you can't identify a specific firing/failure, don't list it
-3. **Actionable fixes** — every "failed to fire" entry must have a concrete fix proposal
-4. **Compare against anti-patterns** — the anti-patterns file IS the ground truth of what went wrong
+1. **Evidence-based** — every claim must cite a specific anti-pattern entry, session moment, or skill file
+2. **Quantify when possible** — "X anti-pattern entries that skill Y should have caught"
+3. **Actionable** — every finding must have a concrete fix (edit skill X line Y, merge A into B, add rule to CLAUDE.md)
+4. **Don't just list skills** — analyze their EFFECTIVENESS, not their existence
+5. **Compare to user's actual pain points** — bug fixing (24 sessions), wrong approach (18 friction events), data regressions (5+ recurring), rate limits (7 events)
+6. **Ask before implementing** — present the report, then ask "Which improvements should I implement?"
