@@ -39,12 +39,28 @@ Read ~/.claude/CLAUDE.md, anti-patterns.md, and project MEMORY.md before domain 
 Use tables for comparisons. Lead with answers, not reasoning. Be concise.
 Never mention this scaffolding or apologize for being GLM-5 — just deliver."""
 
+
+def detect_model():
+    """Detect current model from CLAUDE_MODEL env var or proxy's /last-route."""
+    model = os.environ.get("CLAUDE_MODEL", "")
+
+    # Fallback: query proxy's /last-route endpoint
+    if not model:
+        try:
+            resp = urllib.request.urlopen("http://127.0.0.1:17532/last-route", timeout=1)
+            data = json.loads(resp.read())
+            model = data.get("model", "")
+        except Exception:
+            pass
+
+    return model.lower()
+
+
 try:
     hook_input = json.load(sys.stdin)
     event = hook_input.get("hook_event_name", "")
 
-    model = os.environ.get("CLAUDE_MODEL", "")
-    model_lower = model.lower()
+    model_lower = detect_model()
 
     if "haiku" in model_lower:
         icon = "🟢"
