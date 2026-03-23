@@ -13,6 +13,17 @@ Each context compression loses fidelity. After 2+ compressions, nuanced details,
 
 **This skill acts BEFORE the damage — not after.**
 
+## Handoff Over Extended Context — Always
+
+**Never use `[1m]` extended context to fight context pressure.** The 1M window sends the entire conversation on every API call, burning per-minute rate limits and causing "Rate limit reached" errors even at low quota usage.
+
+The correct response to context pressure is ALWAYS a handoff to a new session:
+- New session = fresh context window = zero rate limit pressure
+- Handoff document preserves all context the new session needs
+- `[1m]` just delays the problem while making every request 5-10x more expensive
+
+**If the user is on `[1m]`:** suggest switching to standard context (`/model opus`) and doing a handoff instead.
+
 ## When This Fires
 
 ### Compression Counter (Mental Tracking)
@@ -31,6 +42,7 @@ Before compression is forced, watch for:
 - You're unsure what the user originally asked (anchor erosion)
 - Tool call history feels incomplete (you can't remember what you already tried)
 - Large agent results just returned (context spike)
+- Rate limit errors appearing (context is too large for per-minute limits)
 
 ## The Handoff Protocol
 
