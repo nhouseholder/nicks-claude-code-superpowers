@@ -76,6 +76,38 @@ After all updates:
 | **Config/Env** (`DATABASE_URL` → `DB_CONNECTION_STRING`) | Every env reference, .env files, docker-compose | CI/CD pipelines, deployment configs |
 | **File Move** (`src/utils/` → `src/lib/`) | Every import referencing old path | Path aliases in tsconfig/vite, test configs |
 
+## Bug Fix Propagation (MANDATORY)
+
+After fixing ANY bug, immediately ask: **"Does this same flawed logic exist anywhere else?"**
+
+### The Bug Sweep
+
+1. **Identify the root flaw** — not the symptom, the actual wrong assumption or broken logic
+   - Example: "payout = 1.0 for wins" instead of "payout = stake * odds"
+2. **Grep for the flaw pattern** — search for the broken logic, not just the fixed function
+   - Grep for the old wrong code (`return 1.0`, `profit = wager`, `pnl = 1`)
+   - Check every file that does similar calculations
+3. **Fix ALL instances** — don't stop at the one the user reported
+4. **Verify each fix** — one concrete example per location
+
+### When to Sweep
+
+- Every bug fix, no exceptions
+- Especially when the bug is a wrong assumption (not just a typo)
+- When the fix touches shared/utility functions — check all callers
+- When the bug is in a pattern that was copy-pasted across files
+
+### Bug Sweep Examples
+
+| Bug Fixed | Sweep For |
+|-----------|-----------|
+| Payout formula wrong in combo bets | Same formula in ML, method, round, prop bet handlers |
+| Auth check missing in one endpoint | All other endpoints — same auth pattern? |
+| Off-by-one in date filter | Every other date filter in the codebase |
+| Null check missing for one field | Same data structure used elsewhere without null checks |
+
+**If you fix a bug in one place and don't sweep, you're guaranteeing the user will find the same bug somewhere else next week.**
+
 ## What NOT to Propagate
 
 - **Style preferences** — If you reformatted one file, don't reformat the whole codebase
