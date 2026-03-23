@@ -33,7 +33,7 @@ Check what was happening when execution paused:
 
 **DO NOT:**
 - Say "Welcome back!" or "Let me catch you up" or "Where were we?"
-- Re-read files you already read before the pause
+- Re-read files you still have in context from before the pause (after compaction, you MUST re-read files you need — your context was compressed)
 - Re-explain decisions already made
 - Ask "Should I continue?" — the user already said to continue
 - Restart the task from the beginning
@@ -93,7 +93,15 @@ When a conversation is compacted (context compressed), the summary includes task
 1. Read the compaction summary (it's already in context)
 2. Identify the last completed step
 3. Start the next step immediately
-4. Do NOT re-read files that were already processed (unless you need specific content)
+4. Re-read files if you no longer have their contents in context (compaction discards file contents). Only skip re-reading if you genuinely still have the content in context.
+
+## Step Completion Tracking
+
+When executing multi-step work (3+ steps), use TodoWrite to track each step as a separate item.
+- Before saying "done", check the todo list — are ALL steps marked completed?
+- After context compression, re-read the todo list before continuing work
+- Never claim completion when steps are still pending or unchecked
+- If you completed 3 of 5 steps, say "Completed steps 1-3. Steps 4-5 still pending." — never say "Done!"
 
 ## Handling Multi-Step Plans
 
@@ -107,6 +115,6 @@ If executing a plan when interrupted:
 1. **"Continue" means GO** — not "tell me what you were doing"
 2. **Zero ceremony** — no greetings, no recaps, no "let me pick up where I left off"
 3. **One-line status max** — if context was lost, one line. Then execute.
-4. **Don't re-read** — trust your context. Only re-read if you genuinely need the content
+4. **Don't re-read unnecessarily** — if you still have file contents in context, don't re-read. After compaction, you MUST re-read files you need — your context was compressed.
 5. **Don't re-ask** — if the user already approved an approach, don't re-confirm
 6. **Match the previous pace** — if you were moving fast, keep moving fast

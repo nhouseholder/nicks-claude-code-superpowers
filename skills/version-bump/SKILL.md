@@ -133,5 +133,5 @@ If the project has AGENT-MEMORY.md (shared-memory skill), update the version ent
 5. **No skipping** — Don't jump from v5.64.0 to v5.70.0; increment sequentially
 6. **Ask on ambiguity** — If unsure between MINOR and MAJOR, ask the user
 7. **Update displayed versions** — If users can see the version, update it everywhere
-8. **Push after commit** — A version bump isn't done until it's deployed
+8. **Push after commit** — A version bump isn't done until it's deployed. Never push from iCloud-synced directories — use a non-iCloud clone first (see CLAUDE.md git workflow).
 9. **Update shared memory** — Keep AGENT-MEMORY.md current with the latest version and date

@@ -83,15 +83,6 @@ After all updates:
 - **Optional migrations** — Old pattern works fine? Don't force-update everything just for consistency
 - **Comments** — Don't hunt down every comment mentioning the old way unless it's misleading
 
-## Token Economics
-
-Propagation costs tokens upfront (grepping, reading files, making edits) but saves far more by preventing:
-- Bug reports from missed updates (5-10 min debug cycles)
-- "This doesn't work anymore" messages (re-orientation cost)
-- Inconsistent codebase state (ongoing confusion tax)
-
-Budget: Spend up to 2x the original change cost on propagation. If propagation would cost more (50+ files), ask the user first.
-
 ## Rules
 
 1. **Never leave partial updates** — If you change a pattern, update ALL instances or none

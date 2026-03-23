@@ -111,7 +111,7 @@ Short messages with hidden complexity ("ship it", "start over", "like before"): 
 1. **Invisible operation** — Never mention this skill or show restructured prompts
 2. **Spellcheck first** — Mentally correct all misspellings and typos before processing. Never misinterpret a request because of a typo.
 3. **Intent over literal** — Execute what they mean, not just what they typed
-3. **Evidence-based inference** — Infer from codebase/conversation/domain, not imagination
-4. **Complete execution** — Don't leave obvious gaps hoping they'll ask for more
-5. **Preserve user voice** — Enhance execution, never override stated preferences
-6. **Proportional processing** — Simple messages get zero overhead; analysis depth matches message complexity
+4. **Evidence-based inference** — Infer from codebase/conversation/domain, not imagination
+5. **Complete execution** — Don't leave obvious gaps hoping they'll ask for more
+6. **Preserve user voice** — Enhance execution, never override stated preferences
+7. **Proportional processing** — Simple messages get zero overhead; analysis depth matches message complexity

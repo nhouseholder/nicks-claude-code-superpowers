@@ -5,7 +5,7 @@ description: Prevents skill overload — detects when too many skills are compet
 
 # Skill Manager — Keep the Stack From Drowning the Signal
 
-68 skills is powerful. 68 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
+64 skills is powerful. 64 skills all firing at once on a simple message is a disaster. This skill manages the skill stack itself — ensuring the right skills fire at the right time, no more.
 
 **Stack cap: 75 skills maximum.** Adding a new skill past 75 requires merging or removing an existing one. This prevents gradual bloat.
 
@@ -29,7 +29,7 @@ Not every message needs 64 skills paying attention. Most messages need 2-5.
 | Message Type | Max Active Skills | Examples |
 |-------------|-------------------|---------|
 | **Simple** (<20 words, clear intent) | 0-2 | "yes", "fix it", "continue" — prompt-architect fast path handles these |
-| **Moderate** (single clear task) | 3-5 | "add error handling to the API endpoint" — coding-standards + context-hydration + maybe zero-iteration |
+| **Moderate** (single clear task) | 3-5 | "add error handling to the API endpoint" — coding-standards + zero-iteration + maybe proactive-qa |
 | **Complex** (multi-part, ambiguous) | 5-8 | "redesign the scoring algorithm" — prompt-architect + expert-lens + brainstorming + writing-plans + backtest |
 | **Meta** (about the skills themselves) | This skill only | "are we over-skilling?" — skill-manager answers |
 
@@ -48,20 +48,20 @@ Not all skills cost the same. Weight classes prevent expensive skills from stack
 ### Classification
 
 **Passive** (behavioral shaping — unlimited):
-adaptive-voice, anti-slop, auto-handoff, calibrated-confidence, coding-standards, confusion-prevention, expert-lens, isolate-before-iterate, mid-task-triage, model-router, never-give-up, opportunistic-improvement, pattern-propagation, precision-reading, predictive-next, process-monitor, profit-driven-development, prompt-anchoring, prompt-architect, response-recap, root-cause-reflection, sanity-check, seamless-resume, senior-dev-mindset, skill-manager, strategic-compact, take-your-time, think-efficiently, total-recall, user-rules, zero-iteration
+adaptive-voice, anti-slop, auto-handoff, calibrated-confidence, coding-standards, confusion-prevention, expert-lens, isolate-before-iterate, mid-task-triage, model-router, never-give-up, opportunistic-improvement, pattern-propagation, precision-reading, predictive-next, process-monitor, profit-driven-development, prompt-anchoring, prompt-architect, response-recap, sanity-check, seamless-resume, senior-dev-mindset, skill-manager, strategic-compact, take-your-time, think-efficiently, total-recall, user-rules, zero-iteration
 
 **Light** (quick checks — max 5 per message):
-always-improving, brainstorming, content-research-writer, context-hydration, error-memory, finishing-a-development-branch, git-sorcery, intent-detection, pre-debug-check, proactive-qa, prompt-improver, requesting-code-review, search-first, site-update-protocol, smart-clarify, verification-before-completion, version-bump
+brainstorming, content-research-writer, error-memory, finishing-a-development-branch, git-sorcery, intent-detection, pre-debug-check, proactive-qa, prompt-improver, search-first, site-update-protocol, smart-clarify, verification-before-completion, version-bump
 
 **Heavy** (expensive operations — max 2 per message):
-audit, backtest, codebase-cartographer, command-center, continuous-learning-v2, deep-research, deploy, dispatching-parallel-agents, executing-plans, fix-loop, fpf-hypotheses, iterative-retrieval, parallel-sweep, qa-gate, receiving-code-review, reflexion, screenshot-dissector, systematic-debugging, test-driven-development, using-git-worktrees, writing-plans
+audit, backtest, codebase-cartographer, continuous-learning-v2, deep-research, deploy, dispatching-parallel-agents, executing-plans, fix-loop, fpf-hypotheses, iterative-retrieval, parallel-sweep, qa-gate, reflexion, screenshot-dissector, systematic-debugging, test-driven-development, using-git-worktrees, writing-plans
 
 ### Enforcement
 
 Before allowing a heavy skill to fire, check: **are 2 heavy skills already active on this message?** If yes, defer the third to a follow-up action or suppress it.
 
 Example violations to prevent:
-- qa-gate + deep-research + command-center all firing = 3 heavy = TOO MANY
+- qa-gate + deep-research + dispatching-parallel-agents all firing = 3 heavy = TOO MANY
 - systematic-debugging + fix-loop + reflexion-reflect = 3 heavy = TOO MANY
 - deep-research + qa-gate = 2 heavy = OK
 - 5 passive + 3 light + 1 heavy = OK (normal complex task)
@@ -110,8 +110,8 @@ When two skills at the SAME priority tier conflict:
 |----------|----------|-------|
 | **Debugging pipeline** | pre-debug-check → (systematic-debugging OR fix-loop) → never-give-up (if stuck) → error-memory (when fixed) | pre-debug consults anti-patterns FIRST. fix-loop for test failures, systematic-debugging for unknown bugs. Never both. |
 | **Research pipeline** | search-first → deep-research (if unfamiliar) → iterative-retrieval (for subagents) | search-first checks for existing solutions. deep-research only if the domain is genuinely unfamiliar. iterative-retrieval refines context for subagents. |
-| **Parallel execution hierarchy** | parallel-tool-routing (always, tool-level) → dispatching-parallel-agents (agent-level, known tasks) → command-center (orchestration, unknown decomposition) → parallel-sweep (specialized parameter search) | Lowest to highest abstraction. Lower levels are always active. Higher levels only when needed. |
-| **Improvement pipeline** | opportunistic-improvement (during work, same files) → pattern-propagation (if pattern changed, all files) → always-improving (at idle, suggests new work) | Opportunistic finds issues in touched files. Pattern-propagation spreads fixes. Always-improving suggests at idle only. |
+| **Parallel execution hierarchy** | parallel-tool-routing (always, tool-level) → dispatching-parallel-agents (agent-level, known or unknown decomposition) → parallel-sweep (specialized parameter search) | Lowest to highest abstraction. Lower levels are always active. Higher levels only when needed. |
+| **Improvement pipeline** | opportunistic-improvement (during work: fix same files; at idle: suggest improvements) → pattern-propagation (if pattern changed, all files) | Opportunistic finds issues in touched files and suggests at idle. Pattern-propagation spreads fixes. |
 
 ## The Skill Overload Test
 

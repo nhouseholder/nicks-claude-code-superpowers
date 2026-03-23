@@ -5,19 +5,13 @@ description: Infinite cross-session memory for projects. Automatically loads all
 
 # Total Recall — Infinite Project Memory Across Sessions
 
-Never lose context between sessions. Automatically remember everything important about the project — decisions, discoveries, gotchas, user preferences, current state — and reload it all when the next session starts.
-
 ## Always Active
 
-This skill has two phases that fire automatically:
-1. **Session Start** — hydrate context from all memory sources
-2. **Session End** — persist everything important from this session
-
-Plus a continuous awareness during the session to capture important moments as they happen.
+Two automatic phases plus continuous awareness during the session:
+1. **Session Start** — hydrate context from memory sources
+2. **Session End** — persist everything important
 
 ## Phase 1: Session Start — Full Context Hydration
-
-At the beginning of every session, load project context from ALL available sources:
 
 ### Auto-Load Sequence (Lazy Loading)
 
@@ -25,62 +19,46 @@ At the beginning of every session, load project context from ALL available sourc
 ```
 1. Read ~/.claude/projects/<project>/memory/MEMORY.md (index)
 2. Check git status (current state)
-3. Read ~/.claude/anti-patterns.md (past mistakes + reasoning failures)
+3. Read ~/.claude/anti-patterns.md (past mistakes — applies to ALL tasks, not just debugging)
 ```
-
-Anti-patterns are NOT optional debugging context — they're lessons that prevent repeating mistakes during ANY task (writing new code, building features, processing data). A reasoning failure like "didn't verify event dates" applies when writing new features, not just when debugging old ones.
 
 **Load on demand (when the task requires it):**
 ```
-4. Read specific memory files referenced in MEMORY.md — only when relevant to the current task
+4. Read specific memory files referenced in MEMORY.md — only when relevant
 5. Read AGENT-MEMORY.md — only when coordinating with other agents
 6. Check git log --oneline -20 — only when context about recent work is needed
 ```
 
-The MEMORY.md index tells you WHAT memories exist. Only read the full memory files when the current task actually needs that knowledge.
-
-Load silently — don't announce. Build a mental model of what's relevant. Know where to find things, don't try to hold everything.
+Load silently. Build a mental model of what's relevant. Know where to find things, don't hold everything.
 
 ## Phase 2: During Session — Continuous Capture + Crash-Safe Checkpoints
 
-Throughout the session, watch for **capture signals** (moments worth persisting) AND **checkpoint triggers** (moments where progress must be saved in case the session dies).
-
 ### Crash-Safe Checkpointing
 
-**The problem**: If the session crashes mid-task (lost WiFi, app crash, token limit), Phase 3 never fires. Everything not yet persisted is lost. The next session starts blind.
+Write `current_work.md` checkpoints DURING the session, not just at the end.
 
-**The fix**: Write `current_work.md` checkpoints DURING the session, not just at the end.
-
-#### When to Checkpoint (write/update `current_work.md`):
+#### When to Checkpoint:
 
 | Trigger | Why |
 |---------|-----|
-| **After completing a major step** in a multi-step task | Progress is saved even if the next step crashes |
-| **Before a risky operation** (large refactor, deploy, migration) | If it goes wrong and kills the session, you know where you were |
-| **Every 15-20 tool calls** on long tasks | Periodic safety net — don't let more than ~5 min of work go unsaved |
-| **When the user provides important context** | Their requirements survive even if the session dies immediately after |
-| **After a plan is agreed on** | The plan persists even if execution never starts |
-| **Before compaction** | This is the MOST CRITICAL checkpoint — everything not in a file is about to degrade |
+| After completing a major step | Progress saved if next step crashes |
+| Before a risky operation (large refactor, deploy, migration) | Know where you were if it kills the session |
+| Every 15-20 tool calls on long tasks | Periodic safety net |
+| When user provides important context | Requirements survive session death |
+| After a plan is agreed on | Plan persists even if execution never starts |
+| **Before compaction** | MOST CRITICAL — everything not in a file is about to degrade |
 
-#### Pre-Compaction Capture (critical for long sessions)
+#### Pre-Compaction Capture
 
-When context is getting long (50+ tool calls, or you sense compaction approaching):
+When context is getting long (50+ tool calls, or compaction approaching):
 
 **Write to project memory files — NOT just current_work.md:**
 
-1. **`session_requirements.md`** — The user's EXACT requirements from this session. Not summarized. Near-verbatim. Include:
-   - What they asked for originally
-   - Every correction or clarification they gave
-   - Preferences expressed ("I want it this way", "don't do X")
-   - Decisions made ("let's use approach A")
+1. **`session_requirements.md`** — The user's EXACT requirements. Near-verbatim. Include original ask, corrections, preferences, decisions.
+2. **Update `current_work.md`** — Full task state
+3. **`session_decisions.md`** — Every "we chose X over Y because Z." Compaction loses reasoning.
 
-2. **Update `current_work.md`** — Full task state as usual
-
-3. **`session_decisions.md`** — Every "we chose X over Y because Z" from this session. Compaction summaries lose the reasoning.
-
-**Why this matters**: Compaction preserves WHAT you're doing but loses WHY and HOW THE USER WANTS IT. A compacted summary says "implementing feature X" but drops "user specifically said to use approach A, not B, because they tried B last week and it broke."
-
-The files survive compaction perfectly. The conversation doesn't.
+**Why:** Compaction preserves WHAT but loses WHY and HOW THE USER WANTS IT.
 
 #### Checkpoint Format (`current_work.md`):
 
@@ -104,130 +82,84 @@ The files survive compaction perfectly. The conversation doesn't.
 ```
 
 #### Checkpoint Rules:
-1. **Overwrite, don't append** — `current_work.md` is always the LATEST state, not a log
-2. **Keep it under 50 lines** — it needs to be fast to read on resume
-3. **Include file paths** — the next session needs to know what was being touched
-4. **Include the approach** — don't just say "fixing bug", say "fixing bug by adding null check in handleSubmit() in Form.jsx"
-5. **Clear it when done** — when the task is complete, update to "No active work" so the next session doesn't try to resume finished work
+1. **Overwrite, don't append** — always the LATEST state, not a log
+2. **Keep it under 50 lines**
+3. **Include file paths** — next session needs to know what was being touched
+4. **Include the approach** — "fixing bug by adding null check in handleSubmit() in Form.jsx"
+5. **Clear it when done** — update to "No active work" when task is complete
 
-### Capture Signals (what to persist to memory files)
+### Capture Signals (what to persist)
 
 #### Architecture Decisions
-- "Let's use X instead of Y" → Save: what was chosen, what was rejected, and WHY
-- "The reason we're doing it this way is..." → Save the reasoning
-- New patterns established (new file structure, new convention, new approach)
+- "Let's use X instead of Y" → Save what, what was rejected, and WHY
+- New patterns established (file structure, convention, approach)
 
 #### Discoveries & Gotchas
-- Bug with a non-obvious root cause → Save the root cause
+- Bug with non-obvious root cause → Save the root cause
 - Environment quirk → Save the workaround
-- "Oh, that's why it wasn't working" → Save the insight
-- API/library behavior that surprised you → Save the correct behavior
+- API/library behavior that surprised you → Save correct behavior
 
 #### User Preferences (about this project)
-- "I prefer X over Y" → Save
-- "Don't do X" or "Always do Y" → Save as a rule
-- Corrections to your approach → Save so you don't repeat the mistake
-- Workflow preferences ("deploy to staging first", "always run tests before committing")
+- "I prefer X over Y" / "Don't do X" / "Always do Y" → Save as rule
+- Corrections to your approach → Save so you don't repeat
 
 #### Project State Changes
-- Version bumps → Update version in memory
-- New features added → Update feature list
-- Known issues discovered → Add to known issues
-- Dependencies changed → Note significant additions/removals
+- Version bumps, new features, known issues, significant dependency changes
 
 ### What NOT to Capture
-- Routine code changes (the git log has this)
+- Routine code changes (git log has this)
 - Implementation details (the code has this)
-- Debugging steps (only save the root cause + fix, not the journey)
+- Debugging steps (only save root cause + fix)
 - Anything already in CLAUDE.md or MEMORY.md
 
 ## Phase 3: Session End — Structured Persist
 
-Before the session ends, persist important context. Use the project memory system at `~/.claude/projects/<project>/memory/`.
-
-### The Session End Checklist
-
-Run through this mentally:
+### Session End Checklist
 
 ```
-□ Were any architecture decisions made this session?
-  → Update or create memory file: decisions_<topic>.md
-
-□ Were any gotchas or surprises discovered?
-  → Update or create memory file: gotchas.md
-
-□ Did the user correct my approach or express a preference?
-  → Update memory file: user_preferences.md or feedback_<topic>.md
-
-□ Did the project state change significantly?
-  → Update MEMORY.md index with current state
-
-□ Were any bugs fixed with non-obvious root causes?
-  → Already handled by error-memory skill → verify it saved
-
-□ Is there work in progress that the next session should continue?
-  → Save to memory: current_work.md with status and next steps
+□ Architecture decisions made? → decisions_<topic>.md
+□ Gotchas or surprises discovered? → gotchas.md
+□ User corrected my approach or expressed preference? → user_preferences.md
+□ Project state changed significantly? → Update MEMORY.md index
+□ Bugs fixed with non-obvious root causes? → Verify error-memory saved
+□ Work in progress? → current_work.md with status and next steps
 ```
 
-### Curation Rules (Quality Gate for All Saves)
-
-Before writing ANY memory, apply these filters:
+### Curation Rules (Quality Gate)
 
 | Filter | Test |
 |--------|------|
 | **Relevance** | Will this help in future sessions for THIS project? |
-| **Non-redundancy** | Does this duplicate something already in memory/CLAUDE.md? Merge or skip. |
-| **Atomicity** | One idea per bullet. Short, imperative, self-contained. |
-| **Verifiability** | Can you back this with code evidence or repeated observation? No speculation. |
+| **Non-redundancy** | Duplicates something already in memory? Merge or skip. |
+| **Atomicity** | One idea per bullet. Short, self-contained. |
+| **Verifiability** | Backed by code evidence or repeated observation? |
 | **Stability** | Will this remain true? Call out version-specifics. |
 
-**Categorize by impact before writing:**
-- **Critical**: Prevents major issues or unlocks big improvements → always save
-- **High**: Consistent quality/efficiency patterns → save
-- **Medium**: Useful context → save if space allows
-- **Low**: Minor preferences → skip unless pattern repeats
-
-**Transformation example:**
-- Raw: "Using Map instead of Object for lookup caused perf issues because dataset was small"
-- Curated: "For lookups <100 items, prefer Object over Map. Map optimal for 10K+. Benchmark to validate."
+**Categorize by impact:** Critical (prevents major issues) → always save. High → save. Medium → save if space. Low → skip unless pattern repeats.
 
 ### Memory File Format
 
-Each memory file should use the standard format:
 ```markdown
 ---
 name: [descriptive name]
-description: [one-line — specific enough to know when to load it]
+description: [one-line — specific enough to know when to load]
 type: [project|feedback|user|reference]
 ---
-
 [Content — structured, concise, actionable]
 ```
 
-### Update MEMORY.md Index
-
-After creating/updating memory files, ensure MEMORY.md has pointers to all of them. Keep the index under 200 lines (it's always loaded into context).
+Update MEMORY.md index after creating/updating files. Keep index under 200 lines.
 
 ## Memory Organization
 
-### Merge, Don't Duplicate
-Before creating a new memory file, check if an existing one covers the topic. Update existing files rather than creating new ones. Keep the total count manageable (aim for 5-15 files, not 50).
-
-### Prune Stale Memories
-If a memory entry is clearly outdated (references removed features, old versions, deprecated approaches):
-- Update it if the topic is still relevant
-- Remove it if the topic is no longer relevant
-- Never let stale memories mislead future sessions
-
-## Integration
-
-Orchestrates existing memory: reads MEMORY.md + memory files, anti-patterns.md, AGENT-MEMORY.md, git log/status. Writes to MEMORY.md + memory files. Coordinates with error-memory (anti-patterns) and shared-memory (AGENT-MEMORY.md).
+- **Merge, don't duplicate** — Check existing files first. Aim for 5-15 files, not 50.
+- **Prune stale memories** — Update or remove outdated entries. Never let stale memories mislead.
 
 ## Rules
 
-1. **Load silently, save automatically** — don't announce hydration; capture important moments as they happen
-2. **Merge, don't duplicate; prune stale** — update existing memories, remove outdated ones that mislead
-3. **Save reasoning and user corrections** — WHY decisions were made + user corrections are high-priority saves
-4. **"Would I Forget?" test** — before ending a session: "If I started tomorrow, what would I wish I knew?" Save it.
-5. **Never save secrets** — no API keys, passwords, or credentials in memory files
-6. **Review anti-patterns proactively** — at session start, scan anti-patterns.md for reasoning failures relevant to today's task, not just when debugging
+1. **Load silently, save automatically** — don't announce hydration
+2. **Merge, don't duplicate; prune stale**
+3. **Save reasoning and user corrections** — WHY + corrections are high-priority saves
+4. **"Would I Forget?" test** — "If I started tomorrow, what would I wish I knew?" Save it.
+5. **Never save secrets** — no API keys, passwords, or credentials
+6. **Review anti-patterns proactively** — scan for reasoning failures relevant to today's task, not just when debugging

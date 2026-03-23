@@ -96,15 +96,6 @@ Sometimes a task spans multiple domains:
 
 **Rule:** Identify the PRIMARY domain (the one that drives decisions) and SECONDARY domains (supporting knowledge). Lead with the primary lens, supplement with secondary.
 
-## Token Economics
-
-- **Detection:** ~0 tokens (pattern matching on user message)
-- **Explicit activation:** ~50 tokens (identify domain + load mental models)
-- **Implicit activation:** ~30 tokens (detect from context)
-- **During output:** Net ZERO — expert framing doesn't add length, it adds precision. Often makes output SHORTER because experts are more direct.
-
-Total overhead: ~30-50 tokens per activation. The quality improvement is massive relative to cost.
-
 ## Rules
 
 1. **Frameworks over roleplay** — Load mental models, not character traits

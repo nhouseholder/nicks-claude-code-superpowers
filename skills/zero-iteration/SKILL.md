@@ -112,10 +112,6 @@ For any function you write, mentally run it with three inputs:
 If all three produce correct output → write the code.
 If any fails → fix the logic BEFORE writing.
 
-## Token Economics
-
-This skill costs zero tokens when code is correct (it's mental execution, not output). It only costs tokens when it catches a pre-bug — and those tokens are far cheaper than a debug cycle.
-
 ## Cross-Check Against Known Reasoning Failures
 
 Before writing code, mentally scan anti-patterns.md lessons (loaded at session start via total-recall). Ask: **"Am I about to make a mistake I've made before?"**

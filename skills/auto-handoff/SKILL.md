@@ -77,6 +77,8 @@ Write to `~/.claude/projects/<project>/memory/handoff.md`:
 
 ### Step 2: Commit to GitHub
 
+If working in an iCloud-synced directory, write the handoff to project memory but perform git operations (add, commit, push) from the project's non-iCloud clone (e.g., in /tmp/ or ~/tmp/). See CLAUDE.md git workflow.
+
 ```
 git add handoff.md
 git commit -m "Session handoff: [brief description of work in progress]"

@@ -5,28 +5,20 @@ description: Use when about to claim work is complete, fixed, or passing, before
 
 # Verification Before Completion
 
-## Overview
-
-Claiming work is complete without verification is dishonesty, not efficiency.
-
 **Core principle:** Evidence before claims, always.
-
-**Violating the letter of this rule is violating the spirit of this rule.**
 
 ## Speed Tiers — Match Verification to Risk
 
-Not every change needs a full verification ceremony:
-
 | Change Type | Verification | Example |
 |------------|-------------|---------|
-| **Config/text/style only** | Mental trace — no command needed | Changed a color, updated a string, edited docs |
-| **Single function, clear logic** | One targeted test or quick run | Added a null check, fixed a typo in logic |
-| **Multi-file feature or bug fix** | Full verification (run tests, check output) | New endpoint, scoring change, data pipeline fix |
+| **Config/text/style only** | Mental trace — no command needed | Changed a color, updated a string |
+| **Single function, clear logic** | One targeted test or quick run | Added a null check, fixed a typo |
+| **Multi-file feature or bug fix** | Full verification (run tests, check output) | New endpoint, scoring change |
 | **Deploy, migration, auth** | Full verification + smoke test | Anything user-facing in production |
 
-**The Iron Law still applies to Tier 3-4**: No completion claims without fresh verification evidence. But Tier 1-2 don't need a command run — mental verification or a quick check is sufficient.
+Tier 1-2: mental verification sufficient. **Tier 3-4: no completion claims without fresh verification evidence.**
 
-## Baseline Before Changing (ALL tiers)
+## Baseline Before Changing
 
 **Before modifying ANY data, values, or calculations, record the current state.**
 
@@ -36,245 +28,94 @@ CHANGING: [what you're about to change]
 AFTER: [verify these match or improve on BEFORE — any decrease = regression]
 ```
 
-If you don't record the BEFORE values, you cannot detect regressions. This is how "fixing combo" breaks ML — you never checked what ML was before your edit.
+If you don't record BEFORE values, you cannot detect regressions.
 
 ## Re-Read Your Own Output
 
-Before sending ANY response that contains data (tables, stats, P/L, numbers):
+Before sending ANY response that contains data:
 1. Read the table/data you're about to send
 2. Ask: "Does row X make mathematical sense?" Pick the most suspicious one.
-3. If any number looks wrong → fix it before sending
-4. If you can't verify → say "I'm not confident in these numbers" instead of claiming they're correct
+3. If any number looks wrong → fix before sending
+4. If you can't verify → say "I'm not confident in these numbers"
 
 ## Self-Contradiction Check
 
-Before sending, check that your WORDS match your DATA:
-- Saying "Fixed! All bet types now show correct P/L" while the table still shows $0.00 for wins = self-contradiction
-- Saying "All N issues addressed" while only addressing 2 of 5 = self-contradiction
-- Saying "The calculation is correct" while the output shows an obviously wrong number = self-contradiction
+Before sending, check that WORDS match DATA:
+- "Fixed! All bet types show correct P/L" while table shows $0.00 = self-contradiction
+- "All N issues addressed" while only 2 of 5 done = self-contradiction
 
-**The rule:** Triumphant claim + contradicting evidence = don't send it. Fix the data first, or retract the claim.
-
-Quick scan before sending: Does my summary text accurately describe what the data/code/output actually shows? If not, fix one or the other.
+**Rule:** Triumphant claim + contradicting evidence = fix the data or retract the claim.
 
 ## Multi-Item Completion Check
 
-When the user's request contains N distinct items (bugs, features, fixes, questions):
+When request contains N distinct items:
+1. **Enumerate** all N items before starting
+2. **Track** completion of each
+3. **Verify count** before claiming done — items listed must match items addressed
 
-1. **Enumerate them** — Before starting, list all N items mentally (or in TodoWrite)
-2. **Track completion** — After each item, mentally check it off
-3. **Verify before claiming done** — Before saying "done", count: how many items did the user list? How many did I address? They must match.
-
-**The failure pattern:** User lists 5 things. Claude fixes #1 and #2, gets absorbed in the work, says "Fixed!" User replies: "What about #3, #4, and #5?" This is entirely preventable by counting.
-
-If you run out of context or hit a blocker before completing all items, say: "Completed items 1-3 of 5. Items 4-5 (X, Y) still need to be addressed." Never claim done when you're partially done.
+If you can't complete all: "Completed items 1-3 of 5. Items 4-5 (X, Y) still need to be addressed."
 
 ## The Gate Function (Tier 3-4 only)
 
 ```
-BEFORE claiming any status or expressing satisfaction:
-
 1. IDENTIFY: What command proves this claim?
 2. RUN: Execute the FULL command (fresh, complete)
 3. READ: Full output, check exit code, count failures
 4. VERIFY: Does output confirm the claim?
-   - If NO: State actual status with evidence
-   - If YES: State claim WITH evidence
+   - NO: State actual status with evidence
+   - YES: State claim WITH evidence
 5. ONLY THEN: Make the claim
-
-Skip any step = lying, not verifying
 ```
 
-## Output Verification — Check What the User Actually Sees
+## Output Verification — Check What the User Sees
 
-**"I edited the code" is NOT verification. Verification means checking the OUTPUT.**
+**"I edited the code" is NOT verification. Check the OUTPUT.**
 
-For web/UI changes:
-- Use Claude in Chrome, preview tools, or curl to check the ACTUAL rendered page
-- Don't just verify "the code looks right" — verify "the page shows the right thing"
-- Check the actual numbers/text that appear, not just that something appears
-
-For data/table changes:
-- Pick one specific row and manually verify the values are correct
-- Check that ALL categories/columns are present (see proactive-qa completeness check)
-- Verify totals match the sum of their parts
-
-For algorithm/pipeline changes:
-- Check the actual output file/JSON, not just the console log saying "success"
-- Verify the output data against a known-correct example
-
-**The "I edited the code" trap:** This is the #1 failure mode. Claude edits 3 files, says "Fixed! The table now shows all bet types with correct units." But never actually looked at the rendered table. The user opens the page and finds 2 missing columns and wrong math. THIS IS WHAT WE'RE PREVENTING.
+- Web/UI: Use Chrome tools, preview, or curl to check the rendered page
+- Data/tables: Pick one row and manually verify values. Verify totals match sums.
+- Algorithm/pipeline: Check actual output file, not just console "success"
 
 ## Common Failures
 
 | Claim | Requires | Not Sufficient |
 |-------|----------|----------------|
-| Tests pass | Test command output: 0 failures | Previous run, "should pass" |
-| Linter clean | Linter output: 0 errors | Partial check, extrapolation |
-| Build succeeds | Build command: exit 0 | Linter passing, logs look good |
-| Bug fixed | Test original symptom: passes | Code changed, assumed fixed |
-| UI looks right | Screenshot or DOM check of actual page | "I updated the component" |
-| Table is correct | Verify actual cell values against expected | "I added the column" |
-| Requirements met | Line-by-line checklist | Tests passing |
+| Tests pass | Test output: 0 failures | Previous run, "should pass" |
+| Build succeeds | Build command: exit 0 | Linter passing |
+| Bug fixed | Test original symptom | Code changed, assumed fixed |
+| UI looks right | Screenshot or DOM check | "I updated the component" |
+| Table is correct | Verify actual cell values | "I added the column" |
 
-## Red Flags - STOP
+## Red Flags — STOP
 
 - Using "should", "probably", "seems to"
-- Expressing satisfaction before verification ("Great!", "Perfect!", "Done!", etc.)
+- Expressing satisfaction before verification ("Great!", "Done!")
 - About to commit/push/PR without verification
-- Trusting agent success reports
-- Relying on partial verification
-- Thinking "just this once"
-- Tired and wanting work over
+- Trusting agent success reports without checking
 - **ANY wording implying success without having run verification**
-
-## Rationalization Prevention
-
-| Excuse | Reality |
-|--------|---------|
-| "Should work now" | RUN the verification |
-| "I'm confident" | Confidence ≠ evidence |
-| "Just this once" | No exceptions |
-| "Linter passed" | Linter ≠ compiler |
-| "Agent said success" | Verify independently |
-| "I'm tired" | Exhaustion ≠ excuse |
-| "Partial check is enough" | Partial proves nothing |
-| "Different words so rule doesn't apply" | Spirit over letter |
-
-## Key Patterns
-
-**Tests:**
-```
-✅ [Run test command] [See: 34/34 pass] "All tests pass"
-❌ "Should pass now" / "Looks correct"
-```
-
-**Regression tests (TDD Red-Green):**
-```
-✅ Write → Run (pass) → Revert fix → Run (MUST FAIL) → Restore → Run (pass)
-❌ "I've written a regression test" (without red-green verification)
-```
-
-**Build:**
-```
-✅ [Run build] [See: exit 0] "Build passes"
-❌ "Linter passed" (linter doesn't check compilation)
-```
-
-**Requirements:**
-```
-✅ Re-read plan → Create checklist → Verify each → Report gaps or completion
-❌ "Tests pass, phase complete"
-```
-
-**Agent delegation:**
-```
-✅ Agent reports success → Check VCS diff → Verify changes → Report actual state
-❌ Trust agent report
-```
-
-## Why This Matters
-
-From 24 failure memories:
-- the user said "I don't believe you" - trust broken
-- Undefined functions shipped - would crash
-- Missing requirements shipped - incomplete features
-- Time wasted on false completion → redirect → rework
-- Violates: "Honesty is a core value. If you lie, you'll be replaced."
-
-## When To Apply
-
-**ALWAYS before:**
-- ANY variation of success/completion claims
-- ANY expression of satisfaction
-- ANY positive statement about work state
-- Committing, PR creation, task completion
-- Moving to next task
-- Delegating to agents
-
-**Rule applies to:**
-- Exact phrases
-- Paraphrases and synonyms
-- Implications of success
-- ANY communication suggesting completion/correctness
 
 ## Deep Verification Mode (Pre-PR / Pre-Deploy)
 
-For major completions (features, PRs, deploys), run the full 6-phase verification:
+For major completions, run 6-phase verification:
 
-### Phase 1: Build
-```bash
-npm run build 2>&1 | tail -20
-```
-If build fails → STOP. Fix before continuing.
+1. **Build**: `npm run build 2>&1 | tail -20` — fails → STOP
+2. **Type Check**: `npx tsc --noEmit` or `pyright .`
+3. **Lint**: `npm run lint` or `ruff check .`
+4. **Test Suite**: `npm run test -- --coverage` — report total, passed, failed, coverage %
+5. **Security Scan**: Check for hardcoded secrets, console.log, debug artifacts
+6. **Diff Review**: `git diff --stat` — review each file for unintended changes
 
-### Phase 2: Type Check
-```bash
-npx tsc --noEmit 2>&1 | head -30    # TypeScript
-pyright . 2>&1 | head -30            # Python
-```
-
-### Phase 3: Lint
-```bash
-npm run lint 2>&1 | head -30         # JS/TS
-ruff check . 2>&1 | head -30         # Python
-```
-
-### Phase 4: Test Suite
-```bash
-npm run test -- --coverage 2>&1 | tail -50
-```
-Report: total, passed, failed, coverage %.
-
-### Phase 5: Security Scan
-Check for hardcoded secrets, console.log statements, debug artifacts.
-
-### Phase 6: Diff Review
-```bash
-git diff --stat
-```
-Review each changed file for unintended changes, missing error handling, edge cases.
-
-### Verification Report Format
-```
-VERIFICATION REPORT
-==================
-Build:     [PASS/FAIL]
-Types:     [PASS/FAIL] (X errors)
-Lint:      [PASS/FAIL] (X warnings)
-Tests:     [PASS/FAIL] (X/Y passed, Z% coverage)
-Security:  [PASS/FAIL] (X issues)
-Diff:      [X files changed]
-
-Overall:   [READY/NOT READY] for PR
-```
-
-### When to Use Deep Mode
-- Before creating a PR
-- Before deploying to production
-- After major refactors
-- After completing a multi-file feature
-
-For quick fixes and single-file changes, the standard Gate Function is sufficient.
+Use Deep Mode before PRs, deploys, major refactors, multi-file features. Standard Gate Function sufficient for quick fixes.
 
 ## Repeat Bug Escalation
 
-When the user reports the SAME issue again after you claimed it was fixed:
+When user reports the SAME issue after you claimed it fixed:
 
-| Attempt | What Happened | Required Response |
-|---------|--------------|-------------------|
-| **1st claim → user says "still broken"** | Your verification was insufficient | Re-verify with ACTUAL testing, not mental trace. Reproduce the failure first. |
-| **2nd claim → user says "STILL broken"** | You failed to test the real code path | Full reproduce → fix → prove-fixed cycle. Show exact evidence. |
-| **3rd+ claim → user is frustrated** | Something fundamental is wrong with your approach | STOP fixing. Step back. Re-read the entire flow. You're likely fixing symptoms, not the root cause. |
+| Attempt | Required Response |
+|---------|-------------------|
+| 1st "still broken" | Re-verify with ACTUAL testing, not mental trace. Reproduce first. |
+| 2nd "STILL broken" | Full reproduce → fix → prove-fixed cycle. Show exact evidence. |
+| 3rd+ | STOP fixing. Re-read the entire flow. You're fixing symptoms, not root cause. |
 
-**The escalation rule**: Each repeated bug report DOUBLES your verification obligation. If mental trace was enough the first time and failed, real testing is required. If real testing failed, reproduce-first is required. Never apply the same level of verification that already failed.
+Each repeated report DOUBLES verification obligation. Never apply the same level of verification that already failed.
 
-Escalation cap: After 3 escalations (8x base verification), stop escalating and flag to user: "This may be a flaky test or infrastructure issue rather than a code bug. Recommend investigating the test environment." External failures (network, CI infra, flaky tests) do NOT trigger escalation — only genuine code bugs do.
-
-## The Bottom Line
-
-**No shortcuts for verification.**
-
-Run the command. Read the output. THEN claim the result.
-
-This is non-negotiable.
+Escalation cap: After 3 escalations, flag to user as possible flaky test or infrastructure issue. External failures (network, CI infra) do NOT trigger escalation.

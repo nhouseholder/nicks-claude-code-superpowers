@@ -1,218 +1,170 @@
 ---
 name: qa-gate
-description: Mandatory QA gate before delivering any feature, fix, or component. Dispatches an independent testing agent to exercise the implementation end-to-end before returning results to the user. The user should never be the one finding bugs — Claude finds them first.
+description: Mandatory QA gate before delivering any feature, fix, or component. Dispatches an independent testing agent to exercise the implementation end-to-end before returning results to the user.
 ---
 
 # QA Gate — Test It Before You Ship It
 
 ## Review Pipeline Coordination
 
-QA gate is ONE part of the review pipeline — not the entire pipeline. Avoid stacking:
+QA gate is ONE part of the review pipeline — avoid stacking:
 
-- **If subagent-driven-development already ran spec + code review**: QA gate should do Tier 1 (mental trace) only — the heavy review is already done.
-- **If requesting-code-review dispatched a reviewer**: QA gate should skip — the code is already being reviewed.
-- **If neither ran**: QA gate operates at full tier (1/2/3) based on change complexity.
+- **If subagent-driven-development already ran spec + code review**: QA gate does Tier 1 only.
+- **If a code review subagent already ran**: QA gate should skip.
+- **If neither ran**: QA gate operates at full tier based on change complexity.
 
 Never dispatch more than 2 total review agents for a single change.
 
-## The Problem This Solves
+## Code Review Triggers & Dispatch
 
-Claude delivers a feature, says "done," and the user immediately finds bugs. This is unacceptable. The user should NEVER be the first person to discover that something doesn't work. Claude must be its own QA department — testing every deliverable before handing it back.
+### When to Request Review
 
-## When This Fires
+**Mandatory:** After each task in subagent-driven development, after completing a major feature, before merge to main.
 
-### Complexity Tiers — Match QA Effort to Change Size
+**Optional:** When stuck (fresh perspective), before refactoring (baseline check), after fixing a complex bug.
+
+### SHA-Based Review Dispatch
+
+```bash
+BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main
+HEAD_SHA=$(git rev-parse HEAD)
+git diff --name-only $BASE_SHA..$HEAD_SHA  # files to review
+```
+
+Dispatch with: what was implemented, plan/requirements, base and head SHAs, files changed, areas to scrutinize.
+
+### Acting on Review Feedback
+
+| Priority | Action |
+|----------|--------|
+| **Critical** | Fix immediately before proceeding |
+| **Important** | Fix before proceeding to next task |
+| **Minor** | Note for later, don't block progress |
+| **Disagree** | Push back with technical reasoning |
+
+## Complexity Tiers
 
 | Tier | Change Type | QA Level |
 |------|------------|----------|
 | **Tier 3 — Full QA Gate** | New feature (multi-file), full-stack changes, algorithm overhaul, deployment-bound work | Dispatch independent QA subagent, full checklist, fix before delivery |
-| **Tier 2 — Inline Verification** | Single-component change, bug fix, API endpoint tweak, algorithm parameter change | Trace the code path with real inputs, check edge cases inline, no subagent needed |
-| **Tier 1 — Quick Sanity Check** | Small fix (1-2 lines), style/layout tweak, single function change | Mentally verify correctness, check for obvious breakage, move on |
-| **Skip** | Config-only, docs, git ops, memory/skill files, unused code deletion, User explicitly requests skipping QA (acknowledge the skip in your response so it's visible) | No QA needed |
-
-**The rule:** Tier 3 is the mandatory full gate. Tiers 1-2 scale down proportionally. Never skip entirely on behavioral changes.
+| **Tier 2 — Inline Verification** | Single-component change, bug fix, API endpoint tweak, algorithm parameter change | Trace code path with real inputs, check edge cases inline, no subagent needed |
+| **Tier 1 — Quick Sanity Check** | Small fix (1-2 lines), style/layout tweak, single function change | Mentally verify correctness, check for obvious breakage |
+| **Skip** | Config-only, docs, git ops, memory/skill files, unused code deletion, user explicitly requests skip | No QA needed |
 
 ## The QA Protocol
 
 ### Step 1 — Determine Test Scope
 
-Based on what changed, identify what needs testing:
-
 | Change Type | Test Scope |
 |-------------|------------|
-| **Frontend component** | Render without errors, props/state work, user interactions, edge cases (empty data, loading, error states) |
-| **API endpoint** | Request/response shape, error handling, auth, edge cases (missing params, invalid input) |
+| **Frontend component** | Render without errors, props/state, user interactions, edge cases (empty, loading, error) |
+| **API endpoint** | Request/response shape, error handling, auth, edge cases |
 | **Algorithm/scoring** | Input → output correctness, edge cases, regression against known-good values |
 | **Database/data** | Schema integrity, query correctness, migration safety |
-| **Full feature** | All of the above + integration between layers |
-| **Bug fix** | The specific bug is fixed + no regression in surrounding functionality |
+| **Full feature** | All above + integration between layers |
+| **Bug fix** | Specific bug fixed + no regression in surrounding functionality |
 
-### Step 2 — Execute Tests (dispatch subagent when beneficial)
+### Step 2 — Execute Tests
 
-For non-trivial changes, dispatch an independent QA subagent:
+For non-trivial changes, dispatch an independent QA subagent with: what was built, files changed, expected behavior, specific test cases. Report: pass/fail per scenario, bugs found, edge cases missed.
 
-```
-Agent brief: "You are a QA engineer. Test the following implementation:
-- What was built: [description]
-- Files changed: [list]
-- Expected behavior: [what it should do]
-- Test these scenarios: [specific test cases]
-Report: pass/fail for each scenario, any bugs found, any edge cases missed."
-```
+**When to use subagent vs inline:**
+- **Subagent**: Multi-file features, UI components, API endpoints, multiple interaction paths
+- **Inline**: Single-function fixes, algorithm tweaks with clear input/output
 
-**When to use a subagent vs test inline:**
-- **Subagent**: Multi-file features, UI components, API endpoints, anything with multiple interaction paths
-- **Inline**: Single-function fixes, algorithm tweaks with clear input/output, simple config changes that still need verification
+### Step 3 — Test Checklist
 
-### Step 3 — Test Checklist (mental or actual, based on scope)
-
-#### Frontend Changes
+#### Frontend
 - [ ] Component renders without console errors
-- [ ] All interactive elements respond correctly (clicks, inputs, navigation)
-- [ ] Loading states display properly
-- [ ] Empty/null data doesn't crash the component
-- [ ] Error states are handled (API failure, invalid data)
-- [ ] Mobile/responsive layout isn't broken (if applicable)
+- [ ] Interactive elements respond correctly
+- [ ] Loading/empty/error states display properly
 - [ ] No regressions in adjacent components
 
-#### Backend/API Changes
-- [ ] Endpoint returns correct response shape
-- [ ] Error cases return appropriate status codes
+#### Backend/API
+- [ ] Correct response shape and status codes
 - [ ] Input validation catches bad data
-- [ ] Auth/permissions enforced correctly
+- [ ] Auth/permissions enforced
 - [ ] No N+1 queries or performance regressions
 
-#### Algorithm Changes
+#### Algorithm
 - [ ] Output matches expected values for known inputs
 - [ ] Edge cases handled (zero, null, extreme values, empty arrays)
 - [ ] No regression against baseline metrics
-- [ ] Performance acceptable (not 10x slower)
 
-#### Data Pipeline Changes
-- [ ] Idempotent (running twice doesn't duplicate data)
-- [ ] Handles missing/malformed source data gracefully
+#### Data Pipeline
+- [ ] Idempotent (running twice doesn't duplicate)
+- [ ] Handles missing/malformed data gracefully
 - [ ] Output schema matches consumer expectations
-- [ ] Error reporting works (failures don't fail silently)
 
 ### Step 4 — Fix Before Delivering
 
-If ANY test fails:
-1. Fix the issue immediately
-2. Re-run the failed tests
-3. Only proceed to delivery when all tests pass
-4. Mention what you caught and fixed: "Found and fixed: [issue] — [how it was resolved]"
+If ANY test fails: fix immediately, re-run, only deliver when all pass. Mention what you caught: "Found and fixed: [issue] — [resolution]"
 
-This is NOT optional. Do not deliver known-broken code with a disclaimer.
+Do not deliver known-broken code with a disclaimer.
 
-### Bug Fix Verification — The "Try Now" Ban
+### Bug Fix Verification Protocol
 
-**When fixing a reported bug, you MUST prove the fix works before telling the user to try it.**
+| Attempt | Minimum Verification |
+|---------|---------------------|
+| **1st fix** | Tier 2 minimum — trace the exact bug scenario through fixed code with real inputs |
+| **2nd fix (same bug)** | Tier 3 mandatory — dispatch QA subagent. First mental trace failed. |
+| **3rd+ fix** | Tier 3 + reproduce bug first. Prove you can trigger original failure, fix, prove failure is gone. |
 
-This is the #1 trust-destroying failure mode: user reports a bug → Claude changes code → Claude says "try now, it should work" → it still doesn't work → repeat 3-4 times → user loses faith.
-
-#### Bug Fix Verification Protocol
-
-| Attempt | Minimum Verification | Rationale |
-|---------|---------------------|-----------|
-| **1st fix** | Tier 2 minimum — trace the EXACT bug scenario through the fixed code with real inputs. Run the app/tests if possible. | Standard diligence |
-| **2nd fix (same bug)** | Tier 3 mandatory — dispatch QA subagent. The mental trace clearly failed the first time. | Escalation — your first fix didn't work |
-| **3rd+ fix (same bug)** | Tier 3 + reproduce the bug first. Before fixing, PROVE you can trigger the original failure. Then fix. Then prove the failure is gone. | Full red-green cycle — something fundamental was missed |
-
-#### The Rules of Bug Fix Verification
-
-1. **NEVER say "try now" or "it should work" without having tested the exact failure scenario yourself**
-2. **If the user reports the same bug twice, your previous verification was insufficient** — escalate, don't repeat the same level of checking
-3. **Reproduce before fixing on 2nd+ attempts** — if you can't trigger the bug, you can't confirm you fixed it
-4. **Run the actual code path** — don't just read the code and think it looks right. Start the server, hit the endpoint, render the component, upload the file, whatever the bug involves
-5. **Show your evidence** — "I tested this by [exact action] and got [exact result]" not "this should work now"
-6. **If you can't test it yourself** (e.g., requires user's browser, specific device, auth credentials), say so explicitly: "I've verified X and Y, but I can't test Z from here — please verify that specific part"
-
-#### What "Testing a Bug Fix" Actually Means
-
-```
-❌ BAD: Change code → "Try now, it should be working"
-❌ BAD: Change code → Run build → "Build passes, should be fixed"
-❌ BAD: Change code → Read the code → "The logic looks correct now"
-
-✅ GOOD: Change code → Run the app → Trigger the exact bug scenario → Confirm it no longer fails → "Tested: [action] now produces [result] instead of [old failure]"
-✅ GOOD: Change code → Write a test for the exact failure → Run test → Green → "Regression test passes"
-✅ GOOD: Change code → Can't test end-to-end → "I've fixed [root cause] and verified [what I could check], but please test [specific user action] since I can't simulate your browser environment"
-```
+**Rules:**
+1. NEVER say "try now" without having tested the exact failure scenario yourself
+2. Same bug reported twice = your previous verification was insufficient — escalate
+3. Reproduce before fixing on 2nd+ attempts
+4. Run the actual code path — don't just read the code
+5. Show evidence: "I tested by [action] and got [result]"
+6. If you can't test it (requires user's browser, specific device), say so explicitly
 
 ### Step 5 — Report to User
 
-When delivering, include a brief QA summary:
 ```
 Tested: [what was tested]
 Verified: [key scenarios that passed]
-Fixed during QA: [anything caught and fixed, if applicable]
+Fixed during QA: [anything caught and fixed]
 ```
 
-Keep this to 2-3 lines. Don't write a QA novel — just enough so the user knows it was tested.
-
-## What "Testing" Actually Means
-
-It does NOT mean:
-- Just running `npm run build` and seeing no errors
-- Just reading the code and thinking it looks right
-- Just running existing test suites (those may not cover the new feature)
-- Saying "I've verified this works" without actually verifying
-
-It DOES mean:
-- **Actually exercising the code path** — trace real inputs through the logic
-- **Checking the output** — does it produce the right result?
-- **Testing edge cases** — empty data, null values, error conditions
-- **Verifying integration** — does it work with the components it connects to?
-- **Running the app** (when possible) — start the dev server, hit the endpoint, render the component
-- **Reading console/terminal output** — don't just run a command, read what it said
+Keep to 2-3 lines.
 
 ## Subagent QA Brief Template
 
-When dispatching a QA subagent, give it everything it needs:
-
 ```
-You are an independent QA engineer. Your job is to find bugs before the user does.
+You are an independent QA engineer. Find bugs before the user does.
 
 ## What was built
-[Description of the feature/fix]
+[Description]
 
 ## Files to review
-[List of changed files with brief description of each change]
+[Changed files with brief description]
 
 ## Test scenarios
-1. [Happy path — normal expected usage]
+1. [Happy path]
 2. [Edge case — empty/null/missing data]
-3. [Error path — what happens when things go wrong]
-4. [Integration — does it work with connected components]
-5. [Regression — does existing functionality still work]
+3. [Error path]
+4. [Integration with connected components]
+5. [Regression — existing functionality]
 
 ## How to test
-- Read the changed files
-- Trace the logic with concrete inputs
+- Read changed files, trace logic with concrete inputs
 - Check for: unhandled errors, missing null checks, incorrect state management,
   broken imports, type mismatches, async race conditions
-- If a dev server is running, test the actual endpoint/page
-- Report every issue found, ranked by severity
+- If dev server is running, test actual endpoint/page
+- Report every issue, ranked by severity
 
 ## Output format
 For each scenario: PASS or FAIL with details
-Bugs found: [list with file:line and description]
+Bugs found: [file:line and description]
 Recommendation: SHIP or FIX FIRST
 ```
 
-## Token Economics
-
-Match testing effort to tier: Tier 1 ~10-20 tokens (mental trace), Tier 2 ~50-100 tokens (inline verify), Tier 3 ~200-500 tokens (subagent). Finding bugs before delivery is always net-positive on tokens.
-
 ## Rules
 
-1. **Never deliver untested code** — If it changed behavior, it gets tested before the user sees it
-2. **The user should never find bugs first** — That's Claude's job
-3. **Fix before delivering** — Don't deliver with "known issues." Fix them.
-4. **Test the actual behavior, not just the code** — Reading code is not testing. Exercise the code path.
-5. **Scope appropriately** — Config changes don't need a QA subagent. New features do.
-6. **Report what you tested** — Brief QA summary so the user knows it was verified
-7. **Subagent for non-trivial work** — Independent eyes catch what the builder misses
-8. **Edge cases are mandatory** — Happy path + at least one edge case, always
-9. **Never say "try now" without evidence** — Bug fixes require proof. "Should work" is not proof.
-10. **Escalate on repeat bugs** — 2nd report of the same bug = Tier 3 mandatory. Your first fix failed; your verification was insufficient.
+1. **Never deliver untested code** — If it changed behavior, test before the user sees it
+2. **Fix before delivering** — Don't deliver with "known issues"
+3. **Test actual behavior, not just code** — Reading code is not testing
+4. **Scope appropriately** — Config changes don't need a QA subagent. New features do.
+5. **Edge cases are mandatory** — Happy path + at least one edge case, always
+6. **Never say "try now" without evidence** — Bug fixes require proof
+7. **Escalate on repeat bugs** — 2nd report = Tier 3 mandatory

@@ -134,13 +134,6 @@ Before any action, spend 1-2 seconds mentally checking:
 - If the approach is wrong, don't keep tweaking parameters — change the approach
 - If you're unsure whether something is worth doing, do the CHEAPEST check first
 
-## Token Economics
-
-- **Per-action overhead**: ~0 tokens (mental filter, no output)
-- **Savings when catching waste**: 100-5000 tokens per prevented pointless action
-- **Backtesting savings**: Often 50-70% token reduction by using efficient search instead of linear sweep
-- **Net impact**: One of the highest-ROI skills in the entire stack
-
 ## Output Efficiency (formerly token-awareness)
 
 When producing output, be concise:

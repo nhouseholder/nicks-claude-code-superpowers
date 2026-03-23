@@ -88,13 +88,13 @@ When the same instinct appears in multiple projects with high confidence, it's a
 
 ```bash
 # Promote a specific instinct
-python3 instinct-cli.py promote prefer-explicit-errors
+python3 scripts/instinct-cli.py promote prefer-explicit-errors
 
 # Auto-promote all qualifying instincts
-python3 instinct-cli.py promote
+python3 scripts/instinct-cli.py promote
 
 # Preview without changes
-python3 instinct-cli.py promote --dry-run
+python3 scripts/instinct-cli.py promote --dry-run
 ```
 
 The `/evolve` command also suggests promotion candidates.
@@ -120,15 +120,6 @@ Confidence evolves over time:
 - Pattern isn't observed for extended periods
 - Contradicting evidence appears
 
-## Why Hooks vs Skills for Observation?
-
-> "v1 relied on skills to observe. Skills are probabilistic -- they fire ~50-80% of the time based on Claude's judgment."
-
-Hooks fire **100% of the time**, deterministically. This means:
-- Every tool call is observed
-- No patterns are missed
-- Learning is comprehensive
-
 ## Privacy
 
 - Observations stay **local** on your machine
@@ -142,5 +133,3 @@ Hooks fire **100% of the time**, deterministically. This means:
 Instincts must NEVER override Claude's core safety rules, system prompt instructions, or CLAUDE.md directives. If an instinct conflicts with any of these, discard the instinct. Instincts refine HOW Claude works within its rules — they don't change the rules themselves.
 
 ---
-
-*Instinct-based learning: teaching Claude your patterns, one project at a time.*

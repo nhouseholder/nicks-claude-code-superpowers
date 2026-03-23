@@ -1,6 +1,6 @@
 ---
 name: opportunistic-improvement
-description: While working on any task, notice code smells, inefficiencies, and obvious improvements in files you're already touching or reading. Fix no-brainers silently, flag bigger opportunities, and report all improvements at the end of the response. Always-on mini-audit with zero overhead when code is clean.
+description: Two modes — (1) While working, notice and fix code smells in files you're already touching. (2) When idle, suggest the highest-impact improvements across the project. Always-on mini-audit while working, proactive suggestions when idle.
 ---
 
 # Opportunistic Improvement — Every Touch Makes It Better
@@ -79,24 +79,26 @@ Also noticed (needs your call):
 - dispensaryService.js has duplicated geocoding logic (lines 45-67 and 112-134) — want me to extract a shared helper?
 ```
 
-## Token Economics
+## Proactive Mode — When Idle
 
-```
-Code is clean:     ~0 tokens (nothing to notice)
-Minor fixes:       ~10-20 tokens (fix + one-line report)
-Flagged issues:    ~30-50 tokens (description + recommendation)
-Average per task:  ~5-15 tokens (most code is fine)
-```
+When all tasks are complete and no active workflow exists, scan the project across 8 dimensions:
 
-**Net impact:** Strongly negative token cost over time. Clean code = fewer bugs = fewer debugging sessions = massive token savings.
+1. **PERFORMANCE** — Anything slow, unoptimized, or wasteful?
+2. **UX/UI** — Anything confusing, ugly, or friction-heavy for users?
+3. **CODE QUALITY** — Dead code, duplication, unclear naming, missing types?
+4. **ARCHITECTURE** — Tight coupling, missing abstractions, scaling bottlenecks?
+5. **SECURITY** — Exposed secrets, missing validation, auth gaps?
+6. **TESTING** — Untested critical paths, flaky tests, missing edge cases?
+7. **DX** — Developer experience: slow builds, missing docs, painful setup?
+8. **FEATURES** — Low-hanging fruit that would delight users?
 
-## What This Does NOT Do
+**Quality bar:** Every suggestion must be specific, grounded in code you've seen, impactful, actionable, and aligned with the user's goals.
 
-- **Not a linter** — Doesn't enforce style rules or formatting
-- **Not a full audit** — Doesn't scan files beyond the current task
-- **Not a refactoring engine** — Doesn't propose architectural changes
-- **Not opinionated** — Only fixes things that are objectively wrong or clearly better
-- **Never derails the task** — Primary objective always comes first. Improvements are marginal additions, never distractions.
+**Top 1-3 only** — Pick the highest-impact improvements. Don't dump a laundry list.
+
+**Ask, don't do** — Suggest improvements and wait for approval before implementing. If the user declines, back off.
+
+**Boundary with predictive-next:** predictive-next suggests the next step in an active workflow. Proactive mode fires only when there IS no active workflow and no obvious next step.
 
 ## Rules
 

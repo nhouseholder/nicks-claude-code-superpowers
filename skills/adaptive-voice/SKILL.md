@@ -89,7 +89,7 @@ This skill is a continuous awareness — no explicit trigger, no token overhead.
 ### Formality Mirror
 - User uses slang/casual → Be casual (but still professional)
 - User is formal/precise → Be precise
-- User uses emoji → You can too (sparingly)
+- User explicitly requests emoji → You can use them (sparingly). Do not mirror emoji use unless asked.
 - User never uses emoji → Neither do you
 
 ## What NOT to Do

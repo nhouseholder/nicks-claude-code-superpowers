@@ -1,142 +1,117 @@
 ---
 name: dispatching-parallel-agents
-description: Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies
+description: Parallel agent orchestrator with two modes — simple dispatch for known independent tasks, and complex orchestration for tasks requiring decomposition first. The CEO model — analyze, delegate, coordinate, deliver.
 ---
 
-# Dispatching Parallel Agents
+# Parallel Agent Orchestration
 
-## Overview
+## Two Modes
 
-You delegate tasks to specialized agents with isolated context. By precisely crafting their instructions and context, you ensure they stay focused and succeed at their task. They should never inherit your session's context or history — you construct exactly what they need. This also preserves your own context for coordination work.
+### Mode 1: Simple Dispatch
+You already KNOW the 2-3 independent tasks (e.g., "fix tests in fileA, fileB, fileC in parallel"). Jump straight to agent briefing and dispatch.
 
-When you have multiple unrelated failures (different test files, different subsystems, different bugs), investigating them sequentially wastes time. Each investigation is independent and can happen in parallel.
+### Mode 2: Complex Orchestration
+You need to FIGURE OUT the task decomposition first (e.g., "build this entire feature"). Run the decomposition phase, then dispatch.
 
-**Core principle:** Dispatch one agent per independent problem domain. Let them work concurrently.
+**Decision rule:** If you can list the independent tasks in <10 seconds of thought, use Simple Dispatch. If you need to analyze the problem space first, use Complex Orchestration.
 
-## Boundary with command-center
-
-Use dispatching-parallel-agents when you already KNOW the 2-3 independent tasks (e.g., 'fix tests in fileA, fileB, fileC in parallel'). Use command-center when you need to FIGURE OUT the task decomposition first (e.g., 'build this entire feature' requires analysis before parallelization). If in doubt, default to dispatching-parallel-agents — it's simpler and cheaper.
-
-## When to Use
-
-Decision flow: Multiple failures? -> If independent and no shared state -> parallel dispatch. If related -> single agent. If shared state -> sequential agents.
+## When to Activate
 
 **Use when:**
-- 3+ test files failing with different root causes
-- Multiple subsystems broken independently
-- Each problem can be understood without context from others
-- No shared state between investigations
+- 2+ independent tasks with no shared state or sequential dependencies
+- Multi-domain work (frontend + backend, research + implementation)
+- Each workstream is substantial enough to justify a dedicated agent
 
-**Don't use when:**
-- Failures are related (fix one might fix others)
-- Need to understand full system state
-- Agents would interfere with each other
-- **Tasks share data or calculations** — if fixing bet type A uses the same payout function as bet type B, do them sequentially. Parallel agents on shared data = regressions. One agent's "fix" silently breaks the other's results.
-- **Tasks touch the same files** — two agents editing the same component/function = merge conflicts and lost work
-- **The output needs cross-validation** — if you need to check "do all columns add up to the total?", a single agent must see all columns
+**Do NOT use when:**
+- Single-file changes or simple bug fixes
+- Tasks are strictly sequential (each depends on the previous)
+- Agents would edit the same files (merge conflicts)
+- Tasks share data or calculations (parallel agents on shared data = regressions)
+- The output needs cross-validation across tasks
+- You can handle it yourself in <2 minutes
 
-## The Pattern
+**Activation test:** "Would I be faster doing this myself, or by briefing specialists?" If specialists, activate.
 
-### 1. Identify Independent Domains
+## Phase 1: Decomposition (Complex Orchestration Only)
 
-Group failures by what's broken:
-- File A tests: Tool approval flow
-- File B tests: Batch completion behavior
-- File C tests: Abort functionality
-
-Each domain is independent - fixing tool approval doesn't affect abort tests.
-
-### 2. Create Focused Agent Tasks
-
-Each agent gets:
-- **Specific scope:** One test file or subsystem
-- **Clear goal:** Make these tests pass
-- **Constraints:** Don't change other code
-- **Expected output:** Summary of what you found and fixed
-- **Anti-patterns:** Relevant entries from anti-patterns.md (so the agent doesn't repeat known-bad approaches)
-- **Project conventions:** Key patterns from MEMORY.md relevant to this agent's scope
-
-### 3. Dispatch in Parallel
-
-```typescript
-// In Claude Code / AI environment
-Task("Fix agent-tool-abort.test.ts failures")
-Task("Fix batch-completion-behavior.test.ts failures")
-Task("Fix tool-approval-race-conditions.test.ts failures")
-// All three run concurrently
+```
+MISSION: [What the user wants — one sentence]
+WORKSTREAMS:
+  1. [Domain] — [What this agent does] — [Dependencies: none / needs X first]
+  2. [Domain] — [What this agent does] — [Dependencies: none / needs X first]
+PARALLEL: [Which run simultaneously]
+SEQUENTIAL: [Which must wait for others]
 ```
 
-### 4. Review and Integrate
+**How many agents?** Use the MINIMUM needed. 2 for single-domain, 3-4 for multi-domain, max 5 for full-stack. Ask the user before launching >5.
+
+**Research-First vs Execute-First:** If the path is unclear (unknown bugs, library choices), run a research wave first, then implementation. If the path is clear, deploy all agents simultaneously.
+
+**Decomposition examples:**
+- Feature build: Frontend agent (component + routing) | Backend agent (API + storage) | Test agent (unit + integration)
+- Research + implementation: Research wave first (explore options) → Build wave (execute chosen path)
+- Multi-file refactor: One agent per subsystem, all parallel
+
+## Phase 2: Agent Briefing
+
+Each agent gets a focused, SELF-CONTAINED brief (no conversation history):
+
+```
+AGENT BRIEF:
+- ROLE: "You are a [domain expert] working on [project name]"
+- MISSION: [Specific deliverable — not the whole task]
+- CONTEXT: [Only the files/info THIS agent needs]
+- CONSTRAINTS: [Budget, style conventions, patterns to follow]
+- OUTPUT: [Exact format expected back]
+```
+
+### Context Budgeting (Mandatory)
+
+Each agent gets the MINIMUM context needed:
+- Project conventions from MEMORY.md relevant to the agent's domain
+- Anti-patterns from anti-patterns.md that could affect the agent's work
+- User preferences affecting code style, naming, or approach
+- Recurring bug entries if the agent is touching affected code
+
+NEVER dump the entire codebase context into every agent. A test agent doesn't need deploy config.
+
+## Phase 3: Parallel Dispatch
+
+Launch all independent agents simultaneously using the Agent tool. Dependent workstreams wait for prerequisites and launch in the next wave.
+
+- Use `Agent` tool with `subagent_type: "general-purpose"`
+- Launch independent agents in a SINGLE message (parallel execution)
+- NEVER launch duplicate agents for the same workstream
+
+**Priority assignment:** CRITICAL = core functionality blocking everything (retry on failure). HIGH = user-facing work (report failure). MEDIUM/LOW = tests, docs, cleanup (note for later).
+
+## Phase 4: Review and Integrate
 
 When agents return:
-- Read each summary
-- Verify fixes don't conflict
-- Run full test suite
-- Integrate all changes
+1. **Review each result** — does it meet the quality bar?
+2. **Check for conflicts** — incompatible decisions between agents?
+3. **Resolve conflicts** — project conventions as tiebreaker; primary domain agent wins logic conflicts; true conflicts escalate to user
+4. **Run builds/tests** — confirm everything works together
+5. **Report** — brief the user on what was accomplished
 
-## Agent Prompt Structure
+### Quality Gate
 
-Good agent prompts are:
-1. **Focused** - One clear problem domain
-2. **Self-contained** - All context needed to understand the problem
-3. **Specific about output** - What should the agent return?
+Before reporting:
+- All agents completed successfully
+- No conflicting changes between agents
+- Code compiles/builds, tests pass
+- Changes consistent with project patterns
+- Nothing missed in decomposition
 
-```markdown
-Fix the 3 failing tests in src/agents/agent-tool-abort.test.ts:
+If any check fails, fix it before reporting.
 
-1. "should abort tool with partial output capture" - expects 'interrupted at' in message
-2. "should handle mixed completed and aborted tools" - fast tool aborted instead of completed
-3. "should properly track pendingToolCount" - expects 3 results but gets 0
-
-These are timing/race condition issues. Your task:
-
-1. Read the test file and understand what each test verifies
-2. Identify root cause - timing issues or actual bugs?
-3. Fix by:
-   - Replacing arbitrary timeouts with event-based waiting
-   - Fixing bugs in abort implementation if found
-   - Adjusting test expectations if testing changed behavior
-
-Do NOT just increase timeouts - find the real issue.
-
-Return: Summary of what you found and what you fixed.
-```
-
-## Common Mistakes
-
-**❌ Too broad:** "Fix all the tests" - agent gets lost
-**✅ Specific:** "Fix agent-tool-abort.test.ts" - focused scope
-
-**❌ No context:** "Fix the race condition" - agent doesn't know where
-**✅ Context:** Paste the error messages and test names
-
-**❌ No constraints:** Agent might refactor everything
-**✅ Constraints:** "Do NOT change production code" or "Fix tests only"
-
-**❌ Vague output:** "Fix it" - you don't know what changed
-**✅ Specific:** "Return summary of root cause and changes"
-
-## When NOT to Use
-
-**Related failures:** Fixing one might fix others - investigate together first
-**Need full context:** Understanding requires seeing entire system
-**Exploratory debugging:** You don't know what's broken yet
-**Shared state:** Agents would interfere (editing same files, using same resources)
-
-## Plan Execution Mode (from subagent-driven-development)
+## Plan Execution Mode
 
 When executing an implementation plan with independent tasks:
 
-1. Read plan, extract all tasks, create TodoWrite
-2. **Per Task**: Dispatch implementer → review → mark complete
-3. After all tasks → final review of entire implementation
-
-### Cost-Aware Review
-
-Not every task needs the full review pipeline:
-- **Simple/isolated changes**: Implementer + self-review sufficient
-- **If qa-gate runs after**: Skip code quality reviewer — qa-gate covers it
-- **Full pipeline only for**: Multi-file architectural changes with no other review planned
+1. Read plan, extract all tasks
+2. **Per Task**: Dispatch implementer -> review -> mark complete
+3. After all tasks -> final review of entire implementation
 
 ### Implementer Status Handling
 
@@ -145,15 +120,31 @@ Not every task needs the full review pipeline:
 | **DONE** | Proceed to review |
 | **DONE_WITH_CONCERNS** | Read concerns, address if correctness/scope, then review |
 | **NEEDS_CONTEXT** | Provide missing context, re-dispatch |
-| **BLOCKED** | Assess: more context? more capable model? break into smaller pieces? escalate? |
+| **BLOCKED** | Assess: more context? break into smaller pieces? escalate? |
 
 **Never** force same model to retry without changes. If stuck, something needs to change.
+
+### Cost-Aware Review
+
+- **Simple/isolated changes**: Implementer + self-review sufficient
+- **If qa-gate runs after**: Skip code quality reviewer — qa-gate covers it
+- **Full pipeline only for**: Multi-file architectural changes with no other review planned
 
 ## Verification
 
 After agents return:
-1. **Review each summary** — understand what changed
-2. **Check for conflicts** — did agents edit same code?
-3. **Run full suite** — verify all fixes work together
-4. **Spot check** — agents can make systematic errors
+1. Review each summary — understand what changed
+2. Check for conflicts — did agents edit same code?
+3. Run full suite — verify all fixes work together
+4. Spot check — agents can make systematic errors
 
+## Rules
+
+1. **Activation test first** — don't orchestrate when you should just execute
+2. **Self-contained briefs** — each agent must succeed without conversation history
+3. **Parallel by default** — if two things CAN run in parallel, they MUST
+4. **Resolve before reporting** — never hand the user conflicting agent outputs
+5. **Budget awareness** — estimate token cost; ask for >5 agents
+6. **No theater** — brief status, then results
+7. **Quality gate** — build/test must pass before declaring success
+8. **Focused agents** — each agent does ONE thing well, not everything mediocrely

@@ -124,15 +124,6 @@ If the user previously sent a queue/correction and then says "continue":
 
 Classification is instant and invisible for normal messages (addendum, queue). Exception: Urgent interrupts ('STOP', 'wait', 'hold on') immediately pause the current task — this is the ONE case where triage is visible. Resume the paused task only after the user confirms.
 
-## Token Economics
-
-- Classification: ~0 tokens (instant pattern matching, no output)
-- Addendum handling: ~0 extra tokens (just incorporated into ongoing work)
-- Course correction acknowledgment: ~10 tokens (one line)
-- Queue acknowledgment: ~15 tokens (one line + mental note)
-
-Total overhead: Near zero. This skill SAVES tokens by preventing stop-start cycles, re-orientation, and "where were we?" conversations.
-
 ## Rules
 
 1. **Never stop to classify (except urgent interrupts)** — Classification is instant and invisible for addendum/queue; urgent interrupts visibly pause

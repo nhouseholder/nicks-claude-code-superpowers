@@ -133,17 +133,6 @@ Before starting any task that takes >60 seconds:
 3. **Estimate runtime** — tell the user "this will take ~X minutes"
 4. **Choose the right path** — if a cache is missing, acknowledge the scraping cost upfront rather than discovering it mid-run
 
-## Token Economics
-
-This skill operates on a "check only when relevant" basis:
-
-- **Port check before server start**: 1 shell command (~50 tokens)
-- **Process health check when something fails**: 1-2 commands (~100 tokens)
-- **Session-end status**: Only if there ARE running processes (~30 tokens)
-- **Normal operation with no issues**: Zero additional tokens
-
-No polling. No periodic checks. Only check when an event triggers it.
-
 ## Rules
 
 1. **Check before starting** — Always check for port conflicts before launching servers
