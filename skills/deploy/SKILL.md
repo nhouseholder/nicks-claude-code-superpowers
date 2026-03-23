@@ -71,6 +71,29 @@ Also verify:
 - KV cache is accessible (if applicable)
 - Workers AI endpoints respond (if applicable)
 
+### 5b. Data Count Verification (for sites with dynamic data)
+
+Before deploying (step 3), snapshot key data counts from the live site:
+```bash
+# Snapshot pre-deploy counts (adjust endpoints per project)
+PRE_EVENTS=$(curl -s https://<API>/events | jq 'length')
+PRE_PICKS=$(curl -s https://<API>/picks | jq 'length')
+echo "PRE-DEPLOY: $PRE_EVENTS events, $PRE_PICKS picks" > .deploy_baseline
+```
+
+After deploying (step 5), compare:
+```bash
+POST_EVENTS=$(curl -s https://<API>/events | jq 'length')
+POST_PICKS=$(curl -s https://<API>/picks | jq 'length')
+
+if [ "$POST_EVENTS" -lt "$((PRE_EVENTS * 95 / 100))" ]; then
+  echo "DATA REGRESSION: Events dropped from $PRE_EVENTS to $POST_EVENTS"
+  # Trigger rollback
+fi
+```
+
+**If any data count dropped >5%, rollback immediately.** A site that loads with missing data is worse than a failed deploy.
+
 ### 6. Rollback on Failure
 If verification fails:
 ```bash
