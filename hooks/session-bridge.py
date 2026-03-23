@@ -6,7 +6,22 @@ Prevents re-processing older messages in the same session.
 import json
 import sys
 import os
+import urllib.request
 from pathlib import Path
+
+
+def detect_model():
+    """Detect current model from CLAUDE_MODEL env var or proxy's /last-route."""
+    model = os.environ.get("CLAUDE_MODEL", "")
+    if not model:
+        try:
+            resp = urllib.request.urlopen("http://127.0.0.1:17532/last-route", timeout=1)
+            data = json.loads(resp.read())
+            model = data.get("model", "")
+        except Exception:
+            pass
+    return model.lower()
+
 
 try:
     hook_input = json.load(sys.stdin)
@@ -15,8 +30,8 @@ try:
     if event != "UserPromptSubmit":
         sys.exit(0)
 
-    model = os.environ.get("CLAUDE_MODEL", "").lower()
-    if "haiku" not in model:
+    model_lower = detect_model()
+    if "haiku" not in model_lower:
         sys.exit(0)
 
     prompt = hook_input.get("prompt", "")
