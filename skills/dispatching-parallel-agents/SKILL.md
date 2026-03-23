@@ -45,6 +45,8 @@ SEQUENTIAL: [Which must wait for others]
 
 **How many agents?** Use the MINIMUM needed. 2 for single-domain, 3-4 for multi-domain, max 5 for full-stack. Ask the user before launching >5.
 
+**Rate limit awareness:** When using Opus, limit to 2-3 concurrent agents. Opus has tighter per-minute token limits — 4+ simultaneous Opus agents will trigger "Rate limit reached" errors even at low quota usage. For 4+ agents, use Sonnet for execution-tier agents and reserve Opus for the thinking-tier ones.
+
 **Research-First vs Execute-First:** If the path is unclear (unknown bugs, library choices), run a research wave first, then implementation. If the path is clear, deploy all agents simultaneously.
 
 **Decomposition examples:**

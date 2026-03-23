@@ -77,6 +77,12 @@ Ask: **"Could a junior dev follow written instructions to do this?"**
 - Yes → Opus (must verify math/logic, not just edit code)
 - No → Sonnet (formatting, display, cosmetic)
 
+## Context Window Rules
+
+- **Never use `[1m]` extended context** unless the user explicitly requests it or the task genuinely requires reading 200K+ tokens of source material. The 1M window sends the entire context on every request, burning through per-minute rate limits and causing "Rate limit reached" errors even at low quota usage.
+- **Standard context is the default.** It handles 99% of tasks. If context gets large, use `/compact` or start a new session — don't switch to `[1m]`.
+- **If the user hits rate limit errors:** suggest dropping `[1m]` first, then reducing parallel agents, then switching to Sonnet for the current task.
+
 ## Rules
 
 1. **Classify silently** — never announce the classification unless suggesting a model switch
