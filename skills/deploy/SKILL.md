@@ -99,10 +99,37 @@ For simple deploys without the full pipeline:
 npm run build && npx wrangler pages deploy <BUILD_DIR> --project-name <PROJECT>
 ```
 
+## iCloud Projects — Build from /tmp
+
+All user projects are in iCloud Drive. Git operations and builds MUST happen from a non-iCloud clone:
+1. `git clone <repo> /tmp/<project-name>`
+2. Build and deploy from `/tmp/<project-name>`
+3. Never `git push` from the iCloud directory
+
+## Known Project Deployments
+
+| Project | Type | Deploy Command | Live URL Pattern |
+|---------|------|---------------|-----------------|
+| OctagonAI (UFC) | Pages | `wrangler pages deploy dist/` | octagonai.net |
+| NHL | Workers/Pages | `wrangler deploy` or `wrangler pages deploy` | diamondpredictions.com |
+| NBA | Pages | `wrangler pages deploy dist/` | courtside-ai |
+| MyStrainAI | Workers + Pages | `wrangler deploy` (backend) + `wrangler pages deploy` (frontend) | mystrainai.com |
+| Enhanced Health AI | Workers (OpenNext) | `wrangler deploy` | enhanced-health-ai |
+
+## Cloudflare-Specific Checks
+
+- **D1 bindings**: Verify `[[d1_databases]]` in wrangler.toml match the production database
+- **KV namespaces**: Check `[[kv_namespaces]]` bindings are correct for the environment
+- **Secrets**: `wrangler secret list` to verify API keys are set (never commit secrets)
+- **Environment vars**: Check `[vars]` in wrangler.toml — production values, not dev defaults
+- **Compatibility date**: Ensure `compatibility_date` is recent enough for features used
+
 ## Rules
 - NEVER deploy without passing tests and lint
+- NEVER build or deploy from iCloud Drive — clone to /tmp first
 - ALWAYS snapshot current deployment before deploying
 - ALWAYS verify the live site after deployment
 - ALWAYS rollback on verification failure — don't leave broken production
+- ALWAYS run data-consistency-check on any stats/dashboard pages post-deploy
 - Use `| tee deploy.log` for all deploy commands
 - Confirm with user before deploying to production (unless explicitly told to proceed)
