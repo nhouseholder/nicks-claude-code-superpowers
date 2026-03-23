@@ -57,8 +57,13 @@ For EACH requirement:
 ### Step 4 — Integrate
 After implementing pieces, verify they work together. Don't assume integration works because individual pieces work.
 
-### Step 5 — Verify Against Original Prompt
-Go back to the original prompt. Check every single bullet point against what was built. Did anything get missed? Did anything get approximated instead of fully implemented?
+### Step 5 — Verify Against Original Prompt (MANDATORY)
+Go back to the original prompt. Count the requirements. Check every single bullet point against what was built:
+- [ ] Item 1: addressed?
+- [ ] Item 2: addressed?
+- [ ] Item N: addressed?
+
+**Don't say "done" until all boxes are checked.** If you ran out of space or hit a blocker, say "Completed X of N items — still need to address: [list remaining]." Partial completion ≠ done.
 
 ## What "AI Slop" Looks Like — Never Do This
 

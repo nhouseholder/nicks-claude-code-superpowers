@@ -26,6 +26,49 @@ Not every change needs a full verification ceremony:
 
 **The Iron Law still applies to Tier 3-4**: No completion claims without fresh verification evidence. But Tier 1-2 don't need a command run — mental verification or a quick check is sufficient.
 
+## Baseline Before Changing (ALL tiers)
+
+**Before modifying ANY data, values, or calculations, record the current state.**
+
+```
+BEFORE: ML = +107.89u (355W-142L), Method = +171.76u (205W-150L), ...
+CHANGING: [what you're about to change]
+AFTER: [verify these match or improve on BEFORE — any decrease = regression]
+```
+
+If you don't record the BEFORE values, you cannot detect regressions. This is how "fixing combo" breaks ML — you never checked what ML was before your edit.
+
+## Re-Read Your Own Output
+
+Before sending ANY response that contains data (tables, stats, P/L, numbers):
+1. Read the table/data you're about to send
+2. Ask: "Does row X make mathematical sense?" Pick the most suspicious one.
+3. If any number looks wrong → fix it before sending
+4. If you can't verify → say "I'm not confident in these numbers" instead of claiming they're correct
+
+## Self-Contradiction Check
+
+Before sending, check that your WORDS match your DATA:
+- Saying "Fixed! All bet types now show correct P/L" while the table still shows $0.00 for wins = self-contradiction
+- Saying "All N issues addressed" while only addressing 2 of 5 = self-contradiction
+- Saying "The calculation is correct" while the output shows an obviously wrong number = self-contradiction
+
+**The rule:** Triumphant claim + contradicting evidence = don't send it. Fix the data first, or retract the claim.
+
+Quick scan before sending: Does my summary text accurately describe what the data/code/output actually shows? If not, fix one or the other.
+
+## Multi-Item Completion Check
+
+When the user's request contains N distinct items (bugs, features, fixes, questions):
+
+1. **Enumerate them** — Before starting, list all N items mentally (or in TodoWrite)
+2. **Track completion** — After each item, mentally check it off
+3. **Verify before claiming done** — Before saying "done", count: how many items did the user list? How many did I address? They must match.
+
+**The failure pattern:** User lists 5 things. Claude fixes #1 and #2, gets absorbed in the work, says "Fixed!" User replies: "What about #3, #4, and #5?" This is entirely preventable by counting.
+
+If you run out of context or hit a blocker before completing all items, say: "Completed items 1-3 of 5. Items 4-5 (X, Y) still need to be addressed." Never claim done when you're partially done.
+
 ## The Gate Function (Tier 3-4 only)
 
 ```

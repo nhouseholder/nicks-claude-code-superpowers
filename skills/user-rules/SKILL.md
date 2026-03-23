@@ -27,6 +27,8 @@ Watch for these signals that the user is setting a rule:
 | "from now on" | "from now on, deploy to staging first" | Deploy: staging before production |
 | "remember that" | "remember that the DB is on port 5433 not 5432" | Env: DB port = 5433 |
 | "I told you" / "I already said" | "I already said max 70 events" | CRITICAL — rule was set before and violated. Find and re-enforce it. |
+| **User correction** (any) | "No, losses should be -1 unit" / "That's wrong, combo needs a column too" | **IMMEDIATE SESSION RULE** — every correction from the user becomes a hard constraint for the rest of the session. Don't just fix this instance — apply it to ALL related work. |
+| **Frustrated multi-correction** | User lists 4+ things wrong | Every item in their correction list = a separate rule. Check ALL of them before responding. |
 
 ### Enforcement — Before Every Relevant Action
 
