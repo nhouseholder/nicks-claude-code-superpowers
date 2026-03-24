@@ -138,10 +138,18 @@ skill_reminder = ""
 if matched_skills:
     skills_list = ", ".join(matched_skills)
     skill_reminder = (
-        f"\n\nSKILL MATCH: These installed skills apply to this task: [{skills_list}]. "
-        f"You MUST actively use these skills — read their SKILL.md protocols, follow their checklists, "
-        f"invoke them via the Skill tool if they're slash commands, or spawn agents briefed with their instructions. "
-        f"Do NOT ignore these and do the task manually. The user installed these skills specifically for tasks like this."
+        f"\n\nSKILL MATCH: [{skills_list}]. "
+        f"REQUIRED: Before starting work, read each matched skill's SKILL.md and follow its protocol. "
+        f"For slash-command skills: invoke via Skill tool. "
+        f"For behavioral skills: follow their checklist step-by-step, don't just 'apply principles mentally.' "
+        f"For skills with scripts (ui-ux-pro-max, webapp-testing, ui-design-system, code-reviewer, react-best-practices): run the scripts. "
+        f"BLOCKED EXCUSES — you may NOT skip a matched skill by saying: "
+        f"'I applied its principles without formally invoking it' — that's skipping it. "
+        f"'The fixes were minor' — minor fixes still follow skill protocols. "
+        f"'No test suite exists' — webapp-testing uses Playwright, not project tests. "
+        f"'The Explore agent handled it' — Explore reads files, skills provide expert judgment. "
+        f"'Those skills are more relevant for interactive sessions' — they're relevant NOW. "
+        f"If you genuinely cannot use a matched skill, state WHY before starting work, not after."
     )
 
 # === FAST-PATH for short/clear prompts ===

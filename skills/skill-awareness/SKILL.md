@@ -95,6 +95,22 @@ If 2+ skills match the task:
 2. Start with the most specific one (e.g., `site-update-protocol` before generic `website-guardian`)
 3. Let the skill-manager handle weight limits if too many are heavy
 
+## Blocked Excuses (You May NOT Use These to Skip Skills)
+
+Claude has a pattern of acknowledging skills then rationalizing why it didn't use them. These rationalizations are explicitly BLOCKED:
+
+| Excuse | Why It's Wrong | What To Do Instead |
+|--------|---------------|-------------------|
+| "I applied its principles without formally invoking it" | Mentally applying ≠ using. The skill has specific checklists, scripts, and protocols that mental application skips. | Read the SKILL.md, follow each step. |
+| "The fixes were minor CSS/JSX changes" | Minor changes still benefit from `frontend-design` anti-slop guidelines and `ui-ux-pro-max` accessibility checks. | Run the skill's checklist even for small changes. |
+| "No test suite exists in the project" | `webapp-testing` uses Playwright — it creates its own tests. `qa-gate` can verify via curl, browser, or preview. | Use the skill's tools, don't require project tests. |
+| "The Explore agent handled the research" | Explore reads files. Skills provide expert judgment, checklists, and quality gates that Explore doesn't have. | Use Explore for reading, THEN apply skill protocols to the findings. |
+| "Those skills are more relevant for interactive debugging" | If the hook matched them, they're relevant NOW. | Use them now. |
+| "I verified manually via curl/build" | Manual verification is not a substitute for skill-driven verification with checklists. | Use the skill's verification protocol, then ALSO do manual checks. |
+| "It would add overhead for a simple task" | The user installed these skills specifically to avoid the bugs that "simple" tasks keep causing. Overhead is the point. | Use the skill. The overhead prevents regressions. |
+
+**The rule:** If a skill was matched by the hook, you must either USE it or explain BEFORE starting work why it genuinely doesn't apply (not after you've already done the work without it).
+
 ## Self-Check (Run Mentally on Every Response)
 
 Before submitting your response:
@@ -103,6 +119,7 @@ Before submitting your response:
 [ ] If a skill matched, did I use it?
 [ ] If I wrote code manually that a skill covers, why didn't I use the skill?
 [ ] Am I about to claim "done" without running verification skills?
+[ ] Am I about to rationalize not using a skill? (Check the blocked excuses table)
 ```
 
 If you catch yourself NOT using a matching skill, stop and use it. The user installed these skills for a reason.
