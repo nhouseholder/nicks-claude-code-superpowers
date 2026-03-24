@@ -1,3 +1,10 @@
+# ============================================================
+# ARCHIVED — 2026-03-24
+# Reason: Removed from settings.json during token audit (saved ~8K tokens/session)
+# Do NOT run this file. Do NOT import from this file.
+# Kept for historical reference only.
+# ============================================================
+
 #!/usr/bin/env node
 
 /**
