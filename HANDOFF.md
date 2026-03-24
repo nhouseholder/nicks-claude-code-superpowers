@@ -1,146 +1,149 @@
-# Handoff — All Things AI — 2026-03-24 18:30
-## Model: Claude Opus 4.6
+# Handoff — Nestwise (nestwisehq.com) — 2026-03-24 11:30 PM
+## Model: Claude Opus 4.6 (1M context)
 
 ---
 
 ## 1. Session Summary
-The user requested a comprehensive frontend review by three specialized agents (frontend-design, senior-dev, ui-ux-pro-max), then asked to fix ALL issues found across all three reports. This session implemented every P0 production blocker (mobile responsive sidebar, 404 route, error boundary), all P1 accessibility fixes (color contrast, focus states, reduced-motion, touch targets, aria-labels, keyboard modal trap, skip-to-content), and P2 polish (Inter font, custom scrollbar, selection color, smooth scroll). The prior session handled backend audit fixes (auth, CORS, N+1 elimination, pagination, validation, review sentiment drift). All changes build successfully with zero console errors.
+User wanted to transform "dad-financial-planner" into **Nestwise** — a personal stock management app for anyone (not just his dad's retirement). We shipped 8 versions (v3.1.0 → v4.4.0): added Clerk auth, custom domain (nestwisehq.com), Buffett Deep Dive with real-time Yahoo Finance data, QORE factor grading, stock watchlist, portfolio competition, age-based onboarding, and a complete frontend redesign with distinctive typography. Also migrated the entire backend from node:fs to Cloudflare KV, fixed a critical Yahoo Finance crumb authentication bug, and ran multi-skill audits (frontend-design, audit, senior-dev).
 
 ## 2. What Was Done (Completed Tasks)
-- **Mobile responsive sidebar**: `Sidebar.jsx`, `Layout.jsx` — hamburger menu on mobile (<1024px), slide-out drawer with backdrop, auto-close on route change, body scroll lock
-- **404 catch-all route**: `NotFoundPage.jsx` (new), `App.jsx` — renders "Page not found" with Go Home + Find a Model CTAs
-- **React ErrorBoundary**: `ErrorBoundary.jsx` (new), `main.jsx` — catches render errors, shows recovery UI with refresh/home buttons
-- **Color contrast WCAG fix**: All 8 page files — replaced `text-gray-600` → `text-gray-500` globally (28 occurrences), `placeholder-gray-600` → `placeholder-gray-500`
-- **Focus-visible ring**: `index.css` — global `*:focus-visible` with blue-500 outline, removes `:focus:not(:focus-visible)` outline
-- **prefers-reduced-motion**: `index.css` — disables animations/transitions when user prefers reduced motion
-- **Touch targets**: `index.css` — min 44px height/width for interactive elements on coarse pointer devices
-- **Skip-to-content link**: `Layout.jsx`, `index.css` — screen-reader accessible skip link, visible on focus
-- **Modal keyboard accessibility**: `BenchmarksPage.jsx` — Escape to close, focus restoration, `role="dialog"` + `aria-modal`, autoFocus on close button
-- **aria-labels and aria-hidden**: `Sidebar.jsx` — `aria-label="Main navigation"`, `aria-hidden="true"` on decorative icons, `aria-label` on hamburger/close buttons
-- **Custom font (Inter)**: `index.html`, `index.css` — Google Fonts preconnect + Inter 400-900, CSS `--font-sans` theme override
-- **Meta description + title**: `index.html` — SEO-friendly page title and description meta tag
-- **Custom scrollbar**: `index.css` — thin dark scrollbar matching the theme
-- **Selection color**: `index.css` — blue-500/30 selection highlight
-- **Smooth scroll**: `index.css` — `scroll-behavior: smooth` respecting reduced-motion
-- **Version bump**: `package.json` 0.4.1 → 0.6.0, `Sidebar.jsx` v0.6.0, `HomePage.jsx` v0.6.0
-
-### Prior session (already committed):
-- **Backend security**: CORS restriction, Bearer token auth on mutations, admin middleware
-- **Pricing badges fix**: BYOK/paid/free/credits categorization in BenchmarksPage ModelToolsModal
-- **Feed pagination fix**: Count query applies same filters as main query
-- **N+1 elimination**: Cost alternatives, recommendation engine batched queries
-- **Review sentiment drift**: Recompute from all historical raw data, not incremental
-- **Batch DB operations**: `DB.batch()` for recommendations and relevance scores
-- **Daily cleanup cron**: Auto-delete old news_items (90d) and raw reviews (180d)
-- **Input validation**: Benchmarks compare, preferences PUT, cost POST endpoints
-- **.gitignore**: Added `.env` and `.env.*` patterns
+- **Clerk authentication**: app/layout.tsx, middleware.ts, sign-in/sign-up pages — full auth with Google SSO
+- **Custom domain**: wrangler.jsonc — deployed to nestwisehq.com + www.nestwisehq.com
+- **Age-based onboarding**: lib/user-data/kv-preferences.ts, lib/user-data/age-config.ts, components/onboarding/onboarding-flow.tsx — 7 age brackets (<18 through 55+) with dynamic content
+- **Buffett Deep Dive**: app/api/stock/deep-dive/[symbol]/route.ts, components/stock/buffett-deep-dive.tsx, lib/analysis/buffett-score.ts — algorithmic scoring (0-100) with AI narratives via Gemini Flash
+- **QORE Factor Grading**: lib/analysis/qore-grades.ts — Growth/Quality/Sentiment/Stability/Valuation A-F grades modeled on Schwab's QORE system
+- **Stock Watchlist**: app/api/watchlist/route.ts, components/stock/watchlist.tsx — KV-backed per-user watchlist with live quotes
+- **Yahoo Finance crumb auth**: lib/market/yahoo-crumb.ts, lib/market/yahoo-stock.ts — fixed broken quoteSummary API that was returning null for all fundamentals
+- **Frontend redesign**: components/dashboard/dashboard-home.tsx, components/branding/nav-links.tsx, components/research/research-shell.tsx — stock-focused dashboard, simplified nav (6 items), Outfit + JetBrains Mono fonts, stagger animations, glass card depth
+- **Backend KV migration**: lib/portfolio/store.ts, lib/portfolio/trades.ts — migrated from node:fs to Cloudflare KV, updated all callers
+- **Security fixes**: app/api/research/sync/route.ts (added auth), app/api/analysis/stock/[symbol]/route.ts (symbol validation)
+- **Design system cleanup**: lib/format.ts (centralized formatCurrency/formatPercent), tailwind.config.ts (gain/loss tokens), fixed dynamic Tailwind class purging P0 bug
+- **Competition baseline**: lib/competition/service.ts — changed to Jan 2, 2026 start date with real Yahoo Finance historical prices
 
 ## 3. What Failed (And Why)
-- **`preview_resize` desktop preset**: Didn't actually resize to desktop width — the "desktop" preset resets to native window size which was narrow. Fixed by using explicit `width: 1440, height: 900`.
-- **Cron format (prior session)**: `"0 3 * * 0"` was rejected by Cloudflare Workers. Moved cleanup into existing `0 7 * * *` cron instead of adding a new schedule.
+- **Initial Schwab integration approach**: Removed entirely because user doesn't use Schwab API — positions are manual entry only
+- **First frontend audit missed the P0**: I did a manual design review without invoking the frontend-design skill. The skill-briefed agent caught a critical Tailwind class purging bug (Quick Actions icons invisible in production) that I missed. **Lesson: always use the installed skill agents, not manual review.**
+- **Yahoo Finance v10 API silently broke**: The quoteSummary endpoint started requiring crumb+cookie auth. All fundamentals returned null, making NVDA show as "FAILS — UNPROFITABLE." Root cause was not detected until user showed screenshot. **Lesson: test API responses explicitly, don't assume they work because the endpoint returns 200.**
 
 ## 4. What Worked Well
-- **Batch text-gray-600 replacement**: Using `replace_all: true` across all 8 page files was efficient — 28 occurrences fixed in 7 Edit calls
-- **CSS-only accessibility fixes**: Focus-visible, reduced-motion, touch targets, scrollbar, selection — all in one `index.css` update, zero JS changes needed
-- **Sidebar refactor pattern**: Extracting sidebar content into `sidebarContent` variable and rendering it in both desktop (static) and mobile (drawer) contexts avoided code duplication
-- **Build verification before preview**: Running `npm run build` first caught any compilation errors before starting the dev server
+- **Yahoo crumb authentication**: The two-step flow (fc.yahoo.com cookies → getcrumb endpoint) works reliably and caches for 30 minutes
+- **Algorithmic Buffett scoring**: Separating the score from AI narratives prevents hallucinated numbers while still getting rich analysis text
+- **Frontend-design skill audit**: Found 29 issues including a P0 that would have shipped invisible icons to production
+- **KV migration pattern**: Following the existing kv-preferences.ts pattern for portfolio/trades was clean and consistent
+- **Parallel data fetching**: Using Promise.all for Yahoo Finance + search + chart APIs keeps latency manageable
 
 ## 5. What The User Wants (Goals & Priorities)
-- **Primary goal**: Ship a polished, production-ready AI model comparison site — currently at v0.6.0
-- **Secondary goals**: Continue improving design quality (frontend design agent rated 5.5/10), make it accessible, add animations/transitions
-- **Explicit preferences**: User says "all of them" when given a list of fixes — wants comprehensive execution, not cherry-picking
-- **User style**: Prefers autonomous agents doing the work, not manual checklists. Likes dispatching multiple agents in parallel.
-- **No frustrations expressed this session** — user was satisfied with the review reports and trusted the fix-all approach
+- **Primary goal**: A personal stock management app that helps beat the S&P 500 — not a retirement planner
+- **User is 28**: Retirement features are low priority. Stock tracking, analysis, and alpha-generation tools are high priority
+- **Sector focus**: Semiconductors, GPU, RAM, energy, defense, space, AI infrastructure — plus Buffett-style value investing
+- **The photonics JSX** was the gold standard for analysis UI quality (gauge, score bars, expandable cards, verdict badges)
+- **The Schwab PDF** was the model for the QORE grading system (Growth/Quality/Sentiment/Stability/Valuation)
+- **Frustration**: User had to repeatedly ask me to use the installed skill agents instead of doing things manually. The skill-awareness skill was installed to fix this pattern.
+- **Dad portfolio competition**: Dad hasn't entered real positions yet. Competition should only activate with real data.
 
 ## 6. What's In Progress (Unfinished Work)
-- **All frontend fixes are implemented but NOT committed** — 15 modified files + 2 new files sitting uncommitted on `main`
-- **Not yet deployed** — needs `npm run build && wrangler pages deploy` for frontend and `wrangler deploy` for worker
-- **Backend changes from prior session ARE committed** (commits `905749d`, `29553cf`, `7aca45f`)
+- **Remaining P2 issues from frontend audit**: Missing stagger-in animations on competition, alpha, portfolio pages. formatCurrency still duplicated in competition-dashboard.tsx and alpha-edge-dashboard.tsx (only dashboard-home was updated to use lib/format.ts)
+- **Research stores still use node:fs**: lib/research/storage.ts, action-store.ts, intake-store.ts have node:fs with KV fallback — they work on Cloudflare (fall through to KV) but should be cleaned up
+- **Yahoo Finance retry/throttle**: No rate limiting or retry logic on Yahoo API calls
+- **Public market API rate limiting**: /api/market/quotes and /api/market/snapshot are public with no rate limits
 
 ## 7. Next Steps (Prioritized)
-1. **Commit the frontend changes** — 17 files ready, clean build, zero errors. This is the immediate next action.
-2. **Deploy both frontend and worker** — Frontend to Cloudflare Pages, worker to Cloudflare Workers. The backend audit fixes are committed but may not be deployed yet.
-3. **Design polish (P3 from review)** — The frontend design agent rated the site 5.5/10. Remaining improvements:
-   - Add subtle animations/transitions (card hover lifts, page transitions, number count-up on stats)
-   - Visual depth (layered backgrounds, subtle gradients on sections)
-   - Card variety (not every section uses identical card patterns)
-   - Hero section could use more visual interest (animated gradient, background pattern)
-4. **Loading skeletons** — Replace spinner-only loading states with content-shaped skeleton placeholders for better perceived performance
-5. **Error states on API failures** — Most pages show "Failed to load" but could have retry buttons and more helpful messaging
-6. **Fix `/api/models/availability` endpoint** — Returns 500 locally and DNS fails on remote. This affects the BenchmarksPage model-click modal.
+1. **Run /site-audit** — the user installed this skill specifically for comprehensive multi-agent audits. It dispatches frontend-design, senior-backend, senior-architect, and ui-ux-pro-max agents sequentially.
+2. **Propagate lib/format.ts** — replace remaining duplicate formatCurrency/formatPercent in competition-dashboard.tsx, alpha-edge-dashboard.tsx, stock-ticker-dropdown.tsx
+3. **Add stagger-in animations** to competition, alpha, and portfolio pages (P2 from audit)
+4. **Migrate research stores** from node:fs to pure KV (remove fs fallback)
+5. **Add Yahoo Finance retry logic** with exponential backoff and rate limiting
+6. **Clean up unused pages** — /start-here, /tax, /business, /retirement, /personal are still routable but removed from nav. Consider archiving or removing entirely.
+7. **Portfolio management UI** — the /portfolio page still uses the old design. Needs the new Outfit font, stat-card classes, stagger-in.
 
 ## 8. AI-Generated Recommendations
-Based on this session, I recommend:
-- **Code-split the bundle**: The build warns about a 784KB JS chunk. Use `React.lazy()` for page-level code splitting — each page can be its own chunk. This is easy since routes are already separate components.
-- **Extract shared UI components**: Multiple pages duplicate the same patterns (loading spinner, error state, card wrapper, section header). Create `components/ui/` with `Spinner.jsx`, `ErrorState.jsx`, `Card.jsx`, `SectionHeader.jsx` to DRY up the codebase.
-- **Add `_headers` file for Cloudflare Pages**: Set `Cache-Control`, `X-Content-Type-Options`, `X-Frame-Options`, and CSP headers for security.
-- **Consider E2E tests**: The site has 8 pages with complex data fetching. Even a minimal Playwright test suite that visits each route and checks for console errors would catch regressions.
+- **Use /site-audit and /site-redesign skills**: The user installed these specifically for multi-agent audits and redesigns. They dispatch frontend-design, senior-backend, senior-architect, and ui-ux-pro-max agents. Always use these instead of manual review.
+- **Consider a stock data caching layer**: Yahoo Finance crumb tokens expire, API calls are slow (~2-3s). A KV cache with 5-minute TTL for stock fundamentals would massively improve perceived performance.
+- **The competition feature needs real positions**: Currently shows demo data for Dad. The competition start date (Jan 2, 2026) is hardcoded — should be stored in KV so it can be set when Dad actually enters positions.
+- **Bundle the deep dive + watchlist into a unified "Research" experience**: Right now analysis/stock is a page with search + sidebar. Consider making the watchlist entries auto-populate with mini Buffett scores so the user sees which watched stocks are becoming investable.
 
 ## 9. AI-Generated Insights
-Patterns and observations from this session:
-- **The codebase is well-structured but repetitive**: Every page follows the same fetch-on-mount → loading spinner → error state → render pattern. This is good for consistency but means bugs/improvements must be applied N times.
-- **Tailwind v4 CSS-based config is clean**: No `tailwind.config.js` bloat. The `@theme` directive for custom fonts works well. But it means you can't use `theme()` function in JS — only in CSS.
-- **The API client (`lib/api.js`) has no error retry or caching**: Every page re-fetches on mount. For a mostly-static dataset (benchmarks, models), SWR or React Query would dramatically improve UX.
-- **Sidebar footer data is hardcoded**: "$125" monthly spend and "10 tools, 38+ models" are static strings, not fetched from the API. Should be dynamic.
+- **The user values skill agent quality**: He corrected me multiple times for not using installed skills. The skill-awareness skill was installed specifically to prevent this. Future agents must check the skills list BEFORE every action.
+- **Yahoo Finance is fragile**: The v10 quoteSummary API broke without warning (crumb requirement added). The crumb flow works now but could break again. Consider a fallback to Financial Modeling Prep API or Alpha Vantage.
+- **The codebase has two eras**: Pre-v4 code (research/, business/, tax/) is retirement-planner-focused with different patterns. Post-v4 code (dashboard/, stock/, analysis/) is stock-management-focused with the new design system. The old code still works but creates confusion.
+- **Clerk is in development mode**: The sign-in page shows "Development mode" badge. For production, the user would need to switch to production instance in Clerk dashboard.
 
 ## 10. Points to Improve
-- **Should have committed between the backend audit and frontend fixes**: The backend changes were committed, but the frontend work is a large uncommitted batch. If the session had died, this work would be lost. Follow the CLAUDE.md rule: "commit between tasks."
-- **The mobile sidebar visibility transition**: Using `visibility: hidden` with `style` prop is a workaround — ideally would use CSS `transition` on visibility with delay matching the transform duration.
-- **Contrast fixes were blanket replacements**: `text-gray-600` → `text-gray-500` everywhere is correct for WCAG, but some decorative/less-important text could arguably stay lighter. A more surgical approach would audit each occurrence. However, WCAG compliance is more important than design nuance.
+- **I should have used /site-audit from the start**: Instead of manual Explore agents, the installed /site-audit skill would have dispatched all the right specialist agents automatically
+- **I should have tested the deep dive API before deploying**: The Yahoo Finance crumb issue would have been caught by a simple curl test before the first deploy
+- **formatCurrency propagation incomplete**: I only updated dashboard-home.tsx to use lib/format.ts. Three other components still have local copies. The pattern-propagation skill should have caught this.
+- **No Playwright verification**: The webapp-testing skill was available but never used. Should have run browser tests after each deploy.
 
 ## 11. Miscommunications to Address
-None — session was well-aligned. User said "all of them" and that's exactly what was executed.
+- **"Start here button doesn't work"**: It actually DID work (navigated to /start-here). The user's issue was that the START HERE page content was irrelevant (retirement-focused), not that the navigation was broken. I initially tried to debug the click handler when the real fix was redesigning the page content.
+- **"Bring in the backend design agent"**: User wanted me to invoke the senior-backend SKILL, not just spawn a generic Explore agent. I didn't have the skill installed at that point, but I should have asked.
+- **"Use the front end skill agents I installed"**: User had installed frontend-design, ui-ux-pro-max, and senior-dev-mindset. I did the first redesign without invoking any of them. The skill-awareness skill was installed to prevent this in future sessions.
 
 ## 12. Files Changed This Session
 | File | Action | Description |
 |------|--------|-------------|
-| `packages/web/src/components/ErrorBoundary.jsx` | created | React error boundary with recovery UI |
-| `packages/web/src/pages/NotFoundPage.jsx` | created | 404 catch-all page |
-| `packages/web/src/App.jsx` | modified | Added NotFoundPage import + catch-all route |
-| `packages/web/src/main.jsx` | modified | Wrapped App in ErrorBoundary |
-| `packages/web/src/components/layout/Sidebar.jsx` | modified | Mobile responsive hamburger menu, aria-labels, v0.6.0 |
-| `packages/web/src/components/layout/Layout.jsx` | modified | Mobile padding, skip-to-content link, main landmark |
-| `packages/web/src/index.css` | modified | Inter font, focus-visible, reduced-motion, touch targets, scrollbar, selection, skip-link |
-| `packages/web/index.html` | modified | Inter font link, meta description, improved title |
-| `packages/web/package.json` | modified | Version 0.4.1 → 0.6.0 |
-| `packages/web/src/pages/HomePage.jsx` | modified | Version v0.6.0, contrast fixes |
-| `packages/web/src/pages/BenchmarksPage.jsx` | modified | Modal keyboard accessibility, contrast fixes |
-| `packages/web/src/pages/AdvisorPage.jsx` | modified | Contrast fixes (10 occurrences) |
-| `packages/web/src/pages/ComparePage.jsx` | modified | Contrast fixes |
-| `packages/web/src/pages/CostPage.jsx` | modified | Contrast fixes |
-| `packages/web/src/pages/DashboardPage.jsx` | modified | Contrast fixes |
-| `packages/web/src/pages/ToolsPage.jsx` | modified | Contrast fixes |
-| `packages/web/src/pages/SettingsPage.jsx` | modified | Contrast + placeholder fixes |
+| app/layout.tsx | modified | Added Google Fonts (Outfit, JetBrains Mono), fixed Clerk bg color |
+| app/page.tsx | modified | Redesigned to stock-focused dashboard |
+| app/globals.css | modified | Added stagger-in, stat-card, ticker-row, nav-active, scrollbar |
+| app/analysis/stock/page.tsx | created | Buffett Deep Dive search page with watchlist sidebar |
+| app/api/stock/deep-dive/[symbol]/route.ts | created | Deep dive API with Buffett scoring + QORE grades + AI narratives |
+| app/api/watchlist/route.ts | created | KV-backed per-user watchlist API |
+| app/api/research/sync/route.ts | modified | Added Clerk auth check |
+| app/api/analysis/stock/[symbol]/route.ts | modified | Added symbol regex validation |
+| app/api/portfolio/route.ts | modified | Await async store/trade functions |
+| app/api/portfolio/trades/route.ts | modified | Await async store/trade functions |
+| components/dashboard/dashboard-home.tsx | created | New stock-focused dashboard with portfolio, market pulse, quick actions |
+| components/stock/buffett-deep-dive.tsx | created | Photonics-style analysis UI (gauge, score bars, QORE grades) |
+| components/stock/watchlist.tsx | created | Watchlist component with live quotes |
+| components/stock/stock-ticker-dropdown.tsx | modified | Added Deep Dive link button |
+| components/branding/nav-links.tsx | modified | Simplified to 6 items with icons |
+| components/branding/site-brand.tsx | modified | Added font-display, font-mono classes |
+| components/research/research-shell.tsx | modified | Cleaned up header, removed setup banner |
+| components/onboarding/onboarding-flow.tsx | modified | 7 age brackets |
+| lib/format.ts | created | Centralized formatting utilities |
+| lib/analysis/buffett-score.ts | created | Algorithmic Buffett scoring engine |
+| lib/analysis/qore-grades.ts | created | QORE A-F grading engine |
+| lib/market/yahoo-crumb.ts | created | Yahoo Finance crumb authentication |
+| lib/market/yahoo-stock.ts | modified | Added crumb auth, chart fallback |
+| lib/portfolio/store.ts | modified | Migrated from node:fs to Cloudflare KV |
+| lib/portfolio/trades.ts | modified | Migrated from node:fs to Cloudflare KV |
+| lib/portfolio/service.ts | modified | Await async readHoldings/readAccounts/readTrades |
+| lib/competition/service.ts | modified | Jan 2, 2026 baseline, await readHoldings |
+| lib/alpha/service.ts | modified | Await async readHoldings |
+| lib/tax/service.ts | modified | Await async readHoldings/readTrades |
+| lib/user-data/kv-preferences.ts | modified | 7 age group types |
+| lib/user-data/age-config.ts | modified | 7 age group configs |
+| tailwind.config.ts | modified | Added fontFamily, gain/loss colors |
+| package.json | modified | Version 4.4.0 |
+| .env.example | modified | Added all 7 required env vars |
+| wrangler.jsonc | (unchanged) | Already had KV + R2 bindings |
 
 ## 13. Current State
-- **Branch**: `main`
-- **Last commit**: `905749d` — "security: add .env to .gitignore"
-- **Build status**: Passing (clean build, 2.00s, zero errors)
-- **Deploy status**: Not deployed — needs both frontend and worker deploy
-- **Uncommitted changes**: YES — 15 modified + 2 new files (all frontend changes from this session)
+- **Branch**: main
+- **Last commit**: a7b9606 — v4.4.0: Fix P0-P2 issues from frontend-design skill audit
+- **Build status**: PASSING (compiled successfully, 24 static pages)
+- **Deploy status**: DEPLOYED to nestwisehq.com (Cloudflare Workers)
+- **Uncommitted changes**: None
+- **Version**: 4.4.0
 
 ## 14. Memory & Anti-Patterns Updated
-- No new entries added to `~/.claude/anti-patterns.md` this session
-- No new entries added to `~/.claude/recurring-bugs.md` this session
-- No new project memory files created
-- **Should add**: The `preview_resize` desktop preset gotcha, and the Tailwind v4 `@theme` pattern for custom fonts
+- **~/.claude/anti-patterns.md**: Added YAHOO_FINANCE_CRUMB_AUTH entry — Yahoo v10 quoteSummary requires crumb+cookie authentication, without it all fundamentals return null
+- **~/.claude/recurring-bugs.md**: Not updated this session
+- **Project memory**: No project-specific memory file created (should be done)
 
 ## 15. Skills & Agents Used
 | Skill/Agent | How It Was Used | Was It Helpful? |
 |-------------|----------------|-----------------|
-| frontend-design agent | Reviewed entire frontend, rated 5.5/10, identified design gaps | Yes — specific actionable findings |
-| senior-dev-mindset agent | Reviewed for production readiness, rated 78/100, found 6 blockers | Yes — caught the 3 P0 blockers |
-| ui-ux-pro-max agent | Accessibility audit, found 14+ contrast violations + missing focus/aria | Yes — most impactful for WCAG fixes |
-| /audit skill | Scanned for hardcoded secrets in worker backend | Yes — confirmed no secrets, fixed .gitignore |
-| senior-backend agent | Full backend audit (prior session) | Yes — found 5 critical + 10 warnings |
-| Explore agent | Mapped full frontend codebase structure | Yes — fast orientation |
+| frontend-design | Invoked for design audit — found 29 issues including P0 | YES — caught invisible Quick Actions icons |
+| audit | Invoked for security scan — found 0 secrets, 0 quality issues | YES — confirmed security posture |
+| Explore agent | Used for backend architecture audit | PARTIALLY — found issues but should have used senior-backend skill |
+| skill-awareness | Installed mid-session to prevent manual work | YES — user called this out explicitly |
+| error-memory | Recorded Yahoo crumb bug in anti-patterns.md | YES |
 
 ## 16. For The Next Agent — Read These First
-1. This `HANDOFF.md`
-2. `~/.claude/anti-patterns.md`
-3. `~/.claude/recurring-bugs.md`
-4. `~/.claude/projects/-Users-nicholashouseholder-Library-Mobile-Documents-com-apple-CloudDocs-All-Things-AI/CLAUDE.md` (if exists)
-5. `/Users/nicholashouseholder/.claude/CLAUDE.md` (global instructions)
-6. The plan file at `~/.claude/plans/humming-squishing-beacon.md` (homepage + version display plan — mostly complete)
-
-**CRITICAL**: There are 17 uncommitted files. The first action should be to commit them, then deploy.
+1. This HANDOFF.md
+2. ~/.claude/anti-patterns.md (especially YAHOO_FINANCE_CRUMB_AUTH)
+3. ~/.claude/CLAUDE.md (global rules, especially session orientation)
+4. /tmp/dad-financial-planner/CLAUDE.md (if exists)
+5. The /site-audit skill — run it first to catch remaining issues
+6. lib/market/yahoo-crumb.ts — understand the crumb auth flow before touching Yahoo Finance code
