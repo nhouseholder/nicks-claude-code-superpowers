@@ -1,7 +1,6 @@
 ---
 name: git-sorcery
 description: Advanced git intelligence beyond basic add/commit/push. Smart commit messages from diffs, conflict resolution strategies, interactive history analysis, bisect for bug hunting, cherry-pick workflows, branch management, and stash operations. Automatic skill that enhances all git operations.
-weight: passive
 ---
 
 # Git Sorcery — Master-Level Git Operations

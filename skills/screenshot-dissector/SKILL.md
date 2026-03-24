@@ -89,10 +89,15 @@ Only include "Also spotted" if there ARE additional issues. Don't invent problem
 | Misses DevTools info | Reads console errors, network failures, component state |
 | Ignores surrounding UI | Checks adjacent elements for collateral damage |
 
+## Token Economics
+
+- **Per screenshot**: ~50-100 tokens for the analysis (most is internal reasoning, not output)
+- **Net impact**: Saves hundreds of tokens by catching multiple bugs in one pass instead of the user reporting them one at a time across multiple messages
+
 ## Integration
 
 - **systematic-debugging**: Dissector provides the visual evidence; systematic-debugging drives the root-cause investigation
-- **codebase-cartographer**: After identifying the likely component from the screenshot, read that file before proposing fixes
+- **context-hydration**: After identifying the likely component from the screenshot, hydrate that file before proposing fixes
 - **pre-debug-check**: Check if the visual bug matches a known anti-pattern before investigating
 - **proactive-qa**: Dissector catches visual bugs; proactive-qa catches them before they happen
 - **qa-gate**: qa-gate covers functional testing; screenshot-dissector covers VISUAL bug detection that QA checklists miss. If identified component isn't already in context, flag it: "Likely caused by [Component] — loading that file for a fix proposal."

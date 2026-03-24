@@ -1,7 +1,6 @@
 ---
 name: predictive-next
 description: After completing a task, anticipate what the user likely needs next and offer it proactively. Uses pattern recognition from the task type, codebase state, and common workflows. Automatic skill that fires after task completion — one-line suggestion, zero pressure.
-weight: passive
 ---
 
 # Predictive Next — Anticipate the Next Move
@@ -16,12 +15,39 @@ After completing a substantive task where the next step is **high-confidence and
 - The task was self-contained and complete
 - The user is in a rapid flow state
 
-## Prediction Principles
+## Common Prediction Patterns
 
-Predict based on three signals:
-- **Task type** — new code suggests tests/wiring; bug fixes suggest checking for the same pattern elsewhere; refactors suggest updating consumers.
-- **Codebase signals** — existing test files, CI config, deployment patterns, and project conventions indicate what follow-up steps are expected.
-- **Session patterns** — what the user has done after similar tasks in this session (e.g., always pushing after commit, always running tests after edits).
+### After Writing New Code
+- New component → "I recommend we add tests next" or "I recommend we wire this into the router"
+- New API endpoint → "I recommend we add the frontend call next" or "I recommend we add error handling"
+- New utility function → "I recommend we update the exports"
+- New database migration → "I recommend we run the migration and update the model"
+
+### After Fixing a Bug
+- Single bug fix → "I recommend we check for the same pattern elsewhere"
+- Fix in shared code → "This is used in N other places — I recommend we verify they're unaffected"
+- Fix with workaround → "I recommend we add a TODO for a proper fix"
+- Flaky test fix → "I recommend we run the full test suite"
+
+### After Refactoring
+- Renamed something → "I recommend we update all references" (or better: already did it)
+- Extracted a component → "I recommend we replace the other instances"
+- Changed an interface → "I recommend we update the consumers"
+
+### After Config/Setup Changes
+- Updated dependencies → "I recommend we run the build to verify"
+- Changed env vars → "I recommend we update .env.example"
+- Modified CI/CD → "I recommend we push and watch the pipeline"
+
+### After Data/Schema Changes
+- Schema change → "I recommend we update the seed data"
+- New data field → "I recommend we add it to the frontend display"
+- Data migration → "I recommend we verify the counts match"
+
+### After Git Operations
+- After commit → "I recommend we push" (only if they usually push after commit)
+- After merge → "I recommend we clean up the branch"
+- After resolving conflicts → "I recommend we run tests before committing"
 
 ## Prediction Quality Rules
 
@@ -63,6 +89,14 @@ Next steps:
 - Update the API docs
 ```
 
+### Decision points (when the user needs to choose a direction)
+When the work reveals a decision the user should make, frame it as options with your recommendation:
+```
+My recommendation: Go with approach A (Redis cache). It handles the 50K daily requests
+without adding infrastructure complexity. Approach B (PostgreSQL materialized views) is
+more robust but overkill for current traffic.
+```
+
 **Always give your recommendation.** The user wants to know what you think, not just a neutral list. Be opinionated — if you have a clear preference, say so and say why in one sentence. The user can override you, but they shouldn't have to guess what you'd do.
 
 ### Key principles
@@ -85,12 +119,16 @@ Don't offer predictions when:
 - You're mid-plan execution — the plan already defines what's next
 - The prediction would just be "Want me to continue?" — obvious and unhelpful
 
+## Token Economics
+
+Cost: ~10-15 tokens per prediction (one line). Value: saves an entire user prompt + your re-orientation when the prediction hits. Hit rate only needs to be ~20% to be worth it.
+
 ## Rules
 
 1. **One prediction or a short menu** — Single line when one step is obvious. Bulleted menu (max 4) when multiple steps are all valuable. Bold your recommendation with a brief reason.
 2. **Always be opinionated** — The user wants your recommendation, not a neutral list. Frame as "I recommend we..." for actions and "My recommendation:" for decisions. Never ask "want me to...?" — state what you think should happen.
 3. **"I recommend" framing** — Proactive, confident tone. Not "want me to?" but "I recommend we do X because Y."
-4. **Easy to ignore** — If the prediction is wrong, the user just sends their actual request
+3. **Easy to ignore** — If the prediction is wrong, the user just sends their actual request
 5. **Never predict irreversible destructive actions** — No force pushes, database drops, or production deploys. Normal workflow actions (commit, tests, create PR) are fine.
 6. **Suppress in flow state** — Fast-moving users don't need suggestions
 7. **Base it on evidence** — Codebase patterns, session history, common workflows. Not guessing.

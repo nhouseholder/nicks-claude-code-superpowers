@@ -1,7 +1,6 @@
 ---
 name: calibrated-confidence
 description: Makes Claude honest about what it knows vs what it's guessing. Dynamically adjusts speed, depth, and communication based on confidence level. High confidence = move fast, low confidence = slow down and flag it. Prevents false certainty and false hedging. Always-on metacognitive skill.
-weight: passive
 ---
 
 # Calibrated Confidence — Know What You Know, Say What You Don't

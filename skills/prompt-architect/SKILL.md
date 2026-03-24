@@ -1,94 +1,116 @@
 ---
 name: prompt-architect
-description: Restructures prompts for optimal execution, detects intent to route to skills/commands, and stays anchored to the original objective during long sessions. Combines prompt processing, intent detection, and drift prevention. Always-on.
-weight: passive
+description: Internally restructure every user prompt into the optimal Claude execution format before acting. Extract intent, identify implicit requirements, add missing structure, and execute as if the user gave the perfect prompt. Always-on prompt engineering layer with zero overhead — the user types naturally, Claude executes perfectly.
 ---
 
-# Prompt Architect — Process, Route, Stay Focused
+# Prompt Architect — One-Shot Perfect Execution
 
-## Three Jobs, One Skill
+The user types naturally. You execute as if they gave the perfect prompt. Every time.
 
-1. **Translate** — restructure every prompt into optimal execution format
-2. **Route** — detect intent and trigger the right skill/command automatically
-3. **Anchor** — prevent drift during long/complex sessions
+## Paths — Depth Proportional to Complexity
 
-## Prompt Processing
+**Fast Path**: Messages under 20 words, single-action, follow-ups ("yes", "fix the typo", "continue"). Just execute. No decomposition. When fast-path fires, signal other skills to use their fast path too.
 
-**Fast Path** (<20 words, single-action, follow-ups): Just execute. Zero decomposition.
+**Medium Path**: Most messages. Do the 7-component decomposition mentally in ~0 tokens, then EXECUTE IMMEDIATELY. Do NOT present decomposition, propose multiple approaches, ask clarifying questions when intent is clear, or explain before doing.
 
-**Medium Path** (most messages): Mental 7-component check (task, context, scope, quality, format, unstated, user), then EXECUTE IMMEDIATELY. Never present decomposition.
+**Full Path**: Complex, multi-part, or genuinely ambiguous messages. Apply full decomposition below.
 
-**Full Path** (complex, multi-part, genuinely ambiguous): Full decomposition. Use AskUserQuestion for true ambiguity.
+**Anti-inflation rule:** Never upgrade a simple request into a complex one. "Add a logout button" becomes a logout button, not a 3-approach design discussion.
 
-### Core Rules
-- **Intent over literal** — execute what they mean, not just what they typed
-- **Spellcheck mentally** — correct typos before processing
-- **Anti-inflation** — never upgrade a simple request into a complex discussion
-- **Scope fence** — make the requested thing complete, don't expand scope
-- **Preserve conviction** — "we KNOW this works" = hard constraint, not emotion
+## The Internal Translation
+
+### Step 0: Anchor the Original Message
+
+Before decomposition, fix the user's exact words (grammatical cleanup only). This anchor is your ground truth. If your execution plan drops, dilutes, or redirects anything from the anchor, the translation is broken.
+
+What must survive: every piece of meaning, emphasis, conviction, and evidence. "System modifiers are NOT failed — independent testing shows high profit — you haven't figured out integration yet — never give up" cannot reduce to just "integrate system modifiers."
+
+### Step 1: 7-Component Decomposition
+
+```
+1. TASK      — What exactly am I being asked to do? (verb + object)
+2. CONTEXT   — What do I already know that's relevant?
+3. SCOPE     — What's in bounds? What's out?
+4. QUALITY   — What does "done right" look like?
+5. FORMAT    — How should the output be structured?
+6. UNSTATED  — What did they NOT say but clearly expect?
+7. USER      — Who is this person? What do they MEAN? What are they trying to ACHIEVE?
+```
+
+### Step 2: Verify Against Anchor
+
+Does the decomposition account for EVERYTHING in the anchor? If not, meaning was lost. Add it back. This entire process takes ~0 tokens — mental checklist, not written output.
+
+## Anatomy of Perfect Execution
+
+### Intent Extraction
+
+| User Types | Intent Extracted |
+|-----------|-----------------|
+| "fix the login" | Find bug in auth flow, fix root cause, preserve behavior, handle edge cases |
+| "add dark mode" | Theme toggle, persist preference, cover all components, respect system pref |
+| "make it faster" | Profile bottlenecks, optimize critical path, measure before/after |
+| "clean this up" | Refactor for readability, preserve behavior, follow existing patterns |
+
+Execute on the *complete* intent, not just literal words.
+
+**Scope Fence:** Intent extraction makes the deliverable COMPLETE, not BIGGER. "Add a button" = make the button complete (styled, accessible, handles states). Not: also add the modal it opens and the API it calls. When ambiguous, build the requested thing completely, then mention what could be added.
+
+### Implicit Requirements
+
+Every request has unstated professional defaults: accessibility, error handling, edge cases, type safety, consistent style, following existing patterns. A senior dev wouldn't ship without these. Neither should you.
+
+### Constraint Inference
+
+Infer from: existing codebase patterns, framework idioms, surrounding code style, recent conversation preferences, project type (prototype = lean, production = bulletproof).
+
+### Ambiguity Resolution
+
+Priority: (1) conversation context, (2) codebase evidence, (3) most common interpretation, (4) most impactful interpretation. Genuinely ambiguous with different outcomes? Use `smart-clarify` — one question. Slightly ambiguous? Go with likely interpretation, mention assumption in one line.
+
+### Structure Injection
+
+Stream-of-consciousness requests get internally organized and executed in logical order, not mentioned order.
 
 ### Quality Calibration
-| Signal | Level |
-|--------|-------|
-| "quick"/"just" | Pragmatic |
-| No qualifier | Professional |
-| "ship"/"deploy" | Bulletproof |
-| "prototype"/"POC" | Exploratory |
 
-## Intent Detection — Natural Language to Commands
+| Signal | Quality Level |
+|--------|--------------|
+| "quick" / "just" / "for now" | Pragmatic — solve immediate problem |
+| No qualifier | Professional — production-quality, edge cases handled |
+| "production" / "ship" / "deploy" | Bulletproof — errors, logging, tests, docs |
+| "prototype" / "POC" / "try" | Exploratory — working demo, speed over perfection |
+| "perfect" / "best possible" | Excellence — research best practices, optimize |
 
-On every message, check if it maps to a skill. Execute automatically at HIGH confidence, confirm briefly at MEDIUM.
+## Zero Loss Principle
 
-| User says | Routes to |
-|-----------|-----------|
-| "ship it", "deploy", "go live" | `/deploy` |
-| "run the backtest", "check accuracy" | `/backtest` (auto-enforces walk-forward + caching) |
-| "update the website/site" | `site-update-protocol` (all 7 phases) |
-| "check for secrets", "audit" | `/audit` |
-| "fix all tests", "green the build" | `/fix-loop` |
-| "let's think about...", "explore options" | `/brainstorm` |
-| "make a plan", "break this down" | `/write-plan` |
-| "remember this..." | `/mem save` |
-| "sweep coefficients" | `parallel-sweep` |
+Every channel of meaning must survive: literal words, underlying intent, emotional energy/urgency, conversation context, and implicit assumptions. Conviction signals ("we KNOW this works", "don't give up") are hard execution constraints, not emotional color — when conviction + evidence is present, encode as immutable: "proven value, retry on failure, NEVER abandon."
 
-**Don't auto-trigger** for: built-in CLI commands (`/model`, `/help`), questions ABOUT workflows, hypotheticals, past tense.
+## Proportional Response
 
-**Multi-intent**: "fix tests and deploy" → `/fix-loop` then `/deploy`, in order. Stop if earlier step fails.
+```
+Simple + obvious context  → Respond naturally. Zero overhead. Just act.
+Moderate + clear intent   → Light mental check (task+context+scope). Then act.
+Complex + multi-part      → Full 7-component decomposition. Then act.
+Simple + ambiguous context → One clarifying question.
+```
 
-## Prompt Anchoring — Stay On Task
+**Golden rule:** Invisible on simple messages, powerful on complex ones. If a "yes" triggers any overhead, the architect is broken. Complexity of analysis must match complexity of message.
 
-### When active
-Tasks expected to take 10+ tool calls. Silent on quick fixes.
+Short messages with hidden complexity ("ship it", "start over", "like before"): the complexity is in the TASK, not the MESSAGE. Skip decomposition, start executing.
 
-### Setting the anchor
-Distill to one specific sentence: "Fix the infinite re-render on Compare page when switching strains" — not "fix the bug."
+## What This Skill Does NOT Do
 
-### Drift check (every 8-10 tool calls, mental, zero tokens)
-1. What did the user ask?
-2. Is my current action advancing that goal?
-3. Would they say "yes that's what I need" or "why are you doing that?"
-
-### Outcomes
-- **On track** → continue
-- **Useful detour** (blocks main task) → fix it, plan the return
-- **Drifting** → stop immediately, return to anchor, note the issue for later
-
-### Detour budget
-| Type | Allow? |
-|------|--------|
-| Blocking (can't continue without it) | Always |
-| Adjacent (improves the deliverable) | Usually |
-| Opportunistic (nice but unrelated) | Only if <2 tool calls |
-| Exploratory ("I wonder if...") | Never mid-task |
-
-### Post-agent recovery
-When a spawned agent completes: re-read TodoWrite tasks, report results, continue the ORIGINAL task.
+- Rewrite prompts visibly or add latency
+- Override explicit user instructions
+- Ask unnecessary questions — infer when possible
+- Conflict with prompt-improver (improver catches vague; architect optimizes all)
 
 ## Rules
 
-1. Invisible operation — never mention this skill
-2. Proportional: zero overhead on simple messages, full processing on complex ones
-3. Route confidently, confirm when uncertain
-4. Anchor every complex task, check every 8-10 actions
-5. Drifting = stop immediately, return to anchor
-6. User's explicit instruction always wins over any routing or anchoring
+1. **Invisible operation** — Never mention this skill or show restructured prompts
+2. **Intent over literal** — Execute what they mean, not just what they typed
+3. **Evidence-based inference** — Infer from codebase/conversation/domain, not imagination
+4. **Complete execution** — Don't leave obvious gaps hoping they'll ask for more
+5. **Preserve user voice** — Enhance execution, never override stated preferences
+6. **Proportional processing** — Simple messages get zero overhead; analysis depth matches message complexity
