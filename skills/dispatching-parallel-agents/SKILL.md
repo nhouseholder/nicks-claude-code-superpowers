@@ -26,11 +26,56 @@ You need to FIGURE OUT the task decomposition first (e.g., "build this entire fe
 - Single-file changes or simple bug fixes
 - Tasks are strictly sequential (each depends on the previous)
 - Agents would edit the same files (merge conflicts)
-- Tasks share data or calculations (parallel agents on shared data = regressions)
+- **Tasks involve counting, aggregating, or analyzing the same dataset** (see Data Integrity Gate below)
 - The output needs cross-validation across tasks
 - You can handle it yourself in <2 minutes
 
 **Activation test:** "Would I be faster doing this myself, or by briefing specialists?" If specialists, activate.
+
+## Data Integrity Gate (MANDATORY — check before EVERY dispatch)
+
+**Before dispatching agents, classify the task:**
+
+| Classification | Description | Rule |
+|---------------|-------------|------|
+| **DATA ANALYSIS** | Counting records, computing stats, P/L, ROI, aggregations, comparisons across the same dataset | **NEVER PARALLELIZE.** Do it yourself in a single chain. Two agents counting the same data WILL disagree. |
+| **DATA + PRESENTATION** | Analyze data then build a display/dashboard/table | **SEQUENTIAL ONLY.** You analyze first, then dispatch a presentation agent with your verified numbers as input. |
+| **INDEPENDENT DOMAINS** | Frontend + backend, separate subsystems, unrelated files | Safe to parallelize. |
+| **RESEARCH** | Multiple agents searching different sources | Safe to parallelize — but reconcile contradictions before acting. |
+
+### Why This Exists
+
+**Real failure mode (occurred multiple times):** Two agents asked to analyze UFC round bet performance returned different numbers from the same dataset — one reported 26 bets/+30.89u, the other 36 bets/+42.21u. Root cause: each agent applied slightly different filters, date ranges, or counting logic. Neither was verifiably correct because there was no single chain of custody through the data.
+
+### The Single-Source-of-Truth Rule
+
+For ANY task involving numbers, statistics, or data:
+
+1. **ONE agent (or you) computes the canonical numbers** — counts, totals, aggregations
+2. **Those numbers become CONSTANTS passed to downstream agents** — not re-derived
+3. **If an agent's output contradicts the canonical numbers, the agent is wrong** — not the data
+
+**Example — correct approach:**
+```
+YOU: Read the data, compute: 36 round bets, +42.21u, 58.3% win rate
+AGENT A (presentation): "Build a table using these verified stats: [36, +42.21u, 58.3%]"
+AGENT B (analysis): "Write a summary using these verified stats: [36, +42.21u, 58.3%]"
+```
+
+**Example — WRONG approach (what causes the bug):**
+```
+AGENT A: "Count round bets and compute P/L from the data"
+AGENT B: "Analyze round bet performance from the data"
+→ Agent A says 26 bets, Agent B says 36. Both read the same file differently.
+```
+
+### Post-Dispatch Reconciliation
+
+When agents return results that include ANY numbers:
+1. **Cross-check all numerical outputs** — do the numbers agree across agents?
+2. **If numbers disagree, STOP** — do not report either set to the user
+3. **Recompute yourself** from the raw data to establish ground truth
+4. **Then correct** whichever agent was wrong
 
 ## Phase 1: Decomposition (Complex Orchestration Only)
 
