@@ -81,6 +81,20 @@ try:
         except Exception:
             pass
 
+    # Fallback: if transcript didn't yield exchanges, try the checkpoint file
+    if not exchanges:
+        checkpoint_path = Path.home() / ".claude" / "last-checkpoint.json"
+        if checkpoint_path.exists():
+            try:
+                cp = json.loads(checkpoint_path.read_text())
+                if cp.get("last_assistant_response"):
+                    exchanges.append((
+                        cp.get("last_user_message", "(unknown)")[:300],
+                        cp.get("last_assistant_response", "")[:1000]
+                    ))
+            except Exception:
+                pass
+
     if not exchanges:
         sys.exit(0)
 
