@@ -34,7 +34,10 @@ def output_json(text):
 SKILL_TRIGGERS = {
     # === HIGH PRIORITY: Web design & frontend (user's #1 pain point) ===
     r"frontend|front.?end|component|landing.?page|dashboard|ui\b|ux\b|interface|layout|styl|beautif|redesign|web.?design|html|css|react|vue|svelte|next\.?js|tailwind|button|modal|navbar|sidebar|card|form|chart":
-        "frontend-design, ui-ux-pro-max, senior-frontend, ui-design-system, senior-dev-mindset",
+        "frontend-design, ui-ux-pro-max, senior-frontend, ui-design-system, react-best-practices, senior-dev-mindset",
+    # React/Next.js performance specifically
+    r"react|next\.?js|hook|useState|useEffect|useMemo|useCallback|memo|hydrat|bundle|render|rerender|re-render|performance|optimize.*component|lazy.*load|code.?split|suspense":
+        "react-best-practices, senior-frontend",
     # Backend development
     r"backend|back.?end|api|endpoint|server|database|query|migration|auth|graphql|rest|express|node\.?js|postgres|supabase|prisma":
         "senior-backend, senior-architect, senior-dev-mindset",
