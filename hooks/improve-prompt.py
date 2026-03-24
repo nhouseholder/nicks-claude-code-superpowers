@@ -55,6 +55,14 @@ AGENT_ROUTES = [
      "AGENT ROUTE: Full Site Audit — use /site-audit command\n"
      "Invoke the site-audit command via Skill tool, which runs 7 sequential phases with specialized agents."),
 
+    # --- HANDOFF ---
+    (r"handoff|hand.?off|prepare.*handoff|session.*handoff|get.*handoff.*ready|end.*session|wrap.*up.*session",
+     120,
+     "AGENT ROUTE: Session Handoff — invoke /full-handoff command\n"
+     "Use the Skill tool to invoke full-handoff. This generates a 16-section HANDOFF.md, "
+     "stores it in 3 locations (local, iCloud, GitHub), archives old handoffs, and cleans up stale files. "
+     "EVERY section must be filled with real content. This is mandatory, not optional."),
+
     # --- REDESIGN ---
     (r"redesign|rebuild|overhaul|full.*redesign|site.*redesign|makeover",
      110,
