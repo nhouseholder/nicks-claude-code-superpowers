@@ -1,0 +1,7 @@
+#!/bin/bash
+# Coder Orchestrator — shortcut
+# Usage: coder "Fix the login bug" --project-dir ~/myapp
+# Usage: coder --dry-run "Add auth to the API"
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$SCRIPT_DIR/orchestrator.py" "$@"
