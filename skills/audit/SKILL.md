@@ -1,6 +1,7 @@
 ---
 name: audit
 description: Audit codebases for security issues, code quality problems, and hardcoded secrets. Scans Python and JavaScript files for API keys, credentials, and anti-patterns. Fixes issues and commits with structured messages. Use when asked to audit, scan for secrets, check security, or review code quality.
+weight: heavy
 ---
 
 # Audit Skill

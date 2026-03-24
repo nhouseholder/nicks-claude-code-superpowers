@@ -1,6 +1,7 @@
 ---
 name: user-rules
 description: Captures, persists, and enforces user-defined rules across sessions. When the user sets a hard constraint ("max 70 events", "always use approach X", "never do Y"), it's saved to a rules file and checked before every relevant action. Rules survive compaction, crashes, and session boundaries. Always-on enforcement skill.
+weight: light
 ---
 
 # User Rules — Hard Constraints That Never Get Forgotten

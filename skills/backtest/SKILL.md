@@ -1,6 +1,7 @@
 ---
 name: backtest
 description: Run backtests for prediction models (UFC, sports betting). Ensures visible output via tee, compares against baseline accuracy, and commits improvements with structured messages. Enforces walk-forward integrity, overfitting awareness, and future predictive accuracy as the #1 goal. Use when the user mentions backtesting, model evaluation, coefficient testing, or accuracy comparison.
+weight: heavy
 ---
 
 # Backtest Skill

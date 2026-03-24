@@ -1,6 +1,7 @@
 ---
 name: using-git-worktrees
 description: Use when starting feature work that needs isolation - creates isolated git worktrees with smart directory selection and safety verification
+weight: light
 ---
 
 # Using Git Worktrees

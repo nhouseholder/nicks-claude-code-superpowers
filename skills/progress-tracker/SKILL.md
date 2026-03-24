@@ -1,6 +1,7 @@
 ---
 name: progress-tracker
 description: Track and display progress across multi-step tasks. Shows completion percentage, elapsed time, task count, and milestone updates. Fires at natural task boundaries during multi-step work — not after every response. Gives the user visibility into complex work without cluttering simple tasks.
+weight: light
 ---
 
 # Progress Tracker — Multi-Step Visibility

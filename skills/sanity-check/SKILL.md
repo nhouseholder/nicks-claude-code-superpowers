@@ -1,6 +1,7 @@
 ---
 name: sanity-check
 description: Before executing a request that could make things worse, waste significant effort, or introduce problems, pause and respectfully flag the concern. Recommend a better approach if one exists. Never blindly execute a bad idea — but never be condescending about it either. Automatic skill that fires only when genuine risk is detected.
+weight: light
 ---
 
 # Sanity Check — Protect the User From Costly Mistakes

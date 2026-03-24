@@ -1,6 +1,7 @@
 ---
 name: fix-loop
 description: Self-healing CI loop — run test suite, diagnose failures, fix source code, re-run until all tests pass, then commit. Operates autonomously in a test-driven fix cycle. Use when asked to fix all tests, make tests pass, run a fix loop, or do self-healing CI.
+weight: light
 ---
 
 # Fix Loop — Self-Healing CI

@@ -1,6 +1,7 @@
 ---
 name: reflexion
 description: Self-refinement and comprehensive review framework. Two modes — /reflexion:reflect for quick self-assessment of output quality (checklist + confidence score), and /reflexion:critique for deep multi-dimensional review (requirements + design + code quality via reviewer agent). Opt-in only — fires on explicit user request, high-risk changes, or after 2+ failed bug fixes.
+weight: heavy
 argument-hint: "reflect" for self-assessment, "critique" for deep review, or specific files/commits
 ---
 

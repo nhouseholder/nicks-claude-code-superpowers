@@ -1,6 +1,7 @@
 ---
 name: brainstorming
 description: "Explore intent, requirements, and design before implementing complex features. Triggers on 3+ file changes or ambiguous multi-approach tasks. Skips automatically for clear-scope work."
+weight: heavy
 ---
 
 # Brainstorming Ideas Into Designs

@@ -1,6 +1,7 @@
 ---
 name: screenshot-dissector
 description: Maximizes Claude's visual bug analysis when screenshots are provided during troubleshooting. Enforces a methodical, pixel-level examination instead of a quick glance — catches layout bugs, state issues, console errors, and UI regressions that surface only visually.
+weight: light
 ---
 
 # Screenshot Dissector — See Every Bug in the Frame

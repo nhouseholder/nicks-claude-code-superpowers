@@ -1,6 +1,7 @@
 ---
 name: version-bump
 description: Automated semantic versioning for commits. Determines major/minor/patch from the nature of changes, bumps package.json version, and formats commit messages with version prefix. Use when committing changes that warrant a version bump, or when the user asks to bump/tag/release a version.
+weight: light
 ---
 
 # Version Bump — Semantic Versioning on Autopilot

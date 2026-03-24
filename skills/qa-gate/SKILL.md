@@ -1,6 +1,7 @@
 ---
 name: qa-gate
 description: Mandatory QA gate before delivering any feature, fix, or component. Dispatches an independent testing agent to exercise the implementation end-to-end before returning results to the user.
+weight: heavy
 ---
 
 # QA Gate — Test It Before You Ship It

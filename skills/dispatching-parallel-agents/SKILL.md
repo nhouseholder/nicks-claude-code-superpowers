@@ -1,6 +1,7 @@
 ---
 name: dispatching-parallel-agents
 description: Parallel agent orchestrator with strict safety controls. Max 2 agents for research, max 3 for independent code tasks. Agents share context via briefings that include memory files, anti-patterns, and verified constants. NEVER parallelize data analysis. Sequential-first mindset — only parallelize when genuinely independent AND the overhead is justified.
+weight: heavy
 ---
 
 # Parallel Agent Orchestration — Conservative Mode

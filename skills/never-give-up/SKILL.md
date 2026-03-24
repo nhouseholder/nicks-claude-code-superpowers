@@ -1,6 +1,7 @@
 ---
 name: never-give-up
 description: Never abandon a proven-valuable idea because integration failed. But also never burn tokens on endless retries. Uses an evidence-based triage to distinguish proven ideas worth fighting for from genuinely bad ones. Always-on mindset skill with built-in token discipline.
+weight: light
 ---
 
 # Never Give Up — But Be Smart About It

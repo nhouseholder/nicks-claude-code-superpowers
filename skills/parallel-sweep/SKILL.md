@@ -1,6 +1,7 @@
 ---
 name: parallel-sweep
 description: Run parallel parameter sweeps using multiple Claude Code headless agents. Each agent explores a different parameter subspace, writes results to shared SQLite database, and a summary report is generated. Use for coefficient searches, hyperparameter tuning, or any parallelizable parameter optimization.
+weight: heavy
 ---
 
 # Parallel Sweep — Multi-Agent Parameter Search

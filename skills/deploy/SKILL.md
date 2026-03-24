@@ -1,6 +1,7 @@
 ---
 name: deploy
 description: Deploy projects to Cloudflare Pages/Workers with pre-flight checks, smoke tests, and automatic rollback on failure. Handles linting, testing, building, deploying, verifying, and tagging releases. Use when asked to deploy, ship, release, push to production, or go live.
+weight: heavy
 ---
 
 # Deploy Skill
