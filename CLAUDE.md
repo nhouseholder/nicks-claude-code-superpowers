@@ -138,15 +138,17 @@ A prop bet (method, round, combo) is a SPECIFIC prediction. It wins ONLY when th
 
 **Full spec:** `~/.claude/memory/topics/ufc_betting_model_spec.md` — READ THIS BEFORE TOUCHING ANY UFC SCORING CODE.
 
-**Quick reference:** Each UFC fight has up to 4 bets (1u each): ML, Method (ML+method), Round (ML+round), Combo (ML+method+round). Plus 1 Parlay per event (5u, top 2 ML picks combined). ALL bets are contingent on ML — fighter loses = ALL bets lose. Method and Round are scored INDEPENDENTLY (correct method + wrong round = Method wins, Round loses, Combo loses). DEC predictions have no round/combo bets. Parlay stake is 1u (same as all bet types). 71-event minimum backtest window.
+**Quick reference:** Each UFC fight has up to 4 bets (1u each): ML, Method (ML+method), Round (ML+round), Combo (ML+method+round). Plus Parlays per event (1u each, HC parlay + high-ROI parlay if no fighter overlap). ALL bets are contingent on ML — fighter loses = ALL bets lose. Method and Round are scored INDEPENDENTLY (correct method + wrong round = Method wins, Round loses, Combo loses). DEC predictions have no round/combo bets. 71-event minimum backtest window (growing).
 
-### No-Revert Rule for Data-Driven Decisions
+### Anti-Flip-Flop Rule for Data-Driven Decisions
 
-**When analysis produces a clear result, DO NOT revert it because you confused yourself.**
+**Do not revert a user-confirmed change by re-analyzing the same data and reaching a different conclusion.**
 
-If the user approves a change based on data, and the backtest confirms the expected direction, the change is FINAL. Do not second-guess it by re-analyzing the same data and reaching a different conclusion. If numbers seem contradictory, the bug is in your analysis, not the data. Re-read the raw data — do not re-derive from memory.
-
-**This rule exists because:** In one session, Claude gated R2 round bets (correct), then reverted (wrong), then re-gated (correct), then reverted AGAIN (wrong), then re-gated AGAIN (correct) — 5 reversals of the same correct decision, wasting an entire session.
+If you think a confirmed decision might be wrong:
+1. **ASK the user first** — "The data seems to show X, which contradicts what we decided. Should I investigate?"
+2. **Do NOT silently revert** — reverting without asking is how the R2 gating flip-flopped 5 times
+3. **If you re-analyze and get different numbers, your analysis has a bug** — read the raw data directly, don't re-derive from memory or agents
+4. Claude CAN be wrong — this rule prevents flip-flopping, not course correction. The user can always override.
 
 ## File Archival (MANDATORY — applies to ALL projects)
 
