@@ -1,3 +1,10 @@
+# ============================================================
+# ARCHIVED — 2026-03-23
+# Superseded by: adaptive-voice (answer-first rules merged in)
+# Reason: Content fully absorbed into adaptive-voice skill
+# Do NOT use this file.
+# ============================================================
+
 ---
 name: progressive-disclosure
 description: Lead with the answer or action, then offer details only if asked. Prevents walls of text when the user just wants the result. Always-on output structure skill.
