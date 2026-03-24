@@ -110,15 +110,48 @@ If yes to any → **compact first, then spawn the agent.** An agent that consume
 
 This is the #1 cause of the "continue gets no response" bug.
 
+## Pre-Compact Checkpoint (MANDATORY)
+
+**Before EVERY `/compact`, save a checkpoint file.** This is the difference between safe compaction and lossy compaction.
+
+Write to `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md` (overwritten each time):
+
+```markdown
+# Pre-Compact Checkpoint — <timestamp>
+
+## What we were doing
+<1-2 sentence summary of current task>
+
+## Key numbers / data computed this session
+<Any stats, counts, P/L figures, measurements — these WILL be lost in compaction>
+
+## Decisions made
+<Approach choices, user preferences stated this session, "we decided X because Y">
+
+## Current progress
+<What's done, what's next, any blockers>
+
+## Files modified this session
+<List of files changed and why>
+```
+
+**After compaction, the first thing to do is re-read this file.** It costs ~200 tokens to read but saves thousands in re-discovery.
+
+**When NOT to checkpoint** (skip the file, just compact):
+- Very short sessions (<10 tool calls)
+- No data or decisions to preserve
+- Session was purely exploratory with no conclusions
+
 ## Best Practices
 
-1. **Compact after planning** — Once plan is finalized in TodoWrite, compact to start fresh
-2. **Compact after debugging** — Clear error-resolution context before continuing
-3. **Don't compact mid-implementation** — Preserve context for related changes
-4. **Read the suggestion** — The hook tells you *when*, you decide *if*
-5. **Write before compacting** — Save important context to files or memory before compacting
+1. **Checkpoint then compact** — Write the checkpoint file, then `/compact`
+2. **Compact after planning** — Once plan is finalized in TodoWrite, compact to start fresh
+3. **Compact after debugging** — Clear error-resolution context before continuing
+4. **Don't compact mid-implementation** — Preserve context for related changes
+5. **Read the suggestion** — The hook tells you *when*, you decide *if*
 6. **Use `/compact` with a summary** — Add a custom message: `/compact Focus on implementing auth middleware next`
 7. **Compact before large agents** — If context is substantial, compact before spawning agents that will produce heavy output
+8. **Re-read checkpoint after compaction** — First action post-compact: read `pre_compact_checkpoint.md`
 
 ## Related
 
