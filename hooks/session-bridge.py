@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-Session Bridge — Anchors GLM-5 to the most recent conversation context.
+Session Bridge — Provides GLM-5 with structured handoff context from the session.
 Fires on EVERY UserPromptSubmit when Haiku/GLM-5 is active.
-Extracts the last user+assistant exchange and injects it as priority context.
+Extracts the last 3 user+assistant exchanges (not just 1) for real continuity.
 """
 import json
 import sys
 import os
+import subprocess
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -23,9 +24,6 @@ def extract_text(content):
             if isinstance(block, dict):
                 if block.get("type") == "text":
                     texts.append(block.get("text", ""))
-                elif block.get("type") == "tool_result":
-                    # Skip tool results — too noisy
-                    pass
         return " ".join(texts)
     return ""
 
@@ -47,54 +45,69 @@ try:
     if not transcript_path or not Path(transcript_path).exists():
         sys.exit(0)
 
-    # Read transcript and extract last user + assistant exchange
-    last_user_msg = ""
-    last_assistant_msg = ""
-
+    # Read last 150 lines to capture more context (3-5 exchanges typically)
     try:
-        # Read only the last 50 lines — avoids loading entire transcript into memory
-        import subprocess
         result = subprocess.run(
-            ["tail", "-50", transcript_path],
-            capture_output=True, text=True, timeout=2
+            ["tail", "-150", transcript_path],
+            capture_output=True, text=True, timeout=3
         )
         lines = result.stdout.strip().split("\n") if result.stdout else []
-
-        # Scan from END — find last assistant response, then last user message before it
-        found_assistant = False
-        for line in reversed(lines):
-            try:
-                entry = json.loads(line)
-                role = entry.get("role", "")
-                content = entry.get("content", "")
-                text = extract_text(content)
-
-                if not text or len(text.strip()) < 5:
-                    continue
-
-                if role == "assistant" and not found_assistant:
-                    # Last meaningful assistant response (first 600 chars)
-                    last_assistant_msg = text.strip()[:600]
-                    found_assistant = True
-                elif role == "user" and found_assistant and not last_user_msg:
-                    # Last user message before that assistant response
-                    last_user_msg = text.strip()[:400]
-                    break
-            except Exception:
-                pass
-
     except Exception:
         sys.exit(0)
 
-    # Only inject if we found meaningful context
-    if not last_assistant_msg:
+    # Extract up to 3 recent exchanges (user→assistant pairs)
+    exchanges = []  # List of (user_msg, assistant_msg) tuples
+    current_assistant = ""
+    current_user = ""
+
+    for line in reversed(lines):
+        try:
+            entry = json.loads(line)
+            role = entry.get("role", "")
+            text = extract_text(entry.get("content", ""))
+
+            if not text or len(text.strip()) < 5:
+                continue
+
+            if role == "assistant" and not current_assistant:
+                current_assistant = text.strip()[:800]
+            elif role == "user" and current_assistant:
+                current_user = text.strip()[:300]
+                exchanges.append((current_user, current_assistant))
+                current_assistant = ""
+                current_user = ""
+                if len(exchanges) >= 3:
+                    break
+        except Exception:
+            pass
+
+    if not exchanges:
         sys.exit(0)
 
-    bridge = f"""[SESSION CONTEXT — Most recent exchange before your current message]
-USER ASKED: {last_user_msg[:400] if last_user_msg else '(see conversation history)'}
-ASSISTANT WAS DOING: {last_assistant_msg[:600]}
-[END CONTEXT]
-INSTRUCTION: Address the user's CURRENT message below. Use the above only for continuity — do not re-explain or re-summarize it."""
+    # Build structured handoff — most recent first
+    exchanges.reverse()  # Chronological order
+
+    bridge_parts = ["[SESSION HANDOFF — You are continuing work from Opus/Sonnet]", ""]
+
+    for i, (user_msg, assistant_msg) in enumerate(exchanges):
+        if i == len(exchanges) - 1:
+            # Most recent exchange — show more detail
+            bridge_parts.append(f"MOST RECENT — User: {user_msg[:300]}")
+            bridge_parts.append(f"MOST RECENT — Assistant was: {assistant_msg[:800]}")
+        else:
+            # Earlier exchanges — just enough for context
+            bridge_parts.append(f"Earlier — User: {user_msg[:150]}")
+            bridge_parts.append(f"Earlier — Assistant: {assistant_msg[:200]}...")
+        bridge_parts.append("")
+
+    bridge_parts.append("YOUR TASK: Pick up EXACTLY where the last assistant response left off.")
+    bridge_parts.append("- Do NOT redo work that's already done")
+    bridge_parts.append("- Do NOT re-read files that were already read (unless you need specific data)")
+    bridge_parts.append("- If the last response was mid-task, continue that task")
+    bridge_parts.append("- If the last response completed a task, ask what's next")
+    bridge_parts.append("[END HANDOFF]")
+
+    bridge = "\n".join(bridge_parts)
 
     print(json.dumps({
         "hookSpecificOutput": {
