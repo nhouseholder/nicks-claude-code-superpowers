@@ -92,7 +92,7 @@ Walk-forward means: for each game/event being evaluated, the model may ONLY use 
 
 1. **Wins pay at the ODDS, not flat +1 unit.** A 1-unit bet at +150 odds pays +1.50u profit. A 1-unit bet at -200 odds pays +0.50u profit. NEVER use +1.00u for a win.
    - Formula: `profit = stake * (odds / 100)` for positive odds, `profit = stake * (100 / abs(odds))` for negative odds
-2. **Losses are always -1 unit per bet type.** If a fighter loses, ALL bets on that fighter lose. ML loss = -1u. Method loss = -1u. Round loss = -1u. Combined = sum of all losses.
+2. **Losses are always -1 unit per bet type.** If a fighter loses, ALL bets on that fighter lose. ML loss = -1u. Method loss = -1u. Round loss = -1u. Combo loss = -1u. Combined = sum of all losses (up to -4u per fight if all 4 bets placed).
 3. **Actual odds must be sourced, never assumed.** Scrape or look up the real odds for every bet. If odds aren't available, mark the cell as "odds missing" — never substitute +100 or +1.00u.
 4. **"Every cell is correct" requires checking at least ONE cell manually.** Trace one payout from odds to final value before claiming correctness.
 5. **This bug has occurred 5+ times.** If you're building a P/L table, payout function, or results display, re-read this section before writing ANY code.
@@ -108,6 +108,12 @@ Before displaying, committing, or claiming any betting statistics are correct, v
 5. **Every bet type that was bet on must show non-zero W-L.** If the algorithm made method predictions for 25 events, method cannot show 0W-0L.
 6. **Sum of category bets ≈ total bets.** ML(W+L) + Method(W+L) + Round(W+L) + Combo(W+L) + Parlay(W+L) should roughly equal the total bet count shown in the header.
 7. **All bet types use the same scoring pipeline.** If ML tracking works but Method shows 0W-0L, the scoring code has a bet-type filter bug — it's processing ML but skipping others.
+
+### UFC 4-Bet Model (CANONICAL — see full spec in memory)
+
+**Full spec:** `~/.claude/memory/topics/ufc_betting_model_spec.md` — READ THIS BEFORE TOUCHING ANY UFC SCORING CODE.
+
+**Quick reference:** Each UFC fight has up to 4 bets (1u each): ML, Method (ML+method), Round (ML+round), Combo (ML+method+round). Plus 1 Parlay per event (5u, top 2 ML picks combined). ALL bets are contingent on ML — fighter loses = ALL bets lose. Method and Round are scored INDEPENDENTLY (correct method + wrong round = Method wins, Round loses, Combo loses). DEC predictions have no round/combo bets. Parlay stake is 1u (same as all bet types). 71-event minimum backtest window.
 
 ## File Archival (MANDATORY — applies to ALL projects)
 
