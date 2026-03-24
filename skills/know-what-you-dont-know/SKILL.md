@@ -189,6 +189,30 @@ Domain rules change. Tax rates change. API versions deprecate. Sportsbook rules 
 | **Medium** (correctness preferred) | Data formatting, UI patterns, best practices | 1-2 sources | Checks 3-4 |
 | **Low** (preference-based) | Color choices, naming conventions, code style | Memory/docs only | Check 4 only |
 
+## Research Failure Escalation
+
+**If research fails (agents timeout, web searches error, sites block scraping), Claude MUST NOT proceed with training data alone.**
+
+### The "Research Failed" Protocol
+1. **Acknowledge the failure honestly:** "My research agents failed to return reliable data."
+2. **Do NOT substitute training data:** Training data may be outdated, wrong, or from the wrong year/version. The NFL Draft failure happened because Claude used stale training data after research agents failed.
+3. **Tell the user what's missing:** "I need [X data] but couldn't fetch it. Here are options: (a) you provide it, (b) I try different sources, (c) we proceed with what we have but flag it as unverified."
+4. **Never declare success on unverified data:** If the data wasn't fetched from a live source THIS SESSION, it's unverified. Label it as such.
+
+### The "Wrong Year" Check
+Before building ANY app that uses time-sensitive data (sports seasons, draft classes, stock prices, election data):
+- **WebSearch the current year/season FIRST** — "2026 NFL Draft date" or "current NBA season"
+- **Verify the data year matches the request** — if user says "2026 draft" but training data is from 2025, STOP
+- **Check if the event already happened** — if it did, use actual results, not predictions
+- **Training data dates are UNRELIABLE** — always verify against live sources
+
+### Validation Against Reality
+For prediction/simulation apps:
+- **If historical data exists for the period being modeled, compare against it**
+- **If the model predicts something wildly different from expert consensus, that's a red flag** — research why before proceeding
+- **"The results look reasonable" is NOT validation** — check specific predictions against known facts
+- **A 5th-round pick projected #1 overall is a catastrophic signal** — the model is broken, don't ship it
+
 ## Anti-Patterns This Prevents
 
 | Anti-Pattern | What Happens | This Skill's Fix |
@@ -198,6 +222,9 @@ Domain rules change. Tax rates change. API versions deprecate. Sportsbook rules 
 | **Reasoning from vibes** | Claude "figures out" domain rules by reasoning instead of looking them up | Require authoritative sources, not inference |
 | **Single-correction learning** | Claude fixes the specific instance but doesn't learn the general rule | Force domain-knowledge file creation after research |
 | **Assumed expertise** | Claude acts like an expert because it has seen the words before | Checklist forces verification of actual understanding |
+| **Research failure → training data fallback** | Agents fail, Claude proceeds with stale training data | Research Failed Protocol: stop, inform user, never ship unverified |
+| **Wrong year/version** | Claude uses 2025 data for a 2026 app | Wrong Year Check: verify dates against live sources before building |
+| **"Results look reasonable"** | Claude eyeballs output and declares success | Validation Against Reality: compare predictions to known facts |
 
 ## When NOT to Fire
 
