@@ -109,11 +109,41 @@ Before displaying, committing, or claiming any betting statistics are correct, v
 6. **Sum of category bets ≈ total bets.** ML(W+L) + Method(W+L) + Round(W+L) + Combo(W+L) + Parlay(W+L) should roughly equal the total bet count shown in the header.
 7. **All bet types use the same scoring pipeline.** If ML tracking works but Method shows 0W-0L, the scoring code has a bet-type filter bug — it's processing ML but skipping others.
 
+### How UFC Prop Bets Work (FUNDAMENTAL — read before ANY analysis)
+
+**This has been wrong 10+ times. READ THIS EVERY TIME you analyze prop bet performance.**
+
+A prop bet (method, round, combo) is a SPECIFIC prediction. It wins ONLY when the exact condition hits. Every other outcome is a loss of -1 unit. There is no partial credit, no "doesn't count because the fighter lost."
+
+**Examples — burn these into your reasoning:**
+
+| Bet | Fighter wins R1 KO | Fighter wins R2 KO | Fighter wins R3 KO | Fighter wins DEC | Fighter LOSES |
+|-----|------|------|------|------|------|
+| "Bob wins R2 KO" | **LOSS -1u** (wrong round) | **WIN +odds** | **LOSS -1u** (wrong round) | **LOSS -1u** (wrong method+round) | **LOSS -1u** |
+| "Bob wins R1 KO" | **WIN +odds** | **LOSS -1u** (wrong round) | **LOSS -1u** | **LOSS -1u** | **LOSS -1u** |
+
+**Key rule: EVERY fighter loss IS a prop loss.** When computing round bet W-L records, fighter losses are NOT excluded, NOT special-cased, NOT analyzed separately. They are -1u losses, period. A R2 bet where the fighter loses is the same as a R2 bet where the fighter wins by DEC — both are -1u.
+
+**When analyzing prop bet performance by round/method:**
+- Total bets = Wins + ALL losses (fighter loss + wrong round + wrong method)
+- Win% = Wins / Total bets (not Wins / "bets where fighter won")
+- NEVER filter to "only bets where the fighter won" — that creates a fake win rate that doesn't reflect real P/L
+
+**Anti-pattern (HAS OCCURRED 5+ TIMES):** Analyzing R1 vs R2 round bets, excluding fighter losses, showing 92% win rate for R1. This is WRONG. The real R1 win rate is 48% (12W out of 25 bets total). The 13 fighter losses are real -1u losses on the R1 round bet.
+
 ### UFC 4-Bet Model (CANONICAL — see full spec in memory)
 
 **Full spec:** `~/.claude/memory/topics/ufc_betting_model_spec.md` — READ THIS BEFORE TOUCHING ANY UFC SCORING CODE.
 
 **Quick reference:** Each UFC fight has up to 4 bets (1u each): ML, Method (ML+method), Round (ML+round), Combo (ML+method+round). Plus 1 Parlay per event (5u, top 2 ML picks combined). ALL bets are contingent on ML — fighter loses = ALL bets lose. Method and Round are scored INDEPENDENTLY (correct method + wrong round = Method wins, Round loses, Combo loses). DEC predictions have no round/combo bets. Parlay stake is 1u (same as all bet types). 71-event minimum backtest window.
+
+### No-Revert Rule for Data-Driven Decisions
+
+**When analysis produces a clear result, DO NOT revert it because you confused yourself.**
+
+If the user approves a change based on data, and the backtest confirms the expected direction, the change is FINAL. Do not second-guess it by re-analyzing the same data and reaching a different conclusion. If numbers seem contradictory, the bug is in your analysis, not the data. Re-read the raw data — do not re-derive from memory.
+
+**This rule exists because:** In one session, Claude gated R2 round bets (correct), then reverted (wrong), then re-gated (correct), then reverted AGAIN (wrong), then re-gated AGAIN (correct) — 5 reversals of the same correct decision, wasting an entire session.
 
 ## File Archival (MANDATORY — applies to ALL projects)
 
