@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-GLM-5 Focus Guard — Injects a focus reminder after tool calls.
+GLM-5 Focus Guard — Context-aware nudges after tool calls.
 Fires on PostToolUse ONLY when Haiku/GLM-5 is active.
-Prevents the model from dumping large amounts of text after reading files.
+Different guidance depending on the tool used.
 """
 import json
 import sys
@@ -24,14 +24,20 @@ try:
 
     tool_name = hook_input.get("tool_name", "")
 
-    # After file reads and searches — highest hallucination risk
-    high_risk_tools = {"Read", "Grep", "Glob", "WebFetch", "WebSearch"}
+    # Context-aware reminders based on what tool just ran
+    reminders = {
+        "Read": "You just read a file. Before moving on: note the KEY FACT from this file that's relevant to the task. If debugging across files, write down what you learned before reading the next file.",
+        "Grep": "Search results returned. Which results are actually relevant? Pick the specific matches that answer the question — ignore the rest.",
+        "Glob": "File list returned. Which file(s) do you actually need to read? Pick the most likely one first.",
+        "Edit": "You just edited a file. Does this change break anything else? Consider imports, callers, and tests.",
+        "Write": "You just wrote a file. Verify: does it match the existing project patterns? Is anything hardcoded that shouldn't be?",
+        "Bash": "Command completed. Did the output match what you expected? If not, diagnose before continuing.",
+        "WebFetch": "Web content received. Extract only the specific data point you need — don't summarize the whole page.",
+        "WebSearch": "Search results returned. Pick the most authoritative source. Don't try to synthesize all results.",
+    }
 
-    if tool_name in high_risk_tools:
-        reminder = "You just received data. Before responding: (1) What specific part answers the user's question? Extract only that. (2) Do you need another tool call, or can you answer now? (3) Keep your text to the relevant findings only."
-    else:
-        # Light nudge for other tools
-        reminder = "Good. Now connect this result back to the user's question."
+    default = "Good. Connect this result back to what the user asked."
+    reminder = reminders.get(tool_name, default)
 
     print(json.dumps({
         "hookSpecificOutput": {
