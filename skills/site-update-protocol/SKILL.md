@@ -1,288 +1,225 @@
 ---
 name: site-update-protocol
-description: Universal checklist for updating sports prediction websites (OctagonAI, Diamond Predictions, Courtside AI) after algorithm changes. Covers all tabs, stats, data files, images, backtest results, and deployment. Fires when algorithm changes are committed or when the user mentions updating the site/website.
+description: UFC MMA Logic website frontend update and maintenance protocol. Fires after ANY algorithm update, backtest re-run, new event scoring, or website deploy. Ensures all 5 bet types display correctly, charts render properly, tables are complete, and data is consistent across all pages. Prevents the recurring bugs of missing bet types, broken charts, and incomplete tables.
 weight: light
-category: deployment
+triggers:
+  - "update the website"
+  - "deploy to cloudflare"
+  - "update mmalogic"
+  - "sync data to webapp"
+  - after any backtest re-run
+  - after any algorithm change that affects P/L
+  - after scoring a new event
 ---
 
-# Site Update Protocol — Full Website Refresh After Algorithm Changes
+# Site Update Protocol — mmalogic.com / OctagonAI
 
-## When This Activates
+## When This Fires
 
-After ANY algorithm change that affects predictions, accuracy, P/L, stats, or backtest results — including:
-- Coefficient/weight changes
-- New betting systems added or removed
-- Feature engineering changes
-- Backtest window changes
-- Optimizer runs
-- Any change that alters prediction output or historical stats
+After ANY of these:
+- Algorithm update that changes scoring/P/L
+- Backtest re-run that regenerates the registry
+- New event scored and added to registry
+- Frontend code change
+- User says "update the website"
 
-**One rule: if the algorithm changed, the ENTIRE site must reflect the new state. No partial updates.**
+## The 5 Display Requirements (Non-Negotiable)
 
-## Site Registry
+Every page on mmalogic.com MUST display all 5 bet types. If any page shows fewer than 5, it's broken.
 
-| Site | Sport | URL | Repo | Algorithm Location |
-|------|-------|-----|------|--------------------|
-| OctagonAI | UFC | octagonai.pages.dev | nhouseholder/ufc-predict | `UFC_Alg_v4_fast_2026.py` |
-| Diamond Predictions | MLB + NHL | diamond-predict.pages.dev | nhouseholder/diamond-predictions | `mlb_predict/algorithms/` + `nhl_predict/algorithms/` |
-| Courtside AI | CBB + NBA | courtside-ai.pages.dev | nhouseholder/courtside-ai | `scripts/predict_and_upload.py` |
+### 1. Hero Stats Cards — MUST show 5 cards
 
-All sites: **React + Vite + Tailwind + Cloudflare Pages**
-
-## Universal Update Checklist
-
-After every algorithm change, run through ALL of these. Skip none.
-
-### Phase 1: Regenerate Data
-
-Every site has static JSON data files that power the frontend. These MUST be regenerated after algorithm changes.
-
-**OctagonAI (UFC):**
-```bash
-# Run full backtest (generates updated stats)
-python UFC_Alg_v4_fast_2026.py 2>&1 | tee backtest_results.log
-
-# Key output files to verify (all in webapp/frontend/public/data/):
-# - algorithm_stats.json      ← accuracy %, component breakdown
-# - ufc_profit_registry.json  ← event history, P/L per event
-# - backtest_summary.json     ← backtest results
-# - fight_breakdowns.json     ← detailed fighter analysis
-# - constants.json            ← algorithm parameters
-# - current_picks.json        ← latest event picks (if event is upcoming)
-# - optimizer_results.json    ← if optimizer was run
+```
+[ML +60.07u]  [Method +34.99u]  [Round +3.58u]  [Combo +35.25u]  [Parlay +28.65u]
+ 183W-61L       86W-110L          17W-38L          14W-37L          18W-17L
 ```
 
-**Diamond Predictions (MLB):**
-```bash
-# Full refresh pipeline (backtest + data gen + build + deploy)
-./mlb_predict/scripts/refresh_and_deploy.sh
+Colors: ML=green, Method=blue, Round=purple, Combo=amber, Parlay=yellow
 
-# Or quick mode (skip backtest, just regenerate):
-./mlb_predict/scripts/refresh_and_deploy.sh --quick
+**Bug this prevents:** Screenshots showed 3 cards (ML/Method/Round only). All 5 must always render.
 
-# Key output files (in backtest_results/ → copied to webapp/frontend/public/data/):
-# - prediction_log.json           ← all picks recomputed
-# - performance_log.json          ← historical ROI/results
-# - system_profit_rankings.json   ← system leaderboard
-# - system_bets_log.json          ← per-system stats
+### 2. Event Tables — MUST have all columns + parlay row + totals row
+
+```
+FIGHT              | ML      | METHOD  | ROUND  | COMBO  | COMBINED
+Murphy v Evloev    | X -1.00 | X -1.00 | —      | —      | -2.00
+Page v Patterson   | ✓ +0.56 | ✓ +1.90 | —      | —      | +2.46
+Duncan v Dolidze   | ✓ +0.22 | ✓ +1.30 | —      | —      | +1.52
+PARLAY (Page+Duncan)                                      | +1.80
+EVENT TOTAL        | -0.22   | +0.20   | —      | —      | +3.78
 ```
 
-**Diamond Predictions (NHL):**
-```bash
-# NHL pipeline cross-writes to diamond-predictions frontend
-# Key output files (copied to webapp/frontend/public/data/nhl-*.json):
-# - nhl-predictions.json
-# - nhl-performance.json
-# - nhl-system-rankings.json
+Rules:
+- Fighter LOSS → show "X -1.00u" in EVERY bet type column where a bet was placed (not "X —")
+- Fighter WIN but no odds → show "✓ —" (checkmark, no P/L amount)
+- No bet placed → show "—" (em dash)
+- NEVER show "0.00u" for a bet type with wins — that means the P/L isn't being computed
+- Parlay row is ALWAYS present (even if no parlay was placed, show "— no parlay")
+- EVENT TOTAL row sums ALL bet P/Ls including parlay
+
+**Bugs this prevents:**
+- Method showing "0.00u" with "2W-0L" (impossible — wins must have positive P/L)
+- Method showing "✓ ✓" with no dollar amounts
+- Murphy method showing "X —" instead of "X -1.00u"
+- Missing parlay row
+- Missing totals row
+
+### 3. Profit Curve Chart — ALL 5 lines starting from event 1
+
+Requirements:
+- 5 colored lines: Combined (red), ML (green), Method (blue), Round (purple), Combo (amber), Parlay (yellow)
+- ALL lines start at (0, 0) from event 1 — no flat zero line for the first 35 events
+- X-axis labels: show every 8-10 events, angled at -45°, with enough height (100px minimum) so text isn't cut off
+- Legend at bottom with all 6 items visible (no overlap, no truncation)
+- Y-axis starts at the minimum value (allow negative), not hardcoded at 0
+
+**Bugs this prevents:**
+- Graph starting in the middle with first 35 events showing flat zero
+- X-axis labels overlapping or cut off at bottom
+- Legend items overlapping ("Round" being cut off)
+- Only showing 3 lines instead of 6
+
+### 4. Event History Cards — ALL 5 bet type summaries
+
+Each event card in the scrollable history must show:
+```
+UFC Fight Night: Emmett vs. Vallejos        -4.17u
+Mar 13, 2026 · 9 picks
+[ML -0.07u 6W-3L] [Method -2.09u 3W-3L] [Round -1.00u 0W-1L] [Combo ... ] [Parlay ... ]
 ```
 
-**Courtside AI (CBB/NBA):**
-```bash
-# Regenerate static data from backtest DB
-python3 scripts/generate-static-data.py
+**Bugs this prevents:**
+- Only showing ML/Method/Round, missing Combo/Parlay
+- Event name truncated to "UFC ..." — show full name or truncate with "..." only after 40+ chars
 
-# Key output files (in public/data/):
-# - predictions.json    ← today's picks with edges, tiers
-# - summary.json        ← season stats (record, ATS%, ROI, units)
-# - performance.json    ← daily cumulative profit curve
-# - elo.json            ← team ELO rankings
-# - recent-results.json ← last 15 graded games
-# - diagnostic-summary.json ← model diagnostics
-# NBA variants in public/data/nba/
-```
+### 5. History Page Event Tables — Same rules as #2
 
-### Phase 2: Verify All Data Files Updated
+The History page has its own inline table (NOT EventBetsDropdown). It must follow the exact same 5-column format with parlay row and totals row.
 
-Before building, confirm every data file has a fresh timestamp:
+## Data Consistency Checks (Run Before EVERY Deploy)
 
-```bash
-# Check all data files were regenerated (should all be within last few minutes)
-ls -la webapp/frontend/public/data/*.json  # or public/data/*.json
-```
-
-**Checklist — every file must reflect the new algorithm:**
-
-| What | Where to Check | What Should Change |
-|------|----------------|-------------------|
-| Overall accuracy/record | `algorithm_stats.json` or `summary.json` | New win %, P/L, ROI |
-| Profit curve data | `performance.json` or `ufc_profit_registry.json` | New data points, updated totals |
-| System rankings | `system_profit_rankings.json` | Reranked by new performance |
-| Pick history | `prediction_log.json` or registry | All historical picks recomputed |
-| Current picks | `current_picks.json` or `predictions.json` | New odds, edges, tier assignments |
-| Algorithm parameters | `constants.json` or config | New weights/coefficients |
-| Backtest summary | `backtest_summary.json` | New baseline numbers |
-
-### Phase 3: Update Frontend Components (If Needed)
-
-Usually NO code changes needed — the frontend reads data files dynamically. But check if:
-
-- [ ] **New stat added** → Add display in Dashboard/Admin component
-- [ ] **New betting system category** → Add to system leaderboard/rankings
-- [ ] **New tier/badge** → Add styling in Picks component
-- [ ] **Accuracy milestones** → Update hero stats on Landing page (if hardcoded)
-- [ ] **Version number** → Bump in `package.json` or `VERSION` file
-
-**Landing Page Stats** — These are often partially hardcoded. Check:
-- Hero section accuracy/ROI numbers
-- "X events tracked" or "X picks analyzed" counts
-- Profit curve preview
-- System count ("powered by X systems")
-
-### Phase 4: Build & Deploy
-
-**CRITICAL: Never build from iCloud directory. Clone to `/tmp/` first.**
-
-**OctagonAI:**
-```bash
-cd /tmp/ && git clone <repo> octagonai-deploy && cd octagonai-deploy
-# Copy updated data files if not committed
-npm ci && npm run build
-npx wrangler pages deploy dist --project-name=octagonai
-```
-
-**Diamond Predictions:**
-```bash
-# refresh_and_deploy.sh handles this automatically
-# Or manual:
-cd webapp/frontend && npm ci && npm run build
-npx wrangler pages deploy dist --project-name=diamond-predict
-```
-
-**Courtside AI:**
-```bash
-cd /tmp/ && git clone <repo> courtside-deploy && cd courtside-deploy
-npm ci && npm run build
-npx wrangler pages deploy dist --project-name=courtside-ai
-```
-
-### Phase 5: Post-Deploy Verification
-
-After deploy, verify EVERY tab shows updated data:
-
-| Tab/Page | What to Verify |
-|----------|---------------|
-| **Home/Landing** | Hero stats match new accuracy/ROI. Profit curve shows latest data. Pick count is current. |
-| **Picks** | Current event picks render. Odds are fresh. Tier badges correct. System signals display. |
-| **Dashboard** | Profit curve has all events. ROI/win rate matches backtest. Component accuracy table updated. |
-| **History** | All historical events listed. Results (W/L/P) correct. P/L per event matches registry. |
-| **Admin → Overview** | System status shows latest run timestamp. Stats match other pages. |
-| **Admin → Backtest** | Backtest results show new baseline. Summary matches algorithm_stats. |
-| **Admin → Systems** | All systems listed with correct trigger counts and P/L. New systems appear. Removed systems gone. |
-| **Admin → Algorithm** | Parameters/constants reflect current values. |
-| **Admin → Performance** | Profit timeline matches dashboard. Event breakdown is complete. |
-
-### Phase 6: Update Firestore (If Applicable)
-
-**OctagonAI + Courtside AI** use Firestore for real-time data:
+Before deploying, verify these invariants:
 
 ```python
-# OctagonAI: Upload to Firestore after data generation
-python firestore_upload.py  # or triggered via admin panel
+# Run mentally or with validate_event_table.py
+for event in registry:
+    # 1. Profit > 0 requires Wins > 0
+    assert not (event.ml.pnl > 0 and event.ml.wins == 0)
 
-# Courtside AI: Cron worker auto-generates, but verify:
-# - Firestore collection has fresh predictions
-# - graded_results collection is current
+    # 2. Wins with 0.00u P/L is impossible (unless all wins had missing odds)
+    if event.method.wins > 0 and event.method.pnl == 0:
+        # WARNING: method wins exist but P/L is zero — odds are missing
+
+    # 3. Combined = ML + Method + Round + Combo + Parlay
+    assert combined == ml + method + round + combo + parlay
+
+    # 4. Fighter loss = ALL placed bets lose (each -1u)
+    for bout in event.bouts:
+        if not bout.correct:  # fighter lost
+            assert bout.ml_pnl == -1.0
+            if bout.method_odds: assert bout.method_pnl == -1.0
+
+    # 5. W + L counts match displayed totals
+    assert ml.wins + ml.losses == total_ml_bets
 ```
 
-**Diamond Predictions** uses FastAPI backend — verify the backend can read the new JSON files.
+## Update Procedure
 
-## What Gets Missed Most Often
-
-These are the items that get forgotten and cause stale data on the site:
-
-1. **Landing page hero stats** — Often hardcoded, not dynamic. Must manually update after accuracy changes.
-2. **System count** — "Powered by X systems" on landing page when systems are added/removed.
-3. **Firestore upload** — Data files regenerated but Firestore not synced (OctagonAI).
-4. **VERSION bump** — Site shows old version number.
-5. **NHL cross-write** — MLB changes deployed but NHL data not regenerated into Diamond Predictions.
-6. **Pick history pagination** — New events not appearing because registry wasn't regenerated.
-7. **Admin backtest tab** — Shows old backtest summary because `backtest_summary.json` wasn't regenerated.
-
-## Automation Status
-
-| Site | Auto-Deploy on Push | Auto-Picks Generation | Auto-Grading | Auto-Backtest |
-|------|--------------------|-----------------------|--------------|---------------|
-| OctagonAI | Yes (GitHub Actions) | Yes (Sunday 7am UTC) | Yes (Sunday 2pm UTC) | Manual |
-| Diamond Predictions | Yes (GitHub Actions) | Via refresh script | Via admin API | Via refresh script |
-| Courtside AI | Yes (GitHub Actions) | Yes (Cloudflare Cron) | Yes (Cloudflare Cron) | Manual |
-
-## Quick Command: Full Site Refresh
-
-For each site, this single sequence covers everything:
-
+### Step 1: Copy Data Files
 ```bash
-# 1. Clone to safe location (NEVER iCloud)
-cd /tmp && git clone <repo-url> site-deploy && cd site-deploy
-
-# 2. Run algorithm/backtest (sport-specific command)
-python <algorithm_script> 2>&1 | tee backtest.log
-
-# 3. Regenerate all data files (sport-specific)
-# UFC: data generated by algorithm script
-# MLB: ./mlb_predict/scripts/refresh_and_deploy.sh
-# CBB: python3 scripts/generate-static-data.py
-
-# 4. Verify data files are fresh
-ls -la public/data/*.json  # or webapp/frontend/public/data/*.json
-
-# 5. Build frontend
-cd webapp/frontend  # or project root for Courtside
-npm ci && npm run build
-
-# 6. Deploy
-npx wrangler pages deploy dist --project-name=<project-name>
-
-# 7. Verify all tabs in browser
-# 8. Commit and push
-git add -A && git commit -m "update: vX.X — [description of algorithm change]"
-git push
-
-# 9. Sync back to iCloud (for backup)
+cp /path/to/ufc_profit_registry.json webapp/public/data/
+cp /path/to/algorithm_stats.json webapp/public/data/
+cp /path/to/upcoming_predictions.json webapp/public/data/  # if new picks
 ```
 
-### Phase 7: Consistency Review
+### Step 2: Verify Data Before Build
+- Check registry has 71+ events
+- Check algorithm_stats.json has correct version (currently v11.11)
+- Check combined P/L matches expected baseline
+- Run data consistency checks (above)
 
-Full cross-check across all layers — algorithm, backtester, predictor, website, and local files. This catches drift between components.
+### Step 3: Build and Deploy
+```bash
+cd webapp && npm run build && npx wrangler pages deploy dist --project-name=octagonai
+```
 
-**Algorithm ↔ Backtester Consistency:**
-- [ ] Backtester uses the SAME coefficients/weights as the live predictor
-- [ ] Backtester feature engineering matches predictor feature engineering exactly
-- [ ] Any new feature added to the predictor is also in the backtester (and vice versa)
-- [ ] Backtest results are reproducible — re-running produces the same output
+### Step 4: Visual Verification (MANDATORY)
+After deploy, check EVERY page:
 
-**Predictor ↔ Website Consistency:**
-- [ ] Current picks on the website match what the predictor would generate right now
-- [ ] Accuracy/ROI stats on the website match the latest backtest output
-- [ ] System rankings on the website match the backtest system breakdown
-- [ ] Algorithm parameters displayed on Admin tab match actual config values
+| Page | What to verify |
+|------|---------------|
+| Landing (/) | 5 hero cards, profit curve with 5 lines from event 1, latest event with all columns |
+| Dashboard (/dashboard) | 8 summary stats, event tables with 5 columns + parlay + totals |
+| History (/history) | All events listed, 5 columns per event, event names not truncated |
+| Upcoming (/upcoming) | Latest picks displayed |
 
-**Website Tab-to-Tab Consistency:**
-- [ ] Home page hero stats match Dashboard stats (accuracy, ROI, record)
-- [ ] Pick count on Home matches total picks in History
-- [ ] Profit curve on Dashboard matches profit curve on Home (if both exist)
-- [ ] System count on Home matches number of systems on Admin → Systems
-- [ ] All tabs show the same version number
+### Step 5: Spot-Check One Event Table
+Pick the latest event. Verify:
+1. Every fighter loss shows -1.00u in EVERY column where a bet was placed
+2. Every fighter win shows correct odds-based P/L (not flat +1.00u)
+3. Combined column = sum of all bet columns for that row
+4. Parlay row shows correct legs and P/L
+5. Event total row sums correctly
 
-**Local ↔ Deployed Consistency:**
-- [ ] Local data JSON files match what's deployed (no stale deploy)
-- [ ] Local git repo is pushed — deployed site reflects latest commit
-- [ ] iCloud backup has the same data files as the git repo
-- [ ] Firestore data (if applicable) matches the static JSON files
+## Common Failure Modes (With Fixes)
 
-**Forward Predictor ↔ Backtester Integrity:**
-- [ ] Forward predictor uses walk-forward stats (point-in-time only, no future data)
-- [ ] Backtester enforces walk-forward integrity (no post-event leakage)
-- [ ] Both use the same data sources and stat functions
-- [ ] Edge calculations are identical between forward and backward modes
+| Symptom | Root Cause | Fix |
+|---------|-----------|-----|
+| Method shows 0.00u with W > 0 | Method odds missing (method_pnl: null) | Show "✓ —" not "✓ 0.00u" |
+| 3 cards instead of 5 | Old component version deployed | Rebuild from source |
+| Chart starts in middle | Profit curve data starts at event ~35 not event 1 | Fix computeCurveFromRegistry to iterate ALL events |
+| X-axis labels cut off | Chart height too small or angle wrong | Set xAxis height={100}, angle={-45} |
+| Legend overlaps | Too many items for available width | Use 2-row legend or smaller font |
+| "Please fill out this field" tooltip | Browser autocomplete on a non-form element | Add autoComplete="off" to the container |
+| Event name "UFC ..." | CSS truncation too aggressive | Set min-width or use text-ellipsis with wider container |
+| Version shows old number | algorithm_stats.json overwritten by backtest | Never overwrite — only update specific fields |
+| Combined P/L doesn't match sum | Parlay not included in combined calculation | combined = ml + method + round + combo + parlay |
 
-If ANY inconsistency is found, fix it before completing the update. Do not ship a site where the backtester says one thing and the website shows another.
+## Color Scheme (Canonical)
+
+| Bet Type | Color | Tailwind | Hex |
+|----------|-------|----------|-----|
+| ML | Green | text-green-400 | #4ade80 |
+| Method | Blue | text-blue-400 | #60a5fa |
+| Round | Purple | text-purple-400 | #c084fc |
+| Combo | Amber | text-amber-400 | #fbbf24 |
+| Parlay | Yellow | text-yellow-400 | #facc15 |
+| Combined | Red | text-red-400 | #f87171 |
+
+## Domain Knowledge Requirement
+
+Before touching any UFC website code, the AI agent MUST read:
+- `~/.claude/memory/topics/ufc_betting_domain_knowledge.md` — expert-level UFC betting reference
+- `~/.claude/memory/topics/ufc_betting_model_spec.md` — the 4+1 bet model specification
+
+If the agent does not understand how prop bets settle (fighter loss = ALL props lose), it WILL produce broken tables. Read the domain knowledge first.
+
+## Screenshot-Verified Bug Checklist (Recurring Issues)
+
+These bugs have been found on the live site via screenshots. Check for ALL of them after every deploy:
+
+| # | Bug | Where | How to Detect | Fix |
+|---|-----|-------|--------------|-----|
+| 1 | Method shows "✓ ✓" with no P/L amount | Event table method column | Page/Duncan show green checkmarks but "—" instead of dollar amounts | Display method_pnl if available, "✓ —" only if method_correct=true AND method_pnl=null |
+| 2 | Method header shows "0.00u 0W-0L" when bouts have method wins | Event card summary | Evloev vs Murphy card shows Method 0.00u when 2 bouts have method_correct=true | Recompute event-level method stats from bout data, not from potentially zeroed aggregates |
+| 3 | Murphy method shows "X —" instead of "X -1.00u" | Event table | Murphy lost AND method bet was placed (method_odds exist) → should show -1.00u loss | If fighter lost AND bet was placed (odds exist), show "X -1.00u" |
+| 4 | Profit curve starts flat at 0 for first ~35 events | Chart | Left third of chart shows flat red line at 0 | Ensure profit curve data array has entries for ALL events starting from event 1 |
+| 5 | X-axis event labels cut off at bottom | Chart | Event names truncated, only top portions visible | Set chart bottom margin to 120px+, angle labels -45°, ensure container has overflow visible |
+| 6 | Legend items overlap or get cut off ("Round" partially visible) | Chart legend | Legend text runs together or clips | Use flexWrap, or 2-row legend, or reduce font size |
+| 7 | "Please fill out this field" browser tooltip | Landing page, near search/filter area | Native browser validation tooltip appearing on non-form elements | Add `autoComplete="off"` and `noValidate` to container elements |
+| 8 | Event cards show only "ML/Method/Round" — missing Combo and Parlay | Event history cards | Cards show 3 summary badges instead of 5 | Update EventCard component to include combo + parlay badges |
+| 9 | Event table in history shows "ML ODDS / ML / METHOD ODDS" — missing Round/Combo/Parlay columns | History page inline table | Table only has 3 data columns | Update HistoryPage table to use same 5-column format as EventBetsDropdown |
+| 10 | Two different profit curves on same site — one shows ML+Method+Round (3 lines), other shows all 5 | Multiple pages | Inconsistent chart data | Ensure ALL charts use the same registryData.js computeCurveFromRegistry with all 5 bet types |
 
 ## Rules
 
-1. **No partial updates.** If the algorithm changed, regenerate ALL data files and verify ALL tabs.
-2. **Always backtest first.** Never deploy algorithm changes without confirming the new baseline.
-3. **Version bump every deploy.** Even minor data refreshes get a version increment.
-4. **Never deploy from iCloud.** Clone to `/tmp/` first.
-5. **Verify after deploy.** Open every tab in the browser and confirm fresh data.
-6. **Commit data files.** The regenerated JSON files are the audit trail — commit them.
-7. **Consistency review is mandatory.** Every update ends with the Phase 7 cross-check. No exceptions.
+1. **All 5 bet types on every page** — if any page shows fewer than 5, the deploy is broken
+2. **No 0.00u with wins** — display "✓ —" for wins without odds, never "✓ 0.00u"
+3. **Fighter loss = -1.00u in every column** — not "X —", show the actual -1.00u
+4. **Chart starts at event 1** — no flat zero lines, no lines starting midway
+5. **Visual verification is mandatory** — check every page after every deploy using Claude in Chrome or screenshots
+6. **Never deploy without building** — `npm run build` first, always
+7. **Spot-check one event** — trace one fight's numbers from registry → table
+8. **Read domain knowledge first** — `ufc_betting_domain_knowledge.md` before any UFC website work
+9. **Never overwrite algorithm_stats.json version** — only update P/L fields, never touch version fields
+10. **Consistent charts everywhere** — if one chart shows 5 bet types, ALL charts must show 5

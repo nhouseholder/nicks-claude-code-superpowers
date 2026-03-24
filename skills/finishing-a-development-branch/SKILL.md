@@ -11,8 +11,6 @@ Guide completion of development work by presenting clear options and handling ch
 
 **Core principle:** Verify tests → Present options → Execute choice → Clean up.
 
-**Announce at start:** "I'm using the finishing-a-development-branch skill to complete this work."
-
 ## The Process
 
 ### Step 1: Verify Tests
@@ -161,7 +159,7 @@ git worktree remove <worktree-path>
 
 **Automatic worktree cleanup**
 - **Problem:** Remove worktree when might need it (Option 2, 3)
-- **Fix:** Only cleanup for Options 1 and 4
+- **Fix:** Only cleanup for Options 1, 2, and 4 (Option 3 keeps worktree for future work)
 
 **No confirmation for discard**
 - **Problem:** Accidentally delete work

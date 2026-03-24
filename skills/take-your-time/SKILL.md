@@ -1,6 +1,7 @@
 ---
 name: take-your-time
 description: Match effort to prompt complexity. A 20-bullet detailed prompt deserves 20 individual implementations, not one rushed pass. Prevents AI slop by treating each requirement with the same quality as if it were its own standalone prompt. Know when to go slow and meticulous, and when to go fast. Always-on quality discipline skill.
+weight: passive
 ---
 
 # Take Your Time — Every Requirement Deserves Full Respect
@@ -87,23 +88,6 @@ Before delivering, ask:
 5. **Is this noticeably better than what a template generator would produce?**
 
 If any answer is unsatisfying, go back and do it properly.
-
-## Token Economics — This Is NOT Anti-Efficient
-
-Taking your time on complex work is NOT the opposite of think-efficiently. They're complementary:
-
-- **Think-efficiently** says: don't waste tokens on pointless actions (testing weight=0.0)
-- **Take-your-time** says: don't cut corners on work that NEEDS those tokens
-
-The waste isn't spending 5,000 tokens to properly implement 20 features. The waste is spending 2,000 tokens on a rushed implementation that the user has to send 10 follow-up messages to fix (costing 10,000+ tokens total).
-
-**Doing it right the first time is ALWAYS more token-efficient than doing it fast and fixing it later.**
-
-| Approach | Tokens Spent | User Satisfaction |
-|----------|-------------|-------------------|
-| Rush through 20 features in one pass | ~2,000 | Low — finds 8+ issues, sends 8+ follow-ups |
-| Implement each feature carefully | ~5,000 | High — works correctly, maybe 1-2 minor adjustments |
-| Total including follow-ups | ~12,000 vs ~5,500 | Slow-and-careful wins on BOTH quality AND tokens |
 
 ## Rules
 

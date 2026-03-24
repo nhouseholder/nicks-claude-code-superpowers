@@ -1,6 +1,7 @@
 ---
 name: precision-reading
-description: Read files surgically — grep first to find relevant sections, then read only those lines with offset+limit. Prevents loading entire 2000-line files when only 5-20 lines matter. Always-on efficiency skill that reduces token consumption without losing any information. Complements context-hydration by making hydration targeted rather than exhaustive.
+description: Read files surgically — grep first to find relevant sections, then read only those lines with offset+limit. Prevents loading entire 2000-line files when only 5-20 lines matter. Always-on efficiency skill that reduces token consumption without losing any information. Makes file reading targeted rather than exhaustive.
+weight: passive
 ---
 
 # Precision Reading — Surgical File Access

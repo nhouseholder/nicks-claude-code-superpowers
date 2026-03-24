@@ -1,237 +1,89 @@
 ---
 name: total-recall
-description: Infinite cross-session memory for projects. Automatically loads all project context at session start and saves everything important at session end. Ensures Claude remembers all decisions, architecture changes, gotchas, user preferences, and project state between sessions — no manual /mem save required. Always-on awareness skill scoped to the current project directory.
+description: Cross-session memory, crash-safe checkpointing, automatic handoff before context degrades, and instant resume. Handles all persistence across sessions. Always-on.
+weight: passive
 ---
 
-# Total Recall — Infinite Project Memory Across Sessions
+# Total Recall — Memory, Handoff, and Resume
 
-Never lose context between sessions. Automatically remember everything important about the project — decisions, discoveries, gotchas, user preferences, current state — and reload it all when the next session starts.
+## Three Phases
 
-## Always Active
+1. **Session Start** — hydrate context from memory
+2. **During Session** — checkpoint progress, detect context pressure
+3. **Session End / Resume** — persist or pick up seamlessly
 
-This skill has two phases that fire automatically:
-1. **Session Start** — hydrate context from all memory sources
-2. **Session End** — persist everything important from this session
+## Phase 1: Session Start
 
-Plus a continuous awareness during the session to capture important moments as they happen.
+**Always load (lightweight):**
+- `MEMORY.md` index in project memory
+- `git status` (current state)
+- `~/.claude/anti-patterns.md` (past mistakes)
 
-## Phase 1: Session Start — Full Context Hydration
+**Load on demand:** specific memory files from MEMORY.md index, AGENT-MEMORY.md, git log — only when the task needs them. Load silently.
 
-At the beginning of every session, load project context from ALL available sources:
-
-### Auto-Load Sequence (Lazy Loading)
-
-**Always load (lightweight — index only):**
-```
-1. Read ~/.claude/projects/<project>/memory/MEMORY.md (index)
-2. Check git status (current state)
-```
-
-**Load on demand (when the task requires it):**
-```
-3. Read specific memory files referenced in MEMORY.md — only when relevant to the current task
-4. Read ~/.claude/anti-patterns.md — only when debugging or fixing errors
-5. Read AGENT-MEMORY.md — only when coordinating with other agents
-6. Check git log --oneline -20 — only when context about recent work is needed
-```
-
-The MEMORY.md index tells you WHAT memories exist. Only read the full memory files when the current task actually needs that knowledge. This avoids loading thousands of tokens of context that may be irrelevant to a simple "fix this typo" request.
-
-### What to Extract
-From loaded sources, build a mental model of what's relevant to the current task. Don't try to hold everything — just know where to find it.
-
-### Don't Announce It
-Load silently. Don't say "I've loaded your project memory" — just know it. The user should feel like you've always known this project.
-
-## Phase 2: During Session — Continuous Capture + Crash-Safe Checkpoints
-
-Throughout the session, watch for **capture signals** (moments worth persisting) AND **checkpoint triggers** (moments where progress must be saved in case the session dies).
+## Phase 2: During Session
 
 ### Crash-Safe Checkpointing
 
-**The problem**: If the session crashes mid-task (lost WiFi, app crash, token limit), Phase 3 never fires. Everything not yet persisted is lost. The next session starts blind.
+Write `current_work.md` checkpoints DURING the session:
+- After completing major steps
+- Before risky operations (refactor, deploy, migration)
+- Every 15-20 tool calls on long tasks
+- **Before compaction** (MOST CRITICAL)
 
-**The fix**: Write `current_work.md` checkpoints DURING the session, not just at the end.
+**Pre-compaction capture:** Write `session_requirements.md` (user's exact requirements near-verbatim) and `session_decisions.md` (every "chose X over Y because Z"). Compaction preserves WHAT but loses WHY.
 
-#### When to Checkpoint (write/update `current_work.md`):
+**Checkpoint format:** Current task, status/phase, progress checklist, user requirements, decisions, files modified, resume instructions. Keep under 50 lines. Overwrite (latest state), don't append.
 
-| Trigger | Why |
-|---------|-----|
-| **After completing a major step** in a multi-step task | Progress is saved even if the next step crashes |
-| **Before a risky operation** (large refactor, deploy, migration) | If it goes wrong and kills the session, you know where you were |
-| **Every 15-20 tool calls** on long tasks | Periodic safety net — don't let more than ~5 min of work go unsaved |
-| **When the user provides important context** | Their requirements survive even if the session dies immediately after |
-| **After a plan is agreed on** | The plan persists even if execution never starts |
-| **Before compaction** | This is the MOST CRITICAL checkpoint — everything not in a file is about to degrade |
-
-#### Pre-Compaction Capture (critical for long sessions)
-
-When context is getting long (50+ tool calls, or you sense compaction approaching):
-
-**Write to project memory files — NOT just current_work.md:**
-
-1. **`session_requirements.md`** — The user's EXACT requirements from this session. Not summarized. Near-verbatim. Include:
-   - What they asked for originally
-   - Every correction or clarification they gave
-   - Preferences expressed ("I want it this way", "don't do X")
-   - Decisions made ("let's use approach A")
-
-2. **Update `current_work.md`** — Full task state as usual
-
-3. **`session_decisions.md`** — Every "we chose X over Y because Z" from this session. Compaction summaries lose the reasoning.
-
-**Why this matters**: Compaction preserves WHAT you're doing but loses WHY and HOW THE USER WANTS IT. A compacted summary says "implementing feature X" but drops "user specifically said to use approach A, not B, because they tried B last week and it broke."
-
-The files survive compaction perfectly. The conversation doesn't.
-
-#### Checkpoint Format (`current_work.md`):
-
-```markdown
-## Current Task
-[One-line description]
-## Status
-- **Phase**: [planning|implementing|testing|debugging] — Step X of Y
-- **Last action**: [last thing done]
-## Progress
-- [x] [Done steps]
-- [ ] [Next steps]
-## User Requirements (near-verbatim)
-- [Original ask + corrections + preferences]
-## Decisions & Context
-- [Key decisions with reasoning, gotchas, failed approaches]
-## Files Modified
-- `path/to/file` — [what changed]
-## Resume Instructions
-[Exactly what to do next]
-```
-
-#### Checkpoint Rules:
-1. **Overwrite, don't append** — `current_work.md` is always the LATEST state, not a log
-2. **Keep it under 50 lines** — it needs to be fast to read on resume
-3. **Include file paths** — the next session needs to know what was being touched
-4. **Include the approach** — don't just say "fixing bug", say "fixing bug by adding null check in handleSubmit() in Form.jsx"
-5. **Clear it when done** — when the task is complete, update to "No active work" so the next session doesn't try to resume finished work
-
-### Capture Signals (what to persist to memory files)
-
-#### Architecture Decisions
-- "Let's use X instead of Y" → Save: what was chosen, what was rejected, and WHY
-- "The reason we're doing it this way is..." → Save the reasoning
-- New patterns established (new file structure, new convention, new approach)
-
-#### Discoveries & Gotchas
-- Bug with a non-obvious root cause → Save the root cause
-- Environment quirk → Save the workaround
-- "Oh, that's why it wasn't working" → Save the insight
-- API/library behavior that surprised you → Save the correct behavior
-
-#### User Preferences (about this project)
-- "I prefer X over Y" → Save
-- "Don't do X" or "Always do Y" → Save as a rule
-- Corrections to your approach → Save so you don't repeat the mistake
-- Workflow preferences ("deploy to staging first", "always run tests before committing")
-
-#### Project State Changes
-- Version bumps → Update version in memory
-- New features added → Update feature list
-- Known issues discovered → Add to known issues
-- Dependencies changed → Note significant additions/removals
+### What to Capture
+- Architecture decisions (what, what was rejected, WHY)
+- Bug root causes and workarounds
+- User preferences and corrections for this project
+- Significant project state changes
 
 ### What NOT to Capture
-- Routine code changes (the git log has this)
+- Routine code changes (git log has this)
 - Implementation details (the code has this)
-- Debugging steps (only save the root cause + fix, not the journey)
 - Anything already in CLAUDE.md or MEMORY.md
 
-## Phase 3: Session End — Structured Persist
+## Phase 3: Auto-Handoff (Before Context Degrades)
 
-Before the session ends, persist important context. Use the project memory system at `~/.claude/projects/<project>/memory/`.
+### When to fire
+Track context compressions mentally:
+- **1st compression:** Note it, be concise
+- **2nd compression imminent:** CREATE HANDOFF NOW (you need full context to write a good one)
 
-### The Session End Checklist
+**Never use `[1m]` extended context to fight compression.** It burns per-minute rate limits. Handoff to a new session instead.
 
-Run through this mentally:
+### Handoff Protocol (ALL steps mandatory)
+1. **Write** `handoff.md` in project memory (objective, status, decisions, files modified, failed approaches, resume instructions)
+2. **Commit** to GitHub (from /tmp clone if iCloud repo)
+3. **Notify** user: "Context compression incoming — handoff prepped. Start new session and say 'read handoff.md and continue'"
+4. **Update** `current_work.md` too
 
-```
-□ Were any architecture decisions made this session?
-  → Update or create memory file: decisions_<topic>.md
+## Phase 4: Seamless Resume
 
-□ Were any gotchas or surprises discovered?
-  → Update or create memory file: gotchas.md
+### When user sends "continue" / "go" / "keep going"
 
-□ Did the user correct my approach or express a preference?
-  → Update memory file: user_preferences.md or feedback_<topic>.md
+**Same session (after pause/compaction):**
+- Check what was in progress → continue immediately
+- One-line status max if context was lost, then execute
+- Never re-explain, re-read unnecessarily, or say "welcome back"
 
-□ Did the project state change significantly?
-  → Update MEMORY.md index with current state
+**New session:**
+1. Check `handoff.md` → follow its resume instructions
+2. No handoff? Check `current_work.md` → pick up at first incomplete step
+3. Neither? Check git log, ask user what to work on
 
-□ Were any bugs fixed with non-obvious root causes?
-  → Already handled by error-memory skill → verify it saved
-
-□ Is there work in progress that the next session should continue?
-  → Save to memory: current_work.md with status and next steps
-```
-
-### Memory File Format
-
-Each memory file should use the standard format:
-```markdown
----
-name: [descriptive name]
-description: [one-line — specific enough to know when to load it]
-type: [project|feedback|user|reference]
----
-
-[Content — structured, concise, actionable]
-```
-
-### Update MEMORY.md Index
-
-After creating/updating memory files, ensure MEMORY.md has pointers to all of them. Keep the index under 200 lines (it's always loaded into context).
-
-## Memory Organization
-
-### Merge, Don't Duplicate
-Before creating a new memory file, check if an existing one covers the topic. Update existing files rather than creating new ones. Keep the total count manageable (aim for 5-15 files, not 50).
-
-### Prune Stale Memories
-If a memory entry is clearly outdated (references removed features, old versions, deprecated approaches):
-- Update it if the topic is still relevant
-- Remove it if the topic is no longer relevant
-- Never let stale memories mislead future sessions
-
-## Integration with Existing Memory Systems
-
-This skill orchestrates, not replaces, existing memory infrastructure:
-
-```
-total-recall (orchestrator)
-    │
-    ├─ Reads from:
-    │   ├─ MEMORY.md + memory files (project memory)
-    │   ├─ anti-patterns.md (error memory)
-    │   ├─ AGENT-MEMORY.md (shared agent memory)
-    │   └─ git log/status (recent history)
-    │
-    ├─ Writes to:
-    │   ├─ MEMORY.md + memory files (primary store)
-    │   └─ anti-patterns.md (via error-memory skill)
-    │
-    └─ Coordinates with:
-        ├─ error-memory (debugging failures → anti-patterns)
-        ├─ stop-memory-save.py hook (session end reminder)
-        └─ shared-memory (AGENT-MEMORY.md updates)
-```
-
-## The "Would I Forget?" Test
-
-Before ending a session, ask: **"If I started a new session tomorrow on this same project, what would I wish I knew?"**
-
-Whatever comes to mind → save it.
+**After resuming:** Clear handoff.md and current_work.md so next session doesn't re-resume.
 
 ## Rules
 
-1. **Load silently, save automatically** — don't announce hydration; capture important moments as they happen
-2. **Merge, don't duplicate; prune stale** — update existing memories, remove outdated ones that mislead
-3. **Save reasoning and user corrections** — WHY decisions were made + user corrections are high-priority saves
-4. **"Would I Forget?" test** — run it before every session end
-5. **Never save secrets** — no API keys, passwords, or credentials in memory files
+1. Load silently, save automatically
+2. Merge, don't duplicate; prune stale memories
+3. Save reasoning and user corrections (WHY is high-priority)
+4. "Would I Forget?" test — if starting tomorrow, what would I wish I knew?
+5. Never save secrets (API keys, passwords)
+6. Act BEFORE 2nd compression — you need full context to write a good handoff
+7. "Continue" means GO — zero ceremony, execute immediately
+8. Handoff over extended context, always

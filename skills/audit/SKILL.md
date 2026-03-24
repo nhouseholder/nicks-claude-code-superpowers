@@ -10,14 +10,9 @@ Systematic codebase audit for security, quality, and hygiene issues.
 ## Workflow
 
 ### 1. Security Audit — Hardcoded Secrets
-Scan for hardcoded API keys, tokens, passwords, and credentials:
+Scan for hardcoded API keys, tokens, passwords, and credentials using the **Grep tool** (not bash grep):
 
-```bash
-# Search for common secret patterns
-grep -rn --include="*.py" --include="*.js" --include="*.jsx" --include="*.ts" --include="*.tsx" --include="*.env" \
-  -E "(api_key|apikey|api-key|secret|password|token|credential|auth)[\s]*[=:][\s]*['\"][^'\"]{8,}" . \
-  | grep -v node_modules | grep -v .git | grep -v __pycache__
-```
+Use the Grep tool with pattern `(api_key|apikey|api-key|secret|password|token|credential|auth)\s*[=:]\s*['"][^'"]{8,}` and glob `*.{py,js,jsx,ts,tsx,env}` to search the codebase.
 
 Also check for:
 - Hardcoded URLs with credentials (`https://user:pass@...`)
@@ -40,7 +35,7 @@ Scan for common anti-patterns:
 - TODO/FIXME comments that have been there too long
 - Commented-out code blocks (>5 lines)
 
-### 4. Commit Fixes
+### 4. Commit Fixes (only if the user has asked for a commit)
 ```bash
 git add <fixed_files>
 git commit -m "security: remove hardcoded keys, move to env vars"
@@ -50,6 +45,8 @@ Or for quality fixes:
 ```bash
 git commit -m "cleanup: remove debug statements and unused imports"
 ```
+
+Do not auto-commit unless the user explicitly requested it.
 
 ### 5. Report
 Output a summary:

@@ -5,135 +5,106 @@ description: Proactively detect and fix issues before the user encounters them. 
 
 # Proactive QA — Find Problems Before They Find Users
 
-You are not a passive code generator. You are an active, thinking developer who catches problems BEFORE they ship. After every implementation, you mentally "walk through" the feature as a user would — and fix what you find.
-
 ## When This Activates
 
-Calibration rules:
-- **Off**: User said 'just push it' or 'skip QA' → acknowledge and skip
+- **Off**: User said 'just push it' or 'skip QA'
 - **Light** (mental trace only): Config changes, copy/text edits, style changes, single-line fixes
 - **Medium** (quick functional check): Single-function changes, API endpoint modifications
 - **Full** (walk the user journey): Multi-file features, auth/payment flows, data migrations
-Default to Light. Only escalate when the change touches user-facing behavior or data integrity.
+
+Default to Light. Escalate when change touches user-facing behavior or data integrity.
 
 ## The Proactive Developer Loop
 
-After writing any code, run this mental loop:
-
 ### 1. Walk the User Journey
 Mentally step through the feature as different users:
-- **New user** — Is it obvious what to do? Are there instructions/hints?
-- **Returning user** — Does saved state work? Are preferences remembered?
-- **Error-prone user** — What if they enter garbage? Click submit twice? Navigate away mid-action?
-- **Mobile user** — Does the layout work? Are touch targets big enough?
-- **Impatient user** — What happens with slow network? Does anything look broken while loading?
+- **New user** — obvious what to do? Instructions/hints?
+- **Error-prone user** — garbage input? Double submit? Navigate away mid-action?
+- **Mobile user** — layout works? Touch targets?
+- **Slow network** — loading states? Anything broken while loading?
 
-### 2. Check the Blast Radius
-Every change has ripple effects. Check:
-- **Imports** — Did anything that imports this module break?
-- **Types** — If you changed a shape/interface, did consumers update?
-- **Routes** — If you added/renamed a route, are all links/redirects updated?
-- **State** — If you changed state structure, does the rest of the app still read it correctly?
-- **API contracts** — If frontend expects `{ data: [] }`, does the backend send that exact shape?
-- **Environment** — Does this work in dev AND production? Any environment-specific assumptions?
+### 2. "Does This Make Sense?" Audit
 
-### 3. Hunt for Edge Cases
+**Data Freshness Gate (CHECK FIRST):**
+- Is this the right event/game/date? Verify before processing ANY results.
+- Never trust the algorithm's event selection blindly. If event doesn't match current date, STOP.
+- Quick verify: web search "[sport] event [today's date]" takes 5 seconds.
 
-Every data type has predictable edge cases. Check these automatically:
+**Completeness Check (ENUMERATE FIRST):**
+- Before building ANY feature with categories/types/columns, LIST ALL OF THEM first
+- Verify EACH ONE has a column, row, or handler
+- If you can't enumerate all categories, ASK before building
 
-| Data Type | Edge Cases to Check |
-|-----------|-------------------|
-| **Strings** | Empty `""`, very long (1000+ chars), special chars `<>&"'`, unicode, whitespace-only |
-| **Arrays** | Empty `[]`, single item, many items (100+), items with missing fields |
-| **Numbers** | 0, negative, very large, decimal, NaN, Infinity |
-| **Dates** | Timezone differences, DST transitions, future dates, epoch (1970), null dates |
-| **Objects** | Missing optional fields, nested nulls, empty objects `{}` |
-| **Files** | Missing, empty, too large, wrong format, special characters in name |
+**Stats & Figures Check:**
+- Numbers add up? (win rate % matches W/L counts, totals match sums)
+- **Arithmetic spot-check:** pick ONE row and manually calculate. Does code produce that number?
+- Right time period? Labels match what they describe?
+- Units consistent? (percentages vs decimals, dollars vs cents)
+- **Loss tracking:** every system tracking wins MUST also track losses
+
+**Logical Consistency Check:**
+- Cross-page consistency (Page A says 65%, Page B says 72% for same model?)
+- Filters/sorts produce expected results?
+- "Best pick" actually has highest confidence score?
+
+**User Perspective Check:**
+- First-time visitor understands without insider context?
+- Jargon/abbreviations explained?
+
+### 3. Check the Blast Radius
+- **Imports** — anything importing this module break?
+- **Types** — changed a shape/interface? Did consumers update?
+- **Routes** — added/renamed? All links/redirects updated?
+- **State** — changed structure? Rest of app reads correctly?
+- **API contracts** — frontend/backend shape match?
+- **Environment** — works in dev AND production?
+
+### 4. Hunt for Edge Cases
+
+| Data Type | Edge Cases |
+|-----------|-----------|
+| **Strings** | Empty, very long, special chars, unicode, whitespace-only |
+| **Arrays** | Empty, single item, many items, items with missing fields |
+| **Numbers** | 0, negative, very large, decimal, NaN |
+| **Dates** | Timezone, DST, future dates, null dates |
 | **Network** | Timeout, 404, 500, CORS, rate limited, offline |
-| **Auth** | Expired token, no token, wrong permissions, concurrent sessions |
+| **Auth** | Expired token, no token, wrong permissions |
 
-### 4. Anticipate the Next Problem
-
-Think one step ahead:
-- "This list will grow. Does it paginate or virtualize?"
-- "This form saves to DB. What about duplicate submissions?"
-- "This uses localStorage. What if the user clears it?"
-- "This fetches on mount. What if the component unmounts before the response?"
+### 5. Anticipate the Next Problem
+- "This list will grow. Does it paginate?"
+- "This form saves to DB. Duplicate submissions?"
+- "This uses localStorage. What if cleared?"
 - "This works with 10 items. What about 10,000?"
-- "This error message shows a stack trace. Should it show a user-friendly message instead?"
 
-## Proactive Fixes — Do These Without Being Asked
+## Proactive Fixes — Do Without Being Asked
 
-### Always Fix These When You See Them
+1. Missing loading states, error boundaries, empty states
+2. Unhandled promise rejections
+3. Missing `key` props in React lists
+4. Accessibility issues you notice (alt text, labels, ARIA)
+5. Memory leaks (uncleared intervals, unsubscribed listeners)
+6. Race conditions
+7. Broken navigation (dead links, missing back buttons)
 
-1. **Missing loading states** — Add a spinner/skeleton while data fetches
-2. **Missing error boundaries** — Wrap components that could throw
-3. **Missing empty states** — "No results found" instead of a blank page
-4. **Unhandled promise rejections** — Add `.catch()` or try/catch
-5. **Missing `key` props** — In React list renders
-6. **Accessibility issues** — Missing alt text, labels, ARIA attributes you notice
-7. **Memory leaks** — Uncleared intervals/timeouts, unsubscribed event listeners
-8. **Race conditions** — Stale closures, concurrent state updates, request ordering
-9. **Broken navigation** — Dead links, missing back buttons, orphaned pages
-10. **Inconsistent spacing/styling** — When it's clearly a bug, not a design choice
-
-### Fix Adjacent Issues When Reasonable
-
-When fixing bug A, if you notice bug B in the same file or closely related code:
-- **Fix it** if it's a 1-5 line change
-- **Note it** if it's bigger ("I also noticed X in this file — want me to fix it?")
-- **Ignore it** only if it's in completely unrelated code
-
-## The "Ship It" Test
-
-Before delivering, mentally verify: 'If the user immediately uses this feature in production, will it work correctly on the first try?' This replaces the demo simulation — focus on real-world usage, not theatrical scenarios.
-
-Key checks:
-- Does the happy path work end-to-end?
-- Does it handle an obvious error gracefully?
-- Does it look consistent with the rest of the app?
-
-If the answer to any of these is "no" — fix it first.
+**Adjacent issues:** Fix if 1-5 lines in same file. Note if bigger. Ignore if unrelated.
 
 ## Architecture Smell Detection
 
-Flag (and fix when possible) these architectural issues proactively:
+| Smell | Action |
+|-------|--------|
+| God component (300+ lines) | Extract sub-components |
+| Prop drilling (3+ levels) | Use context or composition |
+| Duplicated logic (3+ places) | Extract shared utility |
+| Mixed concerns (API in render) | Separate into service/hook |
+| Stale patterns | Update to match current codebase |
 
-| Smell | What to Do |
-|-------|-----------|
-| **God component** (300+ lines, does everything) | Extract sub-components |
-| **Prop drilling** (passing props through 3+ levels) | Use context or composition |
-| **Duplicated logic** (same code in 3+ places) | Extract shared utility/hook |
-| **Mixed concerns** (API calls inside render logic) | Separate into service/hook |
-| **Stale patterns** (using deprecated APIs, old patterns while rest of codebase uses new) | Update to match current patterns |
-| **Missing abstraction** (raw fetch calls scattered everywhere) | Create API service layer |
-| **Premature optimization** (memo/useMemo everywhere for no reason) | Remove unless there's a measured problem |
+## Scope Discipline
 
-## Independence Protocol
+- **Small request** → Fix exactly what was asked. Adjacent fixes only if same function, <3 lines.
+- **Medium request** → Full QA on new code. Don't refactor surroundings.
+- **Large request** → Full proactive QA across all touched files.
 
-When facing ambiguity, use this decision tree:
-
-```
-Is there an established pattern in the codebase?
-├─ YES → Follow it (no need to ask)
-├─ NO → Is this a common software pattern?
-│       ├─ YES → Apply the standard approach (no need to ask)
-│       └─ NO → Is the choice reversible?
-│               ├─ YES → Make your best judgment, mention what you chose
-│               └─ NO → Ask the user (this is a real design decision)
-```
-
-**Default to action over asking.** Senior developers don't ask "should I add error handling?" — they just add it.
-
-## Scope Discipline — Don't Over-Fix
-
-**Match your proactivity to the size of the request.**
-
-- **Small request** (fix a bug, change a color, update copy) → Fix exactly what was asked. Only fix adjacent issues if they're in the same function and take <3 lines.
-- **Medium request** (add a feature, implement a component) → Apply the full QA loop to the new code. Don't refactor surrounding code.
-- **Large request** (build a flow, major refactor) → Full proactive QA across all touched files.
-
-**Never turn a 5-minute fix into a 30-minute cleanup.** If you notice a bigger issue while doing small work, mention it — don't fix it unsolicited.
+Never turn a 5-minute fix into a 30-minute cleanup.
 
 ## What NOT to Be Proactive About
 

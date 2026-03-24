@@ -1,6 +1,7 @@
 ---
 name: mid-task-triage
 description: When the user sends a new message while Claude is mid-task, instantly classify it as an addendum (merge into current work), a course correction (steer current task), or a queue item (address after current task completes). Never lose progress. Never stop working to ask what they meant. Always-on awareness skill with zero overhead.
+weight: passive
 ---
 
 # Mid-Task Triage — New Input Without Losing Momentum
@@ -100,6 +101,14 @@ Some messages override everything:
 
 These are NOT queue items — they're interrupts. Handle immediately.
 
+### Re-Pasted or Repeated Requests
+If the user sends a message that repeats or re-pastes a previous request:
+- This is **ALWAYS a COURSE CORRECTION**, never a queue item
+- The user is saying: "You dropped/forgot my request. Do it NOW."
+- Drop whatever you're currently doing and address the repeated request immediately
+- One-line ack: "On it —" then execute the request
+- This is the #1 misclassification: treating a re-pasted request as "different topic → queue" when it's actually "you forgot this → course correct"
+
 ### Contradictory Corrections
 If the new message contradicts something you JUST completed:
 - If it's the last file you edited → quick fix, minimal token cost
@@ -115,15 +124,6 @@ If the user previously sent a queue/correction and then says "continue":
 ## The Cardinal Rule
 
 Classification is instant and invisible for normal messages (addendum, queue). Exception: Urgent interrupts ('STOP', 'wait', 'hold on') immediately pause the current task — this is the ONE case where triage is visible. Resume the paused task only after the user confirms.
-
-## Token Economics
-
-- Classification: ~0 tokens (instant pattern matching, no output)
-- Addendum handling: ~0 extra tokens (just incorporated into ongoing work)
-- Course correction acknowledgment: ~10 tokens (one line)
-- Queue acknowledgment: ~15 tokens (one line + mental note)
-
-Total overhead: Near zero. This skill SAVES tokens by preventing stop-start cycles, re-orientation, and "where were we?" conversations.
 
 ## Rules
 
