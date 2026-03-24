@@ -15,34 +15,41 @@ Parallel agents have caused MORE problems than they've solved over the last 2 we
 
 **Default posture: Do it yourself.** Only dispatch agents when the task is genuinely large, genuinely independent, and the agents can succeed without shared state.
 
-## Decision Framework: Should I Parallelize?
+## The One Gate: "Can This Hurt Us?"
 
-Ask these questions IN ORDER. If any answer is NO, do it yourself.
+Before dispatching ANY subagent, ask ONE question:
 
-### Gate 1: Is this genuinely parallel?
-Tasks that share data, state, or files are NOT parallel. They're sequential.
-- Reading the same JSON file → NOT parallel
-- Computing different stats from the same dataset → NOT parallel
-- Frontend component A + Backend API B that A calls → NOT parallel (need B's interface first)
-- Two completely separate file edits in different subsystems → parallel OK
+**"If this agent gets it wrong, produces bad data, or fails silently — can it hurt us?"**
 
-### Gate 2: Can each agent succeed independently?
-Each agent gets NO conversation history. If an agent needs:
-- Context from earlier in this conversation → do it yourself
-- Results from another agent → do it sequentially
-- Access to project memory/anti-patterns → include in briefing (adds overhead)
-- Understanding of domain rules (e.g., prop bet settlement) → include full spec in briefing
+| Answer | Action |
+|--------|--------|
+| **YES it can hurt us** | Do it yourself. No agents. Period. |
+| **NO it cannot hurt us** | Safe to dispatch — but make it a GREAT agent (see briefing protocol below) |
 
-### Gate 3: Is the overhead justified?
-Each agent costs tokens for: briefing, context loading, result review, conflict resolution.
-- If you can do it yourself in <5 minutes → do it yourself
-- If the task requires <50 lines of code → do it yourself
-- If you'd need to write >200 words of briefing per agent → probably do it yourself
+### What CAN hurt us (never parallelize):
+- Anything involving numbers, stats, P/L, ROI, counting
+- Anything that writes to files, registries, databases
+- Anything requiring domain expertise (betting, finance, scoring)
+- Anything where wrong output gets reported to the user as fact
+- Anything where two agents might disagree and we can't tell which is right
+- Bug diagnosis (need single chain of reasoning)
 
-### Gate 4: What happens if an agent fails?
-- If one agent's failure blocks everything → don't parallelize (single point of failure)
-- If research agents might not find data → have a fallback plan BEFORE dispatching
-- If agent timeout kills the task → set explicit timeouts and have a plan B
+### What CANNOT hurt us (safe to parallelize):
+- **Read-only exploration** — "find files matching X", "search for Y across the codebase"
+- **Independent research on different topics** — "how does React 19 routing work?" + "what's the Prisma migration guide?" (different topics, neither affects the other)
+- **Truly independent file edits** — different files, different subsystems, no shared state
+- **Code search / grep across repos** — read-only, returns file paths
+
+### Supporting gates (ask these too):
+
+**Gate 2: Can each agent succeed independently?**
+Each agent gets NO conversation history. If it needs context from this session, results from another agent, or domain knowledge — either include it ALL in the briefing or do it yourself.
+
+**Gate 3: Is the overhead justified?**
+If you can do it yourself in <5 minutes, do it yourself. Agent briefing, dispatch, waiting, review, and reconciliation cost tokens too.
+
+**Gate 4: What's the fallback if the agent fails?**
+If failure means "proceed with stale training data" — don't dispatch. If failure means "try a different search" — acceptable.
 
 ## Agent Limits (HARD CAPS)
 
@@ -67,43 +74,58 @@ These tasks MUST be done by you, in a single chain, never delegated:
 6. **Data file modifications** — registry, cache, odds data
 7. **Anything where getting it wrong costs the user hours** — when in doubt, do it yourself
 
-## What CAN Be Parallelized (With Caution)
+## Making Damn Good Agents (When Dispatch Passes the Gate)
 
-| Safe to Parallelize | Example |
-|---------------------|---------|
-| Independent file searches | "Find all uses of X" + "Find all uses of Y" in different codebases |
-| Separate subsystem edits | Fix CSS in component A + Fix API in route B (different files, no shared state) |
-| Research on different topics | "How does React 19 work?" + "What's the Prisma 6 migration guide?" |
-| Independent test suites | Run frontend tests + Run backend tests |
+When a task passes the "can this hurt us?" gate and agents ARE dispatched, they must be excellent. A lazy agent is worse than no agent.
 
-## Agent Briefing Protocol (MANDATORY)
+### The Agent Intelligence Checklist
 
-Every agent MUST receive:
+Before dispatching, build the agent's briefing. If you can't fill in ALL of these, the agent isn't ready:
 
-### 1. Full Context Package
 ```
 AGENT BRIEF:
-- ROLE: "You are a [domain] specialist"
-- MISSION: [One specific deliverable]
-- CONTEXT FILES TO READ:
-  - [List specific files the agent should read]
-  - Include anti-patterns.md sections relevant to this task
-  - Include project memory relevant to this domain
-- VERIFIED CONSTANTS: [If any numbers/stats are already known, pass them as constants]
-- CONSTRAINTS: [What NOT to do — critical for preventing agent mistakes]
-- OUTPUT FORMAT: [Exact format expected]
-- DO NOT: [Specific anti-patterns from prior failures]
+─────────────────────────────────────
+ROLE: "You are a [domain] specialist working on [project]"
+MISSION: [One specific deliverable — be precise]
+
+CONTEXT (the agent's entire world):
+- FILES TO READ: [List exact file paths — not "check the repo"]
+- ANTI-PATTERNS: [Paste relevant entries from anti-patterns.md — not just "check anti-patterns"]
+- PROJECT MEMORY: [Paste relevant sections — agent can't access ~/.claude/memory/]
+- DOMAIN RULES: [If touching domain logic, paste the FULL spec — not a pointer]
+
+VERIFIED FACTS (constants the agent must NOT re-derive):
+- [Any numbers, stats, decisions already established in this session]
+- [E.g., "There are 71 events in the backtest. Do not count them yourself."]
+
+GUARDRAILS:
+- DO NOT: [Specific things that have gone wrong before]
+- DO NOT: modify, overwrite, or delete any data files
+- DO NOT: re-derive numbers that are given as verified facts above
+- IF UNCERTAIN: return "UNCERTAIN: [what you're unsure about]" instead of guessing
+
+OUTPUT FORMAT:
+- [Exact structure expected — e.g., "Return a JSON object with keys: ..."]
+- [If returning numbers, include how you computed each one]
+- [Include confidence level: HIGH/MEDIUM/LOW for each finding]
+
+SELF-CHECK BEFORE RETURNING:
+- Did I answer the specific mission, not a related-but-different question?
+- Do my numbers match the verified facts I was given?
+- Did I flag anything I'm uncertain about?
+─────────────────────────────────────
 ```
 
-### 2. Domain Knowledge (when applicable)
-If the agent will touch domain logic:
-- Include the full spec file content (not just a pointer)
-- Include worked examples
-- Include anti-patterns for this specific domain
+### The Agent Quality Bar
 
-### 3. Anti-Pattern Awareness
-Check `~/.claude/anti-patterns.md` for relevant entries and include them in the briefing.
-An agent that doesn't know about past failures WILL repeat them.
+An agent dispatch is only worth it if the agent will be BETTER than doing it yourself. That means:
+
+1. **Full context** — paste actual file contents and memory entries, not file paths the agent might fail to read
+2. **Anti-pattern awareness** — paste the specific entries, not "check anti-patterns.md"
+3. **Guardrails** — explicitly tell it what NOT to do based on past failures
+4. **Self-check** — the agent verifies its own output before returning
+5. **Confidence signals** — agent must flag uncertainty, not present guesses as facts
+6. **No re-derivation** — verified facts are passed as constants, never recomputed
 
 ## Post-Dispatch Protocol
 
