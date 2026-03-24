@@ -85,6 +85,8 @@ Walk-forward means: for each game/event being evaluated, the model may ONLY use 
 7. **Cross-database consistency.** Projects use multiple stores (Firestore + SQLite + JSON cache). After writing to ANY store, verify the others are still consistent. Don't update Firestore but leave the local JSON cache stale.
 8. **Schema changes require explicit approval.** Never add/remove/rename database columns, Firestore fields, or Prisma schema fields without confirming with the user. Schema changes can break every consumer silently.
 9. **Post-write verification.** After any write, verify: new count matches expected count, diff against backup to confirm no unintended deletions. If count dropped or unexpected records disappeared, ROLLBACK immediately.
+10. **Backtest registry protection.** Before running ANY backtest that overwrites the profit registry: (a) backup the current registry, (b) after the run, compare new vs old — if ANY event lost data it previously had (e.g., method_pnl went from a value to null), ABORT and restore the backup. Backtests that produce LESS data than what already exists are regressions. (c) Never overwrite algorithm_stats.json with raw backtest output — that file contains curated display values. Only update specific fields.
+11. **Version protection.** Never change APP_VERSION, version.js, or version fields in stats files without explicit user instruction. Version downgrades (11.11 → 10.71) are always wrong.
 
 ## Sports Betting Payout Rules (MANDATORY)
 
