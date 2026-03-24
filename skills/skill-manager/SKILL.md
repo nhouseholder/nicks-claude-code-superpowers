@@ -14,7 +14,7 @@ weight: passive
 | Light (50-500 tokens) | 5 | Quick checks, small reads |
 | Heavy (1K-50K+ tokens) | 2 | Agent spawns, multi-file ops |
 
-**Stack cap: 75 skills maximum.** Adding past 75 requires merge or removal.
+**No stack cap.** Add skills as needed. Merge duplicates when you notice them, but don't block new skills.
 
 ## Conflict Resolution Priority
 
