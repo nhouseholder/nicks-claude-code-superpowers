@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Session Bridge — Provides GLM-5 with structured handoff context from the session.
-Fires on EVERY UserPromptSubmit when Haiku/GLM-5 is active.
-Extracts the last 3 user+assistant exchanges (not just 1) for real continuity.
+Session Bridge — Gives GLM-5 a factual state dump, not instructions.
+Reads the auto-checkpoint (rich state) and constructs a handoff
+that tells GLM-5 exactly what's happening, not how to think.
 """
 import json
 import sys
@@ -15,113 +15,86 @@ from detect_model import detect_model
 
 
 def extract_text(content):
-    """Extract plain text from a message content field (str or list of blocks)."""
     if isinstance(content, str):
         return content
     if isinstance(content, list):
-        texts = []
-        for block in content:
-            if isinstance(block, dict):
-                if block.get("type") == "text":
-                    texts.append(block.get("text", ""))
-        return " ".join(texts)
+        return " ".join(
+            b.get("text", "") for b in content
+            if isinstance(b, dict) and b.get("type") == "text"
+        )
     return ""
 
 
 try:
     hook_input = json.load(sys.stdin)
-    event = hook_input.get("hook_event_name", "")
-
-    if event != "UserPromptSubmit":
+    if hook_input.get("hook_event_name") != "UserPromptSubmit":
         sys.exit(0)
-
-    model_lower = detect_model()
-    if "haiku" not in model_lower:
+    if "haiku" not in detect_model():
         sys.exit(0)
 
     prompt = hook_input.get("prompt", "")
-    transcript_path = hook_input.get("transcript_path", "")
+    checkpoint_path = Path.home() / ".claude" / "last-checkpoint.json"
 
-    if not transcript_path or not Path(transcript_path).exists():
-        sys.exit(0)
-
-    # Read last 150 lines to capture more context (3-5 exchanges typically)
-    try:
-        result = subprocess.run(
-            ["tail", "-150", transcript_path],
-            capture_output=True, text=True, timeout=3
-        )
-        lines = result.stdout.strip().split("\n") if result.stdout else []
-    except Exception:
-        sys.exit(0)
-
-    # Extract up to 3 recent exchanges (user→assistant pairs)
-    exchanges = []  # List of (user_msg, assistant_msg) tuples
-    current_assistant = ""
-    current_user = ""
-
-    for line in reversed(lines):
+    # === SOURCE 1: Rich checkpoint from auto-checkpoint.py ===
+    cp = {}
+    if checkpoint_path.exists():
         try:
-            entry = json.loads(line)
-            role = entry.get("role", "")
-            text = extract_text(entry.get("content", ""))
-
-            if not text or len(text.strip()) < 5:
-                continue
-
-            if role == "assistant" and not current_assistant:
-                current_assistant = text.strip()[:800]
-            elif role == "user" and current_assistant:
-                current_user = text.strip()[:300]
-                exchanges.append((current_user, current_assistant))
-                current_assistant = ""
-                current_user = ""
-                if len(exchanges) >= 3:
-                    break
+            cp = json.loads(checkpoint_path.read_text())
         except Exception:
             pass
 
-    # Fallback: if transcript didn't yield exchanges, try the checkpoint file
-    if not exchanges:
-        checkpoint_path = Path.home() / ".claude" / "last-checkpoint.json"
-        if checkpoint_path.exists():
+    # === SOURCE 2: Transcript (fallback if no checkpoint) ===
+    last_user = cp.get("last_user_message", "")
+    last_assistant = cp.get("last_assistant_response", "")
+
+    if not last_assistant:
+        transcript_path = hook_input.get("transcript_path", "")
+        if transcript_path and Path(transcript_path).exists():
             try:
-                cp = json.loads(checkpoint_path.read_text())
-                if cp.get("last_assistant_response"):
-                    exchanges.append((
-                        cp.get("last_user_message", "(unknown)")[:300],
-                        cp.get("last_assistant_response", "")[:1000]
-                    ))
+                r = subprocess.run(["tail", "-50", transcript_path],
+                                 capture_output=True, text=True, timeout=2)
+                for line in reversed(r.stdout.strip().split("\n")):
+                    try:
+                        entry = json.loads(line)
+                        text = extract_text(entry.get("content", "")).strip()
+                        if len(text) < 5:
+                            continue
+                        if entry.get("role") == "assistant" and not last_assistant:
+                            last_assistant = text[:1500]
+                        elif entry.get("role") == "user" and not last_user:
+                            last_user = text[:500]
+                        if last_user and last_assistant:
+                            break
+                    except Exception:
+                        pass
             except Exception:
                 pass
 
-    if not exchanges:
+    if not last_assistant:
         sys.exit(0)
 
-    # Build structured handoff — most recent first
-    exchanges.reverse()  # Chronological order
+    # === BUILD FACTUAL HANDOFF ===
+    parts = ["[HANDOFF — Continuing from Opus. Here is the current state:]"]
 
-    bridge_parts = ["[SESSION HANDOFF — You are continuing work from Opus/Sonnet]", ""]
+    # What was happening
+    parts.append(f"\nLAST REQUEST: {last_user[:500]}")
+    parts.append(f"\nOPUS WAS DOING: {last_assistant[:1500]}")
 
-    for i, (user_msg, assistant_msg) in enumerate(exchanges):
-        if i == len(exchanges) - 1:
-            # Most recent exchange — show more detail
-            bridge_parts.append(f"MOST RECENT — User: {user_msg[:300]}")
-            bridge_parts.append(f"MOST RECENT — Assistant was: {assistant_msg[:800]}")
-        else:
-            # Earlier exchanges — just enough for context
-            bridge_parts.append(f"Earlier — User: {user_msg[:150]}")
-            bridge_parts.append(f"Earlier — Assistant: {assistant_msg[:200]}...")
-        bridge_parts.append("")
+    # Git state (what's changed on disk)
+    git_status = cp.get("git_status", "")
+    modified = cp.get("modified_files", "")
+    diff_stat = cp.get("git_diff_stat", "")
 
-    bridge_parts.append("YOUR TASK: Pick up EXACTLY where the last assistant response left off.")
-    bridge_parts.append("- Do NOT redo work that's already done")
-    bridge_parts.append("- Do NOT re-read files that were already read (unless you need specific data)")
-    bridge_parts.append("- If the last response was mid-task, continue that task")
-    bridge_parts.append("- If the last response completed a task, ask what's next")
-    bridge_parts.append("[END HANDOFF]")
+    if git_status or modified:
+        parts.append(f"\nFILES CHANGED (uncommitted): {modified or git_status}")
+    if diff_stat:
+        parts.append(f"DIFF SUMMARY: {diff_stat}")
 
-    bridge = "\n".join(bridge_parts)
+    # Instructions — minimal, factual
+    parts.append("\nContinue from where Opus left off. Don't redo completed work.")
+    parts.append("Check git diff if you need to see what was already changed.")
+
+    bridge = "\n".join(parts)
 
     print(json.dumps({
         "hookSpecificOutput": {

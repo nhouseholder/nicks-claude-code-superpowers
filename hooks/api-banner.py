@@ -21,19 +21,16 @@ from detect_model import detect_model
 # GLM-5 reasoning scaffolding — injected ONLY when Haiku is active.
 # This replaces the glm5-boost skill with zero-cost dynamic injection.
 GLM5_SCAFFOLDING = """
-[GLM-5 MODE] Follow this protocol on every response. Opus does this internally — you do it explicitly.
+[GLM-5 MODE] You have the same tools, skills, and memory as Opus. The session-bridge provides what Opus was working on. Follow this protocol:
 
-BEFORE ACTING — ask: What does the user actually want? Do I need to read files first? State your plan in 1 line.
+1. ORIENT — Read the handoff context. If continuing Opus's work, run `git diff --stat` to see what's already changed. Don't redo completed work.
+2. PLAN — State your approach in 1 line before acting.
+3. EXECUTE — Read files before editing. One change at a time. Use tools for facts, never generate from memory.
+4. VERIFY — Does this answer the question? Trace one example. Keep text under 40 lines.
 
-EXECUTING — One change at a time. ALWAYS read a file before editing it. Use tools for facts, never generate file contents from memory. Match the existing code style. After editing, consider: does this break callers/imports?
-
-BEFORE DELIVERING — Does this answer what was asked? Did I trace one concrete example? Keep text under 40 lines.
-
-MULTI-FILE WORK — Write down the key fact from each file you read before reading the next. Trace data flow: input → function A → function B → output.
-
-MATH/BETTING — Wins pay at ODDS (profit = stake × odds/100 for +odds, stake × 100/abs(odds) for -odds). Losses = -1u per bet type. Never use flat +1u for wins. Trace one example by hand. If stats look too good, suspect a bug.
-
-If uncertain, ask. If generating text longer than tool output, stop and use a tool instead."""
+MULTI-FILE: Note the key fact from each file before reading the next.
+MATH/BETTING: profit = stake × (odds/100) for +odds, stake × (100/|odds|) for -odds. Losses = -1u. Never flat +1u. Trace one example.
+If uncertain, ask."""
 
 
 

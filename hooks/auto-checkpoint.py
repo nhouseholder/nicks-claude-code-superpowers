@@ -1,16 +1,8 @@
 #!/usr/bin/env python3
 """
-Auto-Checkpoint — Saves a lightweight handoff file after every Stop event.
-This runs WHILE Opus is active, creating breadcrumbs that GLM-5 can read later.
-
-On every Stop (Opus finishes responding), writes ~/.claude/last-checkpoint.json with:
-- Last user message
-- Last assistant response summary
-- Timestamp
-- Which project directory
-
-When GLM-5 takes over, session-bridge can read this file as a backup
-if transcript parsing fails or context is too sparse.
+Auto-Checkpoint — Rich state dump after every Opus response.
+Writes ~/.claude/last-checkpoint.json with everything GLM-5 needs
+to seamlessly continue: task state, recent changes, active files.
 """
 import json
 import sys
@@ -20,80 +12,83 @@ from pathlib import Path
 from datetime import datetime
 
 
+def run_cmd(cmd, timeout=3):
+    """Run a shell command and return stdout, or empty string on failure."""
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, shell=True)
+        return r.stdout.strip() if r.returncode == 0 else ""
+    except Exception:
+        return ""
+
+
+def extract_text(content):
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        return " ".join(
+            b.get("text", "") for b in content
+            if isinstance(b, dict) and b.get("type") == "text"
+        )
+    return ""
+
+
 try:
     hook_input = json.load(sys.stdin)
-    event = hook_input.get("hook_event_name", "")
 
-    if event != "Stop":
+    if hook_input.get("hook_event_name") != "Stop":
         sys.exit(0)
-
-    # Don't recurse — if we're already in a Stop hook, skip
     if hook_input.get("stop_hook_active"):
         sys.exit(0)
 
     transcript_path = hook_input.get("transcript_path", "")
-    if not transcript_path or not Path(transcript_path).exists():
-        sys.exit(0)
 
-    # Read last few lines of transcript
-    try:
-        result = subprocess.run(
-            ["tail", "-30", transcript_path],
-            capture_output=True, text=True, timeout=2
-        )
-        lines = result.stdout.strip().split("\n") if result.stdout else []
-    except Exception:
-        sys.exit(0)
-
+    # Extract last user + assistant messages from transcript
     last_user = ""
     last_assistant = ""
 
-    for line in reversed(lines):
+    if transcript_path and Path(transcript_path).exists():
         try:
-            entry = json.loads(line)
-            role = entry.get("role", "")
-            content = entry.get("content", "")
-
-            # Extract text
-            if isinstance(content, str):
-                text = content
-            elif isinstance(content, list):
-                text = " ".join(
-                    b.get("text", "") for b in content
-                    if isinstance(b, dict) and b.get("type") == "text"
-                )
-            else:
-                continue
-
-            text = text.strip()
-            if len(text) < 5:
-                continue
-
-            if role == "assistant" and not last_assistant:
-                last_assistant = text[:1000]
-            elif role == "user" and not last_user:
-                last_user = text[:500]
-
-            if last_user and last_assistant:
-                break
+            r = subprocess.run(["tail", "-40", transcript_path],
+                             capture_output=True, text=True, timeout=2)
+            for line in reversed(r.stdout.strip().split("\n")):
+                try:
+                    entry = json.loads(line)
+                    text = extract_text(entry.get("content", "")).strip()
+                    if len(text) < 5:
+                        continue
+                    if entry.get("role") == "assistant" and not last_assistant:
+                        last_assistant = text[:1500]
+                    elif entry.get("role") == "user" and not last_user:
+                        last_user = text[:500]
+                    if last_user and last_assistant:
+                        break
+                except Exception:
+                    pass
         except Exception:
             pass
 
-    if not last_assistant:
-        sys.exit(0)
+    # Gather project state — git diff, status, recent files
+    git_status = run_cmd("git status --short 2>/dev/null | head -20")
+    git_diff_stat = run_cmd("git diff --stat 2>/dev/null | tail -5")
+    recent_files = run_cmd("git diff --name-only 2>/dev/null | head -10")
+    branch = run_cmd("git branch --show-current 2>/dev/null")
 
-    # Write checkpoint
     checkpoint = {
         "timestamp": datetime.now().isoformat(),
-        "project_dir": os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd()),
         "model": os.environ.get("CLAUDE_MODEL", "unknown"),
+        "project_dir": os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd()),
+        "transcript_path": transcript_path,
         "last_user_message": last_user,
         "last_assistant_response": last_assistant,
-        "transcript_path": transcript_path,
+        "git_branch": branch,
+        "git_status": git_status,
+        "git_diff_stat": git_diff_stat,
+        "modified_files": recent_files,
     }
 
-    checkpoint_path = Path.home() / ".claude" / "last-checkpoint.json"
-    checkpoint_path.write_text(json.dumps(checkpoint, indent=2))
+    Path(os.path.expanduser("~/.claude/last-checkpoint.json")).write_text(
+        json.dumps(checkpoint, indent=2)
+    )
 
 except Exception:
-    pass  # Never block the Stop event
+    pass
