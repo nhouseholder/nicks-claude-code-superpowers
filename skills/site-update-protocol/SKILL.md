@@ -186,12 +186,40 @@ Pick the latest event. Verify:
 | Parlay | Yellow | text-yellow-400 | #facc15 |
 | Combined | Red | text-red-400 | #f87171 |
 
+## Domain Knowledge Requirement
+
+Before touching any UFC website code, the AI agent MUST read:
+- `~/.claude/memory/topics/ufc_betting_domain_knowledge.md` — expert-level UFC betting reference
+- `~/.claude/memory/topics/ufc_betting_model_spec.md` — the 4+1 bet model specification
+
+If the agent does not understand how prop bets settle (fighter loss = ALL props lose), it WILL produce broken tables. Read the domain knowledge first.
+
+## Screenshot-Verified Bug Checklist (Recurring Issues)
+
+These bugs have been found on the live site via screenshots. Check for ALL of them after every deploy:
+
+| # | Bug | Where | How to Detect | Fix |
+|---|-----|-------|--------------|-----|
+| 1 | Method shows "✓ ✓" with no P/L amount | Event table method column | Page/Duncan show green checkmarks but "—" instead of dollar amounts | Display method_pnl if available, "✓ —" only if method_correct=true AND method_pnl=null |
+| 2 | Method header shows "0.00u 0W-0L" when bouts have method wins | Event card summary | Evloev vs Murphy card shows Method 0.00u when 2 bouts have method_correct=true | Recompute event-level method stats from bout data, not from potentially zeroed aggregates |
+| 3 | Murphy method shows "X —" instead of "X -1.00u" | Event table | Murphy lost AND method bet was placed (method_odds exist) → should show -1.00u loss | If fighter lost AND bet was placed (odds exist), show "X -1.00u" |
+| 4 | Profit curve starts flat at 0 for first ~35 events | Chart | Left third of chart shows flat red line at 0 | Ensure profit curve data array has entries for ALL events starting from event 1 |
+| 5 | X-axis event labels cut off at bottom | Chart | Event names truncated, only top portions visible | Set chart bottom margin to 120px+, angle labels -45°, ensure container has overflow visible |
+| 6 | Legend items overlap or get cut off ("Round" partially visible) | Chart legend | Legend text runs together or clips | Use flexWrap, or 2-row legend, or reduce font size |
+| 7 | "Please fill out this field" browser tooltip | Landing page, near search/filter area | Native browser validation tooltip appearing on non-form elements | Add `autoComplete="off"` and `noValidate` to container elements |
+| 8 | Event cards show only "ML/Method/Round" — missing Combo and Parlay | Event history cards | Cards show 3 summary badges instead of 5 | Update EventCard component to include combo + parlay badges |
+| 9 | Event table in history shows "ML ODDS / ML / METHOD ODDS" — missing Round/Combo/Parlay columns | History page inline table | Table only has 3 data columns | Update HistoryPage table to use same 5-column format as EventBetsDropdown |
+| 10 | Two different profit curves on same site — one shows ML+Method+Round (3 lines), other shows all 5 | Multiple pages | Inconsistent chart data | Ensure ALL charts use the same registryData.js computeCurveFromRegistry with all 5 bet types |
+
 ## Rules
 
 1. **All 5 bet types on every page** — if any page shows fewer than 5, the deploy is broken
 2. **No 0.00u with wins** — display "✓ —" for wins without odds, never "✓ 0.00u"
 3. **Fighter loss = -1.00u in every column** — not "X —", show the actual -1.00u
-4. **Chart starts at event 1** — no flat zero lines
-5. **Visual verification is mandatory** — check every page after every deploy
+4. **Chart starts at event 1** — no flat zero lines, no lines starting midway
+5. **Visual verification is mandatory** — check every page after every deploy using Claude in Chrome or screenshots
 6. **Never deploy without building** — `npm run build` first, always
 7. **Spot-check one event** — trace one fight's numbers from registry → table
+8. **Read domain knowledge first** — `ufc_betting_domain_knowledge.md` before any UFC website work
+9. **Never overwrite algorithm_stats.json version** — only update P/L fields, never touch version fields
+10. **Consistent charts everywhere** — if one chart shows 5 bet types, ALL charts must show 5
