@@ -86,19 +86,108 @@ When any checklist item fails:
 
 1. **STOP writing code immediately.** Do not "figure it out as you go."
 
-2. **Search for authoritative sources:**
+2. **Search for authoritative sources** (see Source Quality Hierarchy below):
    ```
    WebSearch: "[domain concept] rules" OR "[domain concept] how does it work"
    WebSearch: "[domain concept] settlement" OR "[domain concept] calculation formula"
    ```
 
-3. **Read 2-3 authoritative sources** (official docs, sportsbook rules, textbooks — NOT blog posts or forums).
+3. **Read 2-3 authoritative sources** — apply the Source Quality Hierarchy strictly.
 
 4. **Write down the rules** in your own words. Compare against what you were about to implement.
 
-5. **If your implementation was wrong, fix it BEFORE proceeding.**
+5. **Run the Research Completeness Test** (see below). If it fails, research more.
 
-6. **Save the knowledge** to `~/.claude/memory/topics/<domain>.md` so future sessions don't repeat the research.
+6. **If your implementation was wrong, fix it BEFORE proceeding.**
+
+7. **Save the knowledge** to `~/.claude/memory/topics/<domain>.md` so future sessions don't repeat the research.
+
+## Source Quality Hierarchy
+
+Not all sources are equal. Claude must prioritize high-quality sources and reject low-quality ones.
+
+### Tier 1 — Gold (USE THESE FIRST)
+| Domain | Gold Sources |
+|--------|-------------|
+| **Sports betting** | Sportsbook house rules (DraftKings, FanDuel, BetMGM), BestFightOdds.com, state gaming commission rules |
+| **Finance** | IRS publications, SEC filings, official bank documentation, GAAP/IFRS standards |
+| **APIs** | Official documentation (docs.stripe.com, not "how to use Stripe" blog posts) |
+| **Statistics** | Textbooks (ISLR, ESL), academic papers (arXiv, JSTOR), R/Python official docs |
+| **Medicine** | FDA labels, UpToDate, PubMed systematic reviews, WHO guidelines |
+| **Law** | Actual statutes, court opinions, bar association guides |
+
+### Tier 2 — Silver (USE TO SUPPLEMENT)
+- Stack Overflow answers with 50+ upvotes and verified by multiple users
+- Wikipedia (for general concepts, but verify specifics elsewhere)
+- Reputable industry blogs (e.g., Towards Data Science for ML, but verify formulas)
+- Official tutorials from framework creators
+
+### Tier 3 — Bronze (USE WITH CAUTION)
+- Medium articles, personal blogs, dev.to posts
+- YouTube tutorials (can be outdated or wrong)
+- ChatGPT/AI-generated content (circular reasoning risk)
+- Forum posts without verification
+
+### Tier 4 — Reject (NEVER USE AS SOLE SOURCE)
+- Random blog posts with no author credentials
+- SEO-optimized "what is X" articles (often surface-level or wrong)
+- Social media posts (Twitter/X, Reddit without verification)
+- Content that contradicts Tier 1 sources
+- Any source that doesn't cite its own sources
+
+**Rule: At least ONE source must be Tier 1.** If you can't find a Tier 1 source, flag this to the user: "I couldn't find official/authoritative documentation for X. Here's what I found from lower-quality sources — please verify."
+
+## Research Completeness Test
+
+After researching, Claude must pass ALL 5 checks before considering research complete:
+
+### Check 1: "Can I explain the edge cases?"
+Not just the happy path — what happens in unusual situations?
+- Sports betting: What happens on a draw? No contest? Doctor stoppage?
+- Finance: What about refunds? Chargebacks? Currency conversion?
+- APIs: What if the request times out? Rate limited? Invalid input?
+
+**If you can only explain the happy path → research more.**
+
+### Check 2: "Do my sources agree?"
+Cross-reference at least 2 sources. If they contradict each other:
+- The Tier 1 source wins
+- If both are Tier 1, flag the discrepancy to the user
+- NEVER average contradicting sources or pick the one that's "easier to implement"
+
+**If sources contradict → flag to user, don't guess.**
+
+### Check 3: "Can I produce a worked example?"
+Take a concrete scenario and trace it through the rules step by step.
+- Sports: "Fighter A predicted KO R2, actual SUB R1 — what's the P/L on each bet?"
+- Finance: "Customer buys $100 item with 8.25% tax, returns it 30 days later — what's the refund?"
+
+**If you can't produce a correct worked example → research more.**
+
+### Check 4: "Would my implementation handle the user's SPECIFIC use case?"
+Generic knowledge isn't enough. The user's system may have specific rules.
+- Check memory files for user-defined rules that override or extend standard rules
+- Check anti-patterns for prior corrections on this exact topic
+- Check the project's spec files for domain-specific constraints
+
+**If you haven't checked project-specific rules → check them before coding.**
+
+### Check 5: "Is my knowledge current?"
+Domain rules change. Tax rates change. API versions deprecate. Sportsbook rules update.
+- Check when your source was published
+- If the source is 2+ years old, search for updates
+- If the user mentions a specific year or version, verify against THAT version
+
+**If your source is outdated → search for current rules.**
+
+## Research Depth by Domain Risk
+
+| Risk Level | Examples | Minimum Sources | Completeness Checks Required |
+|-----------|---------|----------------|------------------------------|
+| **Critical** (money, health, legal) | Payout calculations, dosing, contracts | 3 sources (2 Tier 1) | All 5 checks |
+| **High** (accuracy matters) | Scoring logic, statistical methods, API integrations | 2 sources (1 Tier 1) | Checks 1-4 |
+| **Medium** (correctness preferred) | Data formatting, UI patterns, best practices | 1-2 sources | Checks 3-4 |
+| **Low** (preference-based) | Color choices, naming conventions, code style | Memory/docs only | Check 4 only |
 
 ## Anti-Patterns This Prevents
 
