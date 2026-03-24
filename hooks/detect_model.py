@@ -5,15 +5,17 @@ import urllib.request
 
 
 def detect_model():
-    """Detect current model from CLAUDE_MODEL env var or proxy's /last-route."""
+    """Detect current model from CLAUDE_MODEL env var.
+
+    CLAUDE_MODEL is the ONLY reliable source. The proxy's /last-route is stale
+    (reflects last API call, not current picker). When unknown, default to 'opus'
+    so we never accidentally inject GLM-5 scaffolding into an Opus session.
+    """
     model = os.environ.get("CLAUDE_MODEL", "")
     if not model:
-        try:
-            resp = urllib.request.urlopen("http://127.0.0.1:17532/last-route", timeout=1)
-            data = json.loads(resp.read())
-            model = data.get("model", "")
-        except Exception:
-            pass
+        # Unknown model = assume Anthropic (safe default).
+        # A missing green emoji is harmless; a false green emoji is confusing.
+        return "opus"
     return model.lower()
 
 

@@ -2,7 +2,17 @@
 
 > This file is auto-maintained by the error-memory skill.
 > Claude checks this before debugging to avoid repeating known-bad approaches.
-> Last updated: 2026-03-16
+> Last updated: 2026-03-23
+
+## Critical — Global Settings Danger
+
+### NEVER modify ANTHROPIC_BASE_URL in settings.json — 2026-03-23
+- **Context**: Z AI / anyclaude proxy integration
+- **Bug**: Setting `ANTHROPIC_BASE_URL` in `~/.claude/settings.json` to a localhost proxy. When the proxy crashes, ALL Claude Code sessions break with "Connection Refused" — not just the current one.
+- **Root cause**: `settings.json` is shared across ALL sessions. Modifying it affects every running and future session instantly.
+- **Fix**: Never set `ANTHROPIC_BASE_URL` in settings.json. Use environment variables or launch scripts instead, so only the specific session is affected if the proxy dies.
+- **Recovery**: Remove `ANTHROPIC_BASE_URL` from settings.json, kill anyclaude processes, restart Claude Code.
+- **Applies when**: Any time a proxy, custom endpoint, or API redirect is being configured. NEVER put experimental endpoints in the shared settings file.
 
 ## Build & Environment
 
@@ -183,6 +193,7 @@
 - **Fix**: Mandatory rules added to CLAUDE.md: wins pay at odds (not flat +1u), losses = -1u per bet type, actual odds must be sourced. See "Sports Betting Payout Rules" in CLAUDE.md.
 - **ESCALATION**: This is a 3x recurrence. Previous fixes (COMBO_PAYOUT_ZERO, METHOD_PNL_NULL_WITH_WINS) were insufficient because they fixed specific bet types instead of the root mental model. The CLAUDE.md rule is the systemic fix.
 - **Applies when**: ANY P/L calculation, payout formula, results table, event tracking, or bet display. ALWAYS re-read CLAUDE.md "Sports Betting Payout Rules" before touching payout code.
+- **SYSTEMIC FIX v2 (2026-03-23)**: Created full validation system. Key correction: **fighter loss = ALL placed bets lose -1u** (not just ML). Method always loses on fighter loss. Round/Combo lose only if predicted KO/SUB. DEC prediction + loss = -2u (ML + Method). KO/SUB prediction + loss = -4u (ML + Method + Round + Combo). Added backtest baseline numbers and "only backtester" warning to prevent 25-event confusion.
 
 ### METHOD_PNL_NULL_WITH_WINS — 2026-03-22
 - **Context**: track_results.py → EventSlideshow.jsx → live site display
@@ -190,3 +201,81 @@
 - **Root cause**: Three compounding issues: (1) `ml_profit(None)` returned 0.0 instead of 1.0 (even money fallback), so bets without odds produced $0 profit on wins. (2) Display components allowed `method_correct=true` with `method_pnl=null` to render as ✓ with "—" instead of inferring +1.0u. (3) Combo column was regressed out of the display components during a refactor (dca526f), and combined calculation excluded combo P/L.
 - **Fix**: (1) Changed `ml_profit(None/0)` to return `wager` (1.0u even money). (2) Added `safePnl()` defense function in display that infers +1.0u for wins and -1.0u for losses when pnl is null. (3) Added post-scoring validation in `score_predictions()` that catches any bout where correct!=null but pnl==null and auto-fills. (4) Restored Combo column to tables and included combo in combined totals.
 - **Applies when**: Any change to track_results.py scoring logic, display components showing per-fight P/L, or refactors that touch table columns. Always verify: if wins > 0, P/L MUST be > 0.
+
+### [UFC_BACKTESTER_CONFUSION] — 2026-03-23
+- **Context**: UFC prediction project (ufc-predict)
+- **Bug**: Multiple AI sessions used wrong algorithm version, wrong scoring logic, wrong event count (25 vs 71), and forgot bet types
+- **Root cause**: 8 algorithm files with no archival markers, 2 duplicate subdirectories, 13+ experiment scripts, no clear "this is THE backtester" doc
+- **Fix**: (1) Archived 7 old algo files with .ARCHIVED.py suffix + headers (2) Moved 29 experiment scripts to archive/ (3) Archived duplicate subdirs (4) Created BETTING_MODEL_SPEC.md (immutable 5-bet rules) (5) Created BACKTESTER_README.md (6) Fixed scoring: fighter loss = ALL bets lose, added combo + parlay tracking (7) All committed to GitHub + permanent memory
+- **Applies when**: ANY session touches UFC scoring, backtesting, or P/L display. Read BETTING_MODEL_SPEC.md FIRST.
+
+### [R2_ROUND_GATING_REJECTED] — 2026-03-23
+- **Context**: UFC round bet optimization
+- **Hypothesis**: Gate R2+ round bets (only place R1) since R2 has -10.4% ROI
+- **Result**: REJECTED — gating R2 loses -16.55u net because it also removes KO+R2 combo bets which pay +600-900 odds. The combo wins more than compensate for round losses.
+- **Data**: R2 alone: -3.75u. But combo bets tied to R2: +13.30u. Net with R2: +16.55u better.
+- **Applies when**: Anyone proposes gating round bets by round number. Round bets enable combo bets — evaluate them together, not in isolation.
+
+### [R2_ROUND_GATING_CORRECTED] — 2026-03-23
+- **Context**: Follow-up to R2_ROUND_GATING_REJECTED
+- **Fix**: Gate R2+ for STANDALONE round bets (ML+Round) only. Keep combo bets (ML+Method+Round) ungated for all rounds.
+- **Result**: +0.9% ROI improvement (28.0% → 28.9%), 29 fewer losing bets, combo P/L unchanged at +35.25u.
+- **Key insight**: Round bets and combo bets should be gated INDEPENDENTLY. A round prediction can be -ROI as a standalone bet but +ROI as part of a combo.
+
+### [ROUND_BET_FIGHTER_LOSS_EXCLUSION] — 2026-03-23
+- **Context**: Round bet ROI analysis
+- **Bug**: Excluded fighter losses from round bet win rate, showing 92.3% R1 and 33.3% R2 — wildly inflated
+- **Root cause**: Analyzing only bouts where `round_pnl is not None` in bout-level data. But when fighter loses, the algorithm scores round as -1u at the EVENT level while bout-level `round_pnl` is null. This made it look like fighter losses "don't count" for round bets.
+- **Fix**: Fighter loss = round bet loss. ALWAYS. The 28 bout-level round bets + 27 fighter-loss auto-losses = 55 total round bets. Win rate is 17/55 = 30.9%, NOT 17/28 = 60.7%.
+- **Applies when**: ANY analysis of bet type performance. Never exclude fighter losses from ANY bet type's W-L record. A bet that was placed and the fighter lost = that bet LOST.
+
+### [REGISTRY_BEFORE_AFTER_MISLEADING] — 2026-03-23
+- **Context**: R2 round bet gating analysis
+- **Bug**: Compared registry totals before/after gating and concluded R2 removal "cost" +3.25u. This was WRONG.
+- **Root cause**: The registry counts fighter-loss round bets differently depending on whether the gate is active. With R2 ungated, the algorithm scores ~31 R2 fighter-loss round bets. With R2 gated, those 31 losses disappear from the round category entirely. So "before" had 38 losses and "after" had 14 — but the REAL R2 loss count is 31, not 24 (38-14).
+- **Correct analysis**: R2 round bets = 5W at ~+545 avg odds (+27.25u) minus 31L at -1u (-31u) = NET -3.75u. R2 is NEGATIVE.
+- **Fix**: Never compare registry before/after totals to evaluate a gating change. The fighter-loss accounting shifts between categories. Instead, isolate the specific bet type's wins and ALL losses (including fighter losses) independently.
+- **Applies when**: ANY analysis comparing before/after registry totals for a bet type gating decision.
+
+### PROP BET FIGHTER LOSS EXCLUSION — 2026-03-23
+- **Context**: UFC round bet analysis, dispatching-parallel-agents, any prop bet P/L calculation
+- **Bug**: Claude repeatedly excluded fighter losses from prop bet W-L records, showing inflated win rates (e.g., 92% for R1 when real rate is 48%). Then flip-flopped on gating decisions 5 times in one session.
+- **Root cause**: Fundamental misunderstanding of prop bet mechanics. Claude treated fighter losses as a separate category ("auto-losses") instead of counting them as regular losses. This created a parallel reality where R2 appeared profitable when filtered to "fighter wins only."
+- **Fix**: Added worked examples table to CLAUDE.md showing every outcome for every bet type. Added explicit rule: fighter loss = prop loss, always counted in W-L, never excluded. Added no-revert rule: data-driven decisions confirmed by user are FINAL.
+- **Applies when**: ANY analysis of prop bet performance (method, round, combo), ANY computation of win rates or ROI for non-ML bet types, ANY R1 vs R2 comparison
+
+### REVERT LOOP — 5 REVERSALS OF SAME DECISION — 2026-03-23
+- **Context**: UFC round bet R2 gating analysis
+- **Bug**: Claude gated R2 (correct per user data), then reverted because its own re-analysis showed R2 as profitable, then re-gated when user corrected, then reverted AGAIN, then re-gated AGAIN. 5 reversals of the same correct decision in one session.
+- **Root cause**: Claude re-derived numbers from raw data each time instead of trusting the previously verified result. Small counting differences (bout-level vs event-level, missing odds gaps) caused the conclusion to flip each time.
+- **Fix**: No-Revert Rule in CLAUDE.md. Once a data-driven change is confirmed by the user and verified by backtest, it is FINAL. Do not re-analyze the same data to second-guess it. If numbers seem contradictory, the bug is in your analysis, not in the confirmed decision.
+- **Applies when**: ANY situation where Claude wants to revert a change it just made based on re-analyzing the same data
+
+### DUAL SCORER BUG — TWO SCORING PASSES THAT DISAGREE — 2026-03-23
+- **Context**: UFC algorithm has TWO independent scoring sections: event-level (~line 1300) and bout-level (~line 9150). Both compute method/round/combo P/L independently.
+- **Bug**: Claude fixed the event-level scorer (fighter loss = all bets lose) but left the bout-level scorer untouched. Event totals were correct but bout-level data showed wrong tables on the website.
+- **Root cause**: No documentation that two scorers exist. Claude searched for the scoring bug, found ONE instance, fixed it, and declared done without checking if the same logic existed elsewhere.
+- **Fix**: ALWAYS search for ALL instances of scoring logic before declaring a fix complete. After fixing any scoring rule, grep for the pattern in the ENTIRE file — there may be a second implementation.
+- **Applies when**: ANY scoring/P&L fix in the UFC algorithm. Check both event-level AND bout-level scoring sections.
+
+### BACKTEST DESTROYED 38 EVENTS OF PROP ODDS — 2026-03-23
+- **Context**: UFC profit registry, prop odds cache, backtest re-run
+- **Bug**: Claude ran a 71-event backtest that re-scraped prop odds from BestFightOdds. The cache had `__NO_PROPS__: True` for 38 events because the scraper ran too early (before odds were published). The backtest overwrote the registry with null prop data for those 38 events, destroying method_odds, method_pnl, round_odds, etc. that had been accumulated across prior sessions.
+- **Root cause**: The registry accumulates data over time — each session adds odds that weren't available before. A full backtest re-run replaces ALL data with whatever the cache currently has, which may be LESS than what was already stored. No pre-write comparison was done.
+- **Fix**: CLAUDE.md rules 10-11: Always backup registry before any backtest. After run, compare field-by-field. If any event lost data (value → null), ABORT and restore backup. Prop odds are irreplaceable once events pass — never trust a fresh scrape over cached historical data.
+- **Severity**: CATASTROPHIC — weeks of accumulated prop odds data destroyed in one command. Required manual restoration from git history.
+- **Applies when**: ANY backtest re-run, ANY registry overwrite, ANY operation that touches the profit registry
+
+### [BACKTEST_WIPED_PROP_ODDS] — 2026-03-24
+- **Context**: Re-running 71-event backtest with UFC_CACHE_ONLY=1
+- **Bug**: Backtest regenerated registry from scratch. Prop odds cache had __NO_PROPS__: True for 38 events, so 38 events lost ALL method/round/combo data.
+- **Root cause**: The prop odds cache was stale/incomplete. CACHE_ONLY mode uses whatever's in the cache — if cache says no props, the backtest records no prop bets.
+- **Fix**: NEVER re-run full backtest without first verifying prop odds cache coverage. Better approach: re-score existing registry data in place (Option A in handoff).
+- **Applies when**: ANY time someone wants to re-run the backtest. Check cache first. Backup registry first.
+
+### [ALGO_STATS_OVERWRITTEN] — 2026-03-24
+- **Context**: Backtest writes to algorithm_stats.json
+- **Bug**: Backtest overwrote curated display stats (355W-142L, v11.11.0) with raw backtest pool numbers (360W-150L, v10.71)
+- **Root cause**: The backtest's update_algorithm_stats() reads APP_VERSION from version.js and writes ML totals from the full fight pool, not just the picks that were bet on.
+- **Fix**: NEVER let backtest overwrite algorithm_stats.json. Either backup before, or modify the backtest to not touch it.
+- **Applies when**: ANY backtest run. The algo stats file is curated — backtest should not touch it.
