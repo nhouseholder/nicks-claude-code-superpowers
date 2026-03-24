@@ -28,10 +28,10 @@ try:
     high_risk_tools = {"Read", "Grep", "Glob", "WebFetch", "WebSearch"}
 
     if tool_name in high_risk_tools:
-        reminder = "REMINDER: You just read data. Report only what's relevant to the user's question. Do NOT summarize the entire file or generate code from memory. Keep text output under 20 lines."
+        reminder = "You just received data. Before responding: (1) What specific part answers the user's question? Extract only that. (2) Do you need another tool call, or can you answer now? (3) Keep your text to the relevant findings only."
     else:
-        # Light reminder for other tools
-        reminder = "Stay focused on the user's request. Brief output only."
+        # Light nudge for other tools
+        reminder = "Good. Now connect this result back to the user's question."
 
     print(json.dumps({
         "hookSpecificOutput": {
