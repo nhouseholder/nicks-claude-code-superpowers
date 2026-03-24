@@ -1,6 +1,7 @@
 ---
 name: never-give-up
 description: Evidence-based persistence — fight for proven-valuable ideas, stop wasting tokens on dead ends. 3-attempt cap per approach, then escalate. Always-on.
+weight: passive
 ---
 
 # Never Give Up — But Be Smart About It

@@ -1,6 +1,7 @@
 ---
 name: prompt-architect
 description: Restructures prompts for optimal execution, detects intent to route to skills/commands, and stays anchored to the original objective during long sessions. Combines prompt processing, intent detection, and drift prevention. Always-on.
+weight: passive
 ---
 
 # Prompt Architect — Process, Route, Stay Focused

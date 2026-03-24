@@ -159,6 +159,44 @@ Bugs found: [file:line and description]
 Recommendation: SHIP or FIX FIRST
 ```
 
+## Verification Before Completion (absorbed from verification-before-completion skill)
+
+**Core principle:** Evidence before claims, always.
+
+### Baseline Recording
+Before modifying ANY data/values/calculations, record current state:
+```
+BEFORE: ML = +107.89u (355W-142L), Method = +171.76u...
+CHANGING: [what you're about to change]
+AFTER: [verify matches or improves — any decrease = regression]
+```
+
+### Self-Contradiction Check
+Before sending, check WORDS match DATA:
+- "Fixed! All bet types correct" while table shows $0.00 = contradiction
+- "All N issues addressed" while only 2 of 5 done = contradiction
+- **Rule:** Triumphant claim + contradicting evidence = fix data or retract claim
+
+### Output Verification — Check What the User Sees
+"I edited the code" is NOT verification. Check the OUTPUT:
+- Web/UI: Use Chrome tools, preview, or curl
+- Data/tables: Pick one row and manually verify values
+- Algorithm: Check actual output file, not just console "success"
+
+### Self-Challenge (for data/math outputs)
+Pick ONE suspicious value and trace it source → output. Red flags:
+- Round numbers where messy ones expected ($0.00, 100%, exactly 50)
+- All values identical in a column that should vary
+- "Fixed!" after changing one line of a multi-path function
+
+### Deep Verification Mode (Pre-PR / Pre-Deploy)
+1. Build: `npm run build` — fails → STOP
+2. Type Check: `npx tsc --noEmit` or `pyright .`
+3. Lint: `npm run lint` or `ruff check .`
+4. Test Suite: full run with coverage
+5. Security Scan: hardcoded secrets, console.log, debug artifacts
+6. Diff Review: `git diff --stat` — review for unintended changes
+
 ## Rules
 
 1. **Never deliver untested code** — If it changed behavior, test before the user sees it
@@ -168,3 +206,5 @@ Recommendation: SHIP or FIX FIRST
 5. **Edge cases are mandatory** — Happy path + at least one edge case, always
 6. **Never say "try now" without evidence** — Bug fixes require proof
 7. **Escalate on repeat bugs** — 2nd report = Tier 3 mandatory
+8. **Record baselines** — Before changing data, capture BEFORE values
+9. **Self-contradict check** — Words must match data before sending

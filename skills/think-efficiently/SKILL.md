@@ -1,6 +1,7 @@
 ---
 name: think-efficiently
 description: Prevents wasted tokens — pointless actions, analysis paralysis, redundant work, and disproportionate effort. Always-on efficiency filter.
+weight: passive
 ---
 
 # Think Efficiently — Don't Waste Tokens

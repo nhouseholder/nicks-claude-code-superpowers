@@ -1,6 +1,7 @@
 ---
 name: opportunistic-improvement
 description: Two modes — (1) While working, notice and fix code smells in files you're already touching. (2) When idle, suggest the highest-impact improvements across the project. Always-on mini-audit while working, proactive suggestions when idle.
+weight: passive
 ---
 
 # Opportunistic Improvement — Every Touch Makes It Better

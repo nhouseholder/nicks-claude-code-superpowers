@@ -1,6 +1,7 @@
 ---
 name: take-your-time
 description: Match effort to prompt complexity. A 20-bullet detailed prompt deserves 20 individual implementations, not one rushed pass. Prevents AI slop by treating each requirement with the same quality as if it were its own standalone prompt. Know when to go slow and meticulous, and when to go fast. Always-on quality discipline skill.
+weight: passive
 ---
 
 # Take Your Time — Every Requirement Deserves Full Respect

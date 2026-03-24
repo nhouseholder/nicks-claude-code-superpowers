@@ -1,6 +1,7 @@
 ---
 name: skill-manager
 description: Prevents skill overload. Weight class limits, conflict resolution, stack cap at 75. Always-on meta-skill.
+weight: passive
 ---
 
 # Skill Manager — Traffic Control

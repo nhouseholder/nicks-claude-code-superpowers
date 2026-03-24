@@ -1,6 +1,7 @@
 ---
 name: predictive-next
 description: After completing a task, anticipate what the user likely needs next and offer it proactively. Uses pattern recognition from the task type, codebase state, and common workflows. Automatic skill that fires after task completion — one-line suggestion, zero pressure.
+weight: passive
 ---
 
 # Predictive Next — Anticipate the Next Move

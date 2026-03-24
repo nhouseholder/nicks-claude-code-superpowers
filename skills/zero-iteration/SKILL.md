@@ -1,6 +1,7 @@
 ---
 name: zero-iteration
 description: Mentally execute code before writing it. Trace inputs through logic, predict outputs, catch bugs before they exist. Reduces edit-test-fix cycles by getting it right the first time. Always-on awareness skill that activates during any code generation.
+weight: passive
 ---
 
 # Zero Iteration — Get It Right the First Time

@@ -1,6 +1,7 @@
 ---
 name: z-ai-switch
 description: Dynamic model routing — Haiku 4.5 in picker = GLM-5 via Z AI. Opus/Sonnet = Anthropic. No restart needed. Type /z for help.
+weight: passive
 user_invocable: true
 ---
 

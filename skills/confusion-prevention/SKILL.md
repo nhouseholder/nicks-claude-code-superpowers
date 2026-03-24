@@ -1,6 +1,7 @@
 ---
 name: confusion-prevention
 description: Detect when Claude is confused and force a re-orientation instead of spiraling. Prevents the "wait... actually... let me check..." pattern. Snapshot critical state before destructive actions, recognize confusion signals, and stop to re-orient. Always-on awareness skill.
+weight: passive
 ---
 
 # Confusion Prevention — Stop Spiraling, Start Orienting

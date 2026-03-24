@@ -1,6 +1,7 @@
 ---
 name: mid-task-triage
 description: When the user sends a new message while Claude is mid-task, instantly classify it as an addendum (merge into current work), a course correction (steer current task), or a queue item (address after current task completes). Never lose progress. Never stop working to ask what they meant. Always-on awareness skill with zero overhead.
+weight: passive
 ---
 
 # Mid-Task Triage — New Input Without Losing Momentum

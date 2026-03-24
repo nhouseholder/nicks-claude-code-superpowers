@@ -1,6 +1,7 @@
 ---
 name: response-recap
 description: Provides a plain English recap ONLY after complex, multi-step work — not after every response. Fires after multi-file changes, debugging sessions, architecture decisions, or multi-step implementations. Skips for single-file edits, quick fixes, Q&A, and routine tasks. Hybrid approach that gives summaries when they matter without bloating simple responses.
+weight: passive
 ---
 
 # Response Recap — Summary Only When It Matters

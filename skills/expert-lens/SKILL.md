@@ -1,6 +1,7 @@
 ---
 name: expert-lens
 description: Adopt domain-expert perspectives automatically. When the user says "you are an expert in X" or the task implies a specific professional domain, activate that expert's mental models, vocabulary, frameworks, and quality standards. Knows what real experts know — including what amateurs get wrong. Always-on detection with zero overhead when not triggered.
+weight: passive
 ---
 
 # Expert Lens — Think Like the Best in the Field

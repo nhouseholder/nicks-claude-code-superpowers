@@ -61,9 +61,30 @@ NEVER implement before presenting research. Wait for user to confirm approach, c
 | **Sports Analytics** | Academic journals, analytics sites | Sample sizes, era adjustments, traditional vs advanced vs ML |
 | **Web Dev** | Official docs, MDN | Browser compat, perf benchmarks, built-in solutions first |
 
+## Search-First Mode (absorbed from search-first skill)
+
+Before writing ANY utility, helper, or new functionality, quick-check for existing solutions:
+
+1. **Does it already exist in the repo?** → grep through modules/tests
+2. **Is it a common problem?** → Search npm/PyPI for maintained packages
+3. **Is there an MCP for this?** → Check settings.json and MCP registry
+4. **Is there a skill for this?** → Check `~/.claude/skills/`
+5. **Is there a GitHub implementation?** → Search for maintained OSS
+
+**Decision matrix:**
+| Signal | Action |
+|--------|--------|
+| Exact match, well-maintained, MIT/Apache | **Adopt** — install and use directly |
+| Partial match, good foundation | **Extend** — install + thin wrapper |
+| Multiple weak matches | **Compose** — combine 2-3 small packages |
+| Nothing suitable found | **Build** — write custom, informed by research |
+
+**Anti-patterns:** Jumping straight to custom code without checking. Installing massive packages for one small feature. Ignoring MCP servers that already provide the capability.
+
 ## Rules
 
 1. **Research before code** — summary comes BEFORE any implementation; user approves before you build
-2. **Authoritative sources** — Tier 1 > Tier 2 > Tier 3; every claim needs a URL
-3. **Alternatives are mandatory** — never present only one option
-4. **Be specific** — "Smith et al. (2024), N=500" not "studies show"
+2. **Search-first for tools** — check npm/PyPI/MCP/GitHub before writing custom utilities
+3. **Authoritative sources** — Tier 1 > Tier 2 > Tier 3; every claim needs a URL
+4. **Alternatives are mandatory** — never present only one option
+5. **Be specific** — "Smith et al. (2024), N=500" not "studies show"

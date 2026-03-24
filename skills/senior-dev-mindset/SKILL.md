@@ -1,6 +1,7 @@
 ---
 name: senior-dev-mindset
 description: Think like a senior full-stack developer who ships complete, production-ready features. Infer unstated requirements from real-world context. Never leave stubs, placeholders, or TODO comments. Build the full thing every time.
+weight: passive
 ---
 
 # Senior Dev Mindset — Build What They Mean, Not Just What They Say

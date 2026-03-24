@@ -1,6 +1,7 @@
 ---
 name: total-recall
 description: Cross-session memory, crash-safe checkpointing, automatic handoff before context degrades, and instant resume. Handles all persistence across sessions. Always-on.
+weight: passive
 ---
 
 # Total Recall — Memory, Handoff, and Resume

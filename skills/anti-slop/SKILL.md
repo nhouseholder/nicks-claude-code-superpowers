@@ -1,6 +1,7 @@
 ---
 name: anti-slop
 description: Zero tolerance for placeholder data in structured output. Every field must be real data or explicitly flagged as unfound. Always-on quality gate.
+weight: passive
 ---
 
 # Anti-Slop — No Placeholder Garbage
