@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Claude Code Prompt Improver + Skill Router Hook
-1. Matches prompts to SPECIFIC agent configurations (not just skill lists)
-2. Tells Claude exactly which agent type to spawn and how to brief it
-3. Evaluates vague prompts for clarity
+Claude Code Agent Router Hook
+Routes prompts to COMPOSITE AGENT PROFILES — bundled skill sets
+that work together. When the user says "call in the frontend agent,"
+Claude spawns an agent briefed with ALL frontend skills' protocols.
 """
 import json
 import sys
@@ -12,7 +12,6 @@ import re
 try:
     input_data = json.load(sys.stdin)
 except json.JSONDecodeError as e:
-    print(f"Error: Invalid JSON input: {e}", file=sys.stderr)
     sys.exit(1)
 
 prompt = input_data.get("prompt", "")
@@ -27,232 +26,275 @@ def output_json(text):
     }
     print(json.dumps(output))
 
-# === AGENT ROUTING ENGINE ===
-# Instead of flat skill lists, route to SPECIFIC agent configurations
-# Format: (pattern, priority, agent_instruction)
-# Higher priority wins when multiple match
+# === COMPOSITE AGENT PROFILES ===
+# Named agent bundles with weighted skill priorities
+# Priority: which skills to read FIRST (1=highest)
 
-AGENT_ROUTES = [
-    # --- AUDITS (most specific first) ---
-    (r"audit.*front|front.*audit|ui.*audit|ux.*audit|design.*audit",
-     100,
-     "AGENT ROUTE: Frontend Audit\n"
-     "1. Spawn a general-purpose agent briefed with: 'Read ALL component/page files. Check against frontend-design anti-slop rules, ui-ux-pro-max accessibility checklist, react-best-practices performance rules. Output ranked issue list (P0-P3) with file:line.'\n"
-     "2. Follow frontend-design SKILL.md protocol for design quality assessment\n"
-     "3. Run ui-ux-pro-max search scripts for specific recommendations\n"
-     "4. After fixes: use webapp-testing Playwright to verify"),
+AGENT_PROFILES = {
+    "frontend": {
+        "name": "Frontend Agent",
+        "skills": [
+            (1, "frontend-design", "Anti-slop design, bold aesthetics, UNFORGETTABLE differentiation"),
+            (1, "ui-ux-pro-max", "50 styles, accessibility checklist, search scripts for recommendations"),
+            (2, "react-best-practices", "40+ performance rules — read relevant rules/ files for the task"),
+            (2, "senior-frontend", "Component patterns, state management, bundle optimization"),
+            (3, "ui-design-system", "Design token generator — run scripts/design_token_generator.py for tokens"),
+            (3, "coding-standards", "TypeScript/React patterns and conventions"),
+            (4, "senior-dev-mindset", "Frontend checklist: all states, responsive, accessible, no stubs"),
+        ],
+        "after": "Verify with webapp-testing Playwright if possible",
+    },
+    "backend": {
+        "name": "Backend Agent",
+        "skills": [
+            (1, "senior-backend", "6-step audit: security scan, performance scan, architecture scan"),
+            (1, "audit", "Invoke /audit for secrets/credential scanning"),
+            (2, "senior-architect", "System design, service boundaries, dependency analysis"),
+            (3, "senior-dev-mindset", "Backend checklist: validation, auth, error codes, N+1"),
+            (3, "coding-standards", "Code quality patterns"),
+        ],
+        "after": "Follow website-guardian verify protocol after fixes",
+    },
+    "debugger": {
+        "name": "Debugger Agent",
+        "skills": [
+            (1, "pre-debug-check", "Check anti-patterns.md and recurring-bugs.md FIRST"),
+            (1, "systematic-debugging", "Hypothesis → test → fix protocol"),
+            (2, "error-memory", "Log bug permanently after fix — root cause + flawed assumption"),
+            (2, "website-guardian", "Baseline snapshot before fix, verify after"),
+            (3, "isolate-before-iterate", "Isolate in minimal test before full pipeline"),
+            (3, "data-consistency-check", "Validate any numbers/stats before presenting"),
+        ],
+        "after": "Log to anti-patterns.md via error-memory",
+    },
+    "reviewer": {
+        "name": "Code Review Agent",
+        "skills": [
+            (1, "code-reviewer", "Automated analysis, security scan, checklist generation"),
+            (1, "reflexion", "Self-assessment + comprehensive review modes"),
+            (2, "requesting-code-review", "How to give feedback — spawn review subagent"),
+            (2, "receiving-code-review", "How to handle feedback — no performative agreement"),
+            (3, "qa-gate", "Dispatch testing agent for end-to-end verification"),
+            (3, "verification-before-completion", "Evidence before assertions"),
+        ],
+        "after": "Run qa-gate before declaring review complete",
+    },
+    "planner": {
+        "name": "Planning Agent",
+        "skills": [
+            (1, "brainstorming", "Lite vs Full brainstorm, complexity gate"),
+            (1, "spec-interview", "Gather requirements, produce SPEC.md"),
+            (2, "writing-plans", "Write implementation plan before code"),
+            (2, "senior-architect", "System design patterns, tech decisions"),
+            (3, "executing-plans", "Execute plan with review checkpoints"),
+        ],
+        "after": "Output: SPEC.md or PLAN.md artifact",
+    },
+    "tester": {
+        "name": "Testing Agent",
+        "skills": [
+            (1, "webapp-testing", "Playwright toolkit — with_server.py, decision tree, examples"),
+            (1, "test-driven-development", "TDD protocol — test first, implement second"),
+            (2, "qa-gate", "Dispatch independent testing agent"),
+            (3, "verification-before-completion", "Evidence before claiming done"),
+        ],
+        "after": "Take screenshots at all breakpoints for visual regression baseline",
+    },
+    "designer": {
+        "name": "Visual Designer Agent",
+        "skills": [
+            (1, "canvas-design", "Design philosophy creation → visual expression"),
+            (1, "frontend-design", "Bold aesthetic direction, anti-generic rules"),
+            (2, "ui-design-system", "Design token generator for colors/typography/spacing"),
+            (2, "ui-ux-pro-max", "Style/palette/font search, accessibility rules"),
+        ],
+        "after": "Output: design philosophy doc + visual artifact (.png/.pdf)",
+    },
+    "deployer": {
+        "name": "Deploy Agent",
+        "skills": [
+            (1, "deploy", "Invoke /deploy — build, lint, deploy, verify"),
+            (2, "website-guardian", "Post-deploy verification checklist"),
+            (2, "site-update-protocol", "UFC/mmalogic-specific deploy checks"),
+        ],
+        "after": "Visual verification of every page after deploy",
+    },
+}
 
-    (r"audit.*back|back.*audit|api.*audit|security.*audit|server.*audit",
-     100,
-     "AGENT ROUTE: Backend Audit\n"
-     "1. Invoke /audit skill via Skill tool (scans for secrets, code quality)\n"
-     "2. Spawn a general-purpose agent briefed with: 'Read ALL API routes, middleware, auth, database files. Check for: unauthenticated routes, missing input validation, N+1 queries, hardcoded secrets, missing error handling, node:fs usage on serverless. Output ranked issue list (P0-P3) with file:line.'\n"
-     "3. Follow senior-dev-mindset Backend checklist for completeness\n"
-     "4. After fixes: use website-guardian verify protocol"),
+def format_profile(profile):
+    """Format a composite agent profile as an instruction."""
+    p = AGENT_PROFILES[profile]
+    lines = [f"COMPOSITE AGENT: {p['name']}"]
+    lines.append(f"Read these skills' SKILL.md files and follow their protocols (priority order):\n")
 
-    (r"full.*audit|site.*audit|audit.*site|audit.*app|audit.*website|comprehensive.*audit",
-     110,
-     "AGENT ROUTE: Full Site Audit — use /site-audit command\n"
-     "Invoke the site-audit command via Skill tool, which runs 7 sequential phases with specialized agents."),
+    current_pri = 0
+    for pri, skill, desc in p["skills"]:
+        if pri != current_pri:
+            current_pri = pri
+            lines.append(f"  Priority {pri}:")
+        lines.append(f"    - {skill}: {desc}")
 
-    # --- HANDOFF ---
+    lines.append(f"\n  After: {p['after']}")
+    return "\n".join(lines)
+
+# === ROUTE TABLE ===
+# Pattern → (priority, profile_or_instruction)
+
+ROUTES = [
+    # --- COMPOSITE AGENT TRIGGERS (user asks for "an agent") ---
+    (r"front.?end.?agent|call.?in.*front|bring.?in.*front|front.?end.?team|ui.?agent|design.?agent",
+     130, "frontend"),
+    (r"back.?end.?agent|call.?in.*back|bring.?in.*back|server.?agent|api.?agent",
+     130, "backend"),
+    (r"debug.?agent|call.?in.*debug|bring.?in.*debug|fix.?agent",
+     130, "debugger"),
+    (r"review.?agent|call.?in.*review|bring.?in.*review|code.?review.?agent",
+     130, "reviewer"),
+    (r"plan.?agent|call.?in.*plan|bring.?in.*architect|architect.?agent",
+     130, "planner"),
+    (r"test.?agent|call.?in.*test|bring.?in.*test|qa.?agent",
+     130, "tester"),
+    (r"design.?agent|call.?in.*design|visual.?agent|art.?agent",
+     130, "designer"),
+    (r"deploy.?agent|call.?in.*deploy|ship.?agent",
+     130, "deployer"),
+
+    # --- TASK-BASED TRIGGERS (infer the right agent from the task) ---
+    # Audits
+    (r"audit.*front|front.*audit|ui.*audit|ux.*audit", 100, "frontend"),
+    (r"audit.*back|back.*audit|api.*audit|security.*audit|server.*audit", 100, "backend"),
+    (r"full.*audit|site.*audit|audit.*site|audit.*app|comprehensive.*audit",
+     110, "_cmd:/site-audit"),
+
+    # Handoff (highest priority)
     (r"handoff|hand.?off|prepare.*handoff|session.*handoff|get.*handoff.*ready|end.*session|wrap.*up.*session",
-     120,
-     "AGENT ROUTE: Session Handoff — invoke /full-handoff command\n"
-     "Use the Skill tool to invoke full-handoff. This generates a 16-section HANDOFF.md, "
-     "stores it in 3 locations (local, iCloud, GitHub), archives old handoffs, and cleans up stale files. "
-     "EVERY section must be filled with real content. This is mandatory, not optional."),
+     120, "_cmd:/full-handoff"),
 
-    # --- REDESIGN ---
+    # Redesign
     (r"redesign|rebuild|overhaul|full.*redesign|site.*redesign|makeover",
-     110,
-     "AGENT ROUTE: Full Redesign — use /site-redesign command\n"
-     "Invoke the site-redesign command via Skill tool, which runs 9 sequential phases with specialized agents."),
+     110, "_cmd:/site-redesign"),
 
-    # --- FRONTEND WORK ---
+    # Frontend work
     (r"build.*page|build.*component|create.*page|create.*component|new.*page|add.*page|landing.*page|dashboard",
-     90,
-     "AGENT ROUTE: Build Frontend Component/Page\n"
-     "1. Read frontend-design SKILL.md — follow its design thinking protocol (Purpose → Tone → Constraints → Differentiation)\n"
-     "2. Read ui-ux-pro-max SKILL.md — use search scripts for style/palette/font recommendations\n"
-     "3. Read react-best-practices rules for performance patterns\n"
-     "4. Follow senior-dev-mindset Frontend checklist (all states, responsive, accessible)\n"
-     "5. After building: use webapp-testing to verify in browser"),
-
+     90, "frontend"),
     (r"frontend|front.?end|component|ui\b|ux\b|interface|layout|styl|beautif|html|css|react|vue|svelte|next\.?js|tailwind",
-     70,
-     "AGENT ROUTE: Frontend Work\n"
-     "Skills to USE (read their SKILL.md, follow protocols):\n"
-     "- frontend-design: anti-slop design guidelines, bold aesthetic choices\n"
-     "- ui-ux-pro-max: accessibility, search scripts for recommendations\n"
-     "- react-best-practices: performance rules (read relevant rules/ files)\n"
-     "- senior-dev-mindset: Frontend checklist (all states, responsive, accessible)"),
+     70, "frontend"),
 
-    # --- BACKEND WORK ---
+    # Backend work
     (r"backend|back.?end|api|endpoint|server|database|query|migration|graphql|rest|express|postgres|supabase|prisma",
-     70,
-     "AGENT ROUTE: Backend Work\n"
-     "Skills to USE (read their SKILL.md, follow protocols):\n"
-     "- senior-dev-mindset: Backend checklist (validation, auth, error codes, N+1)\n"
-     "- For security concerns: invoke /audit via Skill tool\n"
-     "- For architecture decisions: follow senior-dev-mindset Architecture section"),
+     70, "backend"),
 
-    # --- DEBUGGING ---
-    (r"\bfix\b|bug|broken|error|crash|failing|not.?working|broke|debug|regress",
-     80,
-     "AGENT ROUTE: Debugging\n"
-     "1. Read pre-debug-check SKILL.md — check anti-patterns.md for prior occurrences FIRST\n"
-     "2. Follow systematic-debugging SKILL.md protocol (hypothesis → test → fix)\n"
-     "3. After fix: follow error-memory SKILL.md to log the bug permanently\n"
-     "4. If website-related: follow website-guardian baseline → fix → verify protocol"),
-
+    # Debugging
     (r"site.*broke|page.*broke|display.*wrong|render.*wrong|chart.*broke|table.*broke",
-     85,
-     "AGENT ROUTE: Website Bug\n"
-     "1. Follow website-guardian SKILL.md — snapshot baseline BEFORE any fix\n"
-     "2. Read pre-debug-check — check recurring-bugs.md for this exact bug\n"
-     "3. Follow systematic-debugging protocol\n"
-     "4. Use webapp-testing Playwright to verify fix in browser\n"
-     "5. Log via error-memory to anti-patterns.md\n"
-     "6. If mmalogic/OctagonAI: also follow site-update-protocol checklist"),
+     85, "debugger"),
+    (r"\bfix\b|bug|broken|error|crash|failing|not.?working|broke|debug|regress",
+     80, "debugger"),
 
-    # --- WEBSITE UPDATES ---
+    # Website updates
     (r"update.*site|update.*website|deploy.*site|website|webapp|web.?app|mmalogic|octagonai",
-     75,
-     "AGENT ROUTE: Website Update\n"
-     "1. Follow website-guardian SKILL.md — snapshot baseline BEFORE changes\n"
-     "2. Follow site-update-protocol if UFC/mmalogic project\n"
-     "3. After changes: verify ALL baseline items still work\n"
-     "4. Use webapp-testing if available for automated checks"),
+     75, "deployer"),
 
-    # --- TESTING ---
+    # Testing
     (r"test.*app|test.*site|playwright|e2e|end.?to.?end|smoke.?test",
-     80,
-     "AGENT ROUTE: Web App Testing\n"
-     "1. Read webapp-testing SKILL.md — follow the decision tree\n"
-     "2. Use scripts/with_server.py to manage server lifecycle\n"
-     "3. Write Playwright scripts following the examples in webapp-testing/examples/"),
+     80, "tester"),
 
-    # --- CODE REVIEW ---
+    # Code review
     (r"review|code.?review|pr.?review|check.*code",
-     75,
-     "AGENT ROUTE: Code Review\n"
-     "1. Read code-reviewer SKILL.md\n"
-     "2. Spawn a general-purpose agent briefed with code-reviewer's checklist\n"
-     "3. For giving feedback: use requesting-code-review protocol\n"
-     "4. For receiving feedback: use receiving-code-review protocol"),
+     75, "reviewer"),
 
-    # --- DEPLOYMENT ---
+    # Deploy
     (r"deploy|ship|release|go.?live|push.?to.?prod|cloudflare|wrangler",
-     80,
-     "AGENT ROUTE: Deployment\n"
-     "1. Invoke /deploy via Skill tool\n"
-     "2. Follow website-guardian post-deploy verification"),
+     80, "deployer"),
 
-    # --- PLANNING ---
-    (r"\bplan\b|architect|break.*down|roadmap|requirements",
-     60,
-     "AGENT ROUTE: Planning\n"
-     "1. Invoke brainstorming skill for exploration\n"
-     "2. Use spec-interview for requirements gathering\n"
-     "3. Use writing-plans for implementation plan"),
+    # Planning
+    (r"\bplan\b|break.*down|roadmap|requirements",
+     60, "planner"),
 
-    # --- DESIGN ---
-    (r"design.?system|design.?token|theme|color.?palette|typography",
-     75,
-     "AGENT ROUTE: Design System\n"
-     "1. Run ui-design-system token generator: python scripts/design_token_generator.py\n"
-     "2. Use ui-ux-pro-max search for palette/font recommendations\n"
-     "3. Follow frontend-design aesthetic guidelines"),
-
+    # Design
     (r"poster|visual|art|canvas|infographic|banner",
-     80,
-     "AGENT ROUTE: Visual Design\n"
-     "1. Read canvas-design SKILL.md — follow the design philosophy creation process\n"
-     "2. Create philosophy first, then express visually"),
+     80, "designer"),
+    (r"design.?system|design.?token|theme|color.?palette|typography",
+     75, "designer"),
 
-    # --- OTHER ---
+    # Testing
+    (r"\btest|tdd|coverage|spec|unit.?test|integration.?test",
+     60, "tester"),
+
+    # Simple commands
     (r"backtest|model.?accuracy|prediction|coefficient|sweep|betting|odds",
-     80, "AGENT ROUTE: Use /backtest command via Skill tool"),
+     80, "_cmd:/backtest"),
     (r"\bcommit|git\b|branch|merge|push|pull.?request|\bpr\b",
-     50, "AGENT ROUTE: Follow git-sorcery skill protocol"),
+     50, "_raw:Follow git-sorcery skill protocol"),
     (r"research|learn.?about|how.?does",
-     50, "AGENT ROUTE: Use deep-research skill protocol"),
+     50, "_raw:Use deep-research skill protocol"),
     (r"prompt|llm|ai.?product|agent|rag",
-     60, "AGENT ROUTE: Read senior-prompt-engineer SKILL.md"),
+     60, "_raw:Read senior-prompt-engineer SKILL.md"),
     (r"create.*skill|new.*skill|eval.*skill",
-     70, "AGENT ROUTE: Use skill-creator SKILL.md protocol"),
+     70, "_raw:Use skill-creator SKILL.md protocol"),
     (r"article|blog|write.*content|draft|newsletter",
-     60, "AGENT ROUTE: Use content-research-writer skill"),
-    (r"powerpoint|slides|deck|\.pptx", 80, "AGENT ROUTE: Use anthropic-skills:pptx"),
-    (r"\.pdf|fill.*form|merge.*pdf", 80, "AGENT ROUTE: Use anthropic-skills:pdf"),
-    (r"word.?doc|\.docx|memo|letter", 80, "AGENT ROUTE: Use anthropic-skills:docx"),
-    (r"spreadsheet|\.xlsx|\.csv|excel", 80, "AGENT ROUTE: Use anthropic-skills:xlsx"),
+     60, "_raw:Use content-research-writer skill"),
+    (r"powerpoint|slides|deck|\.pptx", 80, "_raw:Use anthropic-skills:pptx"),
+    (r"\.pdf|fill.*form|merge.*pdf", 80, "_raw:Use anthropic-skills:pdf"),
+    (r"word.?doc|\.docx|memo|letter", 80, "_raw:Use anthropic-skills:docx"),
+    (r"spreadsheet|\.xlsx|\.csv|excel", 80, "_raw:Use anthropic-skills:xlsx"),
 ]
 
-def route_agent(text):
-    """Find the best agent route for this prompt."""
+def route(text):
+    """Find the best agent route."""
     matches = []
-    for pattern, priority, instruction in AGENT_ROUTES:
+    for pattern, priority, target in ROUTES:
         if re.search(pattern, text, re.IGNORECASE):
-            matches.append((priority, instruction))
+            matches.append((priority, target))
 
     if not matches:
         return None
 
-    # Return highest priority match(es)
     matches.sort(key=lambda x: x[0], reverse=True)
-    top_priority = matches[0][0]
+    best = matches[0][1]
 
-    # Include all matches within 10 points of top
-    relevant = [inst for pri, inst in matches if pri >= top_priority - 10]
-    return "\n\n".join(relevant)
+    # Format based on target type
+    if best in AGENT_PROFILES:
+        return format_profile(best)
+    elif best.startswith("_cmd:"):
+        cmd = best[5:]
+        return f"AGENT ROUTE: Invoke {cmd} command via Skill tool."
+    elif best.startswith("_raw:"):
+        return f"AGENT ROUTE: {best[5:]}"
+    return None
 
-# === BYPASS CONDITIONS ===
-
+# === BYPASS ===
 if prompt.startswith("*"):
     output_json(prompt[1:].strip())
     sys.exit(0)
-
 if prompt.startswith("/"):
     output_json(prompt)
     sys.exit(0)
-
 if prompt.startswith("#"):
     output_json(prompt)
     sys.exit(0)
 
-# === CONTINUE HANDLING ===
-
+# === CONTINUE ===
 continue_signals = ["continue", "go", "keep going", "go on", "proceed", "carry on", "next"]
 if prompt_lower in continue_signals:
     output_json(f"{prompt}\n\nIMPORTANT: If you cannot determine what to continue, or if context feels limited, run /compact first to free space, then resume.")
     sys.exit(0)
 
-# === AGENT ROUTING (runs on ALL non-trivial prompts) ===
-
+# === ROUTING ===
 word_count = len(prompt.split())
-agent_route = route_agent(prompt_lower)
+agent_route = route(prompt_lower)
 
-route_directive = ""
+directive = ""
 if agent_route:
-    route_directive = (
+    directive = (
         f"\n\n{agent_route}\n\n"
-        f"ENFORCEMENT: You must follow the agent route above. Do NOT substitute a generic Explore agent "
-        f"when the route specifies a skill-briefed general-purpose agent. Do NOT 'apply principles mentally' — "
-        f"read the SKILL.md files referenced above and follow their step-by-step protocols. "
-        f"If a route says 'invoke via Skill tool,' use the Skill tool. "
-        f"If a route says 'spawn agent briefed with,' spawn an Agent with the skill's content in its prompt."
+        f"ENFORCEMENT: Follow the agent profile above. Spawn a general-purpose agent briefed with "
+        f"the Priority 1 skills' SKILL.md content. Read Priority 2-3 skills yourself for context. "
+        f"Do NOT skip skills or 'apply principles mentally.'"
     )
 
 # === FAST-PATH ===
-
 if word_count <= 3 and not agent_route:
     output_json(prompt)
-    sys.exit(0)
-
-if word_count <= 3 and agent_route:
-    output_json(prompt + route_directive)
     sys.exit(0)
 
 clear_signals = [
@@ -262,33 +304,21 @@ clear_signals = [
     "show me", "read ", "open ", "check ", "look at", "what is",
     "how do", "why does", "can you", "please ",
 ]
-if any(prompt_lower.startswith(signal) for signal in clear_signals):
-    output_json(prompt + route_directive)
+if any(prompt_lower.startswith(s) for s in clear_signals) or word_count >= 20:
+    output_json(prompt + directive)
     sys.exit(0)
 
-if word_count >= 20:
-    output_json(prompt + route_directive)
+if word_count <= 5 and agent_route:
+    output_json(prompt + directive)
     sys.exit(0)
 
-# === EVALUATION for ambiguous prompts ===
+# === EVALUATION for ambiguous ===
+escaped = prompt.replace("\\", "\\\\").replace('"', '\\"')
+wrapped = f"""PROMPT EVALUATION
 
-escaped_prompt = prompt.replace("\\", "\\\\").replace('"', '\\"')
+Original user request: "{escaped}"
 
-wrapped_prompt = f"""PROMPT EVALUATION
+PROCEED IMMEDIATELY if clear. If genuinely vague, use prompt-improver skill."""
 
-Original user request: "{escaped_prompt}"
-
-EVALUATE: Is this prompt clear enough to execute, or does it need enrichment?
-
-PROCEED IMMEDIATELY if:
-- Detailed/specific OR you have sufficient context OR can infer intent
-
-ONLY USE SKILL if genuinely vague (e.g., "fix the bug" with no context):
-- If vague:
-  1. First, preface with brief note: "Hey! The Prompt Improver Hook flagged your prompt as a bit vague because [specific reason]."
-  2. Then use the prompt-improver skill to research and generate clarifying questions
-
-If clear, proceed with the original request. If vague, invoke the skill."""
-
-output_json(wrapped_prompt + route_directive)
+output_json(wrapped + directive)
 sys.exit(0)
