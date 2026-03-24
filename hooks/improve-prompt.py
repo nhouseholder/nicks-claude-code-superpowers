@@ -32,27 +32,45 @@ def output_json(text):
 # Keywords → skills that MUST be used (not optional, not "consider")
 
 SKILL_TRIGGERS = {
-    # Web design & frontend (HIGH PRIORITY — user's pain point)
-    r"frontend|front.?end|component|landing.?page|dashboard|ui\b|ux\b|interface|layout|styl|beautif|redesign|web.?design|web.?app|html|css|react|vue|svelte|next\.?js|tailwind":
-        "frontend-design, ui-ux-pro-max, senior-dev-mindset",
+    # === HIGH PRIORITY: Web design & frontend (user's #1 pain point) ===
+    r"frontend|front.?end|component|landing.?page|dashboard|ui\b|ux\b|interface|layout|styl|beautif|redesign|web.?design|html|css|react|vue|svelte|next\.?js|tailwind|button|modal|navbar|sidebar|card|form|chart":
+        "frontend-design, ui-ux-pro-max, senior-frontend, ui-design-system, senior-dev-mindset",
+    # Backend development
+    r"backend|back.?end|api|endpoint|server|database|query|migration|auth|graphql|rest|express|node\.?js|postgres|supabase|prisma":
+        "senior-backend, senior-architect, senior-dev-mindset",
+    # Full-stack / architecture
+    r"architect|system.?design|infrastructure|scalab|microservice|monolith|tech.?stack|design.?pattern":
+        "senior-architect, senior-backend, senior-frontend, brainstorming",
     # Website updates & maintenance
-    r"website|webapp|site.?update|deploy.*site|update.*site|the site|mmalogic|octagonai|page.?broke":
-        "website-guardian, site-update-protocol",
+    r"website|webapp|web.?app|site.?update|deploy.*site|update.*site|the site|mmalogic|octagonai|page.?broke":
+        "website-guardian, site-update-protocol, senior-frontend",
     # Debugging & fixing
     r"\bfix\b|bug|broken|error|crash|failing|not.?working|broke|debug|issue|regress":
         "systematic-debugging, pre-debug-check, error-memory",
     # Website bugs specifically
     r"site.*broke|page.*broke|display.*wrong|render.*wrong|chart.*broke|table.*broke":
-        "website-guardian, site-update-protocol, error-memory, screenshot-dissector",
+        "website-guardian, site-update-protocol, error-memory, screenshot-dissector, webapp-testing",
+    # Testing web apps
+    r"test.*app|test.*site|test.*page|playwright|browser.*test|e2e|end.?to.?end|smoke.?test|visual.*test":
+        "webapp-testing, qa-gate, test-driven-development",
+    # Code review
+    r"review|code.?review|pr.?review|check.*code|scan|security|vulnerab|quality":
+        "code-reviewer, audit, reflexion, requesting-code-review",
     # Deployment
     r"deploy|ship it|release|go.?live|push.?to.?prod|cloudflare|wrangler":
         "deploy, website-guardian",
     # Planning
-    r"\bplan\b|architect|break.*down|design.*system|how.?should|roadmap":
-        "writing-plans, brainstorming, spec-interview",
+    r"\bplan\b|break.*down|how.?should|roadmap|requirements":
+        "writing-plans, brainstorming, spec-interview, senior-architect",
+    # Design / visual
+    r"poster|visual|art|canvas|design.*image|infographic|\.png|banner":
+        "canvas-design, frontend-design",
+    # Design system / tokens
+    r"design.?system|design.?token|theme|color.?palette|spacing|typography":
+        "ui-design-system, ui-ux-pro-max, frontend-design",
     # Testing
     r"\btest|tdd|coverage|spec|unit.?test|integration.?test":
-        "test-driven-development, qa-gate",
+        "test-driven-development, qa-gate, webapp-testing",
     # Git
     r"\bcommit|git\b|branch|merge|push|pull.?request|\bpr\b":
         "git-sorcery, version-bump",
@@ -62,9 +80,12 @@ SKILL_TRIGGERS = {
     # Sports/betting
     r"backtest|model.?accuracy|prediction|coefficient|sweep|betting|odds":
         "backtest, profit-driven-development, backtestor-quality-control",
-    # Code review
-    r"review|audit|check.*code|scan|security|vulnerab":
-        "audit, reflexion, requesting-code-review",
+    # Prompt engineering / AI development
+    r"prompt|llm|ai.?product|agent|rag|chain.?of.?thought|few.?shot|eval":
+        "senior-prompt-engineer",
+    # Skill creation
+    r"create.*skill|new.*skill|build.*skill|skill.*creator|eval.*skill":
+        "skill-creator",
     # Content writing
     r"article|blog|write.*content|draft|newsletter|case.?study":
         "content-research-writer",
