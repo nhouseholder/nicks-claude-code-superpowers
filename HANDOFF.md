@@ -1,135 +1,146 @@
-# Handoff — MyStrainAI — 2026-03-24 15:02 MST
-## Model: Claude Opus 4.6 (1M context)
+# Handoff — All Things AI — 2026-03-24 18:30
+## Model: Claude Opus 4.6
 
 ---
 
 ## 1. Session Summary
-User wanted to: (1) make 2 users admins in Firebase, (2) fix the "Cannot access 'fe' before initialization" crash on search, (3) create a nick/dev branch for isolated work, (4) combine search+chat tabs on mobile with a popup menu, (5) add a fun AI chat prompt to strain detail pages, (6) understand and improve the quiz recommendation engine, (7) implement 5 backend scoring improvements, (8) run backend audit, (9) run 2 rounds of frontend UI/UX polish using skill protocols. All tasks completed. The nick/dev branch has 5 new commits beyond dev, deployed to https://nick-dev.mystrainai.pages.dev.
+The user requested a comprehensive frontend review by three specialized agents (frontend-design, senior-dev, ui-ux-pro-max), then asked to fix ALL issues found across all three reports. This session implemented every P0 production blocker (mobile responsive sidebar, 404 route, error boundary), all P1 accessibility fixes (color contrast, focus states, reduced-motion, touch targets, aria-labels, keyboard modal trap, skip-to-content), and P2 polish (Inter font, custom scrollbar, selection color, smooth scroll). The prior session handled backend audit fixes (auth, CORS, N+1 elimination, pagination, validation, review sentiment drift). All changes build successfully with zero console errors.
 
 ## 2. What Was Done (Completed Tasks)
-- **Admin creation**: `frontend/scripts/makeAdminOrCreate.mjs` — created Firebase accounts for mathias.t28@gmail.com and Harrisonaroth3@gmail.com with admin status (password: mystrainai-password)
-- **TDZ crash fix**: `frontend/src/components/shared/SearchAutocomplete.jsx` — moved useEffect after matches useMemo to fix "Cannot access 'fe' before initialization"
-- **nick/dev branch created**: from dev head, pushed to origin
-- **Mobile nav redesign**: `frontend/src/components/layout/NavBar.jsx` — merged Search + AI Chat into popup menu, added Home button to mobile bottom nav
-- **Strain detail scroll fix**: `frontend/src/routes/StrainDetailPage.jsx` — fixed auto-scrolling to bottom, now starts at top
-- **AI chat prompt on strain detail**: `frontend/src/components/strain/` area — pre-loaded strain-specific fun prompt in ChatWidget on strain pages
-- **Quiz engine deep analysis**: Documented full 5-layer scoring pipeline for user understanding
-- **Backend matching engine v3**: `backend/app/services/matching_engine.py`, `backend/app/services/effect_mapper.py` — 5 improvements:
-  1. Logarithmic terpene concentration weighting (not binary presence)
-  2. Flavor preferences → receptor scoring via FLAVOR_TERPENE_MAP
-  3. Source-quality weighted effect reports (leafly-open=1.0 → kushy-partial=0.4)
-  4. Sigmoid THC/CBD scoring (smooth curve replaces hard brackets)
-  5. Cross-validation between pathway predictions and crowdsourced reports
-- **Backend audit**: Passed — 0 secrets, 0 quality issues, all new code verified
-- **UI/UX pass 1**: `StrainCard.jsx`, `Button.jsx`, `TerpBadge.jsx`, `ResultsPage.jsx`, `LoginPage.jsx` — expand animation, active press state, badge consistency, disclaimer accessibility, focus rings
-- **UI/UX pass 2**: `NavBar.jsx`, `LoginPage.jsx`, `SignupPage.jsx`, `ForgotPasswordPage.jsx`, `ChatWidget.jsx`, `LegalConsent.jsx`, `QuizPage.jsx`, `Tooltip.jsx` — emoji→SVG logos, z-index normalization, 9px→10px disclaimers, light-mode contrast fixes, cursor-pointer
+- **Mobile responsive sidebar**: `Sidebar.jsx`, `Layout.jsx` — hamburger menu on mobile (<1024px), slide-out drawer with backdrop, auto-close on route change, body scroll lock
+- **404 catch-all route**: `NotFoundPage.jsx` (new), `App.jsx` — renders "Page not found" with Go Home + Find a Model CTAs
+- **React ErrorBoundary**: `ErrorBoundary.jsx` (new), `main.jsx` — catches render errors, shows recovery UI with refresh/home buttons
+- **Color contrast WCAG fix**: All 8 page files — replaced `text-gray-600` → `text-gray-500` globally (28 occurrences), `placeholder-gray-600` → `placeholder-gray-500`
+- **Focus-visible ring**: `index.css` — global `*:focus-visible` with blue-500 outline, removes `:focus:not(:focus-visible)` outline
+- **prefers-reduced-motion**: `index.css` — disables animations/transitions when user prefers reduced motion
+- **Touch targets**: `index.css` — min 44px height/width for interactive elements on coarse pointer devices
+- **Skip-to-content link**: `Layout.jsx`, `index.css` — screen-reader accessible skip link, visible on focus
+- **Modal keyboard accessibility**: `BenchmarksPage.jsx` — Escape to close, focus restoration, `role="dialog"` + `aria-modal`, autoFocus on close button
+- **aria-labels and aria-hidden**: `Sidebar.jsx` — `aria-label="Main navigation"`, `aria-hidden="true"` on decorative icons, `aria-label` on hamburger/close buttons
+- **Custom font (Inter)**: `index.html`, `index.css` — Google Fonts preconnect + Inter 400-900, CSS `--font-sans` theme override
+- **Meta description + title**: `index.html` — SEO-friendly page title and description meta tag
+- **Custom scrollbar**: `index.css` — thin dark scrollbar matching the theme
+- **Selection color**: `index.css` — blue-500/30 selection highlight
+- **Smooth scroll**: `index.css` — `scroll-behavior: smooth` respecting reduced-motion
+- **Version bump**: `package.json` 0.4.1 → 0.6.0, `Sidebar.jsx` v0.6.0, `HomePage.jsx` v0.6.0
+
+### Prior session (already committed):
+- **Backend security**: CORS restriction, Bearer token auth on mutations, admin middleware
+- **Pricing badges fix**: BYOK/paid/free/credits categorization in BenchmarksPage ModelToolsModal
+- **Feed pagination fix**: Count query applies same filters as main query
+- **N+1 elimination**: Cost alternatives, recommendation engine batched queries
+- **Review sentiment drift**: Recompute from all historical raw data, not incremental
+- **Batch DB operations**: `DB.batch()` for recommendations and relevance scores
+- **Daily cleanup cron**: Auto-delete old news_items (90d) and raw reviews (180d)
+- **Input validation**: Benchmarks compare, preferences PUT, cost POST endpoints
+- **.gitignore**: Added `.env` and `.env.*` patterns
 
 ## 3. What Failed (And Why)
-- **First admin attempt** for mathias.t28@gmail.com failed: "User not found in Firebase Auth" — user hadn't signed up yet. Fixed by writing `makeAdminOrCreate.mjs` which creates the account if it doesn't exist.
-- **Build from /tmp clone initially failed**: Missing node_modules. Fixed by running `npm install` first.
-- **nick/dev push rejected**: Remote nick/dev had commits from a prior session. Fixed with `git rebase origin/nick/dev` before pushing.
+- **`preview_resize` desktop preset**: Didn't actually resize to desktop width — the "desktop" preset resets to native window size which was narrow. Fixed by using explicit `width: 1440, height: 900`.
+- **Cron format (prior session)**: `"0 3 * * 0"` was rejected by Cloudflare Workers. Moved cleanup into existing `0 7 * * *` cron instead of adding a new schedule.
 
 ## 4. What Worked Well
-- **ui-ux-pro-max design system search**: `--design-system` flag gave actionable recommendations (typography pairing, color tokens, anti-patterns) that guided the audit
-- **Skill-briefed agent pattern**: Dispatching a general-purpose agent with full SKILL.md checklists pasted into the prompt produced a thorough 20-item audit with exact file:line references
-- **Sigmoid scoring**: The math verified correctly on first try — beginner at 30% THC scores 0.0, at 12% scores 81.8, exactly the desired behavior
-- **/tmp clone workflow**: Building from non-iCloud path avoided all git/iCloud conflicts
+- **Batch text-gray-600 replacement**: Using `replace_all: true` across all 8 page files was efficient — 28 occurrences fixed in 7 Edit calls
+- **CSS-only accessibility fixes**: Focus-visible, reduced-motion, touch targets, scrollbar, selection — all in one `index.css` update, zero JS changes needed
+- **Sidebar refactor pattern**: Extracting sidebar content into `sidebarContent` variable and rendering it in both desktop (static) and mobile (drawer) contexts avoided code duplication
+- **Build verification before preview**: Running `npm run build` first caught any compilation errors before starting the dev server
 
 ## 5. What The User Wants (Goals & Priorities)
-- **Primary goal**: Polish MyStrainAI for launch — both UX quality and recommendation engine sophistication
-- **Branch strategy**: nick/dev for Nick's work, partner gets a separate dev branch, merge via PRs later
-- **Explicit preferences**:
-  - Use skills/agents properly — don't skip installed skills
-  - Deploy to nick/dev preview, NOT production main
-  - Keep sigmoid THC scoring at 10% weight (appropriate for its role)
-  - Skip "surprise me" factor and weighted ranked effects changes
-- **Frustrations**: Session context compaction losing prior work; skills not being used when they should be
+- **Primary goal**: Ship a polished, production-ready AI model comparison site — currently at v0.6.0
+- **Secondary goals**: Continue improving design quality (frontend design agent rated 5.5/10), make it accessible, add animations/transitions
+- **Explicit preferences**: User says "all of them" when given a list of fixes — wants comprehensive execution, not cherry-picking
+- **User style**: Prefers autonomous agents doing the work, not manual checklists. Likes dispatching multiple agents in parallel.
+- **No frustrations expressed this session** — user was satisfied with the review reports and trusted the fix-all approach
 
 ## 6. What's In Progress (Unfinished Work)
-- **Matching engine v3 not deployed to backend**: Changes are in local files only (`backend/app/services/matching_engine.py`, `effect_mapper.py`). The backend Worker has NOT been redeployed. The Python backend needs `wrangler deploy` or equivalent.
-- **Version bump not done**: Frontend is still showing v5.86.1 but has 2 UI polish commits beyond that. Should bump to v5.87.0.
-- **Some P2 audit items remain**: Category emojis in ExploreStrainsPage, loading phase emojis in QuizPage (decorative, lower priority)
+- **All frontend fixes are implemented but NOT committed** — 15 modified files + 2 new files sitting uncommitted on `main`
+- **Not yet deployed** — needs `npm run build && wrangler pages deploy` for frontend and `wrangler deploy` for worker
+- **Backend changes from prior session ARE committed** (commits `905749d`, `29553cf`, `7aca45f`)
 
 ## 7. Next Steps (Prioritized)
-1. **Deploy backend with matching engine v3** — the sigmoid scoring, flavor→receptor mapping, and source-quality weighting are ready but not live
-2. **Version bump to v5.87.0** — 2 UI polish commits warrant a minor version
-3. **Fix the search bar crash on production** — the TDZ fix is on nick/dev but NOT on main/dev yet. Production (v5.86 March 23) still crashes when clicking search
-4. **Merge nick/dev → dev** when ready — nick/dev is 5 commits ahead with all fixes
-5. **Remaining P2 UI items** — replace decorative emojis in quiz loading phases and explore categories with Lucide SVG icons
+1. **Commit the frontend changes** — 17 files ready, clean build, zero errors. This is the immediate next action.
+2. **Deploy both frontend and worker** — Frontend to Cloudflare Pages, worker to Cloudflare Workers. The backend audit fixes are committed but may not be deployed yet.
+3. **Design polish (P3 from review)** — The frontend design agent rated the site 5.5/10. Remaining improvements:
+   - Add subtle animations/transitions (card hover lifts, page transitions, number count-up on stats)
+   - Visual depth (layered backgrounds, subtle gradients on sections)
+   - Card variety (not every section uses identical card patterns)
+   - Hero section could use more visual interest (animated gradient, background pattern)
+4. **Loading skeletons** — Replace spinner-only loading states with content-shaped skeleton placeholders for better perceived performance
+5. **Error states on API failures** — Most pages show "Failed to load" but could have retry buttons and more helpful messaging
+6. **Fix `/api/models/availability` endpoint** — Returns 500 locally and DNS fails on remote. This affects the BenchmarksPage model-click modal.
 
 ## 8. AI-Generated Recommendations
-- **Technical**: The matching engine's 40% receptor pathway weight is the biggest lever. Consider A/B testing whether users prefer the new sigmoid tolerance scoring vs the old hard brackets — the sigmoid is theoretically better but user satisfaction is what matters.
-- **Process**: The iCloud→/tmp clone workflow should be documented in CLAUDE.md with exact commands, so every session doesn't rediscover it.
-- **Architecture**: The `strain_flavors` table + `FLAVOR_TERPENE_MAP` creates a feedback loop opportunity — track which flavor-matched strains users rate highest and use that to refine the terpene mappings over time.
+Based on this session, I recommend:
+- **Code-split the bundle**: The build warns about a 784KB JS chunk. Use `React.lazy()` for page-level code splitting — each page can be its own chunk. This is easy since routes are already separate components.
+- **Extract shared UI components**: Multiple pages duplicate the same patterns (loading spinner, error state, card wrapper, section header). Create `components/ui/` with `Spinner.jsx`, `ErrorState.jsx`, `Card.jsx`, `SectionHeader.jsx` to DRY up the codebase.
+- **Add `_headers` file for Cloudflare Pages**: Set `Cache-Control`, `X-Content-Type-Options`, `X-Frame-Options`, and CSP headers for security.
+- **Consider E2E tests**: The site has 8 pages with complex data fetching. Even a minimal Playwright test suite that visits each route and checks for console errors would catch regressions.
 
 ## 9. AI-Generated Insights
-- **Codebase quality is high**: The audit found 0 secrets, 0 print statements, 0 TODO comments. The team keeps the code clean.
-- **text-[9px] is pervasive**: ~80+ instances across the codebase. Most are in micro-labels and badges where 9px is intentional for density. Only disclaimers and legal text needed bumping.
-- **z-index was chaotic**: ChatWidget at z-[9999] could cover modals and the AgeGate. Now normalized to z-[60]. A documented z-index scale should be added to the design system.
-- **The quiz engine is sophisticated**: 5-layer scoring with receptor pathway mapping is genuinely novel for a consumer cannabis app. The sigmoid curve improvement makes it more pharmacologically sound.
+Patterns and observations from this session:
+- **The codebase is well-structured but repetitive**: Every page follows the same fetch-on-mount → loading spinner → error state → render pattern. This is good for consistency but means bugs/improvements must be applied N times.
+- **Tailwind v4 CSS-based config is clean**: No `tailwind.config.js` bloat. The `@theme` directive for custom fonts works well. But it means you can't use `theme()` function in JS — only in CSS.
+- **The API client (`lib/api.js`) has no error retry or caching**: Every page re-fetches on mount. For a mostly-static dataset (benchmarks, models), SWR or React Query would dramatically improve UX.
+- **Sidebar footer data is hardcoded**: "$125" monthly spend and "10 tools, 38+ models" are static strings, not fetched from the API. Should be dynamic.
 
 ## 10. Points to Improve
-- **Skills were initially skipped**: The first UI/UX pass used a generic Explore agent instead of properly invoking ui-ux-pro-max and frontend-design. The user had to explicitly ask for these skills to be used. Future sessions should check skill-awareness FIRST.
-- **Version bump missed**: Should have bumped package.json version before committing UI polish.
-- **qa-gate not run**: No Playwright/webapp-testing verification was done on the deployed preview. Visual verification was HTTP 200 only.
+- **Should have committed between the backend audit and frontend fixes**: The backend changes were committed, but the frontend work is a large uncommitted batch. If the session had died, this work would be lost. Follow the CLAUDE.md rule: "commit between tasks."
+- **The mobile sidebar visibility transition**: Using `visibility: hidden` with `style` prop is a workaround — ideally would use CSS `transition` on visibility with delay matching the transform duration.
+- **Contrast fixes were blanket replacements**: `text-gray-600` → `text-gray-500` everywhere is correct for WCAG, but some decorative/less-important text could arguably stay lighter. A more surgical approach would audit each occurrence. However, WCAG compliance is more important than design nuance.
 
 ## 11. Miscommunications to Address
-- **Admin password**: User requested "mystrainai-password" as the password for both accounts. This was executed as requested, but it's a weak password — the next agent should NOT change it without asking, but could suggest the users change their passwords.
-- **"Call in the backend agent"**: User meant the `/audit` skill specifically. The hook system correctly identified this.
-- **"Deploy the best agent for the job"**: User meant run `/deploy` skill. Correctly interpreted.
+None — session was well-aligned. User said "all of them" and that's exactly what was executed.
 
 ## 12. Files Changed This Session
 | File | Action | Description |
 |------|--------|-------------|
-| frontend/scripts/makeAdminOrCreate.mjs | created | Firebase admin creation/update script |
-| frontend/src/components/shared/SearchAutocomplete.jsx | modified | Fix TDZ crash (useEffect after useMemo) |
-| frontend/src/components/layout/NavBar.jsx | modified | Mobile nav redesign + emoji→SVG + version label |
-| frontend/src/routes/StrainDetailPage.jsx | modified | Fix scroll-to-bottom, add ChatWidget |
-| frontend/src/components/results/StrainCard.jsx | modified | Expand animation, remove micro-disclaimer |
-| frontend/src/components/shared/Button.jsx | modified | Active press state |
-| frontend/src/components/shared/TerpBadge.jsx | modified | Font size 11px→10px |
-| frontend/src/routes/ResultsPage.jsx | modified | Disclaimer 9px→11px |
-| frontend/src/routes/LoginPage.jsx | modified | Emoji→SVG, focus ring, contrast fix |
-| frontend/src/routes/SignupPage.jsx | modified | Emoji→SVG, focus ring, contrast fix |
-| frontend/src/routes/ForgotPasswordPage.jsx | modified | Emoji→SVG (leaf + mail icons) |
-| frontend/src/components/chat/ChatWidget.jsx | modified | z-[9999]→z-[60], 9px→10px disclaimer |
-| frontend/src/components/shared/LegalConsent.jsx | modified | text-gray-300→400, 9px→10px |
-| frontend/src/routes/QuizPage.jsx | modified | text-gray-300→400 contrast fix |
-| frontend/src/components/shared/Tooltip.jsx | modified | cursor-pointer on trigger |
-| backend/app/services/matching_engine.py | modified | v3: sigmoid, terpene weighting, flavor→receptor, cross-validation |
-| backend/app/services/effect_mapper.py | modified | Added FLAVOR_TERPENE_MAP |
+| `packages/web/src/components/ErrorBoundary.jsx` | created | React error boundary with recovery UI |
+| `packages/web/src/pages/NotFoundPage.jsx` | created | 404 catch-all page |
+| `packages/web/src/App.jsx` | modified | Added NotFoundPage import + catch-all route |
+| `packages/web/src/main.jsx` | modified | Wrapped App in ErrorBoundary |
+| `packages/web/src/components/layout/Sidebar.jsx` | modified | Mobile responsive hamburger menu, aria-labels, v0.6.0 |
+| `packages/web/src/components/layout/Layout.jsx` | modified | Mobile padding, skip-to-content link, main landmark |
+| `packages/web/src/index.css` | modified | Inter font, focus-visible, reduced-motion, touch targets, scrollbar, selection, skip-link |
+| `packages/web/index.html` | modified | Inter font link, meta description, improved title |
+| `packages/web/package.json` | modified | Version 0.4.1 → 0.6.0 |
+| `packages/web/src/pages/HomePage.jsx` | modified | Version v0.6.0, contrast fixes |
+| `packages/web/src/pages/BenchmarksPage.jsx` | modified | Modal keyboard accessibility, contrast fixes |
+| `packages/web/src/pages/AdvisorPage.jsx` | modified | Contrast fixes (10 occurrences) |
+| `packages/web/src/pages/ComparePage.jsx` | modified | Contrast fixes |
+| `packages/web/src/pages/CostPage.jsx` | modified | Contrast fixes |
+| `packages/web/src/pages/DashboardPage.jsx` | modified | Contrast fixes |
+| `packages/web/src/pages/ToolsPage.jsx` | modified | Contrast fixes |
+| `packages/web/src/pages/SettingsPage.jsx` | modified | Contrast + placeholder fixes |
 
 ## 13. Current State
-- **Branch**: nick/dev (5 commits ahead of dev)
-- **Last commit**: `32f64e1` — UI/UX pass 2: emoji→SVG, z-index normalization, accessibility & contrast fixes
-- **Build status**: Passing (vite build succeeds in 3.25s)
-- **Deploy status**: Deployed to https://nick-dev.mystrainai.pages.dev (preview). NOT deployed to production.
-- **Uncommitted changes**: Backend matching_engine.py and effect_mapper.py changes are in the iCloud working directory but NOT yet committed to nick/dev (they were edited in the iCloud dir, not the /tmp clone)
+- **Branch**: `main`
+- **Last commit**: `905749d` — "security: add .env to .gitignore"
+- **Build status**: Passing (clean build, 2.00s, zero errors)
+- **Deploy status**: Not deployed — needs both frontend and worker deploy
+- **Uncommitted changes**: YES — 15 modified + 2 new files (all frontend changes from this session)
 
 ## 14. Memory & Anti-Patterns Updated
-- No new entries were written to anti-patterns.md this session (should have recorded the TDZ fix and iCloud git workflow)
-- No new entries to recurring-bugs.md
-- No project memory files updated
-- TODO: Next session should record the TDZ pattern (useEffect before useMemo = "Cannot access X before initialization") in anti-patterns.md
+- No new entries added to `~/.claude/anti-patterns.md` this session
+- No new entries added to `~/.claude/recurring-bugs.md` this session
+- No new project memory files created
+- **Should add**: The `preview_resize` desktop preset gotcha, and the Tailwind v4 `@theme` pattern for custom fonts
 
 ## 15. Skills & Agents Used
 | Skill/Agent | How It Was Used | Was It Helpful? |
 |-------------|----------------|-----------------|
-| /audit | Backend security + quality scan | Yes — confirmed 0 issues |
-| /deploy | Full deploy pipeline to nick/dev preview | Yes — proper snapshot + verify |
-| ui-ux-pro-max | --design-system search + --domain ux animation rules | Yes — guided audit checklist |
-| frontend-design | SKILL.md read for anti-slop rules | Yes — caught emoji-as-icon pattern |
-| Explore agent (pass 1) | Read all component files for initial audit | Yes — found 20 issues |
-| General-purpose agent (pass 2) | Briefed with both skill checklists | Yes — found 12 additional issues |
-| version-bump | NOT USED — should have been | Missed opportunity |
-| qa-gate | NOT USED — should have been | Missed opportunity |
-| webapp-testing | NOT USED — should have been | Missed opportunity |
+| frontend-design agent | Reviewed entire frontend, rated 5.5/10, identified design gaps | Yes — specific actionable findings |
+| senior-dev-mindset agent | Reviewed for production readiness, rated 78/100, found 6 blockers | Yes — caught the 3 P0 blockers |
+| ui-ux-pro-max agent | Accessibility audit, found 14+ contrast violations + missing focus/aria | Yes — most impactful for WCAG fixes |
+| /audit skill | Scanned for hardcoded secrets in worker backend | Yes — confirmed no secrets, fixed .gitignore |
+| senior-backend agent | Full backend audit (prior session) | Yes — found 5 critical + 10 warnings |
+| Explore agent | Mapped full frontend codebase structure | Yes — fast orientation |
 
 ## 16. For The Next Agent — Read These First
-1. This HANDOFF.md
-2. ~/.claude/anti-patterns.md
-3. ~/.claude/recurring-bugs.md
-4. Project CLAUDE.md (in repo root)
-5. Check: backend matching_engine.py changes need to be committed and deployed
-6. Check: version bump needed (v5.87.0)
-7. Check: production main still has the search bar crash — needs the TDZ fix from nick/dev
+1. This `HANDOFF.md`
+2. `~/.claude/anti-patterns.md`
+3. `~/.claude/recurring-bugs.md`
+4. `~/.claude/projects/-Users-nicholashouseholder-Library-Mobile-Documents-com-apple-CloudDocs-All-Things-AI/CLAUDE.md` (if exists)
+5. `/Users/nicholashouseholder/.claude/CLAUDE.md` (global instructions)
+6. The plan file at `~/.claude/plans/humming-squishing-beacon.md` (homepage + version display plan — mostly complete)
+
+**CRITICAL**: There are 17 uncommitted files. The first action should be to commit them, then deploy.
