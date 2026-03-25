@@ -1,164 +1,165 @@
-# Handoff — NFL Draft Predictor — 2026-03-25 01:00
+# Handoff — OctagonAI/UFC Algs — 2026-03-25 21:00
 ## Model: Claude Opus 4.6 (1M context)
-## Previous handoff: First session
+## Previous handoff: handoff_20260325_1830.md
 
 ---
 
 ## 1. Session Summary
-User wanted an AI-powered 2026 NFL Draft simulator that predicts all 32 first-round picks. We built a complete system: Python Monte Carlo simulation engine (V4 model, backtested at 14.0 exact picks/year across 10 seasons), React/Vite frontend deployed to Cloudflare Pages, and a refresh pipeline for weekly data updates. The model uses 12 weighted signals with expert consensus as the anchor (50%), supplemented by Vegas odds, team needs, prospect grades, and pre-draft visits. Analyst trust weights are computed from 6 years of verified WalterFootball accuracy data (2020-2025).
+Started as a handoff review, then discovered a **catastrophic production regression**: the live site had been reverted from v11.9.3 → v10.68 because a prior session deployed from the wrong directory (root `webapp/` instead of `ufc-predict/webapp/`). Fixed the regression, deployed v11.9.5 with all frontend bug fixes, archived the stale root webapp/, and logged anti-patterns to prevent recurrence.
 
 ## 2. What Was Done (Completed Tasks)
-- **Built simulation engine**: `engine/prospect_model.py`, `engine/simulator.py`, `engine/team_logic.py` — 12-signal scoring model with Monte Carlo simulation
-- **Collected 10 years of draft data**: `data/draft_history_2016_2019.py`, `data/draft_history_2020_2022.py`, `backtest/historical_data.py` — actual + consensus mocks for 2016-2025
-- **Built and ran 10-year backtest**: `backtest/model_v3.py`, `backtest/enriched_backtest.py` — tested V2, V3, V4, V5 model variants. V4 won at 14.0/yr
-- **Scraped real 2026 data**: `data/prospects.json` (50 prospects), `data/teams.json` (32 teams with real FA/cap data), `data/vegas_odds.json`, `data/pre_draft_visits.json`
-- **Integrated 7 expert mocks**: Tankathon, WalterFootball (Walt + Campbell), Daniel Jeremiah, Yahoo, CBS Prisco, Lineups.com — from March 17-25, 2026
-- **Built verified analyst trust system**: `data/analyst_accuracy.json` — 6-year WalterFootball accuracy data, trust weights for 12 analysts, unvetted sources zeroed
-- **Built advanced team evaluation framework**: `engine/advanced_team_eval.py` — roster depth, cap urgency, FA aftermath, GM personality, scheme fit, succession planning
-- **Built refresh pipeline**: `scripts/refresh_pipeline.py` — updates data, runs sim, deploys to Cloudflare in one command
-- **Deployed to Cloudflare**: https://draft-predictor.pages.dev/ — React frontend with latest predictions
-- **Historical team eval system**: `backtest/historical_team_eval.py` — GM tenures, coach schemes, roster reconstruction for backtesting
+- **Root cause analysis**: Identified dual webapp/ directory as the cause of v10.68 reversion
+- **CI redeploy**: Triggered GitHub Actions to restore v11.9.3 from correct `ufc-predict/webapp/frontend/`
+- **Archived stale root webapp/**: Moved to `archive/webapp_ROOT_STALE_v10.68/` — can never accidentally deploy again
+- **FightCard.jsx fixes** (in /tmp clone → pushed to GH):
+  - Confidence: "260% conf" → "2.60 diff" with "score differential" label
+  - R1 KO gating: round/combo bets only when method=KO && round=1
+  - Added CMB (combo) row on fight cards
+- **EventBetsDropdown.jsx fixes**: safePnl() computes missing P/L from odds (fixes 145 bouts with null pnl)
+- **AdminAlgorithm.jsx fixes**: optimizer.current_values fallback for Current column, 2 new CATEGORIES
+- **HeroStats.jsx fixes**: Shows all bet types correctly
+- **Version bumped to v11.9.5**: Pushed commit 48e2f50, CI auto-deployed
+- **Anti-patterns logged**: 5 new entries (WRONG_DIRECTORY_DEPLOY, SCREENSHOT_REVIEW, R1_KO_GATING, CONFIDENCE_260, EVENTBETS_NULL_PNL, OPTIMIZER_MISSING_CURRENT)
+- **Recurring-bugs.md updated**: 2 new entries (deploy source, screenshot carelessness)
+- **Deploy skill updated**: Added Step 0 — verify version.js before building
+- **Created ufc_website_maintenance_rules.md**: 15-point checklist + 19 display rules
+- **Verified live site**: Screenshot confirmed v11.9.5 live with +281.71u, 71 events, all 4 cards
 
 ## 3. What Failed (And Why)
-- **Team needs at 15% weight degraded predictions**: Reconstructed historical team needs (from draft history) were too noisy. Even real expert-published needs couldn't improve V4 because discrete consensus scoring creates 20-point gaps that needs data can't bridge. Root cause: the model is structurally consensus-anchored — needs can only help through the consensus signal itself.
-- **V5 enriched model lost to V4 in every variant**: Tried flat weighting, adaptive weighting, tiebreaker-only — all either tied or lost to V4. The advanced_team_eval.py framework is architecturally sound but requires real current-year data to add value (works for 2026, can't be validated historically).
-- **10K simulation duplicates**: First 10K run produced duplicate players in aggregate. Fixed by adding greedy uniqueness enforcement in `refresh_pipeline.py`.
-- **Initial 2025 data confusion**: First build accidentally used 2025 draft class instead of 2026. Shedeur Sanders projected #1 when he was a 5th-round pick in the actual 2025 draft. Caught by user, rebuilt correctly.
+- **A prior session deployed from wrong directory**: Root `webapp/` (v10.68) was deployed instead of `ufc-predict/webapp/` (v11.9.3). The AI assumed the nearest `webapp/` was correct without checking version.js. **Root cause**: Two webapp/ directories exist in the project — this is now prevented by archiving the stale one.
+- **Initial screenshot review missed 11 bugs**: Agent said "no obvious bugs" while 260% confidence, missing combos, broken prop P/L, empty optimizer values, wrong event count (25 vs 71) were all visible. **Root cause**: Glancing instead of checking against the 15-point checklist. Now mandatory.
 
 ## 4. What Worked Well
-- **Backtest-driven development**: Testing every model change against 10 years of real data prevented overfitting and caught bad approaches early
-- **Empirical analysis of error categories**: Categorizing 178 wrong picks into REORDER/SLOT_SWAP/SURPRISE revealed that 52% are theoretically fixable by better data
-- **6-year verified analyst weights**: Using complete WalterFootball accuracy data (2020-2025) instead of guessing produced objectively correct trust weights
-- **Parallel research agents**: Background agents for scraping while coding in foreground maximized throughput
-- **Refresh pipeline**: One command updates all data, runs simulation, and deploys
+- **GitHub CI as single deployment path**: Once we established that CI deploys from `ufc-predict/`, triggering a workflow run was the cleanest fix
+- **Working in /tmp clone for git ops**: Sidestepped iCloud git issues completely
+- **safePnl frontend safety net**: Computes missing P/L from odds without needing a full backtest re-run
+- **Structured bug catalog before coding**: Listed all bugs with rule violations before touching code
 
 ## 5. What The User Wants (Goals & Priorities)
-- **Primary goal**: Predict the 2026 NFL Draft first round as accurately as possible (beat human GOAT Jason Boris at 13.0/yr)
-- **Current status**: V4 model backtests at 14.0/yr. 2026 prediction deployed with picks 1-5 at 99.7-100% confidence
-- **Explicit preferences**: Only trust verified analysts with multi-year accuracy data. Unvetted = 0% weight. Research before coding. Validate everything against historical data.
-- **Frustrations**: Duplicate players in draft board (caught twice — now fixed with enforcement). Initial confusion with 2025 vs 2026 data.
+- **Primary**: Website must correctly display ALL betting data per the 12+ immutable rules
+- **#1 frustration**: Claude deploying from wrong directory, reverting production. NEVER deploy without checking version.js first
+- **#2 frustration**: Careless screenshot reviews — must use 15-point checklist every time
+- **Standing goals**: Commit all local changes, fix backtester prop P/L, fix 2nd parlay generation
 
 ### User Quotes (Verbatim)
-- "This is horrible, first it's fully populated with 2025 picks, not 2026" — context: first build accidentally used wrong year's data
-- "unvetted = 0% confidence" — context: setting the rule that only verified analysts contribute to the model
-- "we just need a validated way to determine what those team needs actually are, and what they are actually going to spend a first round pick to address" — context: discussing team needs integration
+- "why did the site get its version number reverted to 10.68? and many fixes were reverted from the home page? what happened?" — context: discovered the v10.68 regression
+- "proceed with fix and prevention" — context: after root cause was presented
+- "continue the fix" — context: after CI redeploy restored v11.9.3, wanted frontend bug fixes too
 
 ## 6. What's In Progress (Unfinished Work)
-- **Website frontend quality**: The Cloudflare site loads but hasn't been visually audited — may need UI polish, responsive design check, data display verification
-- **Picks 17-32 from Campbell's mock**: Only captured picks 1-13 from WalterFootball. Picks 14-32 need scraping from the second page
-- **Additional expert mocks to integrate**: Camenker, Norris, Brugler, Schrager mocks not yet in prospect data — only have Tankathon, Walt, Campbell, Jeremiah, Yahoo, Prisco, Lineups
-- **Advanced team eval for 2026**: `engine/advanced_team_eval.py` is built but not wired into the production scoring model. It works for 2026 (real data) but couldn't be backtested (historical data too noisy)
+- **Git commit of local changes**: 635 uncommitted files in iCloud working directory. Must clone to /tmp to commit. This is CRITICAL — multiple sessions of work are at risk.
+- **Local ufc-predict/ is behind GitHub**: Local shows v11.9.2, GitHub has v11.9.5 (from /tmp clone push). Need to pull latest in `ufc-predict/`.
+- **2nd parlay (High ROI)**: Algorithm only generates 1 parlay. Needs investigation in prediction mode parlay section.
+- **Backtester prop P/L population**: 145 bouts have null pnl with valid odds. Frontend safety net handles display but backtester should write complete data.
 
 ## 7. Blocked / Waiting On
-- **Jason Boris mock**: Not available until draft morning (April 23). He's the #1 analyst but publishes last.
-- **Closing Vegas odds**: Current odds are from late March. Final odds publish April 22-23 and will be significantly sharper.
-- **Draft-week consensus refresh**: The biggest accuracy improvement will come from April 20-22 mock updates. Pipeline is ready (`refresh_pipeline.py`).
+- **Git push from iCloud**: Direct git operations fail in iCloud Drive. Must clone to /tmp first. This has been the case for multiple sessions and continues to block proper git workflow.
+- **Firestore sync**: May still serve stale data. Needs firestore_upload.py run after git commit.
 
 ## 8. Next Steps (Prioritized)
-1. **Visual audit of Cloudflare site** — verify all 32 picks display correctly, no duplicate data, responsive design works
-2. **Add more expert mocks** — scrape Camenker, Norris, Brugler 2026 mocks and integrate into prospects.json
-3. **Weekly refresh cadence** — run `python3 scripts/refresh_pipeline.py --deploy` every Sunday through April 20
-4. **Draft week intensive refresh** — April 20 (Mon), April 22 (Wed AM + PM), April 23 (Thu morning) — update all data sources
-5. **Wire advanced_team_eval into production** — for 2026 only, use real roster/FA/cap data as a tiebreaker signal
+1. **Commit all local changes to git** — clone to /tmp, structured multi-commit push. 635 files uncommitted. This is overdue by multiple sessions.
+2. **Pull latest into local ufc-predict/** — local is v11.9.2, remote is v11.9.5
+3. **Fix backtester prop P/L** — ensure future runs write complete bout records
+4. **Fix 2nd parlay generation** — investigate algorithm parlay logic for high-ROI parlay
+5. **Update Firestore** — run firestore_upload.py
+6. **Update AGENTS.md** — stale, references pre-v11.9 state
 
 ## 9. Agent Observations
 
 ### Recommendations
-- **Don't fight consensus**: The model's ceiling is determined by consensus data quality. Every experiment showed consensus dominance. Focus on getting the FRESHEST consensus rather than adding more signals.
-- **Closing-week data is 90% of the game**: The difference between March mocks and April 22 mocks is ~5-10 extra correct picks. Build the refresh cadence around this.
+- **Eliminate dual webapp/ permanently**: The root `webapp/` is now archived, but `ufc-predict/webapp/` data files are sometimes synced TO the root. This sync pattern should be abolished — all reads and deploys from `ufc-predict/webapp/` only.
+- **Git commit is critically overdue**: 635 uncommitted files spanning multiple sessions. Every session adds more risk. Next session's #1 priority.
+- **Consider moving project out of iCloud**: The iCloud git friction has cost multiple sessions of time. A symlink or dedicated git repo in `~/Projects/` would eliminate the clone-to-/tmp workaround.
 
 ### Patterns & Insights
-- **Discrete consensus scoring is a structural limitation**: 100/80/60/40/20 point tiers create gaps too large for any secondary signal to overcome. This is why team needs, scheme fit, etc. can't improve predictions in backtesting.
-- **The top 5 picks are extremely predictable**: 7/7 experts agree on picks 1-2, 5/7 on picks 3-5. The value-add is in picks 6-20 where consensus breaks down.
-- **Analyst accuracy varies wildly by year**: Campbell got 13 in 2024 and 7 in 2023. Norris got 15 in 2021 and 5 in 2022. Multi-year averaging is essential.
+- The /tmp clone workflow works reliably for pushes but creates local/remote divergence (v11.9.2 local vs v11.9.5 remote)
+- Deploy skill now has Step 0 (version check) — this should prevent wrong-directory deploys going forward
+- Frontend safePnl is a solid safety net but masks a real backend issue (backtester writing incomplete data)
 
 ### Where I Fell Short
-- **Initial 2025/2026 confusion**: Should have verified the draft year from the start instead of assuming
-- **Too many model variants tested**: V2, V3, V4, V5, enriched — consumed tokens that could have been spent on data quality
-- **Duplicate enforcement should have been built from day 1**: This bug appeared 3 times before being properly fixed
+- The initial handoff earlier today didn't account for the v10.68 regression that had already happened — it was discovered only when the user asked about it
+- Should have verified live site state proactively at session start instead of just reading git state
 
 ## 10. Miscommunications to Address
-- **2025 vs 2026 draft year**: First build used wrong year. Next agent must verify year before any work.
-- **Team needs weight**: User wanted 15% for team needs. Backtesting proved this hurts with reconstructed data but could help with real current-year data. The model currently uses team needs through the consensus signal (experts already factor in needs).
+None this portion — session was well-aligned after root cause was explained. User approved every step.
 
 ## 11. Files Changed This Session
-**No git repo — listing key files by modification time:**
-
+**On GitHub (via /tmp clone push — commit 48e2f50):**
 | File | Action | Description |
 |------|--------|-------------|
-| engine/prospect_model.py | created | 12-signal scoring model with weighted analyst consensus |
-| engine/simulator.py | created | Monte Carlo draft simulator with uniqueness enforcement |
-| engine/team_logic.py | created | Team-specific override rules (Raiders QB lock, etc.) |
-| engine/advanced_team_eval.py | created | Advanced team needs framework (roster, cap, scheme, GM) |
-| data/prospects.json | created+updated | 50 prospects with 7-mock expert picks + Vegas odds |
-| data/teams.json | created+updated | 32 teams with real 2026 FA/cap/roster data |
-| data/analyst_accuracy.json | created+updated | 12 analysts with 6-year verified trust weights |
-| data/vegas_odds.json | created+updated | Real DraftKings/FanDuel odds for top prospects |
-| data/draft_order.json | created | 32-pick first round order with traded picks |
-| data/pre_draft_visits.json | created | Pre-draft visit tracker |
-| data/team_roster_analysis_2026.json | created | Deep roster analysis for top 16 teams |
-| data/historical_team_needs_expert.py | created | Expert-published team needs 2020-2025 |
-| data/historical_draft_odds_2020_2025.py | created | Historical Vegas odds for backtesting |
-| data/prospect_grades_2020_2025.py | created | Historical big boards for backtesting |
-| data/historical_visits_2020_2025.py | created | Historical visit data for backtesting |
-| data/draft_history_2016_2019.py | created | Actual + consensus picks 2016-2019 |
-| data/draft_history_2020_2022.py | created | Actual + consensus picks 2020-2022 |
-| backtest/historical_data.py | created | Actual + consensus picks 2023-2025 |
-| backtest/historical_team_eval.py | created | GM tenures, coach schemes, roster reconstruction |
-| backtest/enriched_backtest.py | created | V4 vs V5 backtest comparison |
-| backtest/model_v2.py | created | V2 model with full signal set |
-| backtest/model_v3.py | created | V3 model with 5 new signals |
-| scripts/refresh_pipeline.py | created | Full refresh + simulate + deploy pipeline |
-| scripts/run_simulation.py | created | Standalone simulation runner |
-| frontend/ | created | React/Vite app deployed to Cloudflare Pages |
-| results/latest_prediction.json | created | Most recent 32-pick prediction |
+| ufc-predict/webapp/frontend/src/components/picks/FightCard.jsx | modified | R1 KO gating, combo row, "2.60 diff" confidence |
+| ufc-predict/webapp/frontend/src/components/shared/EventBetsDropdown.jsx | modified | safePnl odds-based computation, fighter-loss enforcement |
+| ufc-predict/webapp/frontend/src/components/admin/AdminAlgorithm.jsx | modified | current_values fallback, 2 new CATEGORIES |
+| ufc-predict/webapp/frontend/src/components/landing/HeroStats.jsx | modified | All bet types displayed correctly |
+| ufc-predict/webapp/frontend/src/config/version.js | modified | v11.9.3 → v11.9.5 |
+
+**Locally (iCloud working tree):**
+| File | Action | Description |
+|------|--------|-------------|
+| webapp/ → archive/webapp_ROOT_STALE_v10.68/ | moved | Archived stale root webapp to prevent wrong-directory deploys |
+| HANDOFF.md | created | This handoff document |
+| ~/.claude/anti-patterns.md | modified | 5 new entries |
+| ~/.claude/recurring-bugs.md | modified | 2 new entries |
+| ~/.claude/memory/topics/ufc_website_maintenance_rules.md | created | 15-point checklist + 19 display rules |
 
 ## 12. Current State
-- **Branch**: No git repo (iCloud directory)
-- **Last commit**: N/A
-- **Build status**: Frontend builds successfully (Vite, 94ms)
-- **Deploy status**: Deployed to https://draft-predictor.pages.dev/ (last deploy: 2026-03-25 00:59)
-- **Uncommitted changes**: N/A (no git)
+- **Branch (iCloud root)**: fix/method-scoring-v10.69
+- **Last commit (iCloud root)**: f36fcc3 — "v10.69: Fix method bet scoring"
+- **Branch (ufc-predict/)**: main — local v11.9.2, **remote v11.9.5** (divergent)
+- **Build status**: CI build passed for v11.9.5 (commit 48e2f50)
+- **Deploy status**: v11.9.5 LIVE on mmalogic.com via Cloudflare Pages
+- **Uncommitted changes**: ~635 files in iCloud working tree (CRITICAL)
 
 ## 13. Environment State
 - **Node.js**: v25.6.1
 - **Python**: 3.14.3
-- **Running dev servers**: Vite dev server on port 5174 (PID 24579)
-- **Environment variables set this session**: None
-- **Active MCP connections**: Claude in Chrome, Desktop Commander, Claude Preview, PDF Tools
+- **Running dev servers**: None for this project (other projects have Next.js, Vite running)
+- **Environment variables set this session**: none
+- **Active MCP connections**: Claude in Chrome, Desktop Commander, PDF Tools, mcp-registry
 
 ## 14. Session Metrics
-- **Duration**: ~7 hours (5:00 PM - 1:00 AM)
-- **Tasks completed**: 15+ major tasks
-- **User corrections**: 4 (2025/2026 confusion, duplicate players x2, unvetted sources)
-- **Tool calls**: 200+ estimated
-- **Skills/commands invoked**: deploy, full-handoff
-- **Commits made**: 0 (no git repo)
+- **Duration**: ~3 hours total (including prior handoff portion + incident response)
+- **Tasks completed**: 12 / 12 attempted
+- **User corrections**: 1 (user discovered the v10.68 regression — agent should have caught it)
+- **Tool calls**: ~50+
+- **Skills/commands invoked**: /full-handoff
+- **Commits made**: 1 to GitHub (48e2f50 via /tmp clone), 0 to local iCloud repo
 
 ## 15. Memory & Anti-Patterns Updated
-- No memory updates this session — should save: NFL Draft project context, V4 model architecture, analyst trust hierarchy, refresh pipeline location
-- **TODO for next agent**: Save project memory with key findings (consensus dominance, 14.0/yr baseline, verified analyst weights)
+- **anti-patterns.md**: 5 new entries (WRONG_DIRECTORY_DEPLOY, SCREENSHOT_REVIEW_MISSED_11_BUGS, R1_KO_GATING, CONFIDENCE_260, EVENTBETS_NULL_PNL, OPTIMIZER_MISSING_CURRENT)
+- **recurring-bugs.md**: 2 new entries (deploy source directory, screenshot review carelessness)
+- **ufc_website_maintenance_rules.md**: Created — 15-point checklist + 19 display rules
+- **site-update-protocol SKILL.md**: Updated with 4 new bug items + Phase 4.5 data sync
+- **deploy SKILL.md**: Updated with Step 0 — verify version.js before building
+- **Project MEMORY.md**: Added website maintenance pointer
 
 ## 16. Skills & Agents Used
 | Skill/Agent | How It Was Used | Was It Helpful? |
 |-------------|----------------|-----------------|
-| Background research agents (x8) | Scraped draft data, team needs, Vegas odds, analyst accuracy | Yes — parallelized research effectively |
-| Claude in Chrome | Read Campbell's mock from WalterFootball, checked Tankathon | Yes — captured fresh expert data |
-| deploy skill | Deployed to Cloudflare Pages | Yes — seamless |
-| full-handoff skill | This document | Yes |
+| /full-handoff | Generated handoff documents (2x this session) | Yes |
+| Claude in Chrome | Verified live site screenshots post-deploy | Yes — caught that v11.9.5 was correctly live |
+| GitHub CLI (gh) | Triggered CI workflow, checked run status | Yes — clean deploy path |
 
 ## 17. For The Next Agent — Read These First
-1. This HANDOFF.md
-2. Previous handoff: First session (none)
-3. `data/analyst_accuracy.json` — verified trust weights with 6-year raw data
-4. `scripts/refresh_pipeline.py` — run `python3 scripts/refresh_pipeline.py --deploy` for updates
-5. `engine/prospect_model.py` — the scoring model (12 signals, V4 weights)
-6. `frontend/2026_NFL_Mock_Draft_Consensus_March25.md` — latest 7-mock consensus comparison
-7. `data/team_roster_analysis_2026.json` — real 2026 roster/FA/cap analysis
+1. **This HANDOFF.md** — current state as of 2026-03-25 21:00
+2. `~/.claude/memory/topics/ufc_website_maintenance_rules.md` — **MANDATORY** before reviewing any screenshot
+3. `~/.claude/memory/topics/ufc_betting_model_spec.md` — canonical betting rules
+4. `~/.claude/anti-patterns.md` — 5 new entries from this session, especially WRONG_DIRECTORY_DEPLOY
+5. `~/.claude/recurring-bugs.md` — deploy source and screenshot review entries
+6. `ufc-predict/AGENTS.md` — stale but has useful model overview (needs update)
 
-### Critical Rules
-- **Unvetted analysts = 0% weight**: Only analysts with 6-year WalterFootball data contribute
-- **Discrete consensus scoring**: 100/80/60/40/20 tiers. Secondary signals can't bridge these gaps.
-- **V4 model is the baseline**: 14.0/yr backtested. Any changes must beat this or be rejected.
-- **No duplicate players**: Uniqueness enforcement in refresh_pipeline.py prevents this
-- **Draft is April 23-25, 2026 in Pittsburgh**: 29 days from now
+### CRITICAL WARNING FOR NEXT AGENT
+- **NEVER deploy from root `webapp/`** — it's archived at `archive/webapp_ROOT_STALE_v10.68/`. All deploys from `ufc-predict/webapp/frontend/` only.
+- **Local ufc-predict/ is BEHIND GitHub** — pull latest before any work
+- **635 uncommitted files** — commit to git is #1 priority
+- **Always check version.js** before any deploy command
+
+### Verified P/L (Live Site — v11.9.5, 2026-03-25)
+| Bet Type | W-L | P/L |
+|----------|-----|-----|
+| ML | 303W-113L | +83.01u |
+| Method | 148W-185L | +79.45u |
+| Round | 29W-49L | +17.36u |
+| Combo | 25W-53L | +72.96u |
+| Parlay | 32W-32L | +28.93u |
+| **Combined** | **969 bets** | **+281.71u (29.1% ROI)** |
