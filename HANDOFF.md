@@ -1,186 +1,126 @@
-# Handoff — friends-bday — 2026-03-25 Afternoon
+# Handoff — Superpowers (Claude Code Skills System) — 2026-03-25 02:00
 ## Model: Claude Opus 4.6 (1M context)
-## Previous handoff: First session
+## Previous handoff: handoff_20260324_2145.md
 
 ---
 
 ## 1. Session Summary
-Built the "Never Forget Friends Bday" app from scratch as a Next.js 15 application with a dark-themed UI. The app includes a full friends management system, birthday tracking calendar, customizable email templates, and a Cloudflare Workers cron job for automated birthday emails via Resend. Mid-session, replaced the Apple Contacts import with an Instagram Data Download import per user request. The app is functionally complete and builds successfully.
+Massive infrastructure session. Upgraded all 14 commands (deleted 3, elevated 11), built `/mmalogic` dedicated agent, created permanent prevention for v10.68 deploy disaster + UFC site bugs, added file freshness rules (Rule 22), fixed Enhanced Health AI CI, mapped all 26 GitHub repos across 30+ local directories, and built `/reorganize-all` to consolidate everything into `~/Projects/`. The reorganize command is written but NOT yet executed (2 active UFC sessions must close first).
 
 ## 2. What Was Done (Completed Tasks)
-- **Full app scaffold**: Created Next.js 15 app with Tailwind CSS, shadcn/ui components, D1 SQLite database via Drizzle ORM — all core files
-- **Database schema**: `users`, `friends`, `templates`, `messages` tables — `src/db/schema.ts`
-- **Dashboard page**: Birthday countdown, quick stats, upcoming birthdays, recent activity — `src/app/page.tsx` + components
-- **Friends management**: List, search, add, edit, delete friends — `src/app/friends/page.tsx`, `src/app/friends/[id]/page.tsx`, `src/app/api/friends/route.ts`, `src/app/api/friends/[id]/route.ts`
-- **Instagram import**: Parse Instagram data download JSON (following.json/followers.json), preview & select friends, bulk import — `src/lib/contacts.ts`, `src/app/friends/import/page.tsx`, `src/app/api/friends/import/route.ts`
-- **Calendar view**: Monthly birthday calendar with navigation — `src/app/calendar/page.tsx`
-- **Email templates**: CRUD for birthday message templates with HTML body — `src/app/templates/page.tsx`, `src/app/api/templates/route.ts`, `src/app/api/templates/[id]/route.ts`
-- **Settings page**: Configure Resend API key, sender email, reminder days — `src/app/settings/page.tsx`, `src/app/api/settings/route.ts`
-- **Birthday cron worker**: Cloudflare Worker that checks daily for birthdays and sends emails via Resend — `workers/birthday-cron/`, `src/app/api/cron/check-birthdays/route.ts`
-- **Sidebar navigation**: Persistent sidebar with active state — `src/components/Sidebar.tsx`
-- **Dark theme**: Full dark mode design throughout — `src/app/globals.css`
-- **Schema migration for Instagram**: Added `instagram_url` column — `drizzle/0001_slippery_nova.sql`
+- **Command audit + upgrade**: All 14 commands reviewed. Deleted 3 deprecated stubs. Upgraded 4 thin wrappers to pre-check→execute→verify. Elevated 4 site commands (inter-phase files, max 2 agents, --quick/--phase modes). Upgraded /full-handoff (12 improvements), /mem (unified memory), /skill-insights (fast mode), /z (status+recovery).
+- **UFC prevention**: 15-item checklist (`ufc_website_maintenance_rules.md`), wrong-directory deploy prevention (Rule 21 + deploy Phase 0), site-update-protocol updated (rules 11-15 + canonical directory gate)
+- **Built /mmalogic**: Dedicated UFC website agent — loads 6 knowledge files, freshness check vs GitHub, routes to update/debug/audit/redesign, self-updates after every task
+- **CLAUDE.md Rules 20-23**: No narration pauses, deploy verification, file freshness, UFC→/mmalogic
+- **Fixed Enhanced Health AI CI**: ESLint quotes, unused vars, missing GoalTag types — GH Actions passing
+- **Full filesystem mapping**: 26 repos, 30+ local directories, identified 5+ UFC copies, 6+ Strain Finder copies, exposed PAT
+- **Built /reorganize-all**: Consolidates all projects into ~/Projects/{sports,health,cannabis,apps,tools}
 
 ## 3. What Failed (And Why)
-- **`Instagram` icon from lucide-react**: Doesn't exist in the library. Fixed by substituting `Camera` icon instead.
-- **Apple Contacts approach (initial)**: Built first, then user explicitly requested Instagram import instead. Rewrote the import system.
+- **iCloud deep scan timed out**: find across all iCloud took >30s. Used background task + targeted scans.
+- **Git push rejected once**: Remote had concurrent commits. Fixed with rebase.
 
 ## 4. What Worked Well
-- **shadcn/ui + Tailwind dark theme**: Fast, professional-looking UI with consistent design system
-- **Instagram JSON parser**: Handles both `relationships_following` and `relationships_followers` root keys, split files, and raw arrays
-- **Drizzle ORM + D1**: Clean schema definition with type-safe queries and easy migrations
-- **Preview server verification**: Caught build errors and verified functionality in real-time
+- **Audit-then-improve**: Presented all findings before implementing — user validated the plan
+- **Direct fixes > agent delegation**: Main agent doing the work produces better results than spawning agents
 
 ## 5. What The User Wants (Goals & Priorities)
-- **Primary goal**: An app that ensures they never forget friends' birthdays — scans social media, finds birthdays, sends automated messages
-- **Explicit preference**: Instagram import over Apple Contacts
-- **Implicit preference**: Professional, comprehensive, complete build — "as professionally and comprehensively and completely as you can"
+- **Primary**: Permanently prevent recurring failures (wrong deploys, stale files, "looks correct" approval)
+- **Secondary**: Dedicated MMALogic agent that carries all domain knowledge
+- **Tertiary**: Full filesystem reorganization — one location per project, no duplicates
+- **Frustrations**: "AI keeps fucking this up and i want it permanently prevented"
 
-### User Quotes (Verbatim)
-- "i'd like the app to scan more social medias, namely instagram to get your friend list, not your apple contacts" — redirecting from Apple Contacts to Instagram
-- "Build this app for me as professionally and comprehensivlely and completely as you can" — setting quality expectations
+### User Quotes
+- "AI keeps fucking this up and i want it permanently prevented" — on UFC site bugs
+- "not just reorganize ufc, we are going to reorganize all local folders for all projects" — scope expansion
+- "ensure you aren't missing anything in the project map, do a deeper scan" — thoroughness demand
 
 ## 6. What's In Progress (Unfinished Work)
-- **Uncommitted changes**: All work is staged/modified but not yet committed to git. 50+ files changed since initial commit.
-- **Instagram birthday gap**: Instagram imports have no birthday data — users must manually add birthdays after import. A birthday lookup/search helper would improve UX.
-- **Cloudflare deployment**: App is local-only. D1 database, Workers cron, and Pages deployment not yet configured for production.
-- **New migration not tracked in git**: `drizzle/0001_slippery_nova.sql` (adds `instagram_url` column) is untracked.
+- **/reorganize-all**: Written, NOT executed. Requires closing 2 UFC sessions first.
+- **Enhanced Health AI PR merge**: CI green, CF Pages still failing. Need to disconnect CF Pages git integration.
 
 ## 7. Blocked / Waiting On
-- **Resend API key**: User needs to provide their Resend API key in Settings for email sending to work
-- **Cloudflare D1 database**: Needs `wrangler d1 create friends-bday-db` run against their Cloudflare account
-- **Domain/deployment**: No deployment target configured yet
+- **/reorganize-all**: 2 active Claude sessions in UFC Algs/ (PIDs 81638, 83363) must be closed
+- **GitHub PAT rotation**: Exposed in recipes-app remote URL — must revoke at github.com/settings/tokens
+- **CF Pages disconnect**: User action in Cloudflare dashboard for enhanced-health-ai
 
 ## 8. Next Steps (Prioritized)
-1. **Commit all work to git** — 50+ files of work are uncommitted. Critical to preserve.
-2. **Add birthday editing for Instagram imports** — Friends imported from Instagram have placeholder birthdays. The edit page exists but should be verified/polished for this flow.
-3. **Deploy to Cloudflare** — Pages for the frontend, D1 for the database, Workers for the cron job.
-4. **Add SMS support via Twilio** — User's original spec mentioned scheduling messages (not just email). Twilio integration would cover SMS.
-5. **Birthday lookup helper** — A feature to help users find friends' birthdays (web search integration or manual entry assistant).
+1. **Revoke exposed GitHub PAT** — security, immediate
+2. **Close UFC sessions → run /reorganize-all** — eliminates stale-file root cause
+3. **Disconnect CF Pages for EHAI → merge PR #1**
+4. **Test /mmalogic on a real UFC task** — validate the agent works
+5. **Test /site-audit --quick on a project** — validate elevated commands
 
 ## 9. Agent Observations
 
 ### Recommendations
-- **Commit immediately**: 50+ uncommitted files is a significant risk. A single accidental `git checkout .` would destroy all work.
-- **Test the email pipeline end-to-end**: The cron worker and Resend integration are built but untested with real credentials.
-- **Consider adding SMS via Twilio**: The user's original request mentioned "schedules messages" — email alone may not fully satisfy.
+- Run /reorganize-all ASAP — stale iCloud copies are active danger
+- Make ~/Projects/ the default Claude Code opening directory
+- The superpowers repo itself should eventually move out of iCloud
 
 ### Patterns & Insights
-- **Instagram API is dead for friend lists**: No legitimate API access to followers/following. Data Download is the only viable path.
-- **Birthday data is the hard part**: Importing friends is easy; finding their birthdays is the real challenge. No automated solution exists without privacy-invasive scraping.
-- **D1 + Drizzle works well for this scale**: Simple relational schema, local development with `--local` flag, clean migration story.
+- Duplicate directories are the #1 systemic risk — 5 copies of UFC, 6 of Strain Finder
+- iCloud + git = unreliable. ~/Projects/ (local) is the right home.
+- Commands that specify "main agent does X" work better than "spawn agent to do X"
 
 ### Where I Fell Short
-- **Built Apple Contacts first, then had to rewrite for Instagram**: Should have asked about import source preference upfront before building.
-- **No git commits during session**: All work is uncommitted. Should have committed at milestones.
+- Should have scanned for exposed secrets proactively during filesystem audit
 
 ## 10. Miscommunications to Address
-- **Initial import approach**: Built Apple Contacts import first, user corrected to Instagram. The rewrite was clean but the initial work was wasted effort. Next agent should ask about data sources before building import features.
+None — session was well-aligned.
 
 ## 11. Files Changed This Session
-**Machine-generated from git status (all changes since initial commit):**
-```
- .claude/launch.json                          | new
- .gitignore                                   | modified
- cloudflare-env.d.ts                          | new
- drizzle.config.ts                            | new
- drizzle/0000_lively_korath.sql               | new
- drizzle/0001_slippery_nova.sql               | new (untracked)
- drizzle/meta/*                               | new
- next.config.ts                               | modified
- open-next.config.ts                          | new
- package.json + package-lock.json             | modified
- scripts/export-contacts.sh                   | new (archived)
- src/app/api/cron/check-birthdays/route.ts    | new
- src/app/api/friends/[id]/route.ts            | new
- src/app/api/friends/import/route.ts          | new
- src/app/api/friends/route.ts                 | new
- src/app/api/messages/route.ts                | new
- src/app/api/send-test/route.ts               | new
- src/app/api/settings/route.ts                | new
- src/app/api/templates/[id]/route.ts          | new
- src/app/api/templates/route.ts               | new
- src/app/calendar/page.tsx                    | new
- src/app/friends/[id]/page.tsx                | new
- src/app/friends/import/page.tsx              | new
- src/app/friends/page.tsx                     | new
- src/app/globals.css                          | modified
- src/app/layout.tsx                           | modified
- src/app/page.tsx                             | modified
- src/app/settings/page.tsx                    | new
- src/app/templates/page.tsx                   | new
- src/components/BirthdayCountdown.tsx         | new
- src/components/FriendCard.tsx                | new
- src/components/QuickStats.tsx                | new
- src/components/RecentActivity.tsx            | new
- src/components/Sidebar.tsx                   | new
- src/components/UpcomingBirthdays.tsx         | new
- src/components/ui/*.tsx                      | new (avatar, badge, card, dialog, dropdown-menu, input, label, separator, sonner, tabs, textarea)
- src/db/schema.ts                             | new
- src/lib/birthday.ts                          | new
- src/lib/contacts.ts                          | new
- src/lib/db.ts                                | new
- src/lib/email-templates.ts                   | new
- src/lib/email.ts                             | new
- tsconfig.json                                | modified
- workers/birthday-cron/                       | new
- wrangler.jsonc                               | new
-```
+GitHub commits: 3efd57f, b027e7d, 687b371, a80d211, 3a60974, a2571a8
 
-**Human-annotated descriptions:**
 | File | Action | Description |
 |------|--------|-------------|
-| src/db/schema.ts | created | Database schema: users, friends, templates, messages tables with instagram_url field |
-| src/lib/contacts.ts | created | Instagram JSON parser + CSV parser for friend imports |
-| src/app/friends/import/page.tsx | created | Import UI with Instagram data download instructions, file upload, preview table |
-| src/app/api/friends/import/route.ts | created | Import API with name-based deduplication and instagramUrl storage |
-| src/app/page.tsx | modified | Dashboard with countdown, stats, upcoming birthdays, activity feed |
-| src/components/Sidebar.tsx | created | App navigation sidebar with active route highlighting |
-| src/app/friends/page.tsx | created | Friends list with search, countdown badges, "Today!" indicators |
-| src/app/calendar/page.tsx | created | Monthly birthday calendar view |
-| src/app/templates/page.tsx | created | Email template CRUD with HTML preview |
-| src/app/settings/page.tsx | created | Settings for Resend API key, sender email, reminder preferences |
-| workers/birthday-cron/ | created | Cloudflare Worker for daily birthday check + email sending |
-| drizzle/0001_slippery_nova.sql | created | Migration adding instagram_url column to friends table |
+| commands/*.md (11 files) | rewritten | Full command audit upgrade |
+| commands/mmalogic.md | created | Dedicated UFC agent |
+| commands/reorganize-all.md | created | Full filesystem reorg |
+| commands/reorganize-ufc.md | created | UFC-specific reorg |
+| commands/{brainstorm,execute-plan,write-plan}.md | deleted | Deprecated stubs |
+| ~/.claude/CLAUDE.md | modified | Rules 20-23 |
+| skills/site-update-protocol/SKILL.md | modified | Rules 11-15, canonical dir, pre-review |
+| memory/topics/ufc_website_maintenance_rules.md | created | 15-item checklist |
+| memory/topics/ufc_canonical_paths.md | created | Path lookup table |
+| anti-patterns.md | modified | 2 new entries |
+| EHAI: terms/page.tsx, page.tsx, types/health.ts | modified | CI fixes |
 
 ## 12. Current State
-- **Branch**: main
-- **Last commit**: 3ccad3d feat: initial commit (the scaffolded Next.js app)
-- **Build status**: Passes (`npx next build` succeeds)
-- **Deploy status**: Not deployed — local only
-- **Uncommitted changes**: 50+ files (all the app functionality)
+- **Branch**: N/A (iCloud, synced via /tmp)
+- **Last GitHub commit**: a2571a8
+- **Build status**: N/A (skills system)
+- **Uncommitted changes**: None
 
 ## 13. Environment State
-- **Node.js**: v25.6.1
-- **Python**: 3.14.3
-- **Running dev servers**: None currently
-- **Environment variables set this session**: None
-- **Active MCP connections**: Claude Preview (used for verification)
+- **Node.js**: v25.6.1 | **Python**: 3.14.3
+- **Running dev servers**: None
+- **Active MCP**: Chrome, Preview, Desktop Commander, PDF, PowerPoint, Word, Drive, scheduled-tasks
 
 ## 14. Session Metrics
-- **Duration**: ~90 minutes
-- **Tasks completed**: 12 / 13 attempted (Apple Contacts built then replaced)
-- **User corrections**: 1 (Apple Contacts → Instagram import)
-- **Commits made**: 0 (all work uncommitted)
-- **Skills/commands invoked**: /full-handoff
+- **Duration**: ~3 hours
+- **Tasks completed**: 15+ / 15+
+- **User corrections**: 0
+- **Commits**: 6 (superpowers) + 2 (enhanced-health-ai)
 
 ## 15. Memory & Anti-Patterns Updated
-No memory updates this session — this is a new project with no prior context to capture. Future sessions should save:
-- Instagram data download JSON format to project memory
-- The "Instagram API doesn't allow friend list access" constraint
+- **anti-patterns.md**: UFC_SITE_GLANCE_AND_APPROVE, UFC_WRONG_DIRECTORY_DEPLOY
+- **Project memory**: feedback_no_narration_pauses.md
+- **Topics**: ufc_website_maintenance_rules.md, ufc_canonical_paths.md
+- **core.md**: Pointer to maintenance rules
 
 ## 16. Skills & Agents Used
 | Skill/Agent | How It Was Used | Was It Helpful? |
 |-------------|----------------|-----------------|
-| Explore agent | Researched Instagram data export JSON format | Yes — confirmed exact schema for parser |
-| Claude Preview | Verified build, tested import API, took screenshots | Yes — caught icon import error, confirmed working UI |
+| General-purpose agent | Read all 14 commands | Yes |
+| General-purpose agent | Update 4 site commands | Yes |
+| Glob/Grep/Bash | Full filesystem scan | Yes |
 
 ## 17. For The Next Agent — Read These First
 1. This HANDOFF.md
-2. Previous handoff: First session
-3. ~/.claude/anti-patterns.md
-4. ~/.claude/recurring-bugs.md
-5. Project CLAUDE.md (if created)
-6. src/db/schema.ts — understand the data model
-7. src/lib/contacts.ts — Instagram parser logic
-8. CRITICAL: Commit all work before doing anything else
+2. ~/.claude/anti-patterns.md (2 new entries)
+3. ~/.claude/CLAUDE.md (rules 20-23 new)
+4. ~/.claude/commands/reorganize-all.md (PENDING)
+5. ~/.claude/commands/mmalogic.md (NEW)
+6. ~/.claude/memory/topics/ufc_canonical_paths.md
+7. ~/.claude/memory/topics/ufc_website_maintenance_rules.md
