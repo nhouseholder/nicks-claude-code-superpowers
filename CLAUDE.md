@@ -3,7 +3,7 @@
 ## Project Context
 
 Primary languages: Python and JavaScript/TypeScript. Active projects include:
-- **Sports prediction algorithms**: UFC (OctagonAI), NHL, NBA, MLB, NCAA/CBB — Python, walk-forward backtesting, Firestore, Cloudflare
+- **Sports prediction algorithms**: UFC (ufc-predict), MLB+NHL (diamond-predictions), NBA+NCAA (courtside-ai), NHL (icebreaker-ai) — Python, walk-forward backtesting, Firestore, Cloudflare
 - **MyStrainAI**: Cannabis strain recommendation SaaS — React/Vite frontend, Python backend (Cannalchemy), Cloudflare Workers, Supabase
 - **Enhanced Health AI**: Next.js 15 health tech app — TypeScript, Prisma, Cloudflare Workers
 - **ScreenPrism AI**: Real-time video sync — Node.js, Express, Socket.io
@@ -375,6 +375,9 @@ Before switching to a different project, branch, or directory:
 - Commit or stash any uncommitted work
 - Record what was done in the handoff or memory
 - Never leave uncommitted work in one repo while starting work in another
+
+### FAILSAFE 6: Live Site → Repo Tracing
+See the "Live Site → Repo Mapping" table above. Before ANY website work, look up the site in `~/Projects/site-to-repo-map.json` and trace: live domain → Cloudflare project → GitHub repo → local path. The GitHub repo listed there is your starting point. ALWAYS.
 
 ### FAILSAFE 7: Check Dates Before EVERY Decision (NON-NEGOTIABLE)
 
