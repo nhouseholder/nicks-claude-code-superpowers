@@ -332,3 +332,32 @@
 - **Flawed assumption**: "If the simulation produced it, it must be valid" — NO, simulations can have bugs. Output must be validated.
 - **Reasoning lesson**: Before presenting ANY structured output (tables, lists, rankings), scan for physical impossibilities: duplicates, constraint violations, missing fields. A draft is a uniqueness constraint — each player appears exactly once.
 - **Applies when**: Any simulation output, prediction tables, ranked lists, draft boards, tournament brackets — anywhere uniqueness or ordering constraints exist
+
+### [REGISTRY_TOTALS_MISSING_PARLAY] — 2026-03-24
+- **Context**: webapp/frontend/public/data/ufc_profit_registry.json → HeroStats landing page
+- **Bug**: Parlay P/L showed +0.00u (0W-0L) on landing page, and Combo showed +0.00u. Combined P/L was +169.14u instead of +281.71u. ROI showed 54% instead of 29.1%. Only 25 events showed instead of 71.
+- **Root cause**: Registry `totals` object was missing `parlay_wins`, `parlay_losses`, `parlay_pnl` fields entirely. Event-level parlay data existed (64/71 events had pnl) but had no `wins`/`losses` fields — only `correct` and `pnl`. The Python backtester was writing event parlay data but never computing parlay totals. Additionally, Firestore was serving stale 25-event data that overrode the static JSON on the deployed site.
+- **Fix**: (1) Recomputed registry totals from event-level data, adding parlay fields. (2) Added `wins`/`losses` to each event's parlay object derived from `correct` field. (3) Added `parlay_pnl`, `parlay_wins`, `parlay_losses` to algorithm_stats.json.
+- **Applies when**: After ANY backtest run that writes to ufc_profit_registry.json, verify totals include ALL 5 bet types (ml, method, round, combo, parlay) with wins/losses/pnl for each.
+
+### [CONFIDENCE_DISPLAY_AS_PERCENTAGE] — 2026-03-24
+- **Context**: webapp/frontend/src/components/picks/FightCard.jsx
+- **Bug**: Confidence badge showed "260% conf", "226% conf" — values over 100% that looked wrong.
+- **Root cause**: `pick.diff` (raw algorithm differential, typically 0.14 to 3.0+) was multiplied by 100 and displayed with a % suffix. A diff of 2.60 became "260%". The value is not a percentage — it's an absolute score differential.
+- **Fix**: Changed display from `(Math.abs(pick.diff) * 100).toFixed(0) + '%'` to `Math.abs(pick.diff).toFixed(2) + ' diff'` with label "confidence" instead of "model edge".
+- **Applies when**: Any time a raw algorithm score is displayed on the frontend. Differential values are NOT percentages — they're absolute scores. Only display as % if the value is genuinely a 0-1 proportion.
+
+### [REGISTRY_DATA_NOT_SYNCED_TO_DEPLOY] — 2026-03-24
+- **Context**: Multiple data files across webapp/ and ufc-predict/webapp/
+- **Bug**: Root webapp/ had stale data files from 10+ days ago while ufc-predict/webapp/ had current data. 7 data files and 4 source files were out of sync.
+- **Root cause**: After backtest/optimizer runs update files in ufc-predict/webapp/frontend/public/data/, nobody synced them to the root webapp/ (which is the deploy source). No automated sync exists.
+- **Fix**: Manually synced all data + source files from ufc-predict/webapp/ → root webapp/. 
+- **Applies when**: After EVERY backtest, optimizer, or prediction run, MUST sync data files from ufc-predict/webapp/frontend/public/data/ → webapp/frontend/public/data/. Add this to the site-update-protocol checklist.
+
+### UFC_SITE_GLANCE_AND_APPROVE — 2026-03-25
+- **Context**: UFC MMA Logic website audit/maintenance
+- **Bug**: AI said "no obvious bugs" and "looks correct" on screenshots with 7+ visible bugs: 260% confidence values, SUB bets shown despite gating, missing combo bets, missing second parlay, empty optimizer values, missing P/L on event details, missing parlay on event details
+- **Root cause**: AI glances at screenshots superficially instead of checking each element against the domain rules. It pattern-matches "data exists in cells" as "correct" without verifying the VALUES are valid.
+- **Fix**: Created mandatory 15-item checklist at ~/.claude/memory/topics/ufc_website_maintenance_rules.md. Every site audit MUST run through this checklist item-by-item with specific values, not "looks fine."
+- **Applies when**: Any time reviewing UFC/MMA Logic website screenshots, doing /site-audit, /site-update, /site-debug, or any visual verification of the site. Read the checklist BEFORE looking at screenshots.
+- **Recurrence**: HIGH — this is the SAME failure mode as the P/L bugs, the 0W-0L bugs, and the missing bet type bugs. The AI consistently fails at visual verification.
