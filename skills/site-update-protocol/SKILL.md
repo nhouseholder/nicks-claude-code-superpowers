@@ -123,6 +123,23 @@ for event in registry:
     assert ml.wins + ml.losses == total_ml_bets
 ```
 
+## CANONICAL DIRECTORY (CRITICAL — Wrong directory = catastrophic reversion)
+
+**The ONLY directory to build/deploy from is `ufc-predict/webapp/frontend/`.**
+
+The root `webapp/` directory is a STALE COPY frozen at v10.68. Deploying from it OVERWRITES production with months-old code. This has already happened once (v11.9.3 → v10.68 reversion on 2026-03-25).
+
+**Before ANY build or deploy:**
+```bash
+# VERIFY you're in the right directory
+cat version.js 2>/dev/null || cat src/version.js 2>/dev/null
+# Must show v11.x+. If it shows v10.x, STOP — you're in the wrong directory.
+echo "Current directory: $(pwd)"
+# Must contain "ufc-predict/webapp" in the path
+```
+
+**If you're in root webapp/:** STOP. `cd` to `ufc-predict/webapp/frontend/` instead.
+
 ## Update Procedure
 
 ### Step 0: Sync from Canonical Source (MANDATORY)

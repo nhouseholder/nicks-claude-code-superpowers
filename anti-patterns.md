@@ -361,3 +361,52 @@
 - **Fix**: Created mandatory 15-item checklist at ~/.claude/memory/topics/ufc_website_maintenance_rules.md. Every site audit MUST run through this checklist item-by-item with specific values, not "looks fine."
 - **Applies when**: Any time reviewing UFC/MMA Logic website screenshots, doing /site-audit, /site-update, /site-debug, or any visual verification of the site. Read the checklist BEFORE looking at screenshots.
 - **Recurrence**: HIGH — this is the SAME failure mode as the P/L bugs, the 0W-0L bugs, and the missing bet type bugs. The AI consistently fails at visual verification.
+
+### [FIGHTCARD_MISSING_R1_KO_GATING] — 2026-03-25
+- **Context**: webapp/frontend/src/components/picks/FightCard.jsx
+- **Bug**: Round bet shown for KO R2 predictions (e.g., Navajo Stirling). Spec says round/combo bets are ONLY for KO R1.
+- **Root cause**: FightCard only had SUB gating and KO confidence gating, but no R1 gating rule. Any KO finish prediction showed round bets.
+- **Fix**: Added `isR1Ko = method === 'KO' && round === 1` check. Round/combo bets only display when isR1Ko is true.
+- **Applies when**: Any time FightCard bet rows are modified. The R1 KO gating rule is immutable per backtest data.
+
+### [FIGHTCARD_NO_COMBO_BET] — 2026-03-25
+- **Context**: webapp/frontend/src/components/picks/FightCard.jsx
+- **Bug**: No combo bet row ever displayed on any fight card.
+- **Root cause**: The bets array builder only pushed ML, Method, Round — combo was never implemented.
+- **Fix**: Added CMB tag row that appears alongside round bet (same R1 KO gating). Added combo odds lookup.
+- **Applies when**: Reviewing fight cards — verify CMB tag appears for R1 KO predictions.
+
+### [EVENTBETS_NULL_PNL_WITH_ODDS] — 2026-03-25
+- **Context**: webapp/frontend/src/components/shared/EventBetsDropdown.jsx — 145 bouts affected
+- **Bug**: Prop bet losses showed "—" instead of "-1.00u", prop wins showed "—" instead of odds-based payout, when the registry data had null pnl but valid odds.
+- **Root cause**: Python backtester doesn't always populate method_pnl/round_pnl/combo_pnl for bout records, especially for losses and older events. The frontend safePnl() returned null for null pnl.
+- **Fix**: Enhanced safePnl(correct, pnl, odds) to compute from betting rules when pnl is null but odds exist: loss=-1u, win=odds-based payout. Also enforces fighter-loss rule (ml_correct=false → all props are losses).
+- **Applies when**: Any time EventBetsDropdown or bout-level rendering is modified. The frontend is the safety net for incomplete backend data.
+
+### [OPTIMIZER_MISSING_CURRENT_VALUES] — 2026-03-25
+- **Context**: webapp/frontend/src/components/admin/AdminAlgorithm.jsx
+- **Bug**: Many params showed "—" in Current column (SL_WIN_FLOOR, RATIO_MIN, SEI_DEF_WEIGHT, etc.)
+- **Root cause**: curVals read only from Firestore constants, which doesn't have all params. The optimizer_results.json has current_values with all 61 params but wasn't used as fallback.
+- **Fix**: (1) curVals now merges optimizer.current_values as base with Firestore constants as override. (2) Added 'Advanced Features' and 'System Integration' to CATEGORIES (18 missing params).
+- **Applies when**: After adding new params to the optimizer, verify they appear in CATEGORIES in AdminAlgorithm.jsx.
+
+### UFC_WRONG_DIRECTORY_DEPLOY — 2026-03-25
+- **Context**: UFC MMA Logic website deployment
+- **Bug**: Live site reverted from v11.9.3 → v10.68, losing ALL v11.x improvements (parlay display, event tables, optimizer, confidence formatting, 71→25 events)
+- **Root cause**: AI deployed from `UFC Algs/webapp/` (root, frozen at v10.68) instead of `UFC Algs/ufc-predict/webapp/` (canonical, v11.9.3+). Two webapp/ directories exist — root is a stale copy.
+- **Flawed assumption**: AI assumed the nearest `webapp/` directory was the right one to deploy from. It didn't verify version numbers or check which directory CI deploys from.
+- **Fix**: Redeployed from ufc-predict/webapp/frontend/ via GitHub CI
+- **Prevention**: BEFORE any UFC deploy, check version.js in the directory you're about to deploy. If it doesn't show v11.x+, you're in the WRONG directory. Canonical source is ALWAYS ufc-predict/webapp/frontend/. The root webapp/ must be archived or deleted.
+- **Applies when**: ANY deploy, build, or wrangler command for the UFC/MMALogic project. ALWAYS verify you're in ufc-predict/webapp/, not root webapp/.
+- **Severity**: CATASTROPHIC — overwrote a working production deployment with months-old stale code
+- **Recurrence**: First occurrence, but the stale root webapp/ has been a confusion source in data sync operations before
+
+### [SCREENSHOT_REVIEW_MISSED_11_BUGS] — 2026-03-25
+- **Context**: Reviewing 5 screenshots of mmalogic.com live site
+- **Bug**: Agent said "no obvious bugs" for History and Optimizer pages while 11 bugs were clearly visible: 260% confidence, missing combo/parlay cards (0W-0L), broken prop P/L, empty optimizer Current values, wrong event count (25 vs 71), wrong hero total (+169.14u vs +238u), missing round card.
+- **Root cause**: Agent "glanced" at screenshots instead of checking each element against the 12 immutable betting rules and the 15-point website checklist.
+- **Fix**: Created `~/.claude/memory/topics/ufc_website_maintenance_rules.md` with 15-point checklist + 19 display rules.
+- **Flawed assumption**: That visual scanning is sufficient to catch display bugs.
+- **Prevention rule**: BEFORE reviewing any website screenshot, READ ufc_website_maintenance_rules.md. Check EVERY item on the 15-point list. Never say "looks correct" without checking each item individually.
+- **Applies when**: Any screenshot review, any site audit, any post-deploy verification.
+- **Severity**: HIGH — user had to point out 11 bugs that should have been caught automatically

@@ -3,6 +3,23 @@ Full deployment pipeline: pre-flight checks, build, deploy to Cloudflare Pages/W
 ## Arguments
 - `$ARGUMENTS` = project directory, environment (prod/staging), or specific flags
 
+## Phase 0: Directory Verification (MANDATORY — prevents catastrophic deploys)
+
+**Before ANYTHING else**, verify you're deploying from the correct directory:
+```bash
+# Check version in current directory
+cat version.js 2>/dev/null || cat src/version.js 2>/dev/null || node -e "console.log(require('./package.json').version)" 2>/dev/null
+echo "Deploy directory: $(pwd)"
+```
+
+**STOP if ANY of these are true:**
+- Version number is unexpectedly old (e.g., v10.x when you expect v11.x)
+- You're in a root `webapp/` when a `ufc-predict/webapp/` exists (UFC project: canonical source is ALWAYS `ufc-predict/webapp/frontend/`)
+- The directory has no recent git commits (check `git log --oneline -3`)
+- `package.json` version doesn't match what's expected
+
+**This check exists because deploying from the wrong directory OVERWROTE v11.9.3 with v10.68, reverting months of production work.**
+
 ## Phase 1: Pre-flight Checks
 ```bash
 # Verify clean git state
