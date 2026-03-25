@@ -200,8 +200,12 @@ ROUTES = [
     (r"\bfix\b|bug|broken|error|crash|failing|not.?working|broke|debug|regress",
      80, "debugger"),
 
-    # Website updates
-    (r"update.*site|update.*website|deploy.*site|website|webapp|web.?app|mmalogic|octagonai",
+    # Website commands (specific → command, generic → agent)
+    (r"update.*site|update.*website|site.*update",
+     90, "_cmd:/site-update"),
+    (r"debug.*site|site.*debug|debug.*website|website.*debug",
+     90, "_cmd:/site-debug"),
+    (r"deploy.*site|website|webapp|web.?app|mmalogic|octagonai",
      75, "deployer"),
 
     # Testing
