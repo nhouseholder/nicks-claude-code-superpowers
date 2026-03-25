@@ -1,127 +1,113 @@
-# Handoff — ARIA Research App — Mar 25, 2026
+# Handoff — Superpowers (Claude Code Skills System) — 2026-03-24 21:45
 ## Model: Claude Opus 4.6 (1M context)
 
 ---
 
 ## 1. Session Summary
-User asked to review the ARIA/PhD research app from GitHub, then run a comprehensive site audit (/site-audit). After the audit identified 41 issues across frontend, backend, and UI/UX, the user requested all P0/P1 fixes plus all 7 items from the prior handoff's "What's Left To Do" list. All 15 items were implemented, committed as v2.3.0, and deployed live to researcharia.com.
+The user's goal was to improve the Claude Code skills ecosystem — specifically fixing the problem where Claude ignores installed skills, doesn't call the right agents, and produces low-quality output without self-validation. Major work included: building composite agent profiles (Frontend/Backend/Designer/Tester/Debugger/Full-Stack), creating 4 new orchestration commands (/site-audit, /site-redesign, /site-update, /site-debug), overhauling the /full-handoff command, adding 6 new CLAUDE.md rules to prevent recurring failures, and strengthening the improve-prompt.py hook to enforce skill usage.
 
 ## 2. What Was Done (Completed Tasks)
-- **Full site audit (7 phases)**: Read entire codebase (27 source files, 3 frontend files, 5 migrations), identified 41 issues across 4 severity levels — `all files`
-- **XSS fix: markdownToHTML javascript: URLs**: Block non-http/https protocols in markdown link rendering — `public/app.js:1148`
-- **XSS fix: reader history onclick**: Replace inline onclick with data attributes to prevent injection — `public/app.js:793`
-- **XSS fix: quantitative_results**: Escape measure/value/context fields in paper dropdown — `public/app.js:631`
-- **Input length limits**: Chat 10k chars, research topic 2k, keywords max 20, writing title 500, instructions 5k — `src/routes/chat.ts`, `src/routes/onboarding.ts`, `src/routes/writing.ts`
-- **Escape reader result fields**: Paper title/journal/doi/pmid escaped, PubMed URL constructed safely — `public/app.js:771`
-- **Escape chat conversation titles**: All conversation titles escaped in sidebar rendering — `public/app.js:808`
-- **Stripe origin allowlist**: Validate checkout redirect origin against hardcoded allowlist — `src/routes/subscription.ts:21`
-- **Onboarding N+1 fix**: Batch duplicate check with single IN query instead of per-paper SELECT — `src/routes/onboarding.ts:109`
-- **Digest caching**: New `digest_cache` table (migration 0006), cache per user/day, `?refresh=1` to force — `src/routes/digest.ts`, `migrations/0006_digest_cache.sql`
-- **Writing history click-to-reload**: Past drafts are now clickable to load content, new `loadWritingProject()` function — `public/app.js`
-- **marked.js integration**: CDN include of marked@12, custom renderer with safe link handling, regex fallback — `public/index.html`, `public/app.js:1139`
-- **PubMed year parsing**: Prefer `<PubDate>` block over generic `<Year>` tag (was grabbing DateRevised) — `src/services/pubmed.ts:67`
-- **Methodology scoring**: Match paper methodology keywords against user's preferred methodology (was hardcoded 50) — `src/services/scoring.ts:61`
-- **Chat delete UI**: Hover-reveal delete button on conversation items with confirmation — `public/app.js`, `public/styles.css`
-- **Mobile overlay close**: Replaced `::after` pseudo-element with real `<div id="mobile-overlay">` that receives clicks — `public/index.html`, `public/styles.css`, `public/app.js`
-- **Deployed v2.3.0**: Migration 0006 applied to remote D1, Worker deployed to researcharia.com
+- **Composite Agent Profiles**: Created 6 named agent bundles (Frontend, Backend, Designer, Tester, Debugger, Full-Stack) in `~/.claude/hooks/improve-prompt.py` — replaces flat skill lists with weighted, prioritized skill bundles per role
+- **/site-audit command**: `~/.claude/commands/site-audit.md` (79L) — 7-phase sequential audit pipeline dispatching all composite agents
+- **/site-redesign command**: `~/.claude/commands/site-redesign.md` (113L) — 9-phase full rebuild pipeline
+- **/site-update command**: `~/.claude/commands/site-update.md` (50L) — 6-phase safe update with website-guardian baseline/verify
+- **/site-debug command**: `~/.claude/commands/site-debug.md` (67L) — 8-phase systematic debug pipeline
+- **/full-handoff command**: `~/.claude/commands/full-handoff.md` (190L) — 16-section handoff + 3-location sync + archive + cleanup
+- **CLAUDE.md Rule 19**: "Never delete commands, skills, or hooks without user confirmation"
+- **CLAUDE.md Rules 11-12**: Read-before-running-scripts and never-poll-background-tasks strengthened
+- **CLAUDE.md Rules 14-18**: Anti-flip-flop, never-propose-code-changes-for-misunderstandings, extreme-results-are-bugs, validate-on-known-data, scan-output-for-impossible-data
+- **website-guardian skill**: Updated to enforce root cause analysis, permanent memory logging, cross-agent error sharing
+- **skill-awareness skill**: Created to force Claude to check available skills before every task
+- **improve-prompt.py hook**: Major overhaul — task-type routing, composite agent injection, step-by-step instructions
+- **Skill cap removed**: Removed 75-skill cap from skill-manager
+- **GitHub sync**: Multiple pushes throughout session
 
 ## 3. What Failed (And Why)
-- **Agent spawning for parallel audit phases**: Rate limits prevented spawning Explore and general-purpose agents for Phases 1-3. Did all phases sequentially in main context instead. Worked fine, just slower.
-- **Mobile viewport resize in Chrome**: `resize_window` to 375x812 didn't actually change the viewport rendering. Verified mobile CSS by code review instead.
+- **Content conflict resolution**: Initially chose larger file over more recently edited one during merge. User corrected: defer to modification time, not file size.
+- **Hook false matches**: improve-prompt.py matched "banner" to visual design and "audit" to /site-audit when user meant unrelated topics. Task-type routing improved this but edge cases remain.
+- **Skill installation verification**: Couldn't fully validate 12 template skills from aitmpl.com against source site.
 
 ## 4. What Worked Well
-- **Sequential code reading**: Reading all 27 source files systematically revealed cross-cutting issues (XSS patterns used in multiple places)
-- **Live site testing via Claude in Chrome**: Verified landing page, login page, health endpoint, and console errors on production
-- **Dry-run deploy before commit**: `wrangler deploy --dry-run` caught build issues before pushing to production
-- **Batch approach to fixes**: Grouping all XSS fixes, then all P1 fixes, then all handoff items maintained coherent changesets
+- **Composite agent profiles**: Bundling approach solves "91 skills, pick none" problem
+- **Diagnosing from screenshots**: 5 screenshots of Claude ignoring skills revealed root cause — Claude rationalizes skipping with plausible excuses
+- **Session-driven rules**: Every CLAUDE.md rule added was motivated by real evidence of failure
 
 ## 5. What The User Wants (Goals & Priorities)
-- **Primary goal**: Get ARIA production-ready — security hardened, all known bugs fixed — DONE
-- **Secondary goal**: Complete all handoff items from prior session — DONE
-- **Explicit preferences**: User wants comprehensive fixes, not incremental — "Yes, all of these"
-- **No frustrations expressed this session**
+- **Primary**: Claude must USE installed skills/agents automatically — not just acknowledge they exist
+- **Secondary**: Orchestrator system that sequences right agents for any website task
+- **Preference**: Template skills (frontend-design, ui-ux-pro-max, senior-frontend, senior-backend, etc.) should be called at high rate
+- **Frustrations**: (1) Claude ignores skills, (2) produces impossible data without catching it, (3) flip-flops under correction, (4) polls background tasks, (5) website updates break other things, (6) commands/skills get silently deleted
 
 ## 6. What's In Progress (Unfinished Work)
-No work is in progress. All requested items were completed and deployed.
+- **Template skill consolidation**: 12 aitmpl.com skills overlap with custom superpowers. Composite profiles route to both, but underlying SKILL.md files still have boilerplate content
+- **Proof-of-concept orchestrator**: User initially asked about "Coder Terminal App." Recommended using skills + headless mode instead. Not fully built — session pivoted to fixing skills system
 
 ## 7. Next Steps (Prioritized)
-1. **Add Content-Security-Policy header** — Major remaining security gap. Add via Hono middleware
-2. **Landing page navigation header** — No way to reach login without scrolling to bottom
-3. **Landing page footer** — Missing privacy policy, terms, contact info
-4. **Request body size limits** — No middleware to cap request body size
-5. **Admin user list pagination** — Currently returns ALL users in one query
-6. **404 page** — Unknown routes show the landing page
-7. **Remove `user-scalable=no`** — Accessibility violation
-8. **Pagination ellipsis** — Paper list pagination renders every page number
-9. **TypeScript cleanup** — Pervasive `any` casts on DB results
+1. **Validate composite agents in practice** — Run /site-audit on a real project and verify each phase calls right skills
+2. **Beef up template skill SKILL.md files** — senior-backend, senior-architect, senior-frontend need real protocols, not stubs
+3. **Test /full-handoff end-to-end** — Verify all 16 sections, 3-location sync, archive, cleanup work
+4. **Build orchestrator script** — If user still wants "Coder Terminal App," a Python script wrapping `claude -p` headless calls
 
 ## 8. AI-Generated Recommendations
-- **Add a proper test suite**: Zero tests exist. At minimum, add unit tests for scoring.ts, queryBuilder.ts, and webhook signature verification
-- **Consider DOMPurify for AI output**: Even with marked.js safe link handling, AI-generated content could contain unexpected HTML. DOMPurify would be defense-in-depth
-- **Move to framework-based frontend**: The vanilla JS SPA at 1240 lines is manageable now but will become painful if features keep growing
-- **Add monitoring/alerting**: No error tracking beyond console.error. Consider Sentry or Cloudflare analytics for Worker errors
+- **Reduce skill count**: 86 directories is high. Consolidation pass would reduce cognitive load.
+- **Hook performance**: improve-prompt.py runs every message with pattern matching + file reading. Cache task-type routing map as skill count grows.
+- **Revive performance tracking**: track-skill-performance hook is ARCHIVED. Without data, optimization is guesswork.
+- **Single version source**: Multiple projects suffer version confusion. Establish one source per project.
 
 ## 9. AI-Generated Insights
-- **Security was solid in some places, missing in others**: Auth (RS256 JWT) and Stripe (HMAC) were done correctly, but frontend rendering had multiple XSS vectors. Backend security was audited in v2.0, but frontend rendering wasn't given the same scrutiny
-- **AI-generated content is the biggest XSS surface**: Every place where AI output is rendered to HTML is a potential XSS vector. markdownToHTML was the single most critical security fix
-- **The codebase is well-organized**: Modular route/service structure, clear separation of concerns, good naming
-- **D1 batch API is underutilized**: Multiple places do sequential INSERT in loops. D1 supports batch operations that would reduce latency
+- **#1 Claude failure = "acknowledge then ignore"**: Claude reads skills, says they're relevant, explains why they could help, then skips them. Not a knowledge gap — a prioritization failure. Composite profiles with step-by-step instructions are the fix.
+- **Output validation is non-existent**: 0/72 combos, duplicate draft picks, flip-flopping domain rules — Claude never validates its own output. Rules 16-18 are the enforcement mechanism.
+- **User's time is the scarcest resource**: Every inefficiency costs real hours. User explicitly said they're "tired of begging."
 
 ## 10. Points to Improve
-- **Should have tested XSS vectors live**: Only verified via code review, not by injecting test payloads
-- **Silent error handling**: Many `catch {}` blocks in app.js swallow errors. Should add console.error in each
-- **Social proof on landing page**: "Built for researchers at Stanford/MIT/etc" has no evidence — legal/credibility risk
+- **Hook false-positive rate**: improve-prompt.py sometimes matches wrong task type. Needs more precise patterns or negatives.
+- **Skill invocation enforcement**: Even with "YOU MUST" injected, Claude treats it as advisory. May need post-response hook checking.
+- **Cross-session skill state**: Skills installed mid-session don't appear in other sessions until restart.
 
 ## 11. Miscommunications to Address
-None — session was well-aligned. User gave clear instructions and all items were completed as requested.
+- **Content conflict resolution**: I picked larger file during merge. User corrected: defer to most recently modified version.
+- **"Remove skill cap entirely"**: User said this clearly. I initially only raised the cap instead of removing it.
 
 ## 12. Files Changed This Session
 | File | Action | Description |
 |------|--------|-------------|
-| public/app.js | modified | XSS fixes (4), marked.js, writing history reload, chat delete UI, mobile overlay JS, escape fields |
-| public/index.html | modified | marked.js CDN script, mobile overlay div |
-| public/styles.css | modified | Chat delete button styles, mobile overlay styles |
-| src/routes/chat.ts | modified | Input length limit (10k chars) |
-| src/routes/digest.ts | modified | Digest caching with per-user/day cache table |
-| src/routes/onboarding.ts | modified | Input length limits, N+1 batch dedup fix |
-| src/routes/subscription.ts | modified | Stripe origin allowlist validation |
-| src/routes/writing.ts | modified | Input length limits (title 500, instructions 5k) |
-| src/services/pubmed.ts | modified | PubMed year parsing — prefer PubDate block |
-| src/services/scoring.ts | modified | Methodology scoring from user preference |
-| migrations/0006_digest_cache.sql | created | Digest cache table + unique index |
+| ~/.claude/commands/site-audit.md | created | 7-phase multi-agent audit command |
+| ~/.claude/commands/site-redesign.md | created | 9-phase multi-agent redesign command |
+| ~/.claude/commands/site-update.md | created | 6-phase safe update command |
+| ~/.claude/commands/site-debug.md | created | 8-phase debug command |
+| ~/.claude/commands/full-handoff.md | created | 16-section handoff command |
+| ~/.claude/hooks/improve-prompt.py | modified | Composite agent profiles, task-type routing |
+| ~/.claude/CLAUDE.md | modified | Rules 11-12 strengthened, rules 14-19 added |
+| ~/.claude/skills/skill-awareness/ | created | Always-on skill matching awareness |
+| ~/.claude/skills/website-guardian/ | modified | Root cause analysis + memory logging |
+| ~/.claude/skills/skill-manager/ | modified | Removed 75-skill cap |
+| iCloud superpowers/ (multiple) | synced | All above files synced to iCloud |
 
 ## 13. Current State
-- **Branch**: `main`
-- **Last commit**: `9a9f45c` — v2.3.0: Security audit fixes + handoff items
-- **Build status**: Passing (verified via `wrangler deploy --dry-run`)
-- **Deploy status**: Deployed live at researcharia.com
-- **Migration 0006**: Applied to remote D1
-- **Uncommitted changes**: Only this HANDOFF.md update
-- **Version**: v2.3.0
+- **Branch**: N/A (iCloud directory — GitHub synced via /tmp clone)
+- **Last GitHub commit**: d85e186 "Handoff: ARIA Research App — Mar 25, 2026"
+- **Build status**: N/A (skills system, no build step)
+- **Deploy status**: All skills active in ~/.claude/skills/, commands in ~/.claude/commands/, hooks in ~/.claude/hooks/
+- **Uncommitted changes**: This session's changes need final GitHub push (done in Phase 2d)
 
 ## 14. Memory & Anti-Patterns Updated
-- Project memory exists at: `~/.claude/projects/-Users-nicholashouseholder-Library-Mobile-Documents-com-apple-CloudDocs-Anahit-App-PHD/memory/project_aria_saas.md`
-- Should update project memory with v2.3.0 status (blocking issues from v2.2.0 are now resolved)
+- **anti-patterns.md**: Not explicitly updated this session (existing entries cover patterns discussed)
+- **recurring-bugs.md**: Not updated this session
+- **Project memory**: feedback_never_delete_files.md reinforced by new Rule 19
+- **MEMORY.md**: Needs entries for composite agent profiles and new commands
 
 ## 15. Skills & Agents Used
 | Skill/Agent | How It Was Used | Was It Helpful? |
 |-------------|----------------|-----------------|
-| /site-audit | Full 7-phase audit pipeline | Yes |
-| Claude in Chrome | Screenshot pages, check console errors, verify health endpoint | Yes |
-| Explore agent | Attempted for Phase 1 recon | No — rate limited |
-| TodoWrite | Tracked all 15 fix items | Yes |
-| /full-handoff | This handoff document | Yes |
+| Explore agents | Audited all 86 skills, read template skill files | Yes |
+| General-purpose agents | Read template skills, compared content | Partially |
+| skill-awareness | Created this session | Needs testing |
+| website-guardian | Updated this session | Needs testing |
 
 ## 16. For The Next Agent — Read These First
 1. This HANDOFF.md
-2. `~/.claude/projects/-Users-nicholashouseholder-Library-Mobile-Documents-com-apple-CloudDocs-Anahit-App-PHD/memory/project_aria_saas.md`
-3. The "Next Steps" section above (9 remaining items)
-4. `~/.claude/anti-patterns.md`
-
-## Gotchas for Next Agent
-- **Clone to /tmp**: `git clone https://github.com/nhouseholder/aria-research.git /tmp/aria-research`
-- **Never push from iCloud** — git operations fail in iCloud Drive
-- **Deploy**: `cd /tmp/aria-research && npm install && npx wrangler deploy`
-- **Secrets NOT in wrangler.toml** — set via `npx wrangler secret put`
-- **Version string in 3 places** in index.html (mobile header, sidebar-version, sidebar-footer)
-- **Rate limiter** is in-memory, resets on isolate recycle
+2. ~/.claude/anti-patterns.md
+3. ~/.claude/recurring-bugs.md
+4. ~/.claude/CLAUDE.md (especially rules 14-19, added this session)
+5. ~/.claude/hooks/improve-prompt.py (composite agent profiles)
+6. Project memory: ~/.claude/projects/.../superpowers/memory/MEMORY.md
