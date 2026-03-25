@@ -1,125 +1,186 @@
-# Handoff — NFL Draft Predictor — 2026-03-25 01:30
+# Handoff — friends-bday — 2026-03-25 Afternoon
 ## Model: Claude Opus 4.6 (1M context)
-## Previous handoff: handoff_20260325_0100.md
+## Previous handoff: First session
 
 ---
 
 ## 1. Session Summary
-User asked to review the prior session's handoff and familiarize with the GitHub repo. There was no GitHub repo — the project existed only in iCloud. Created a public GitHub repo (nhouseholder/nfl-draft-predictor), pushed all 90 files (31,628 lines). Then verified the live Cloudflare site (draft-predictor.pages.dev) is consistent with the latest V4 model output and 6-year weighted analyst consensus. All 32 picks match exactly.
+Built the "Never Forget Friends Bday" app from scratch as a Next.js 15 application with a dark-themed UI. The app includes a full friends management system, birthday tracking calendar, customizable email templates, and a Cloudflare Workers cron job for automated birthday emails via Resend. Mid-session, replaced the Apple Contacts import with an Instagram Data Download import per user request. The app is functionally complete and builds successfully.
 
 ## 2. What Was Done (Completed Tasks)
-- **Reviewed handoff document**: Read `handoff_20260325_0100.md` and `nfl_draft_project.md` from project memory — full orientation complete
-- **Created GitHub repo**: Copied project to `/tmp/nfl-draft-predictor`, initialized git, created `.gitignore`, committed 90 files, pushed to `https://github.com/nhouseholder/nfl-draft-predictor` (public)
-- **Verified live site consistency**: Compared all 32 picks on `draft-predictor.pages.dev` against `results/latest_prediction.json` — every pick, confidence %, and position matches. Confirmed `prospect_model.py` loads analyst weights from `analyst_accuracy.json` with 6-year verified trust hierarchy. Unvetted sources (Yahoo, Lineups) confirmed at 0.0 weight.
+- **Full app scaffold**: Created Next.js 15 app with Tailwind CSS, shadcn/ui components, D1 SQLite database via Drizzle ORM — all core files
+- **Database schema**: `users`, `friends`, `templates`, `messages` tables — `src/db/schema.ts`
+- **Dashboard page**: Birthday countdown, quick stats, upcoming birthdays, recent activity — `src/app/page.tsx` + components
+- **Friends management**: List, search, add, edit, delete friends — `src/app/friends/page.tsx`, `src/app/friends/[id]/page.tsx`, `src/app/api/friends/route.ts`, `src/app/api/friends/[id]/route.ts`
+- **Instagram import**: Parse Instagram data download JSON (following.json/followers.json), preview & select friends, bulk import — `src/lib/contacts.ts`, `src/app/friends/import/page.tsx`, `src/app/api/friends/import/route.ts`
+- **Calendar view**: Monthly birthday calendar with navigation — `src/app/calendar/page.tsx`
+- **Email templates**: CRUD for birthday message templates with HTML body — `src/app/templates/page.tsx`, `src/app/api/templates/route.ts`, `src/app/api/templates/[id]/route.ts`
+- **Settings page**: Configure Resend API key, sender email, reminder days — `src/app/settings/page.tsx`, `src/app/api/settings/route.ts`
+- **Birthday cron worker**: Cloudflare Worker that checks daily for birthdays and sends emails via Resend — `workers/birthday-cron/`, `src/app/api/cron/check-birthdays/route.ts`
+- **Sidebar navigation**: Persistent sidebar with active state — `src/components/Sidebar.tsx`
+- **Dark theme**: Full dark mode design throughout — `src/app/globals.css`
+- **Schema migration for Instagram**: Added `instagram_url` column — `drizzle/0001_slippery_nova.sql`
 
 ## 3. What Failed (And Why)
-No failures this session.
+- **`Instagram` icon from lucide-react**: Doesn't exist in the library. Fixed by substituting `Camera` icon instead.
+- **Apple Contacts approach (initial)**: Built first, then user explicitly requested Instagram import instead. Rewrote the import system.
 
 ## 4. What Worked Well
-- **Handoff review before action**: Reading the prior handoff first prevented wasted effort — immediately knew there was no git repo and what the project state was
-- **Non-iCloud git workflow**: Per CLAUDE.md rules, copied to `/tmp/` before git operations — clean push with no iCloud sync issues
-- **Visual site verification via Chrome**: Screenshots of all 32 picks confirmed exact match with prediction JSON
+- **shadcn/ui + Tailwind dark theme**: Fast, professional-looking UI with consistent design system
+- **Instagram JSON parser**: Handles both `relationships_following` and `relationships_followers` root keys, split files, and raw arrays
+- **Drizzle ORM + D1**: Clean schema definition with type-safe queries and easy migrations
+- **Preview server verification**: Caught build errors and verified functionality in real-time
 
 ## 5. What The User Wants (Goals & Priorities)
-- **Primary goal**: Predict the 2026 NFL Draft first round as accurately as possible (beat Jason Boris at 13.0/yr)
-- **Current status**: V4 model backtests at 14.0/yr. 2026 prediction deployed with picks 1-5 at 99.7-100% confidence
-- **This session's ask**: Verify site consistency with V4 model + weighted consensus. Confirmed.
-- **Implicit priority**: Get the project into version control (GitHub) — done.
+- **Primary goal**: An app that ensures they never forget friends' birthdays — scans social media, finds birthdays, sends automated messages
+- **Explicit preference**: Instagram import over Apple Contacts
+- **Implicit preference**: Professional, comprehensive, complete build — "as professionally and comprehensively and completely as you can"
 
 ### User Quotes (Verbatim)
-- "review handoff and familiarize yourself with github repo" — context: session opening, expected a repo existed but none did
-- "is the mock draft live on the website consistent with the latest V4 complete with the 6 year weighted expert mock draft consensus we made previously?" — context: verifying data integrity between model and deployed site
+- "i'd like the app to scan more social medias, namely instagram to get your friend list, not your apple contacts" — redirecting from Apple Contacts to Instagram
+- "Build this app for me as professionally and comprehensivlely and completely as you can" — setting quality expectations
 
 ## 6. What's In Progress (Unfinished Work)
-- **Website frontend quality audit**: Site loads and data is correct, but no responsive design check or UI polish review done this session
-- **Campbell picks 14-32**: Only picks 1-13 captured from WalterFootball (carried over from prior session)
-- **Additional expert mocks to integrate**: Camenker, Norris, Brugler, Schrager mocks in analyst_accuracy.json but need pick-by-pick data in prospects.json for some
-- **Advanced team eval for 2026**: `engine/advanced_team_eval.py` built but not wired into production scoring
+- **Uncommitted changes**: All work is staged/modified but not yet committed to git. 50+ files changed since initial commit.
+- **Instagram birthday gap**: Instagram imports have no birthday data — users must manually add birthdays after import. A birthday lookup/search helper would improve UX.
+- **Cloudflare deployment**: App is local-only. D1 database, Workers cron, and Pages deployment not yet configured for production.
+- **New migration not tracked in git**: `drizzle/0001_slippery_nova.sql` (adds `instagram_url` column) is untracked.
 
 ## 7. Blocked / Waiting On
-- **Jason Boris mock**: Not available until draft morning (April 23). He's the #1 analyst.
-- **Closing Vegas odds**: Current odds from late March. Final odds publish April 22-23.
-- **Draft-week consensus refresh**: Biggest accuracy improvement comes from April 20-22 mock updates. Pipeline ready.
+- **Resend API key**: User needs to provide their Resend API key in Settings for email sending to work
+- **Cloudflare D1 database**: Needs `wrangler d1 create friends-bday-db` run against their Cloudflare account
+- **Domain/deployment**: No deployment target configured yet
 
 ## 8. Next Steps (Prioritized)
-1. **Weekly refresh cadence** — run `python3 scripts/refresh_pipeline.py --deploy` every Sunday through April 19
-2. **Add more expert pick data** — scrape remaining Camenker, Norris, Brugler 2026 picks into prospects.json
-3. **Visual audit of Cloudflare site** — responsive design, UI polish, accessibility
-4. **Draft week intensive refresh** — April 20 (Mon), 22 (Wed AM+PM), 23 (Thu morning)
-5. **Wire advanced_team_eval into production** — use real roster/FA/cap data as tiebreaker signal for 2026
+1. **Commit all work to git** — 50+ files of work are uncommitted. Critical to preserve.
+2. **Add birthday editing for Instagram imports** — Friends imported from Instagram have placeholder birthdays. The edit page exists but should be verified/polished for this flow.
+3. **Deploy to Cloudflare** — Pages for the frontend, D1 for the database, Workers for the cron job.
+4. **Add SMS support via Twilio** — User's original spec mentioned scheduling messages (not just email). Twilio integration would cover SMS.
+5. **Birthday lookup helper** — A feature to help users find friends' birthdays (web search integration or manual entry assistant).
 
 ## 9. Agent Observations
 
 ### Recommendations
-- **Keep the /tmp clone workflow for git ops**: iCloud directory should remain the working copy, but all git push/pull goes through `/tmp/nfl-draft-predictor` or a non-iCloud clone
-- **Consider moving canonical working directory out of iCloud**: Long-term, having the source of truth in a git-tracked non-iCloud directory would prevent sync issues
+- **Commit immediately**: 50+ uncommitted files is a significant risk. A single accidental `git checkout .` would destroy all work.
+- **Test the email pipeline end-to-end**: The cron worker and Resend integration are built but untested with real credentials.
+- **Consider adding SMS via Twilio**: The user's original request mentioned "schedules messages" — email alone may not fully satisfy.
 
 ### Patterns & Insights
-- **The `simulation_results.json` in `frontend/public/` has slightly different confidence values than `latest_prediction.json`**: Pick 2 shows 92.6% in simulation_results vs 100% in latest_prediction. The website displays `latest_prediction.json` values (100%), which is the correct V4 output. The simulation_results.json appears to be from an earlier run. Not a bug — the site reads the right file — but could cause confusion.
-- **The analyst_accuracy.json has more analysts with mocks than initially noted**: Kiper, McShay, PFF, Norris are marked `has_2026_mock: true` but some may not have pick-by-pick data in prospects.json yet
+- **Instagram API is dead for friend lists**: No legitimate API access to followers/following. Data Download is the only viable path.
+- **Birthday data is the hard part**: Importing friends is easy; finding their birthdays is the real challenge. No automated solution exists without privacy-invasive scraping.
+- **D1 + Drizzle works well for this scale**: Simple relational schema, local development with `--local` flag, clean migration story.
 
 ### Where I Fell Short
-- **Did not run the simulation engine**: Could have verified the model produces the same output by re-running `scripts/run_simulation.py`, but since the JSON matched the site, this was low-priority
-- **Did not audit `simulation_results.json` vs `latest_prediction.json` discrepancy in detail**: Noted the confidence difference but did not trace the root cause
+- **Built Apple Contacts first, then had to rewrite for Instagram**: Should have asked about import source preference upfront before building.
+- **No git commits during session**: All work is uncommitted. Should have committed at milestones.
 
 ## 10. Miscommunications to Address
-- **User expected a GitHub repo to exist**: Said "familiarize yourself with github repo" — but none existed. Resolved by creating one.
+- **Initial import approach**: Built Apple Contacts import first, user corrected to Instagram. The rewrite was clean but the initial work was wasted effort. Next agent should ask about data sources before building import features.
 
 ## 11. Files Changed This Session
-**Machine-generated from git:**
+**Machine-generated from git status (all changes since initial commit):**
 ```
-Initial commit — 90 files, 31628 insertions (new repo, all files are new)
+ .claude/launch.json                          | new
+ .gitignore                                   | modified
+ cloudflare-env.d.ts                          | new
+ drizzle.config.ts                            | new
+ drizzle/0000_lively_korath.sql               | new
+ drizzle/0001_slippery_nova.sql               | new (untracked)
+ drizzle/meta/*                               | new
+ next.config.ts                               | modified
+ open-next.config.ts                          | new
+ package.json + package-lock.json             | modified
+ scripts/export-contacts.sh                   | new (archived)
+ src/app/api/cron/check-birthdays/route.ts    | new
+ src/app/api/friends/[id]/route.ts            | new
+ src/app/api/friends/import/route.ts          | new
+ src/app/api/friends/route.ts                 | new
+ src/app/api/messages/route.ts                | new
+ src/app/api/send-test/route.ts               | new
+ src/app/api/settings/route.ts                | new
+ src/app/api/templates/[id]/route.ts          | new
+ src/app/api/templates/route.ts               | new
+ src/app/calendar/page.tsx                    | new
+ src/app/friends/[id]/page.tsx                | new
+ src/app/friends/import/page.tsx              | new
+ src/app/friends/page.tsx                     | new
+ src/app/globals.css                          | modified
+ src/app/layout.tsx                           | modified
+ src/app/page.tsx                             | modified
+ src/app/settings/page.tsx                    | new
+ src/app/templates/page.tsx                   | new
+ src/components/BirthdayCountdown.tsx         | new
+ src/components/FriendCard.tsx                | new
+ src/components/QuickStats.tsx                | new
+ src/components/RecentActivity.tsx            | new
+ src/components/Sidebar.tsx                   | new
+ src/components/UpcomingBirthdays.tsx         | new
+ src/components/ui/*.tsx                      | new (avatar, badge, card, dialog, dropdown-menu, input, label, separator, sonner, tabs, textarea)
+ src/db/schema.ts                             | new
+ src/lib/birthday.ts                          | new
+ src/lib/contacts.ts                          | new
+ src/lib/db.ts                                | new
+ src/lib/email-templates.ts                   | new
+ src/lib/email.ts                             | new
+ tsconfig.json                                | modified
+ workers/birthday-cron/                       | new
+ wrangler.jsonc                               | new
 ```
 
 **Human-annotated descriptions:**
 | File | Action | Description |
 |------|--------|-------------|
-| .gitignore | created | Excludes node_modules, dist, .claude, __pycache__, .DS_Store |
-| All 89 other files | committed | Initial push of entire NFL Draft Predictor project to GitHub |
+| src/db/schema.ts | created | Database schema: users, friends, templates, messages tables with instagram_url field |
+| src/lib/contacts.ts | created | Instagram JSON parser + CSV parser for friend imports |
+| src/app/friends/import/page.tsx | created | Import UI with Instagram data download instructions, file upload, preview table |
+| src/app/api/friends/import/route.ts | created | Import API with name-based deduplication and instagramUrl storage |
+| src/app/page.tsx | modified | Dashboard with countdown, stats, upcoming birthdays, activity feed |
+| src/components/Sidebar.tsx | created | App navigation sidebar with active route highlighting |
+| src/app/friends/page.tsx | created | Friends list with search, countdown badges, "Today!" indicators |
+| src/app/calendar/page.tsx | created | Monthly birthday calendar view |
+| src/app/templates/page.tsx | created | Email template CRUD with HTML preview |
+| src/app/settings/page.tsx | created | Settings for Resend API key, sender email, reminder preferences |
+| workers/birthday-cron/ | created | Cloudflare Worker for daily birthday check + email sending |
+| drizzle/0001_slippery_nova.sql | created | Migration adding instagram_url column to friends table |
 
 ## 12. Current State
-- **Branch**: main (GitHub: nhouseholder/nfl-draft-predictor)
-- **Last commit**: f351c5a — Initial commit: NFL Draft Predictor v1.0
-- **Build status**: Frontend builds successfully (Vite, verified prior session)
-- **Deploy status**: Deployed to https://draft-predictor.pages.dev/ (last deploy: 2026-03-25 00:59, prior session)
-- **Uncommitted changes**: None
+- **Branch**: main
+- **Last commit**: 3ccad3d feat: initial commit (the scaffolded Next.js app)
+- **Build status**: Passes (`npx next build` succeeds)
+- **Deploy status**: Not deployed — local only
+- **Uncommitted changes**: 50+ files (all the app functionality)
 
 ## 13. Environment State
 - **Node.js**: v25.6.1
 - **Python**: 3.14.3
-- **Running dev servers**: None active
+- **Running dev servers**: None currently
 - **Environment variables set this session**: None
-- **Active MCP connections**: Claude in Chrome, Desktop Commander, Claude Preview, PDF Tools
+- **Active MCP connections**: Claude Preview (used for verification)
 
 ## 14. Session Metrics
-- **Duration**: ~15 minutes
-- **Tasks completed**: 3 / 3 (handoff review, GitHub repo creation, site verification)
-- **User corrections**: 0
-- **Tool calls**: ~25
-- **Skills/commands invoked**: full-handoff
-- **Commits made**: 1 (initial commit to new GitHub repo)
+- **Duration**: ~90 minutes
+- **Tasks completed**: 12 / 13 attempted (Apple Contacts built then replaced)
+- **User corrections**: 1 (Apple Contacts → Instagram import)
+- **Commits made**: 0 (all work uncommitted)
+- **Skills/commands invoked**: /full-handoff
 
 ## 15. Memory & Anti-Patterns Updated
-- **Project memory updated prior session**: `nfl_draft_project.md` and `handoff_20260325_0100.md` already existed
-- No new anti-patterns or recurring bugs discovered this session
-- No new memory files needed — session was verification-only
+No memory updates this session — this is a new project with no prior context to capture. Future sessions should save:
+- Instagram data download JSON format to project memory
+- The "Instagram API doesn't allow friend list access" constraint
 
 ## 16. Skills & Agents Used
 | Skill/Agent | How It Was Used | Was It Helpful? |
 |-------------|----------------|-----------------|
-| Claude in Chrome | Navigated to draft-predictor.pages.dev, took screenshots of all 32 picks | Yes — visual verification of live site |
-| full-handoff | This document | Yes |
+| Explore agent | Researched Instagram data export JSON format | Yes — confirmed exact schema for parser |
+| Claude Preview | Verified build, tested import API, took screenshots | Yes — caught icon import error, confirmed working UI |
 
 ## 17. For The Next Agent — Read These First
 1. This HANDOFF.md
-2. Previous handoff: handoff_20260325_0100.md (in project memory — comprehensive 7hr session)
-3. `data/analyst_accuracy.json` — verified trust weights with 6-year raw data
-4. `engine/prospect_model.py` — the V4 scoring model (12 signals, consensus-anchored)
-5. `scripts/refresh_pipeline.py` — run `python3 scripts/refresh_pipeline.py --deploy` for updates
-6. GitHub repo: https://github.com/nhouseholder/nfl-draft-predictor
-
-### Critical Rules
-- **Unvetted analysts = 0% weight**: Only analysts with 6-year WalterFootball data contribute
-- **V4 model is the baseline**: 14.0/yr backtested. Any changes must beat this.
-- **Git ops go through /tmp clone**: Never git push/pull in the iCloud directory directly
-- **Draft is April 23-25, 2026 in Pittsburgh**: ~29 days away
+2. Previous handoff: First session
+3. ~/.claude/anti-patterns.md
+4. ~/.claude/recurring-bugs.md
+5. Project CLAUDE.md (if created)
+6. src/db/schema.ts — understand the data model
+7. src/lib/contacts.ts — Instagram parser logic
+8. CRITICAL: Commit all work before doing anything else
