@@ -310,6 +310,38 @@ Before switching to a different project, branch, or directory:
 - Record what was done in the handoff or memory
 - Never leave uncommitted work in one repo while starting work in another
 
+### FAILSAFE 7: Check Dates Before EVERY Decision (NON-NEGOTIABLE)
+
+**This failsafe exists because the agent had dates displayed in the terminal and still failed to act on them. Twice.**
+
+Before declaring ANY repo "active", "current", or "the right one" — run this:
+```bash
+git log -1 --format='%ci' && git rev-list --count HEAD
+```
+
+Then COMPARE against the alternative repo. The one with:
+- More recent last commit date, AND
+- More total commits
+is the canonical one. The other gets archived.
+
+**This is not optional. This is not "check if you feel like it." Run the command. Read the output. Act on it.**
+
+When the user asks "are these repos overlapping?" — the answer is ALWAYS determined by dates and commit counts, never by README descriptions or directory names.
+
+### FAILSAFE 8: Verify Local Matches GitHub Before Editing
+
+At session start, for every repo you're about to work in:
+```bash
+LOCAL_SHA=$(git rev-parse HEAD)
+git fetch origin --quiet
+REMOTE_SHA=$(git rev-parse origin/main 2>/dev/null || git rev-parse origin/master 2>/dev/null)
+if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
+  echo "⚠️ LOCAL IS STALE — git pull required"
+  git log --oneline $LOCAL_SHA..$REMOTE_SHA | head -5
+fi
+```
+If local is behind, `git pull` before touching anything. No exceptions.
+
 ## Background Task Notifications
 
 When background tasks complete (especially stale ones from prior sessions):
