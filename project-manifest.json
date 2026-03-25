@@ -1,7 +1,7 @@
 {
   "_meta": {
     "description": "Canonical project registry. ONE source of truth for all project locations.",
-    "updated": "2026-03-25 10:16",
+    "updated": "2026-03-25 22:30",
     "rule": "Before opening ANY project, check this manifest. If a repo is archived, DO NOT work in it."
   },
   "canonical": {
@@ -23,15 +23,6 @@
       "commits": 105,
       "status": "active"
     },
-    "mlb-predict": {
-      "path": "/Users/nicholashouseholder/Projects/sports/mlb-predict",
-      "category": "sports",
-      "github": "nhouseholder/mlb-predict",
-      "description": "Standalone MLB prediction algorithm",
-      "last_commit": "2026-03-02",
-      "commits": 88,
-      "status": "active"
-    },
     "courtside-ai": {
       "path": "/Users/nicholashouseholder/Projects/sports/courtside-ai",
       "category": "sports",
@@ -48,15 +39,6 @@
       "description": "NHL prediction algorithm",
       "last_commit": "2026-03-25",
       "commits": 100,
-      "status": "active"
-    },
-    "collegeedge-ai": {
-      "path": "/Users/nicholashouseholder/Projects/sports/collegeedge-ai",
-      "category": "sports",
-      "github": "nhouseholder/collegeedge-ai",
-      "description": "NCAA-only prediction algorithm",
-      "last_commit": "2026-03-25",
-      "commits": 118,
       "status": "active"
     },
     "march-madness-2026": {
@@ -215,6 +197,20 @@
       "path": "/Users/nicholashouseholder/ufc-predict.ARCHIVED",
       "reason": "Ancient UFC clone v10.70 \u2014 USE sports/ufc-predict",
       "status": "ARCHIVED \u2014 DO NOT USE"
+    },
+    "mlb-predict": {
+      "path": "/Users/nicholashouseholder/Projects/sports/mlb-predict.ARCHIVED",
+      "reason": "ARCHIVED \u2014 use diamond-predictions instead",
+      "status": "ARCHIVED \u2014 DO NOT USE",
+      "last_commit": "2026-03-02",
+      "commits": 88
+    },
+    "collegeedge-ai": {
+      "path": "/Users/nicholashouseholder/Projects/sports/collegeedge-ai.ARCHIVED",
+      "reason": "ARCHIVED \u2014 use courtside-ai instead",
+      "status": "ARCHIVED \u2014 DO NOT USE",
+      "last_commit": "2026-03-25",
+      "commits": 118
     }
   }
 }

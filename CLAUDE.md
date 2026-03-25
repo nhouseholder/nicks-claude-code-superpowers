@@ -202,7 +202,7 @@ All projects live under `~/Projects/` organized by category. **This is the ONLY 
 
 ```
 ~/Projects/
-├── sports/     (ufc-predict, diamond-predictions, mlb-predict, courtside-ai, icebreaker-ai, collegeedge-ai, march-madness-2026, significant-bets, nfl-draft-predictor, loss-analyst)
+├── sports/     (ufc-predict, diamond-predictions, courtside-ai, icebreaker-ai, march-madness-2026, significant-bets, nfl-draft-predictor, loss-analyst)
 ├── health/     (enhanced-health-ai, ophtho-cards)
 ├── cannabis/   (strain-finder ← THIS IS the MyStrainAI app, Strain-Finder-Front-Cannalchemy-Back v3)
 ├── apps/       (all-things-ai, aria-research, dad-financial-planner, recipe-cards, recipes-app)
@@ -218,6 +218,33 @@ All projects live under `~/Projects/` organized by category. **This is the ONLY 
 - iCloud `_archived_projects/` contains old copies with `.ARCHIVED` suffix. NEVER open sessions from archived dirs.
 - GitHub is the source of truth. If local is behind, `git pull` — don't use stale local files.
 - `cannalchemy-v2` and `strain-finder-real` are ARCHIVED — use `strain-finder` (Strain-Finder-Front-Cannalchemy-Back) for ALL cannabis work.
+- `mlb-predict` is ARCHIVED — use `diamond-predictions` for ALL MLB+NHL work.
+- `collegeedge-ai` is ARCHIVED — use `courtside-ai` for ALL NCAA+NBA work.
+
+## Live Site → Repo Mapping (FAILSAFE 6 — MANDATORY)
+
+**Before ANY website work, look up the site in `~/Projects/site-to-repo-map.json`.** The GitHub repo listed there is your starting point. ALWAYS.
+
+| Live Site | Cloudflare Project | GitHub Repo | Local Path |
+|-----------|-------------------|-------------|------------|
+| mmalogic.com | octagonai | ufc-predict | ~/Projects/sports/ufc-predict |
+| diamondpredictions.com | diamond-predict | diamond-predictions | ~/Projects/sports/diamond-predictions |
+| mystrainai.com | mystrainai | Strain-Finder-Front-Cannalchemy-Back | ~/Projects/cannabis/strain-finder |
+| enhancedhealthai.com | enhancedhealthai | enhanced-health-ai | ~/Projects/health/enhanced-health-ai |
+| nestwisehq.com | Workers | dad-financial-planner | ~/Projects/apps/dad-financial-planner |
+| researcharia.com | Workers | aria-research | ~/Projects/apps/aria-research |
+| courtside-ai.pages.dev | courtside-ai | courtside-ai | ~/Projects/sports/courtside-ai |
+| icebreaker-ai.pages.dev | icebreaker-ai | icebreaker-ai | ~/Projects/sports/icebreaker-ai |
+
+**When starting website work:**
+1. Identify which site you're working on
+2. Look up the repo in the table above
+3. `cd` to the local path
+4. Run `git pull` to ensure you're current
+5. Compare local version to live site version (`version.js` or `package.json`)
+6. Only THEN start making changes
+
+**NEVER infer the repo from the project name alone.** diamond-predictions serves MLB+NHL (not diamond-predictions.com only). courtside-ai serves NBA+NCAA (not just courtside-ai.pages.dev). ALWAYS use the mapping.
 
 ## Session Orientation (MANDATORY — before doing ANY work)
 
