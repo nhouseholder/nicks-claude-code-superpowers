@@ -2,7 +2,29 @@
 
 > This file is auto-maintained by the error-memory skill.
 > Claude checks this before debugging to avoid repeating known-bad approaches.
-> Last updated: 2026-03-23
+> Last updated: 2026-03-24
+
+## Critical — UFC Optimizer Scoring Mismatch (CATASTROPHIC, occurred 10+ times)
+
+### OPTIMIZER IGNORED FIGHTER LOSS PROP SCORING — 2026-03-24
+- **Context**: UFC optimizer `score_params()` in `UFC_Alg_v4_fast_2026.py`
+- **Bug**: Optimizer only evaluated method/round/combo P/L when `is_correct=True` (ML win). When fighter lost, prop losses were NOT counted as -1u. This made the optimizer see inflated ROI and optimize toward wrong parameters.
+- **Root cause**: The prop scoring block was inside `if is_correct and diff > _sys_adj_thresh:` — should be `if diff > _sys_adj_thresh:` (all picked fights, win or loss)
+- **Fix**: v11.9 — Moved prop bet availability + scoring outside the `is_correct` gate. Now: fighter loss + bet placed = -1u (same as backtester).
+- **Applies when**: ANY time you modify optimizer scoring, backtester scoring, or add a new bet type. Scoring rules must be IDENTICAL between optimizer and backtester.
+
+### OPTIMIZER HAD NO R1 KO GATING — 2026-03-24
+- **Context**: UFC optimizer round/combo bet placement
+- **Bug**: Optimizer bet on ALL predicted rounds (R1, R2, R3+). Backtester only bet R1 KO. Different strategies = optimizer optimized for wrong thing.
+- **Root cause**: Optimizer code predated the R1 KO gating decision and was never updated
+- **Fix**: v11.9 — Added `if pred_method == "KO" and pred_rd == 1` gate to optimizer round/combo scoring
+- **Applies when**: ANY gating rule change must be applied to BOTH backtester AND optimizer
+
+### OPTIMIZER RESULTS DIDN'T AUTO-APPLY — 2026-03-24
+- **Context**: constants.json was write-only — optimizer wrote it, nothing read it
+- **Bug**: Optimizer found better parameters, wrote to constants.json, but backtester/predictor used hardcoded .py values. Optimized values sat unused.
+- **Fix**: v11.9 — Added constants.json reader at startup (overrides hardcoded defaults) + auto-reload after optimizer runs
+- **Applies when**: ANY parameter pipeline change. Verify the full chain: optimizer → constants.json → backtester/predictor → website
 
 ## Critical — Global Settings Danger
 
@@ -279,3 +301,34 @@
 - **Root cause**: The backtest's update_algorithm_stats() reads APP_VERSION from version.js and writes ML totals from the full fight pool, not just the picks that were bet on.
 - **Fix**: NEVER let backtest overwrite algorithm_stats.json. Either backup before, or modify the backtest to not touch it.
 - **Applies when**: ANY backtest run. The algo stats file is curated — backtest should not touch it.
+
+### YAHOO_FINANCE_CRUMB_AUTH — 2026-03-24
+- **Context**: Nestwise stock analysis (yahoo-stock.ts, deep-dive API)
+- **Bug**: All Yahoo Finance quoteSummary data returned null — P/E, margins, EPS, market cap all missing. Every stock showed "FAILS — UNPROFITABLE" with empty score bars.
+- **Root cause**: Yahoo Finance added crumb authentication to v10/quoteSummary endpoints. Requests without a crumb+cookie pair return `{"error":{"code":"Unauthorized","description":"Invalid Crumb"}}`. The v8/chart API (for price data) still works without crumb.
+- **Fix**: Created yahoo-crumb.ts that fetches cookies from fc.yahoo.com, then gets crumb from query2.finance.yahoo.com/v1/test/getcrumb. Cache crumb+cookie for 30 minutes. Pass both to quoteSummary requests.
+- **Applies when**: Any Yahoo Finance v10 API call fails with "Invalid Crumb" or returns null fundamentals. Check crumb authentication first.
+
+### DOMAIN FLIP-FLOP: Changed betting rules 4 times without reading spec — 2026-03-24
+- **Context**: UFC prediction algorithm, R1 KO gating rules
+- **Bug**: Claude changed its answer about round/combo bet gating 4 times in 5 messages, each time more wrong, ending with a proposal to change working code based on a fabricated rule
+- **Root cause**: Claude grepped the 9000-line algorithm instead of reading the 1-page model spec. When corrected, it apologized performatively and guessed what the user wanted instead of re-reading the spec.
+- **Flawed assumption**: "If the user corrects me, my new answer should match what I think they want" — NO, the answer should match the SPEC
+- **Reasoning lesson**: When corrected on domain logic, READ THE SPEC FIRST, then restate your understanding and ask for confirmation. Never fabricate rules to please the user.
+- **Applies when**: Any domain-specific question about betting rules, model behavior, scoring logic, or payout calculations
+
+### IMPOSSIBLE STATS PRESENTED AS DEFINITIVE — 2026-03-24
+- **Context**: UFC R2 KO combo analysis, registry data query
+- **Bug**: Claude reported 0/72 R2 KO combo hit rate and called it "definitive answer" and "verdict." This is statistically impossible — the probability of 72 consecutive misses on round predictions is astronomically low, meaning the analysis query was wrong.
+- **Root cause**: Claude didn't sanity-check extreme results. 0% over 72 samples should trigger "my query is probably wrong" not "definitive finding." Also doubled down when user said "very good" instead of flagging the implausibility.
+- **Flawed assumption**: "If the data says 0/72, the data must be right" — NO, the query was wrong. 0/72 is the analysis bug signal, not a finding.
+- **Reasoning lesson**: Extreme statistics (0%, 100%, all-win, all-loss over 20+ samples) are almost always bugs in the analysis, not real findings. Validate on 1-2 known events before concluding.
+- **Applies when**: Any statistical analysis of sports prediction results, P/L computations, win rate calculations
+
+### DUPLICATE DRAFT PICKS PRESENTED AS FINAL PREDICTION — 2026-03-24
+- **Context**: NFL draft simulator, 10,000-run Monte Carlo simulation
+- **Bug**: Draft board showed Spencer Fano at #5 AND #6, Avieon Terrell at #16 AND #17, Blake Miller at #24 AND #25, Cashius Howell at #28 AND #29. Claude presented this with confidence percentages and "key storylines" analysis.
+- **Root cause**: (1) Simulation code doesn't remove drafted players from the pool (code bug). (2) Claude didn't scan the output for duplicates before presenting (quality check failure). (3) Claude analyzed the impossible output narratively instead of flagging the bug.
+- **Flawed assumption**: "If the simulation produced it, it must be valid" — NO, simulations can have bugs. Output must be validated.
+- **Reasoning lesson**: Before presenting ANY structured output (tables, lists, rankings), scan for physical impossibilities: duplicates, constraint violations, missing fields. A draft is a uniqueness constraint — each player appears exactly once.
+- **Applies when**: Any simulation output, prediction tables, ranked lists, draft boards, tournament brackets — anywhere uniqueness or ordering constraints exist
