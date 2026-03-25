@@ -246,32 +246,98 @@ All projects live under `~/Projects/` organized by category. **This is the ONLY 
 
 **NEVER infer the repo from the project name alone.** diamond-predictions serves MLB+NHL (not diamond-predictions.com only). courtside-ai serves NBA+NCAA (not just courtside-ai.pages.dev). ALWAYS use the mapping.
 
-## Session Orientation (MANDATORY — before doing ANY work)
+## Session Start: 3-Gate Verification (MANDATORY — ALL 3 MUST PASS)
 
-**Every session must orient before acting. No exceptions.**
+**No work begins until all 3 gates pass. No exceptions. No shortcuts. Run the commands, read the output, act on it.**
 
-1. **Verify your working directory.** Are you in the correct project repo? Check with `pwd` and `ls`. If you're in a worktree (`/tmp/`, `.claude/worktrees/`, or a branch name like `gifted-wu`), you're probably in the wrong place. Navigate to the actual project directory first.
-2. **Freshness check (FAILSAFE 1).** Before editing ANY file, verify the local repo is current:
-   ```bash
-   # Compare local HEAD to GitHub
-   LOCAL_SHA=$(git rev-parse HEAD)
-   REMOTE_SHA=$(git ls-remote origin HEAD 2>/dev/null | cut -f1)
-   if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
-     echo "WARNING: Local is behind GitHub. Run git pull first."
-   fi
-   ```
-   If local is behind → `git pull` before doing anything. If pull fails → clone fresh to `/tmp/` and work from there.
-3. **Archived directory check (FAILSAFE 2).** If the current working directory contains `.ARCHIVED` in the path, or an `ARCHIVED_README.md` file exists, STOP — you are in the wrong directory. Check `~/Projects/project-manifest.json` for the canonical location.
-4. **Read shared memory and handoff docs.** Before starting ANY work on a project, check for and read:
-   - `MEMORY.md` or `memory/` in the project directory
-   - `handoff.md` if one exists (from a prior session)
-   - `anti-patterns.md` and `recurring-bugs.md` in `~/.claude/`
-   - Any agent/handoff documents on the project's GitHub repo
-5. **Use cached data.** Before scraping, fetching, or downloading ANYTHING, check if cached data already exists in the repo. If caches exist, use them. Only scrape genuinely new data (see Backtest Data Caching section).
-6. **Clean up stale artifacts.** If you find old worktrees, /tmp clones, duplicate files, or outdated configs that could cause confusion, clean them up or flag them to the user. Stale files cause "which version is real?" bugs.
-7. **Don't run scripts from /tmp or worktrees.** Scripts that depend on caches, data files, or project structure must run from the actual project directory where those files exist. Running from /tmp means no caches, no data, and wasted time re-scraping.
+This exists because agents have: deployed from wrong directories, edited stale files, used archived repos, and caused catastrophic version reversions. Every one of those failures would have been caught by these 3 gates.
 
-**If you skip orientation, you WILL waste the user's time re-discovering context that already exists.**
+### GATE 1: Identify the correct repo (Cloudflare → GitHub → Local)
+
+If the task involves a website, trace from the live site to the repo:
+```bash
+# Check which Cloudflare project serves this site
+npx wrangler pages project list 2>/dev/null | grep -i "SITE_NAME"
+# OR read the mapping directly:
+cat ~/Projects/site-to-repo-map.json | python3 -m json.tool | grep -A5 "SITE_NAME"
+```
+
+Then verify the local path matches:
+```bash
+cd ~/Projects/<category>/<repo>
+git remote get-url origin  # Must match the GitHub repo from the mapping
+```
+
+**If the task does NOT involve a website**, verify the working directory:
+```bash
+pwd                              # Must be under ~/Projects/<category>/
+ls ARCHIVED_README.md 2>/dev/null && echo "ABORT: YOU ARE IN AN ARCHIVED DIRECTORY"
+cat ~/Projects/project-manifest.json | python3 -c "import json,sys; d=json.load(sys.stdin); [print(f'ARCHIVED: {k}') for k,v in d.get('archived',{}).items()]" 2>/dev/null
+```
+
+**GATE 1 FAILS if:** path contains `.ARCHIVED`, `ARCHIVED_README.md` exists, path is under iCloud, path is `/tmp/`, or repo URL doesn't match the site-to-repo mapping.
+
+### GATE 2: Verify local matches GitHub (no stale files)
+
+```bash
+git fetch origin --quiet
+LOCAL_SHA=$(git rev-parse HEAD)
+REMOTE_SHA=$(git rev-parse origin/main 2>/dev/null || git rev-parse origin/master 2>/dev/null)
+echo "Local:  $LOCAL_SHA"
+echo "Remote: $REMOTE_SHA"
+if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
+  echo "⚠️ STALE — local is behind by:"
+  git log --oneline $LOCAL_SHA..$REMOTE_SHA
+  echo "Running git pull..."
+  git pull
+fi
+echo "Last commit: $(git log -1 --format='%ci %s')"
+echo "Total commits: $(git rev-list --count HEAD)"
+```
+
+**GATE 2 FAILS if:** local is behind remote AND `git pull` fails. In that case, clone fresh from GitHub.
+
+### GATE 3: Read context (memory, handoffs, anti-patterns)
+
+```bash
+# Check for project memory and handoffs
+ls .claude/ MEMORY.md memory/ HANDOFF.md 2>/dev/null
+```
+
+Read in this order:
+1. Project `CLAUDE.md` (if exists)
+2. `MEMORY.md` or `memory/` directory
+3. `HANDOFF.md` (most recent handoff from prior session)
+4. `~/.claude/anti-patterns.md`
+5. `~/.claude/recurring-bugs.md`
+6. `~/Projects/site-to-repo-map.json` (if website work)
+
+**GATE 3 FAILS if:** you skip reading available context. The gate is procedural — read what exists before starting.
+
+### Verification Output
+
+After all 3 gates, print this before starting any work:
+```
+SESSION VERIFIED ✓
+  Repo: [name] ([github URL])
+  Path: [local path]
+  Branch: [branch name]
+  Local SHA: [sha] = Remote SHA: [sha] ✓
+  Last commit: [date] [message]
+  Commits: [count]
+  Context read: [list of files read]
+  Ready to work.
+```
+
+If ANY gate fails, print the failure and resolve it before proceeding. NEVER skip a failed gate.
+
+### Additional Orientation Rules
+
+- **Use cached data.** Before scraping or fetching, check if caches exist in the repo. Only fetch genuinely new data.
+- **Clean up stale artifacts.** Old worktrees, /tmp clones, duplicate files → clean or flag.
+- **Don't run scripts from /tmp or worktrees.** Scripts need caches and data files from the actual project directory.
+
+**If you skip the 3-gate verification, you WILL cause a reversion, deploy from the wrong directory, or waste the user's time re-discovering context that already exists.**
 
 ## Anti-Revert Failsafes (MANDATORY — prevents catastrophic regressions)
 

@@ -224,7 +224,67 @@ ls -t handoff_*.md 2>/dev/null | grep -v ARCHIVED | tail -n +4 | while read f; d
 done
 ```
 
-## STEP 8: Output Verification Summary
+## STEP 8: Protect Architecture (MANDATORY — prevents next-session confusion)
+
+Before printing the summary, run these checks to ensure the project infrastructure is clean for the next agent:
+
+### 8a. Verify repo is pushed to GitHub
+```bash
+git fetch origin --quiet
+LOCAL_SHA=$(git rev-parse HEAD)
+REMOTE_SHA=$(git rev-parse origin/main 2>/dev/null || git rev-parse origin/master 2>/dev/null)
+if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
+  echo "⚠️ UNPUSHED WORK — pushing now..."
+  git push origin $(git branch --show-current)
+fi
+```
+
+### 8b. Verify site-to-repo-map.json is current
+```bash
+cat ~/Projects/site-to-repo-map.json | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+for site, info in data.get('sites', {}).items():
+    print(f'{site} → {info[\"github_repo\"]} → {info[\"local_path\"]}')
+"
+```
+If any mapping is wrong (e.g., you moved a repo or changed which repo deploys to a site), update `site-to-repo-map.json` AND the CLAUDE.md table.
+
+### 8c. Verify project-manifest.json is current
+```bash
+python3 -c "
+import json
+with open('$HOME/Projects/project-manifest.json') as f:
+    d = json.load(f)
+print(f'Active: {len(d[\"canonical\"])} | Archived: {len(d[\"archived\"])}')
+for name in d.get('archived', {}):
+    print(f'  ARCHIVED: {name} — {d[\"archived\"][name][\"reason\"]}')
+"
+```
+If you archived any repos this session, they must appear here.
+
+### 8d. Verify no stale artifacts
+```bash
+# Check for /tmp clones from this session
+ls /tmp/*${GITHUB_REPO}* 2>/dev/null && echo "CLEANUP: /tmp artifacts found" && rm -rf /tmp/*${GITHUB_REPO}*
+# Check for worktrees
+ls .claude/worktrees/ 2>/dev/null && echo "CLEANUP: stale worktrees found"
+```
+
+### 8e. Write next-agent bootstrap instructions into the handoff
+Append this to the bottom of the HANDOFF.md:
+```markdown
+
+---
+## NEXT AGENT: MANDATORY STARTUP SEQUENCE
+Before doing ANY work, run the 3-Gate Verification from ~/.claude/CLAUDE.md:
+1. GATE 1: Check ~/Projects/site-to-repo-map.json — verify you're in the correct repo
+2. GATE 2: git fetch && compare local SHA to remote — git pull if behind
+3. GATE 3: Read this handoff + MEMORY.md + anti-patterns.md + recurring-bugs.md
+ALL 3 GATES MUST PASS before touching any code.
+```
+
+## STEP 9: Output Verification Summary
 
 Print this EXACTLY, filling in all values:
 
@@ -241,8 +301,14 @@ Stored:
   - GitHub (handoffs/$HANDOFF_FILENAME): [✓/FAILED]
 Archived: [N] old handoffs
 Anti-patterns synced: [yes/no]
+Architecture protected:
+  - Repo pushed to GitHub: [✓/unpushed]
+  - site-to-repo-map.json: [verified/updated]
+  - project-manifest.json: [verified/updated]
+  - /tmp cleaned: [✓/skipped]
+  - Next-agent bootstrap: appended to handoff ✓
 
-Next agent: Read handoffs/$HANDOFF_FILENAME + anti-patterns.md + project CLAUDE.md
+Next agent: Run 3-Gate Verification → Read handoffs/$HANDOFF_FILENAME → Start work
 ```
 
 ---
@@ -257,3 +323,7 @@ Next agent: Read handoffs/$HANDOFF_FILENAME + anti-patterns.md + project CLAUDE.
 | Cross-project contamination | Project-specific naming in all locations |
 | Previous handoff not found | Step 3 checks 3 locations in priority order |
 | GitHub push fails silently | Explicit ✓/FAILED in verification output |
+| Next agent uses wrong repo | site-to-repo-map.json checked + bootstrap instructions in handoff |
+| Next agent edits stale files | 3-Gate Verification required before any work |
+| Unpushed work lost between sessions | Step 8a pushes before handoff completes |
+| Archived repos confused with active | project-manifest.json checked + ARCHIVED markers verified |
