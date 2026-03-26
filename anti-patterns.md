@@ -535,3 +535,14 @@
 - **Reasoning lesson**: Algorithm/backend updates MUST be surgical. NEVER rewrite or restructure frontend files during a backend task. The blast radius of a change must match the scope of the request. If the task is "add NBA ML system," you touch: prediction scripts, grading functions, pick card component, and NOTHING else.
 - **Fix**: Restored AdminPage.jsx from git commit 6b125d3 (last good version). Removed 6 stub files. Removed 3 dead api.js exports. Added LossAnalysisTab as an additive change to the restored file.
 - **Applies when**: ANY algorithm update, model change, or backend feature addition — NEVER modify AdminPage.jsx structure, NEVER replace working frontend components, NEVER create stub files for things that already work. Check file line count before and after — if it shrinks, you broke it.
+
+---
+
+### CI_HEREDOC_DROPS_EXPORTS — 2026-03-26
+- **Context**: Diamond Predictions MLB daily pipeline, `.github/workflows/daily-pipeline.yml`, version.js bump step
+- **Bug**: MLB pipeline build failed for 4+ days (March 23-26). Vite build error: `"VERSION_DATE" is not exported by "src/version.js"`. NavBar.jsx and App.jsx import `VERSION_DATE` but the CI heredoc that rewrites version.js only included `APP_VERSION`.
+- **Root cause**: The "Bump version" step uses `cat > version.js << VEOF` to rewrite version.js on every run. The heredoc only contained the `APP_VERSION` export, silently dropping the `VERSION_DATE` export that NavBar.jsx depends on. The file in git had both exports, but CI overwrote it before building.
+- **Flawed assumption**: "The heredoc matches what's in the file." It didn't — someone added `VERSION_DATE` to version.js but never updated the CI heredoc. Any export added to version.js without also updating the CI heredoc gets silently deleted on every pipeline run.
+- **Reasoning lesson**: When CI rewrites a file via heredoc, the heredoc IS the source of truth during CI — not the committed file. Any change to a file that CI overwrites MUST also be reflected in the CI workflow. Better yet: don't rewrite files in CI — use `sed` to update specific lines, preserving everything else.
+- **Fix**: Added `export const VERSION_DATE = "$TODAY";` to the heredoc in daily-pipeline.yml.
+- **Applies when**: ANY CI pipeline that rewrites files via heredoc or `cat >`. Always diff the heredoc against the actual file to ensure nothing is dropped. Prefer `sed -i` for targeted changes over full-file rewrites.
