@@ -77,12 +77,31 @@ For every bet/prediction where action was taken:
 - NEVER skip to display/formatting fixes when the underlying data is missing
 - Only after the scraper confirms the source is genuinely unavailable (page deleted, event too old) can you note "odds unavailable — scraper checked [source] on [date]"
 
+### 8. Cross-Query Consistency
+When presenting multiple analyses from the same dataset:
+- **Sample sizes must match.** If query 1 says "72 fights" and query 2 uses the same filter, it must also be 72 — not 54, not 48. If the count differs, EXPLAIN why (e.g., "18 fights excluded due to missing R1 odds").
+- **Percentages must match their source.** If query 1 says "19.4% end in R1 KO (14/72)" and query 2 says "25.9% win rate (14/54)", those are different denominators — flag it explicitly.
+- **Never silently change the dataset between queries.** If you filter differently, say so: "Note: reduced from 72 to 54 because 18 fights had no R1 KO odds available."
+- **Cross-check totals.** If the user asks "what if we routed ALL X bets to Y", the bet count must equal the original X count unless you explain the reduction.
+
+**Anti-pattern:** User asks about 72 KO R2 predictions, then asks "route all to R1." Claude returns 54 bets with no explanation of where 18 fights went. User loses trust in all the numbers.
+
+### 9. Single-Pass Analysis (prevents query drift)
+When answering multiple related questions about the same dataset:
+- **Extract ALL data in ONE pass.** Write a single script/query that pulls every field you'll need for all questions. Compute all answers from that one extraction.
+- **Never run separate queries per question.** Each new query risks different filters, different name matching, different edge case handling — producing numbers that contradict each other.
+- **Show your denominator.** Every percentage, win rate, or count must show `X/Y` format (e.g., "14/72 = 19.4%"). If the denominator changes between tables, it's immediately visible.
+- **Lock the dataset.** At the start of a multi-question analysis, state: "Working from [N] records matching [filter]." All subsequent answers must use that same N or explicitly explain reductions.
+
+**Anti-pattern:** User asks 3 questions about KO R2 predictions. Claude runs 3 separate queries. Query 1: 72 fights. Query 2: 54 bets (different name matching). Query 3: 55 bets ("improved" matching). P/L shifts from -3.08u to -0.53u. User can't trust any of the numbers. ONE script, ONE pass, ONE dataset.
+
 ## How to Check
 
 1. Read each card/row and verify checks 1-3 independently
 2. Then verify cross-card checks 4-6
-3. If checking a screenshot: read every number, don't skim
-4. If checking code output: trace ONE concrete row from data source to display
+3. Then verify cross-query checks 7-8 if multiple analyses
+4. If checking a screenshot: read every number, don't skim
+5. If checking code output: trace ONE concrete row from data source to display
 
 ## Rules
 

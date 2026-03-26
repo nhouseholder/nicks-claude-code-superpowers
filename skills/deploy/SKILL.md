@@ -182,6 +182,18 @@ All user projects are in iCloud Drive. Git operations and builds MUST happen fro
 - **Environment vars**: Check `[vars]` in wrangler.toml — production values, not dev defaults
 - **Compatibility date**: Ensure `compatibility_date` is recent enough for features used
 
+## Mandatory Post-Fix Pipeline (runs automatically after EVERY website change)
+
+After ANY fix, feature, or change to a website — do ALL of these without being asked:
+1. **Bump version** — patch for fixes, minor for features (version.js, package.json, or equivalent)
+2. **Update date** — update any "last updated" or date display on the site
+3. **Commit** — `git add` changed files + `git commit` with clear message
+4. **Push** — `git push origin main`
+5. **Deploy** — run the project's deploy pipeline
+6. **Verify** — check the live site shows the new version number and date
+
+This pipeline is NOT optional. The user should never have to ask for any of these steps.
+
 ## Rules
 - NEVER deploy without passing tests and lint
 - NEVER build or deploy from iCloud Drive — clone to /tmp first
