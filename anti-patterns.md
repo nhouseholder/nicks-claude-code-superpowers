@@ -444,3 +444,29 @@
   3. Only after backfill fails (source genuinely unavailable) can you mark it as "odds unavailable — source checked"
   4. NEVER display "—" to the user and call it correct
 - **Applies when**: ANY sports prediction project, ANY bet type, ANY event. Missing odds = run scraper. Period.
+
+### CATASTROPHIC: Deploying from git overwrote Cloudflare-only frontend redesign — 2026-03-26
+- **Context**: researcharia.com (aria-research Worker)
+- **Bug**: Agent deployed from git repo using `wrangler deploy`. The live Cloudflare Worker had a frontend redesign that was deployed directly but NEVER committed to git. The deploy overwrote the redesign with old pre-redesign frontend code from git. Attempted rollback failed because Workers Sites purges old static assets from KV on deploy.
+- **Root cause**: (1) Previous session deployed a redesign directly to CF without committing to git. (2) This session deployed from git without checking if CF had newer changes. (3) No safeguard existed to detect CF-only changes before deploying.
+- **Fix**: Created deploy-guard.py hook that blocks `wrangler deploy` if: (a) uncommitted frontend changes exist, (b) last git commit to public/ is old (>24h), suggesting CF may have newer changes. Added to PreToolUse hooks in settings.json.
+- **Applies when**: ANY project using Cloudflare Workers/Pages. BEFORE any deploy:
+  1. Check Cloudflare deployment history: `wrangler deployments list`
+  2. Compare last CF deploy timestamp to last git commit touching public/
+  3. If CF was deployed more recently than git, STOP — someone deployed without committing
+  4. Visually verify live site matches local files BEFORE deploying
+  5. NEVER deploy without all frontend changes committed to git
+- **SEVERITY**: CATASTROPHIC — destroyed weeks of frontend work with no recovery path. KV assets are purged on deploy. Rollback breaks static file serving. The redesigned files were permanently lost.
+- **Prevention**: deploy-guard.py hook (PreToolUse), project CLAUDE.md rules, global CLAUDE.md FAILSAFE 9
+
+### CLOUDFLARE WORKERS SITES PURGES OLD ASSETS ON DEPLOY — 2026-03-25
+- **Context**: researcharia.com — agent deployed stale code from git. Cloudflare Workers Sites marked the redesign's assets (app.7852ea8498.js etc.) as "stale" and DELETED them from KV during the deploy.
+- **Bug**: Cloudflare Workers Sites only keeps assets from the CURRENT deploy. When the agent deployed old code, the redesign's compiled frontend assets were permanently destroyed — no recovery possible.
+- **Root cause**: The redesign was deployed to Cloudflare but NEVER committed to git. When the agent deployed from git, it deployed the pre-redesign code, and Cloudflare treated the redesign's assets as stale garbage.
+- **Fix**: This is an IRREVERSIBLE destructive action. Cloudflare deploy = permanent overwrite. Prevention is the ONLY option:
+  1. EVERY change that touches production MUST be committed to git BEFORE deploying
+  2. EVERY deploy MUST go through `/site-update` or `/deploy` which enforce commit-first
+  3. If code exists in Cloudflare but NOT in git, commit it FIRST: `wrangler pages download` or reconstruct from the live site before deploying anything
+  4. NEVER deploy from git when git is behind production — check the live site version vs git version first
+  5. Add to FAILSAFE 3 (Version Regression Detection): compare live site version to git version, not just git to git
+- **Applies when**: ANY Cloudflare deploy (Pages or Workers). There is no undo button. There is no KV recovery. Deploy = permanent.
