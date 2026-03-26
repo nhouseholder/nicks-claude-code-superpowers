@@ -2,7 +2,16 @@
 
 > This file is auto-maintained by the error-memory skill.
 > Claude checks this before debugging to avoid repeating known-bad approaches.
-> Last updated: 2026-03-24
+> Last updated: 2026-03-25
+
+## PERMANENT RULE — NEVER Accept Missing Prop Odds (NON-NEGOTIABLE)
+
+### MISSING_ODDS_ACCEPTED_WITHOUT_SCRAPING — 2026-03-25
+- **Context**: UFC profit registry, prop odds cache, any event with `__NO_PROPS__` or null method_odds/round_odds/combo_odds
+- **Bug**: Claude accepted null/missing prop odds and displayed "—" for method wins instead of running the odds scraper to backfill. This happened AGAIN on 2026-03-25 for Evloev vs. Murphy (Page and Duncan fights had __NO_PROPS__ from a March 16 scrape that was too early).
+- **Root cause**: Claude treated missing odds as a display problem (fix the frontend) instead of a data problem (scrape the actual odds). The scraper exists and works — it just wasn't run.
+- **Fix**: PERMANENT RULE — When ANY fight has null prop odds: (1) IMMEDIATELY run the prop odds scraper/backfill, (2) NEVER accept __NO_PROPS__ as final, (3) NEVER move to display fixes until odds are scraped, (4) This overrides ALL other priorities.
+- **Applies when**: ANY time you see null method_odds, null round_odds, null combo_odds, __NO_PROPS__, or "—" in a prop bet cell. The answer is ALWAYS "scrape first, display after."
 
 ## Critical — UFC Optimizer Scoring Mismatch (CATASTROPHIC, occurred 10+ times)
 
@@ -424,3 +433,14 @@
 - **Root cause**: Agent was defensive instead of investigative. Violated rule #6 (do it yourself) and rule #16 (extreme results = bug in your analysis).
 - **Fix**: When user says something is broken and shows evidence: (1) BELIEVE THEM. (2) Check the live site yourself via browser (Claude in Chrome), not curl. (3) Never say "nothing is wrong" when user shows a screenshot proving otherwise. (4) Apologize, investigate, fix.
 - **Applies when**: Any time the user reports a visual bug or site issue.
+
+### NEVER ACCEPT MISSING ODDS — ALWAYS SCRAPE TO BACKFILL — 2026-03-25
+- **Context**: UFC event table showed "✓ —" for method payout (won but "no odds to compute payout"). Agent marked this as correct.
+- **Bug**: Agent treated missing odds as an acceptable state and displayed "—" instead of a real payout value. This is NEVER acceptable.
+- **Root cause**: Agent was lazy — saw missing odds data and shrugged instead of running the odds scraper to backfill the missing data from BestFightOdds or other sources.
+- **Fix**: Missing odds = BROKEN DATA, not an edge case. When ANY cell shows "—" where a payout should be:
+  1. STOP — do not mark it as correct
+  2. Run the odds scraper/backfill script to fetch the missing odds
+  3. Only after backfill fails (source genuinely unavailable) can you mark it as "odds unavailable — source checked"
+  4. NEVER display "—" to the user and call it correct
+- **Applies when**: ANY sports prediction project, ANY bet type, ANY event. Missing odds = run scraper. Period.
