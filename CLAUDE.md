@@ -543,29 +543,39 @@ Also show the banner whenever the user switches models mid-session.
 
 ## Post-Change Report (MANDATORY — fires after EVERY codebase change)
 
-After ANY code change (bug fix, feature, algorithm update, config change, deploy, data update), end your response with this exact format:
+After ANY code change, you MUST actually DO all of these steps (not just report on them):
+1. **Commit + push to GitHub** — every change gets committed and pushed immediately
+2. **Bump the version number** — in package.json, version.js, or wherever the project tracks it
+3. **Deploy to Cloudflare** (if the project has a live site) — and verify it's live
+4. **Update the date tag** on the site if one exists
+
+Then end your response with this exact format:
 
 ```
 ---
-DONE:
-- [1-2 sentence plain English summary of what changed]
+DONE: [1-2 sentence plain English summary of what changed]
+GitHub: Synced and pushed (commit [short SHA])
+Version: Updated from v[old] → v[new]
+Deployed: Live on Cloudflare at [full URL]
+Notes: [anything else — or "None"]
+```
 
-VERIFIED:
-- Git: [committed + pushed / committed only / uncommitted — explain why]
-- Live: [deployed + verified / not deployed — explain why]
-- Version: [bumped to vX.Y.Z / not bumped — explain why]
-
-NOTES:
-- [anything the user should know — risks, follow-ups, things that looked off]
+**If the project is NOT a website** (e.g., skills repo, config files, scripts):
+```
+---
+DONE: [1-2 sentence summary]
+GitHub: Synced and pushed (commit [short SHA])
+Version: N/A — [reason]
+Deployed: N/A — [reason]
+Notes: [anything else — or "None"]
 ```
 
 Rules:
-- ALWAYS include this. No exceptions. Even for small changes.
-- If git isn't synced, say WHY (no remote, user didn't ask, etc.)
-- If not deployed, say WHY (backend-only change, user didn't ask, etc.)
-- If version wasn't bumped, say WHY (config-only change, etc.)
-- Keep it SHORT. 3-5 lines total. No paragraphs. No technical details unless critical.
-- This replaces any other end-of-task summary format.
+- ALWAYS include this block. No exceptions. Even for small changes.
+- You must ACTUALLY commit, push, bump version, and deploy — not just report that you didn't.
+- If you genuinely cannot do one of these steps (no remote, no live site, user explicitly said don't deploy), state WHY in that line.
+- The user should NEVER have to ask "did you push?" or "is it deployed?" — the answer is always in this block.
+- This replaces any other end-of-task summary format. No long paragraphs describing code changes — just this block.
 
 ## Superpowers Repo Sync (MANDATORY — after ANY skills/rules/hooks change)
 
