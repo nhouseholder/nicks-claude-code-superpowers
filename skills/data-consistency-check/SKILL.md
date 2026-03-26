@@ -69,6 +69,14 @@ For each category/card/row:
   Each category: W + L = total_bets_for_that_category
 ```
 
+### 7. Data Completeness
+For every bet/prediction where action was taken:
+- IF odds == null/missing/"—" AND a bet was placed → **DATA IS INCOMPLETE**
+- Action: Run the data pipeline (scraper/backfill) FIRST
+- NEVER display "—" for a bet that was placed — missing odds means RUN THE SCRAPER
+- NEVER skip to display/formatting fixes when the underlying data is missing
+- Only after the scraper confirms the source is genuinely unavailable (page deleted, event too old) can you note "odds unavailable — scraper checked [source] on [date]"
+
 ## How to Check
 
 1. Read each card/row and verify checks 1-3 independently

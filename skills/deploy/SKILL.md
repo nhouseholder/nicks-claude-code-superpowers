@@ -24,6 +24,26 @@ echo "Building version: $VERSION"
 ```
 **ABORT** if version.js shows v10.x or lower. You are in the stale root `webapp/` directory.
 
+### Pre-Deploy Safety Gates (MANDATORY — before ANY deploy command)
+
+**Gate 1: Clean Working Tree**
+Run `git status`. If there are uncommitted changes, commit them first. NEVER deploy uncommitted code. A deploy without a backing git commit means the next deploy from git will OVERWRITE your changes. This caused permanent data loss on researcharia.com (2026-03-26).
+
+**Gate 2: CF vs Git Timestamp Check (FAILSAFE 9)**
+Compare last Cloudflare deployment timestamp to last git commit:
+```bash
+npx wrangler@3.99.0 deployments list 2>&1 | tail -20  # Last CF deploy date
+git log -1 --format='%ci' -- public/                    # Last git commit to public/
+```
+If CF was deployed MORE RECENTLY than git's last public/ commit: STOP. Someone deployed changes directly to CF without committing. Deploying from git will OVERWRITE those changes with NO recovery path.
+
+**Gate 3: Version Regression Check (Universal)**
+Before deploying ANY project:
+1. Read the local build version (version.js, package.json, or equivalent)
+2. Check the live site version (curl or Claude in Chrome)
+3. If local version < live version: ABORT and alert the user
+This is NOT UFC-specific — it applies to ALL projects.
+
 ### 1. Pre-Flight Checks
 ```bash
 # Run linter

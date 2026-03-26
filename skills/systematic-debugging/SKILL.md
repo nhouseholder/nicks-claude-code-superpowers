@@ -10,6 +10,23 @@ weight: light
 
 **ROOT CAUSE FIRST** — except for obvious fixes (typos, missing imports, wrong variable names) where the cause IS the fix. For anything non-trivial, complete Phase 1 before proposing fixes.
 
+## Phase 0: Determine Mode (BEFORE investigating)
+
+When the user asks about data quality or correctness, determine whether they want an AUDIT or a FIX:
+
+**READ MODE triggers:** "check", "audit", "review", "what's wrong with", "look at", "inspect", "verify", "go through each"
+→ First action: READ the existing data/output
+→ Identify specific errors item-by-item
+→ List what's wrong BEFORE proposing any fix
+→ Only THEN suggest the fix approach
+
+**FIX MODE triggers:** "fix", "run", "regenerate", "re-run", "update", "rebuild", "re-score"
+→ Proceed to Phase 1
+
+**DEFAULT:** If ambiguous, start in READ MODE. You can always escalate to FIX MODE after identifying specific issues. The reverse wastes the user's time — they asked you to CHECK, not to blindly re-run everything.
+
+**Anti-pattern:** User says "go through every event table and audit them" → Claude runs the backtester. This skips the audit entirely. The correct response is to open each event table, inspect each cell, list the errors, THEN propose using the backtester to fix them.
+
 ## The Four Phases
 
 Complete each phase before proceeding to the next.

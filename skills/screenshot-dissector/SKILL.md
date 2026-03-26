@@ -107,3 +107,9 @@ Only include "Also spotted" if there ARE additional issues. Don't invent problem
 5. **Read DevTools first** — If console/network panels are visible, read them BEFORE theorizing about the code
 6. **Cross-reference** — Connect visual symptoms to code paths using your codebase knowledge
 7. **One response** — Report all findings in a single structured response, not a back-and-forth
+
+### User Evidence Primacy
+**User's eyes beat your tools.** If the user's screenshot contradicts your curl/wget/grep output, the screenshot is correct. CDN caching, stale builds, and edge servers mean CLI tools can show outdated content. When there's a discrepancy:
+1. Verify via Claude in Chrome (browser), NOT curl
+2. Never say "nothing is wrong" when the user provides visual evidence of a problem
+3. The user seeing a bug IS the bug — investigate, don't argue

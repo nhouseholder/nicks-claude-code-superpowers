@@ -206,6 +206,13 @@ VERIFY: [how to confirm this bug isn't present]
 9. **Regressions are treated as CRITICAL** — fixing X and breaking Y is worse than not fixing X
 10. **The user should NEVER have to report the same bug twice** — if they do, the learning system failed
 
+### User Evidence Primacy
+When the user reports a visual bug or provides a screenshot:
+1. BELIEVE THEM — their browser is showing the real state
+2. Verify via Claude in Chrome, NEVER via curl (CDN caching lies)
+3. Never argue "it looks fine to me" based on CLI output when user has visual proof
+4. The user's screenshot IS the ground truth — your job is to figure out WHY it looks wrong, not WHETHER it's wrong
+
 ## Integration with Other Skills
 
 - **error-memory**: Website Guardian handles the investigation; error-memory handles the persistence format

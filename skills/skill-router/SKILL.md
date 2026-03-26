@@ -126,6 +126,21 @@ When you notice a task matches a skill, use it. No mandatory scan required — j
 
 Execute automatically at high confidence. Confirm briefly when uncertain.
 
+### Destructive Command Pairs (MUST disambiguate)
+
+When the user's words could map to either a read-only or a write/destructive command, ALWAYS default to the read-only interpretation unless the user explicitly says the destructive one.
+
+| User says | READ-ONLY (default) | WRITE/DESTRUCTIVE | Rule |
+|-----------|--------------------|--------------------|------|
+| "review handoff" | /review-handoff | /full-handoff | ALWAYS use READ |
+| "check/audit/look at [data]" | Read and inspect | Re-run pipeline | Default to READ |
+| "review the deploy" | Check CF status | Deploy | Default to READ |
+| "check the site" | Open in browser | Deploy/update | Default to READ |
+| "update handoff" / "prepare handoff" | — | /full-handoff | This IS the write intent |
+| "deploy" / "ship it" / "go live" | — | /deploy | This IS the write intent |
+
+**The rule:** Ambiguous = READ. Only WRITE when the user uses unambiguous write language ("deploy", "update", "fix", "run", "regenerate", "ship").
+
 ## 4. Drift Prevention
 
 For tasks taking 10+ tool calls:
