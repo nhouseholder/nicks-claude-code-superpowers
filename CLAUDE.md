@@ -507,7 +507,16 @@ The goal: **no bug is ever fixed twice the same way.** Every fix becomes institu
 6. **Do it yourself first** — NEVER tell the user to do something manually if you can do it autonomously. Before saying "go to your browser and check X" or "open the site and verify Y", ask: can I do this with Claude in Chrome, Wrangler CLI, curl, or any other tool I have? If yes, do it yourself. Take the most token-efficient path. The user hired an autonomous agent, not a task list generator.
 7. **Simplest fix first** — "Wrong approach" is the #2 friction type (18 occurrences). Before building a complex solution, ask: "Is there a 5-line fix?" Try the targeted change before the architectural refactor. If the simple fix doesn't work, THEN escalate. Never start with the complex approach.
 8. **Commit between tasks** — In multi-task sessions, commit each task's results before starting the next. Rate limits kill 79% of sessions before all tasks complete. Saved work > attempted work.
-9. **Use commands when they exist** — If the user's request matches an installed command (`/full-handoff`, `/site-audit`, `/site-redesign`, `/deploy`, `/fix-loop`, `/backtest`, `/audit`), invoke it via the Skill tool. Do NOT improvise your own version of what the command already does. The command has a tested, structured pipeline — ad-hoc approaches are slower and miss steps.
+9. **Use commands when they exist** — If the user's request matches an installed command, invoke it via the Skill tool. Do NOT improvise your own version of what the command already does. The command has a tested, structured pipeline — ad-hoc approaches are slower and miss steps. **Site-specific commands MUST be used when working on their site:**
+   - `/mmalogic` — mmalogic.com (UFC)
+   - `/update-diamond` — diamondpredictions.com (MLB+NHL)
+   - `/update-courtside` — courtside-ai.pages.dev (NBA+NCAA)
+   - `/update-mystrainai` — mystrainai.com
+   - `/update-enhancedhealth` — enhancedhealthai.com
+   - `/update-researcharia` — researcharia.com
+   - `/update-nestwisehq` — nestwisehq.com
+
+   **Auto-invocation:** When Claude detects it needs to update/deploy/fix ANY of these sites — even from a different project session — it MUST self-invoke the corresponding command. Don't ad-hoc a deploy; call the command.
 10. **Handoff = /full-handoff always** — Any mention of "handoff", "prepare handoff", "get handoff ready", "end session", or "wrap up" MUST invoke `/full-handoff` via the Skill tool. Never write a custom handoff document manually. The command has 16 mandatory sections and 3-location sync that manual handoffs always miss.
 11. **Read before running scripts** — Before running ANY script that scrapes external data, makes API calls, or takes >30 seconds: (1) `grep -i 'skip\|cache\|fast\|mode\|mock\|dry.run\|offline' script.py` to find speed flags, (2) use the fastest mode first (cache-only, skip-scrape, dry-run), (3) only run the full slow version if the fast mode's output is insufficient. Never run a 20-minute scraping script and poll it every 60 seconds — that wastes 20+ tool calls on waiting.
 12. **Never poll background tasks** — If a script takes >2 minutes, either: (a) run it with `run_in_background` and work on other tasks while it completes, or (b) run it with a long timeout (up to 10 min) in the foreground. Do NOT enter a sleep-check-wait-check loop. Each poll costs a tool call and produces no value. If a background task seems stuck after 5 minutes at 0% CPU, kill it and try with faster flags — don't wait 16 minutes hoping it unsticks.
