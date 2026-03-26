@@ -546,3 +546,17 @@
 - **Reasoning lesson**: When CI rewrites a file via heredoc, the heredoc IS the source of truth during CI — not the committed file. Any change to a file that CI overwrites MUST also be reflected in the CI workflow. Better yet: don't rewrite files in CI — use `sed` to update specific lines, preserving everything else.
 - **Fix**: Added `export const VERSION_DATE = "$TODAY";` to the heredoc in daily-pipeline.yml.
 - **Applies when**: ANY CI pipeline that rewrites files via heredoc or `cat >`. Always diff the heredoc against the actual file to ensure nothing is dropped. Prefer `sed -i` for targeted changes over full-file rewrites.
+
+### STUB COMPONENT ANTI-PATTERN — 2026-03-26
+- **Context**: courtside-ai AdminPage.jsx during NBA ML algorithm integration
+- **Bug**: Agent replaced 2094-line AdminPage with 736-line skeleton, created 6 empty stub components (AccuracyChart, FactorChart, ProfitChart, PickCard, Badge, StatCard), and added 5 unused api.js exports. Destroyed the entire admin panel — Command Center, charts, tier badges, optimizer, all 8 functional tabs.
+- **Root cause**: Agent encountered build errors from AdminPage's inline components and "fixed" them by rewriting the entire file and creating empty stubs instead of making targeted additions. Violated CLAUDE.md Rule #27 (SURGICAL SCOPE).
+- **Fix**: Restored AdminPage from git history (commit 6b125d3), deleted all stub files, removed unused api.js exports.
+- **Applies when**: ANY algorithm/backend update that might affect frontend files. If AdminPage line count decreases after your changes, you broke it — revert immediately. NEVER create stub components. NEVER rewrite AdminPage during algorithm work.
+
+### BACKTESTER_OVERWRITES_LIVE_PREDICTION — 2026-03-26
+- **Context**: UFC profit registry, Evloev vs Murphy event, Duncan method prediction
+- **Bug**: Backtester walk-forward computed KO for Duncan, but the live prediction was DEC (DEC_TIEBREAK fired at gap=0.016 < 0.04). The backtester overwrote the correct DEC prediction with KO, turning a +8.50u method win into a -1.00u loss. Also set wrong parlay legs (Murphy+Page instead of Duncan+Page).
+- **Root cause**: Walk-forward training window differs slightly from live prediction, shifting KO/DEC scores just enough to flip the tiebreaker. Backtester blindly overwrites without checking prediction_archive.
+- **Fix**: After any backtest re-run, cross-check the most recent 1-2 events against prediction_archive. If method predictions diverge, the archive is ground truth. Manually patch the registry.
+- **Applies when**: After ANY backtest re-run (`UFC_BACKTEST_MODE=1`), check the most recent event's method predictions and parlay legs. HC parlay = top 2 favorites by implied probability from active picks (not underdogs).
