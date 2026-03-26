@@ -10,6 +10,20 @@ Full deployment pipeline with verification and rollback for Cloudflare-hosted pr
 
 ## Workflow
 
+### 0. MANDATORY — Verify Deploy Source Directory (UFC/MMALogic ONLY)
+**This step exists because a catastrophic deploy in March 2026 overwrote v11.9.3 with v10.68 by deploying from a stale directory.**
+
+Before ANY deploy for the UFC/MMALogic project:
+```bash
+# CHECK: Are we in the CANONICAL webapp directory?
+VERSION=$(grep "APP_VERSION" src/config/version.js 2>/dev/null || echo "NO_VERSION")
+echo "Building version: $VERSION"
+# ABORT if version is below v11.x — you are in the WRONG directory
+# The canonical source is ALWAYS: ufc-predict/webapp/frontend/
+# The root webapp/ is ARCHIVED and must NEVER be deployed
+```
+**ABORT** if version.js shows v10.x or lower. You are in the stale root `webapp/` directory.
+
 ### 1. Pre-Flight Checks
 ```bash
 # Run linter

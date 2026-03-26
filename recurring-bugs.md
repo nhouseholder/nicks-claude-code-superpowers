@@ -32,3 +32,16 @@ Each entry: Bug category | Times reported | Last occurrence | Root cause pattern
 - **Root cause**: Not checking baseline values before editing. No "before vs after" comparison.
 - **Escalation**: Record baseline values for ALL related metrics BEFORE making any changes. Compare after.
 - **Last**: 2026-03-22
+
+### DEPLOYED FROM WRONG SOURCE DIRECTORY — 1x reported (CATASTROPHIC)
+- **Pattern**: Manual deploy built from stale root `webapp/` (v10.68) instead of canonical `ufc-predict/webapp/` (v11.9.3+), overwriting live production site with months-old code
+- **Root cause**: Two `webapp/` directories exist. Agent didn't verify version.js before deploying. No pre-deploy version check in the deploy pipeline.
+- **Escalation**: (1) Root `webapp/` archived to `archive/webapp_ROOT_STALE_v10.68/`. (2) Anti-pattern logged. (3) MANDATORY PRE-DEPLOY CHECK: read version.js and verify it shows expected version BEFORE building. Canonical source is ALWAYS `ufc-predict/webapp/frontend/`.
+- **Prevention**: The deploy skill/command must include a step that checks version.js and aborts if it doesn't match the expected version range.
+- **Last**: 2026-03-25
+
+### SCREENSHOT REVIEW CARELESSNESS — 2x reported (HIGH)
+- **Pattern**: Agent says "looks correct" or "no obvious bugs" without systematically checking each display element. User finds 11+ bugs that were plainly visible.
+- **Root cause**: Agent visually scans instead of checking against structured checklist. No protocol for screenshot verification.
+- **Escalation**: Created `~/.claude/memory/topics/ufc_website_maintenance_rules.md` (15-point checklist + 19 display rules). MUST be read before reviewing ANY screenshot or claiming any page is correct. Never say "looks correct" without checking each item.
+- **Last**: 2026-03-25
