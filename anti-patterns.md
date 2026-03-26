@@ -490,3 +490,48 @@
   3. The user explicitly says the file is outdated
   Without this evidence, the file is NOT stale — it's a version discrepancy that needs investigation, not deletion.
 - **Applies when**: cleanup-old-files skill, any archival operation, any deploy that overwrites, any time the word "stale" is used about files or assets
+
+### BREAKING GITHUB ACTIONS / INTEGRATIONS DURING SIMPLE FIXES — 2026-03-26
+- **Context**: Diamond Predictions (NHL) — admin page GitHub Actions buttons stopped working after a "simple fix"
+- **Bug**: After Claude applied a code change, the "Generate Picks" button broke with 422 error: `Workflow does not have 'workflow_dispatch' trigger`. The workflow file was modified or replaced, losing the `workflow_dispatch` trigger that the admin page button depends on.
+- **Root cause**: Claude edited or replaced a `.github/workflows/` file without understanding that the admin page UI buttons call `workflow_dispatch` via GitHub API. Removing or renaming the workflow broke the integration silently.
+- **Fix**: CLAUDE.md rule #29 — before editing ANY file with API calls, webhook URLs, or GitHub Actions triggers, identify all integrations first and preserve them. After editing, verify every integration still works.
+- **Applies when**: ANY edit to workflow files, API route files, admin page JS, or any code that wires UI buttons to external services. ALWAYS verify action buttons work after ANY deploy.
+
+### UNSOLICITED FRONTEND DESTRUCTION DURING BACKEND UPDATES — 2026-03-26
+- **Context**: courtside-ai (NCAA/NBA) — user asked for algorithm update only
+- **Bug**: Claude destroyed the admin page frontend while applying an algorithm update. Lost all frontend for the most important pages on the website.
+- **Root cause**: Claude treated a focused task ("update algorithm") as permission to touch any file in the project. It "cleaned up" or "improved" admin page HTML/CSS that it was never asked to modify, destroying working frontend.
+- **Fix**: CLAUDE.md rule #27 "SURGICAL SCOPE" — when given a focused task, ONLY modify files directly related to that task. If you notice other issues, NOTE them for the user. Never fix unsolicited problems.
+- **Applies when**: ANY focused task (algorithm update, config change, data fix, API change). The blast radius of changes must match the scope of the request. EVERY TIME.
+
+### DIRECTORY RENAME KILLS ALL ACTIVE SESSIONS — 2026-03-26
+- **Context**: Superpowers/skills audit session, renaming iCloud `***Projects***` to `ProjectsHQ`
+- **Bug**: Renaming the iCloud folder that all project sessions were opened from killed 7 active Claude Code sessions simultaneously. Sessions show "Folder no longer exists" with no recovery path. All in-progress work context was lost — handoffs in the projects were from session START, not from the crash point.
+- **Root cause**: Claude Code sessions are tied to their absolute directory path. If the underlying folder is renamed/moved/deleted, the session dies instantly with no graceful shutdown, no auto-handoff, no warning.
+- **Flawed assumption**: "Renaming is safe because the symlink will still work." The symlink works for NEW sessions, but EXISTING sessions stored the raw iCloud path, not the symlink path.
+- **Reasoning lesson**: NEVER rename, move, or delete any directory that could have active Claude Code sessions without: (1) warning the user about session loss, (2) verifying handoffs are current in each project, (3) getting explicit user approval. A directory rename is a DESTRUCTIVE operation for sessions.
+- **Fix**: Before any directory rename/move: list all projects in that directory, warn "This will kill N active sessions — their in-progress context will be lost. Handoffs may be outdated. Proceed?", and only continue with explicit approval.
+- **Applies when**: ANY mv, rename, or restructuring of directories under ~/Projects, ~/Library/Mobile Documents, or any path that Claude Code sessions may be opened from
+
+---
+
+### REPO_CONSOLIDATION_BROKE_PIPELINE_TRIGGER — 2026-03-26
+- **Context**: Diamond Predictions NHL pipeline, trigger-pipeline.js (Cloudflare Function), nhl_predict/config.py
+- **Bug**: After consolidating NHL algorithm from icebreaker-ai into diamond-predictions, the "Generate Picks" button returned 422 error ("Workflow does not have 'workflow_dispatch' trigger") and the daily cron pipeline crashed with `AttributeError: module 'nhl_predict.config' has no attribute 'MLB_WEBAPP_DATA'`.
+- **Root cause**: Two incomplete migration steps during repo consolidation: (1) trigger-pipeline.js still pointed to `icebreaker-ai/daily-pipeline.yml` which was renamed to `.disabled`, (2) `MLB_WEBAPP_DATA` path constant was removed from config.py but still referenced in daily_pipeline.py's cross-write functions.
+- **Flawed assumption**: "Moving the algorithm code is sufficient — the CI/CD and serverless functions will keep working." Wrong. Consolidating a repo requires auditing ALL consumers: GitHub Actions, Cloudflare Functions, API endpoints, admin buttons, and config references.
+- **Reasoning lesson**: Repo consolidation is NOT just moving code. It requires a full consumer audit: grep for the old repo name in ALL files (*.js, *.yml, *.py, *.json), verify every workflow still has its triggers, and test the entire pipeline end-to-end before closing the old repo.
+- **Fix**: Updated trigger-pipeline.js to point to `diamond-predictions/nhl-daily-pipeline.yml` and added `MLB_WEBAPP_DATA` path to nhl_predict/config.py.
+- **Applies when**: ANY repo consolidation, migration, or archival — ALWAYS: (1) grep the entire codebase for the old repo name, (2) verify all workflow_dispatch triggers still exist, (3) run a test pipeline dispatch before marking the migration complete
+
+## CATASTROPHIC — Algorithm Update Destroyed Frontend (2026-03-26)
+
+### ADMIN_PAGE_REPLACED_DURING_ALGORITHM_UPDATE — 2026-03-26
+- **Context**: Courtside AI, AdminPage.jsx (2094 lines → 736 lines), during NBA ML moneyline system integration
+- **Bug**: Adding backend algorithm features (NBA ML model, grading pipeline) caused the entire AdminPage.jsx to be rewritten from scratch. The Command Center with NCAA+NBA picks, tier badges, Recharts charts, optimizer panel, and 8 functional tabs was replaced with a 6-tab simplified version using empty stub components. User lost all admin functionality.
+- **Root cause**: Claude rewrote AdminPage.jsx instead of surgically modifying it. Created 6 stub component files (StatCard, Badge, AccuracyChart, FactorChart, ProfitChart, PickCard) that the new simplified AdminPage imported, replacing the self-contained real components. Also added 3 dead stub exports to api.js.
+- **Flawed assumption**: "The AdminPage needs to be modernized alongside the algorithm update." WRONG. The algorithm update only needed backend changes (grading functions, prediction code, NbaPickCard badge). The AdminPage was working perfectly and did NOT need to be touched.
+- **Reasoning lesson**: Algorithm/backend updates MUST be surgical. NEVER rewrite or restructure frontend files during a backend task. The blast radius of a change must match the scope of the request. If the task is "add NBA ML system," you touch: prediction scripts, grading functions, pick card component, and NOTHING else.
+- **Fix**: Restored AdminPage.jsx from git commit 6b125d3 (last good version). Removed 6 stub files. Removed 3 dead api.js exports. Added LossAnalysisTab as an additive change to the restored file.
+- **Applies when**: ANY algorithm update, model change, or backend feature addition — NEVER modify AdminPage.jsx structure, NEVER replace working frontend components, NEVER create stub files for things that already work. Check file line count before and after — if it shrinks, you broke it.

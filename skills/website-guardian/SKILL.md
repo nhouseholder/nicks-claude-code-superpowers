@@ -12,6 +12,20 @@ triggers:
 
 # Website Guardian — Stop Breaking Things
 
+## RULE ZERO: Surgical Scope (MANDATORY — READ FIRST)
+
+**Only touch files directly related to the task you were given. NOTHING ELSE.**
+
+- Algorithm update? Touch algorithm files ONLY. Do NOT touch HTML, CSS, admin pages, dashboards, or frontend components.
+- Data fix? Touch data files ONLY. Do NOT restructure the UI that displays them.
+- Config change? Touch config ONLY. Do NOT "improve" nearby code.
+- If you notice other issues while working, **NOTE them for the user in your response.** Do NOT fix them.
+- The blast radius of your changes MUST match the scope of the request.
+
+**This rule exists because Claude has repeatedly destroyed admin pages, lost entire frontend redesigns, and broken working UIs by making unsolicited "improvements" during focused backend tasks (courtside-ai NCAA admin page destroyed during algorithm update, researcharia.com redesign lost during backend deploy). These incidents caused hours of lost work.**
+
+**Violation of this rule is a CRITICAL failure — worse than not completing the task at all. A working site with an incomplete backend update is infinitely better than a broken site with a "complete" update.**
+
 ## Why This Exists
 
 Claude has a pattern of breaking websites during updates:
@@ -20,6 +34,7 @@ Claude has a pattern of breaking websites during updates:
 3. Claims "fixed" without verifying the actual rendered output
 4. Doesn't learn — the same bugs recur across sessions
 5. Doesn't follow its own maintenance instructions
+6. **Makes unsolicited changes to files outside the task scope**
 
 **This skill makes it impossible to skip verification.** It is not optional. It is not "nice to have." Every website change goes through this gate.
 
@@ -50,8 +65,17 @@ Working features:
   - [ ] Feature A: [current state, specific values]
   - [ ] Feature B: [current state, specific values]
   - [ ] Feature C: [current state, specific values]
+Working integrations (CRITICAL — these break silently):
+  - [ ] GitHub Actions buttons (workflow_dispatch triggers)
+  - [ ] API endpoints called by UI buttons
+  - [ ] Cron/scheduled job triggers
+  - [ ] OAuth/auth service connections
+  - [ ] External service webhooks
+  - [ ] "Generate Picks" / "Refresh Data" / any action buttons
 Screenshots taken: [yes/no — take them if you have Claude in Chrome]
 ```
+
+**Integration preservation rule:** Any code that calls external APIs, triggers GitHub Actions, connects to webhooks, or wires UI buttons to backend services is SACRED. If you don't understand what it does, DON'T TOUCH IT. If you're editing a file that contains integration code, preserve it character-for-character unless explicitly told to change it. After every edit, verify ALL integration buttons still work.
 
 **The baseline is your safety net.** If you can't describe what's working NOW, you can't tell if you broke it.
 
