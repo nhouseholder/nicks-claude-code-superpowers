@@ -28,7 +28,17 @@ Read these yourself (no agent):
 - `~/.claude/anti-patterns.md` — has this bug been seen before? If YES: announce it, show the prior fix, use an ESCALATED approach (the prior fix was insufficient).
 - `~/.claude/recurring-bugs.md` — repeat offender?
 - Project MEMORY.md
-- If UFC project: `~/.claude/memory/topics/ufc_website_maintenance_rules.md`
+
+**CRITICAL: Load site-specific domain knowledge.** Match current project to its update command and READ IT:
+- `ufc-predict` / `mmalogic` → `~/.claude/commands/mmalogic.md` + `~/.claude/memory/topics/ufc_website_maintenance_rules.md`
+- `diamond-predictions` → `~/.claude/commands/update-diamond.md`
+- `courtside-ai` → `~/.claude/commands/update-courtside.md`
+- `Strain-Finder` / `mystrainai` → `~/.claude/commands/update-mystrainai.md`
+- `enhanced-health` → `~/.claude/commands/update-enhancedhealth.md`
+- `aria-research` → `~/.claude/commands/update-researcharia.md`
+- `dad-financial` → `~/.claude/commands/update-nestwisehq.md`
+
+The update command defines what "working correctly" looks like for this site — integration registry, domain rules, known anti-patterns. **Use it to understand the bug in context.**
 
 **Write:** `_debug/phase0_context.md`
 

@@ -34,9 +34,24 @@ ps aux | grep -E "(next|vite|express|flask|uvicorn|wrangler)" | grep -v grep 2>/
 Read anti-patterns and project memory yourself:
 - `~/.claude/anti-patterns.md`
 - Project MEMORY.md if it exists
-- `~/.claude/memory/topics/ufc_website_maintenance_rules.md` if this is a UFC project
 
-**Write:** `_audit/phase0_context.md` with project summary.
+**CRITICAL: Load site-specific domain knowledge.** Match the current project to its update command and READ IT:
+
+| Project directory contains | Read this command for domain knowledge |
+|---------------------------|---------------------------------------|
+| `ufc-predict` or `mmalogic` | `~/.claude/commands/mmalogic.md` + `~/.claude/memory/topics/ufc_website_maintenance_rules.md` |
+| `diamond-predictions` or `diamondpredictions` | `~/.claude/commands/update-diamond.md` |
+| `courtside-ai` | `~/.claude/commands/update-courtside.md` |
+| `Strain-Finder` or `mystrainai` | `~/.claude/commands/update-mystrainai.md` |
+| `enhanced-health` or `enhancedhealthai` | `~/.claude/commands/update-enhancedhealth.md` |
+| `aria-research` or `researcharia` | `~/.claude/commands/update-researcharia.md` |
+| `dad-financial` or `nestwisehq` | `~/.claude/commands/update-nestwisehq.md` |
+
+The update command contains: canonical paths, integration registry, domain rules, known anti-patterns, and the exact output format for that site. **Use this as your audit checklist — it defines what "correct" looks like for this specific site.**
+
+If none match, fall back to generic audit.
+
+**Write:** `_audit/phase0_context.md` with project summary + which site-specific command was loaded.
 
 ## Phase 1: Codebase Reconnaissance (~2 min, main agent)
 
@@ -64,7 +79,12 @@ Read and follow these protocols:
 Your task:
 - Read every page/component file listed in phase1_recon.md
 - For EACH file, check: accessibility (ARIA, contrast, touch targets), performance (unnecessary re-renders, missing memo, barrel imports), design quality (generic fonts? boring layouts?), responsive design, missing states (empty/loading/error)
-- If UFC project: read ~/.claude/memory/topics/ufc_website_maintenance_rules.md and check ALL 15 items
+- Read the site-specific update command identified in Phase 0 and check EVERY item in its integration registry and domain rules
+- For UFC: read ~/.claude/memory/topics/ufc_website_maintenance_rules.md and check ALL 15 items
+- For Diamond: verify both NHL and MLB tabs work, all GitHub Actions buttons trigger correctly
+- For Courtside: verify admin page is intact (ALL tabs, ALL buttons — this was destroyed before)
+- For ResearchAria: verify D1 database, paper search, login flow, auto-fetch pipeline
+- For ALL sites: test every action button (Generate Picks, Refresh Data, etc.) — don't just check they render, click them and verify the response
 
 Output format — write to _audit/phase2_frontend.md:
 ## P0 — Critical (crashes, security, data wrong)
