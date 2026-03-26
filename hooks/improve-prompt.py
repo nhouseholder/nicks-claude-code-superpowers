@@ -176,8 +176,12 @@ ROUTES = [
     (r"full.*audit|site.*audit|audit.*site|audit.*app|comprehensive.*audit",
      110, "_cmd:/site-audit"),
 
-    # Handoff (highest priority)
-    (r"handoff|hand.?off|prepare.*handoff|session.*handoff|get.*handoff.*ready|end.*session|wrap.*up.*session",
+    # Review handoff (READ-ONLY — orient from previous session, NOT write a new one)
+    (r"review.*handoff|read.*handoff|pick.*up.*where|orient.*yourself|continue.*from.*last|what.*was.*last.*session",
+     130, "_cmd:/review-handoff"),
+
+    # Full handoff (WRITE — generate new handoff at session end)
+    (r"full.*handoff|prepare.*handoff|session.*handoff|get.*handoff.*ready|end.*session|wrap.*up.*session|write.*handoff",
      120, "_cmd:/full-handoff"),
 
     # Redesign
