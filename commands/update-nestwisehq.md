@@ -55,6 +55,26 @@ echo "Local: $LOCAL_SHA | Remote: $REMOTE_SHA"
 6. Deploy via OpenNext/Wrangler
 7. Verify live at https://nestwisehq.com
 
+## Learning & Growth (MANDATORY — fires after EVERY task)
+
+This agent learns from every interaction. After EVERY task:
+
+1. **Read project CLAUDE.md first** — The project's own repo may have a CLAUDE.md with site-specific rules, known issues, and conventions. Read it BEFORE doing any work. It's the project's institutional knowledge.
+
+2. **New bug found?** → Append to `~/.claude/anti-patterns.md` with project prefix (e.g., "### [NESTWISEHQ] Prisma connection timeout")
+
+3. **New integration discovered?** → Update the Integration Registry section in THIS command file
+
+4. **New domain rule learned?** → Update the Domain Rules section in THIS command file
+
+5. **Recurring bug?** → Check `~/.claude/recurring-bugs.md` — if this bug appeared before, escalate: the prior fix was insufficient. Add to recurring-bugs.md with recurrence count.
+
+6. **Project CLAUDE.md needs updating?** → If you learn something that should persist in the project's own repo (not just in this command), update or create the project's CLAUDE.md with the new knowledge.
+
+7. **Commit knowledge updates** to GitHub via the superpowers sync workflow.
+
+**The goal: no bug is ever fixed twice the same way. Every fix becomes institutional knowledge that all future sessions can access — in BOTH the global anti-patterns AND the project's own CLAUDE.md.**
+
 ## Output Format
 
 ```
