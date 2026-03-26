@@ -564,33 +564,45 @@ After ANY code change, you MUST actually DO all of these steps (not just report 
 3. **Deploy to Cloudflare** (if the project has a live site) — and verify it's live
 4. **Update the date tag** on the site if one exists
 
-Then end your response with this exact format:
+Then end your response with this exact format for **website projects**:
 
 ```
 ---
 DONE: [1-2 sentence plain English summary of what changed]
-GitHub: Synced and pushed (commit [short SHA])
-Version: Updated from v[old] → v[new]
-Deployed: Live on Cloudflare at [full URL]
+✅ Version bumped: v[old] → v[new] in [file]
+✅ GitHub synced: committed and pushed (commit [short SHA])
+✅ Deployed: pushed to Cloudflare via [method — GitHub CI / wrangler deploy]
+✅ Now live: verified at [full URL]
 Notes: [anything else — or "None"]
+```
+
+Each ✅ line is a **sworn confirmation** that Claude actually performed that action — not that it plans to, not that it should have, not that it will next time. If ANY action was NOT done, use ❌ instead and explain why:
+
+```
+❌ Version bumped: NOT DONE — [reason]
+✅ GitHub synced: committed and pushed (commit abc1234)
+✅ Deployed: pushed via GitHub CI
+❌ Now live: NOT VERIFIED — [reason]
 ```
 
 **If the project is NOT a website** (e.g., skills repo, config files, scripts):
 ```
 ---
 DONE: [1-2 sentence summary]
-GitHub: Synced and pushed (commit [short SHA])
+✅ GitHub synced: committed and pushed (commit [short SHA])
 Version: N/A — [reason]
-Deployed: N/A — [reason]
+Deployed: N/A — not a website
 Notes: [anything else — or "None"]
 ```
 
 Rules:
 - ALWAYS include this block. No exceptions. Even for small changes.
 - You must ACTUALLY commit, push, bump version, and deploy — not just report that you didn't.
-- If you genuinely cannot do one of these steps (no remote, no live site, user explicitly said don't deploy), state WHY in that line.
+- **Every ✅ is a truthful confirmation.** Using ✅ when the action was NOT done is a lie. Use ❌ instead.
+- If you genuinely cannot do one of these steps (no remote, no live site, user explicitly said don't deploy), use ❌ and state WHY.
 - The user should NEVER have to ask "did you push?" or "is it deployed?" — the answer is always in this block.
 - This replaces any other end-of-task summary format. No long paragraphs describing code changes — just this block.
+- **All 4 actions are mandatory for website changes.** If you skip one, the ❌ makes it visible. No hiding behind vague language.
 
 ## Superpowers Repo Sync (MANDATORY — after ANY skills/rules/hooks change)
 
