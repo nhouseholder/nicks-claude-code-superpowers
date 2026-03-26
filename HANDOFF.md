@@ -1,123 +1,126 @@
-# Handoff — aria-research — 2026-03-25 03:00
+# Handoff — Superpowers (Claude Code Skills System) — 2026-03-25 02:00
 ## Model: Claude Opus 4.6 (1M context)
-## Previous handoff: HANDOFF.md (v3.0.0 redesign session — 2026-03-24)
+## Previous handoff: handoff_20260324_2145.md
 
 ---
 
 ## 1. Session Summary
-User wanted to fix UX issues with the v3.0.0 redesign landing page (Sign In button broken, hover text unreadable, too much contrast, too corporate/generic feel), then pivoted to a major feature request: PRISMA-level systematic review capabilities. Redesigned landing page to a distinctive split-screen layout. Built a complete Evidence Synthesis section with comparison matrix, AI evidence summary, and library stats. Fixed the citation system. Added paper filters.
+Massive infrastructure session. Upgraded all 14 commands (deleted 3, elevated 11), built `/mmalogic` dedicated agent, created permanent prevention for v10.68 deploy disaster + UFC site bugs, added file freshness rules (Rule 22), fixed Enhanced Health AI CI, mapped all 26 GitHub repos across 30+ local directories, and built `/reorganize-all` to consolidate everything into `~/Projects/`. The reorganize command is written but NOT yet executed (2 active UFC sessions must close first).
 
 ## 2. What Was Done (Completed Tasks)
-- **Landing page redesign**: `public/index.html`, `public/styles.css` — Replaced generic hero+features+pricing+CTA+footer with a split-screen layout (navy brand panel left, auth+CTA right). All content on one screen, no scrolling.
-- **Evidence Synthesis section**: `public/index.html`, `public/app.js`, `public/styles.css`, `src/routes/synthesis.ts`, `src/index.ts` — New sidebar nav item + 3-tab section (Comparison Matrix, Library Stats, Evidence Summary)
-- **Paper Library filters**: `public/index.html`, `public/app.js`, `src/routes/papers.ts` — Filter bar with methodology, study design, year range, enriched-only toggle
-- **Fix citation system**: `src/routes/chat.ts` — Added doi/pmid to SELECT queries, updated prompt for numeric [N] citations
-- **Synthesis backend**: `src/routes/synthesis.ts` (new), `src/index.ts` — Three endpoints with auth middleware
+- **Command audit + upgrade**: All 14 commands reviewed. Deleted 3 deprecated stubs. Upgraded 4 thin wrappers to pre-check→execute→verify. Elevated 4 site commands (inter-phase files, max 2 agents, --quick/--phase modes). Upgraded /full-handoff (12 improvements), /mem (unified memory), /skill-insights (fast mode), /z (status+recovery).
+- **UFC prevention**: 15-item checklist (`ufc_website_maintenance_rules.md`), wrong-directory deploy prevention (Rule 21 + deploy Phase 0), site-update-protocol updated (rules 11-15 + canonical directory gate)
+- **Built /mmalogic**: Dedicated UFC website agent — loads 6 knowledge files, freshness check vs GitHub, routes to update/debug/audit/redesign, self-updates after every task
+- **CLAUDE.md Rules 20-23**: No narration pauses, deploy verification, file freshness, UFC→/mmalogic
+- **Fixed Enhanced Health AI CI**: ESLint quotes, unused vars, missing GoalTag types — GH Actions passing
+- **Full filesystem mapping**: 26 repos, 30+ local directories, identified 5+ UFC copies, 6+ Strain Finder copies, exposed PAT
+- **Built /reorganize-all**: Consolidates all projects into ~/Projects/{sports,health,cannabis,apps,tools}
 
 ## 3. What Failed (And Why)
-- **First synthesis deploy returned 500**: Missing auth/subscription middleware for `/api/synthesis/*`. Fixed by adding middleware to `src/index.ts`.
-- **First landing deploy showed 404 in browser**: Cached response. Hard-refresh fixed it.
+- **iCloud deep scan timed out**: find across all iCloud took >30s. Used background task + targeted scans.
+- **Git push rejected once**: Remote had concurrent commits. Fixed with rebase.
 
 ## 4. What Worked Well
-- **Reusing existing enrichment data**: 98/98 papers already enriched with methodology_category, study_design, sample_size, quantitative_results, key_findings in metadata JSON. Synthesis features just display this data in new views.
-- **CSS-only bar charts**: No Chart.js dependency, lightweight, looks good.
-- **Split-screen landing**: Distinctive one-screen layout replacing generic SaaS template.
+- **Audit-then-improve**: Presented all findings before implementing — user validated the plan
+- **Direct fixes > agent delegation**: Main agent doing the work produces better results than spawning agents
 
 ## 5. What The User Wants (Goals & Priorities)
-- **Primary goal**: ARIA should enable PRISMA-level systematic reviews in seconds/minutes using AI
-- **Secondary**: Landing page should feel distinctive, not corporate/generic
-- **Preference**: Post-login app looks great, don't touch it
-- **Frustration**: Generic SaaS template aesthetic
+- **Primary**: Permanently prevent recurring failures (wrong deploys, stale files, "looks correct" approval)
+- **Secondary**: Dedicated MMALogic agent that carries all domain knowledge
+- **Tertiary**: Full filesystem reorganization — one location per project, no duplicates
+- **Frustrations**: "AI keeps fucking this up and i want it permanently prevented"
 
-### User Quotes (Verbatim)
-- "I want this to be able to do a full Meta analysis in seconds (or minutes) by using AI technology, the PRISMA level, elite systematic review" — expressing the vision
-- "pre-sign in home page looks bad, post sign in home page looks great" — directing focus
+### User Quotes
+- "AI keeps fucking this up and i want it permanently prevented" — on UFC site bugs
+- "not just reorganize ufc, we are going to reorganize all local folders for all projects" — scope expansion
+- "ensure you aren't missing anything in the project map, do a deeper scan" — thoroughness demand
 
 ## 6. What's In Progress (Unfinished Work)
-- **Evidence Summary tab**: Built but AI generation not tested end-to-end in production
-- **Mobile nav**: Added "Synth", removed "Reader" to make room — may need UX review
-- **Old landing CSS**: ~400 lines of dead CSS still in styles.css (harmless but messy)
+- **/reorganize-all**: Written, NOT executed. Requires closing 2 UFC sessions first.
+- **Enhanced Health AI PR merge**: CI green, CF Pages still failing. Need to disconnect CF Pages git integration.
 
 ## 7. Blocked / Waiting On
-Nothing blocked.
+- **/reorganize-all**: 2 active Claude sessions in UFC Algs/ (PIDs 81638, 83363) must be closed
+- **GitHub PAT rotation**: Exposed in recipes-app remote URL — must revoke at github.com/settings/tokens
+- **CF Pages disconnect**: User action in Cloudflare dashboard for enhanced-health-ai
 
 ## 8. Next Steps (Prioritized)
-1. **Test Evidence Summary generation** — Click button, verify AI produces structured synthesis
-2. **Clean up dead CSS** — Remove old landing page styles
-3. **Add export capabilities** — CSV for matrix, PDF/Word for evidence summary
-4. **Test paper filters** — Verify methodology/design filters narrow results correctly
-5. **Version bump** — v3.0.0 → v3.1.0 for synthesis features
+1. **Revoke exposed GitHub PAT** — security, immediate
+2. **Close UFC sessions → run /reorganize-all** — eliminates stale-file root cause
+3. **Disconnect CF Pages for EHAI → merge PR #1**
+4. **Test /mmalogic on a real UFC task** — validate the agent works
+5. **Test /site-audit --quick on a project** — validate elevated commands
 
 ## 9. Agent Observations
 
 ### Recommendations
-- **Enrichment data is gold**: 98/98 papers enriched. Future features should build on this (PICO extraction, forest plots, risk of bias)
-- **Consider multi-database search**: Currently PubMed only. Cochrane/Scopus needed for true systematic reviews.
+- Run /reorganize-all ASAP — stale iCloud copies are active danger
+- Make ~/Projects/ the default Claude Code opening directory
+- The superpowers repo itself should eventually move out of iCloud
 
 ### Patterns & Insights
-- **SQLite JSON filtering is fragile**: Uses `metadata LIKE '%"methodology_category":"clinical%'`. Consider dedicated columns for key metadata fields.
-- **Library is glaucoma/ophthalmology focused**: 98 papers, mostly clinical (58), 2024-2026
+- Duplicate directories are the #1 systemic risk — 5 copies of UFC, 6 of Strain Finder
+- iCloud + git = unreliable. ~/Projects/ (local) is the right home.
+- Commands that specify "main agent does X" work better than "spawn agent to do X"
 
 ### Where I Fell Short
-- Didn't test Evidence Summary generation in production
-- Left ~400 lines of dead CSS
+- Should have scanned for exposed secrets proactively during filesystem audit
 
 ## 10. Miscommunications to Address
 None — session was well-aligned.
 
 ## 11. Files Changed This Session
-```
- public/app.js           |  172 ++-
- public/index.html       |  299 +--
- public/styles.css       | 3188 +++++------
- src/index.ts            |   40 +
- src/routes/chat.ts      |   25 +-
- src/routes/papers.ts    |   20 +
- src/routes/synthesis.ts |  158 +++ (NEW)
-```
+GitHub commits: 3efd57f, b027e7d, 687b371, a80d211, 3a60974, a2571a8
 
 | File | Action | Description |
 |------|--------|-------------|
-| public/index.html | modified | Split-screen landing; filter bar; Evidence Synthesis section; sidebar+mobile nav |
-| public/app.js | modified | Filter functions; synthesis tab switching, matrix render, stats charts, AI summary |
-| public/styles.css | modified | Split-screen landing CSS; filter bar; synthesis tabs/matrix/charts/stats styles |
-| src/routes/synthesis.ts | created | GET /matrix, GET /stats, POST /summary endpoints |
-| src/index.ts | modified | Import+mount synthesis routes; add auth middleware |
-| src/routes/chat.ts | modified | Add doi/pmid to SELECT; update prompt for [N] citations |
-| src/routes/papers.ts | modified | Add methodology, study_design, year range filter params |
+| commands/*.md (11 files) | rewritten | Full command audit upgrade |
+| commands/mmalogic.md | created | Dedicated UFC agent |
+| commands/reorganize-all.md | created | Full filesystem reorg |
+| commands/reorganize-ufc.md | created | UFC-specific reorg |
+| commands/{brainstorm,execute-plan,write-plan}.md | deleted | Deprecated stubs |
+| ~/.claude/CLAUDE.md | modified | Rules 20-23 |
+| skills/site-update-protocol/SKILL.md | modified | Rules 11-15, canonical dir, pre-review |
+| memory/topics/ufc_website_maintenance_rules.md | created | 15-item checklist |
+| memory/topics/ufc_canonical_paths.md | created | Path lookup table |
+| anti-patterns.md | modified | 2 new entries |
+| EHAI: terms/page.tsx, page.tsx, types/health.ts | modified | CI fixes |
 
 ## 12. Current State
-- **Branch**: `redesign/academic-luminary`
-- **Last commit**: `daa4c1b Add Evidence Synthesis, paper filters, fix citations`
-- **Build status**: Deployed successfully
-- **Deploy status**: Live at researcharia.com (Version ID: 730c157f)
+- **Branch**: N/A (iCloud, synced via /tmp)
+- **Last GitHub commit**: a2571a8
+- **Build status**: N/A (skills system)
 - **Uncommitted changes**: None
 
 ## 13. Environment State
-- **Node.js**: v22.14.0
-- **Python**: 3.13.2
+- **Node.js**: v25.6.1 | **Python**: 3.14.3
 - **Running dev servers**: None
-- **Environment variables set this session**: None
+- **Active MCP**: Chrome, Preview, Desktop Commander, PDF, PowerPoint, Word, Drive, scheduled-tasks
 
 ## 14. Session Metrics
-- **Duration**: ~90 minutes
-- **Tasks completed**: 6 / 6
+- **Duration**: ~3 hours
+- **Tasks completed**: 15+ / 15+
 - **User corrections**: 0
-- **Commits made**: 3
-- **Skills invoked**: /site-redesign, Explore agent, Claude in Chrome
+- **Commits**: 6 (superpowers) + 2 (enhanced-health-ai)
 
 ## 15. Memory & Anti-Patterns Updated
-No memory updates this session. Should update anti-patterns with: always add auth middleware when creating new route files.
+- **anti-patterns.md**: UFC_SITE_GLANCE_AND_APPROVE, UFC_WRONG_DIRECTORY_DEPLOY
+- **Project memory**: feedback_no_narration_pauses.md
+- **Topics**: ufc_website_maintenance_rules.md, ufc_canonical_paths.md
+- **core.md**: Pointer to maintenance rules
 
 ## 16. Skills & Agents Used
 | Skill/Agent | How It Was Used | Was It Helpful? |
 |-------------|----------------|-----------------|
-| Explore agent | Full codebase audit | Yes — mapped all routes and services |
-| Claude in Chrome | Visual verification | Yes — essential for live site testing |
-| site-redesign | Pipeline trigger | Partially — deviated to feature work |
+| General-purpose agent | Read all 14 commands | Yes |
+| General-purpose agent | Update 4 site commands | Yes |
+| Glob/Grep/Bash | Full filesystem scan | Yes |
 
 ## 17. For The Next Agent — Read These First
 1. This HANDOFF.md
-2. ~/.claude/anti-patterns.md
-3. src/routes/synthesis.ts — new synthesis backend
-4. The gap analysis: ARIA has paper library + AI chat + synthesis views. Still missing: screening workflows, PICO extraction, forest plots, multi-database search, export capabilities.
+2. ~/.claude/anti-patterns.md (2 new entries)
+3. ~/.claude/CLAUDE.md (rules 20-23 new)
+4. ~/.claude/commands/reorganize-all.md (PENDING)
+5. ~/.claude/commands/mmalogic.md (NEW)
+6. ~/.claude/memory/topics/ufc_canonical_paths.md
+7. ~/.claude/memory/topics/ufc_website_maintenance_rules.md
