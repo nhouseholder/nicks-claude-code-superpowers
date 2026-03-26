@@ -1,7 +1,7 @@
 ---
 name: codebase-cartographer
 description: Build a mental architecture map of the codebase at session start. Know every directory's purpose, key files, data flow patterns, and entry points. Enables instant navigation and informed decisions without redundant file exploration. Automatic skill that fires at session start.
-weight: passive
+weight: light
 ---
 
 # Codebase Cartographer — Know the Terrain Before You Build

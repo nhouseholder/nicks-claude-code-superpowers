@@ -1,7 +1,7 @@
 ---
 name: pattern-propagation
 description: When a pattern is changed in one place, automatically find and update all instances across the codebase. Covers renames, API changes, style updates, config changes, and structural refactors. Automatic skill that fires when modifying shared patterns.
-weight: passive
+weight: light
 ---
 
 # Pattern Propagation — Change One, Update All

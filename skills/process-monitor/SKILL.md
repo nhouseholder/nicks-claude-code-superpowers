@@ -1,7 +1,7 @@
 ---
 name: process-monitor
 description: Monitor background processes (dev servers, builds, tests, watchers) during a session. Detect hung processes, runaway resource usage, port conflicts, and zombie processes. Provide status updates only when relevant. Kill unnecessary tasks when safe. Low-overhead self-awareness skill.
-weight: passive
+weight: light
 ---
 
 # Process Monitor — Self-Aware Background Process Management

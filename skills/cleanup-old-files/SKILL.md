@@ -28,6 +28,25 @@ When code evolves, old files accumulate. Future agents see both old and new vers
 
 Result: agents ran the 25-event backtester instead of the 71-event one, reported wrong numbers, wasted hours.
 
+## CRITICAL: What "Stale" Actually Means
+
+**Stale = EXPLICITLY REPLACED by a newer version.** Nothing else qualifies.
+
+A file is stale ONLY when:
+- A newer file exists that does the SAME JOB (e.g., backtester_v2 replaced by backtester_v3)
+- A commit message says "replaced X with Y"
+- The user explicitly says the file is outdated
+
+A file is NOT stale just because:
+- It's absent from git (it may be deployed but uncommitted — the NEWEST version)
+- It's different from another copy (difference ≠ staleness — investigate first)
+- It's compiled/built assets on a live server (those ARE the current production)
+- It has uncommitted local changes (that's work in progress)
+
+**CATASTROPHIC EXAMPLE (2026-03-25):** An agent treated production assets as "stale" because they didn't match git. Cloudflare purged them during a deploy. An entire frontend redesign was permanently destroyed with no recovery possible. The "stale" assets were the CURRENT version.
+
+**Rule: When in doubt, a file is NOT stale.** Ask the user before archiving anything that doesn't have clear replacement evidence.
+
 ## When to Fire
 
 ### Automatic (Session Start)
@@ -37,7 +56,7 @@ At the beginning of any session in a project repo, do a quick staleness scan:
 3. Check for stale worktrees in `.worktrees/` or `.claude/worktrees/`
 4. Check for multiple files that do the same job (e.g., two backtesters)
 
-If found: flag to user with a one-line summary. Don't auto-archive without permission.
+If found: flag to user with a one-line summary. **NEVER auto-archive without permission.** NEVER classify production-deployed files as stale.
 
 ### On-Demand (Explicit Trigger)
 When user says "clean up", "archive old files", "there's confusion about which file to use", or when an agent picks the wrong file version.

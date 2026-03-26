@@ -1,0 +1,340 @@
+# ============================================================
+# ARCHIVED — 2026-03-25
+# Superseded by: backtest (comprehensive backtest skill)
+# Reason: Audit checklist and canonical registry absorbed into backtest
+# Do NOT load this skill. Do NOT follow its instructions.
+# Kept for historical reference only.
+# ============================================================
+
+---
+name: backtestor-quality-control
+description: Backtestor quality control and audit skill. Ensures every backtestor across all sports projects meets mandatory standards — walk-forward integrity, real Vegas odds, correct unit math, complete bet type coverage, data caching, intelligent scraping, growing event windows, and single canonical backtestor per sport. Fires when building, modifying, auditing, or running any backtestor. Prevents the recurring confusion of multiple outdated backtestor versions, missing bet types, flat unit payouts, and data leakage.
+weight: light
+triggers:
+  - building or modifying any backtestor
+  - "audit the backtestor", "check the backtestor"
+  - running any backtest
+  - creating a new sport prediction project
+  - when multiple backtestor files exist in a project
+  - when backtest results seem suspiciously good or bad
+---
+
+# Backtestor Quality Control — The Definitive Standard
+
+Every backtestor across every sport must pass this audit. No exceptions. No shortcuts. No confusion.
+
+## The Problem This Solves
+
+AI agents have repeatedly:
+- Picked up old/archived backtestors and run them instead of the canonical one
+- Missed bet types (parlays excluded, method bets not scored)
+- Used flat +1u payouts instead of real Vegas odds
+- Leaked future data into walk-forward calculations
+- Re-scraped data that was already cached
+- Created new backtestor files instead of maintaining the single canonical one
+- Produced results with impossible statistics (profit with 0 wins)
+
+**This skill exists to make these failures impossible.**
+
+---
+
+## 1. ONE Backtestor Per Sport — No Confusion
+
+### The Rule
+Each sport project has exactly ONE canonical backtestor file. All others must be archived or deleted.
+
+### Audit Step: File Discovery
+Before running or modifying any backtestor:
+1. Search the project for ALL files containing "backtest" in the name
+2. If more than one non-archived backtestor exists → **STOP and clean up**
+3. Archive old versions using the file archival protocol (rename to `.ARCHIVED.py` with header)
+4. The canonical backtestor must be clearly named (e.g., `backtest.py`, `run_backtest.py`)
+5. Add a comment at the top: `# CANONICAL BACKTESTOR — do NOT create alternative versions`
+
+### Red Flags
+- Multiple files like `backtest_v2.py`, `backtest_new.py`, `backtest_fixed.py` → consolidate immediately
+- Backtestor in `/tmp/` or a worktree → wrong location, run from project root
+- Import paths referencing old/archived files → update imports
+
+---
+
+## 2. Walk-Forward Integrity — Zero Data Leakage
+
+### The Standard
+For every prediction being evaluated, the model may ONLY use data available BEFORE that event.
+
+### Mandatory Checks
+```
+For each event/game being scored:
+  ✓ Stats computed using ONLY prior events (cutoff_date or before_event parameter)
+  ✓ Rolling/expanding windows EXCLUDE the current game
+  ✓ Season averages do NOT include the game being predicted
+  ✓ Odds sourced are the odds that WERE available, not post-event data
+  ✓ Injuries/lineups reflect what was KNOWN before the event
+  ✓ No winner bias (using full-season stats that include the outcome)
+```
+
+### How to Verify
+1. Find all `.mean()`, `.avg()`, `.rolling()`, aggregate functions
+2. Confirm each has a date/event filter that excludes the current game
+3. Check that stat computation functions accept `cutoff_date` or `before_event` parameters
+4. If accuracy exceeds 75% on ML picks → **suspect data leakage first**
+
+### The #1 Failure Mode
+Using full-season averages (which include the game being predicted) inflates accuracy by 10-20% and makes the entire backtest worthless. This is not a minor issue — it's a complete invalidation.
+
+---
+
+## 3. Real Vegas Odds — Never Flat Units
+
+### The Rule
+Every bet's payout must use REAL sportsbook odds. Never +1u for a win. Never assumed odds.
+
+### Payout Formulas
+```python
+# Positive American odds (e.g., +150)
+profit = stake * (odds / 100)  # 1u at +150 = +1.50u
+
+# Negative American odds (e.g., -200)
+profit = stake * (100 / abs(odds))  # 1u at -200 = +0.50u
+
+# Loss is ALWAYS -1u per bet (stake lost)
+```
+
+### Odds Requirements
+- **ML odds**: Must be real odds for that specific fight/game from a real sportsbook
+- **Prop odds** (method, round, combo): Must be real prop odds, not derived or estimated
+- **Parlay odds**: Calculated from component leg odds using parlay math
+- If odds are unavailable for a specific bet → mark as `__NO_ODDS__`, do NOT substitute +100 or any default
+- Historical odds that were scraped at the right time are IRREPLACEABLE — never overwrite cached odds with fresh scrapes for past events
+
+### Parlay Calculation
+```python
+# Convert each leg to decimal odds
+decimal = (odds / 100) + 1  # for positive
+decimal = (100 / abs(odds)) + 1  # for negative
+
+# Multiply all legs
+parlay_decimal = leg1_decimal * leg2_decimal * ... * legN_decimal
+
+# Profit on 1u
+parlay_profit = parlay_decimal - 1
+```
+
+---
+
+## 4. Complete Bet Type Coverage
+
+### Every Sport Must Define Its Bet Types
+The backtestor must handle ALL bet types the algorithm generates predictions for. Missing a bet type = incomplete results.
+
+### UFC Example (5 Bet Types)
+| Bet Type | What It Is | Win Condition | Loss = |
+|----------|-----------|---------------|--------|
+| **ML** | Moneyline (who wins) | Predicted fighter wins | -1u |
+| **Method** | ML + finish method | Fighter wins by predicted method (KO/TKO, SUB, DEC) | -1u |
+| **Round** | ML + finish round | Fighter wins in predicted round | -1u |
+| **Combo** | ML + method + round | Fighter wins by predicted method in predicted round | -1u |
+| **Parlay** | Multi-fight combined bet | ALL legs win | -1u |
+
+**Key rules for UFC:**
+- Fighter loss = ALL 4 individual bets lose (-4u max per fight)
+- Method and Round are scored INDEPENDENTLY (correct method + wrong round = Method wins, Round loses)
+- DEC predictions have no round or combo bets (only ML + Method)
+- Parlays: HC parlay + high-ROI parlay per event (if no fighter overlap; otherwise HC only)
+
+### For Other Sports
+Define the equivalent bet types at project creation:
+- **NBA/NFL/NHL**: ML, Spread, Total (Over/Under), Props, Parlays
+- **MLB**: ML, Run Line, Total, First 5 Innings, Parlays
+- **Soccer**: 1X2, Both Teams to Score, Over/Under, Asian Handicap, Parlays
+- **Tennis**: ML, Set Spread, Total Games, Parlays
+
+### Validation
+```
+For each event in backtest:
+  ✓ Every applicable bet type has a result (W/L/skip)
+  ✓ Every W has real odds and correct payout
+  ✓ Every L is exactly -1u
+  ✓ Skipped bets are explicitly marked (not silently dropped)
+  ✓ Parlay results reflect ALL legs correctly
+```
+
+---
+
+## 5. Data Caching & Storage
+
+### The Caching Mandate
+All scraped data must be cached locally AND committed to GitHub. A full backtest should take **seconds** (reading cached data), not hours (re-scraping).
+
+### What Gets Cached
+```
+<sport>_odds_cache.json        — Historical odds for all events/games
+<sport>_stats_cache.json       — Player/team statistics
+<sport>_game_data_cache.json   — Game results, scores, play-by-play
+<sport>_injuries_cache.json    — Historical injury data (if used)
+<sport>_weather_cache.json     — Weather data (if applicable)
+```
+
+### Cache Protocol
+```python
+def get_data(event_id, cache_file):
+    # 1. Check cache first
+    cache = load_cache(cache_file)
+    if event_id in cache:
+        return cache[event_id]  # Cache hit — no scraping needed
+
+    # 2. Only scrape if genuinely new
+    data = scrape_from_source(event_id)
+
+    # 3. Save to cache immediately
+    cache[event_id] = data
+    save_cache(cache_file, cache)
+
+    # 4. Return fresh data
+    return data
+```
+
+### Intelligent Scraping Rules
+1. **Check cache BEFORE every scrape** — never fetch what you already have
+2. **Only scrape genuinely new data** — new events, new games not yet in cache
+3. **Never re-scrape historical data** — past events don't change; their cached data is the source of truth
+4. **Prop odds for past events are IRREPLACEABLE** — once an event passes, odds pages disappear. The cache IS the record.
+5. **Commit caches to git after every scrape session** — caches are part of the repo
+6. **Rate-limit aware** — respect source site rate limits, add delays between requests
+
+### When to Scrape New Data
+- A new event/game has occurred that isn't in the cache
+- Upcoming event odds need to be captured (for live predictions)
+- A data source has been added that provides new features
+- **NEVER** re-scrape to "refresh" data for events that already happened
+
+---
+
+## 6. Growing Event Window
+
+### The Rule
+The backtest window starts at the sport-specific minimum and GROWS as new events occur. It never shrinks.
+
+### Minimum Windows
+| Sport | Minimum | Type |
+|-------|---------|------|
+| UFC | 71 events | Growing (auto-increment after each event) |
+| NHL | 3 seasons | Rolling |
+| NBA | 3 seasons | Rolling |
+| MLB | 3 seasons | Rolling |
+| CBB | 3 seasons | Rolling |
+
+### Dynamic Growth Protocol
+```python
+# After scoring a new event:
+1. Score the event using the current model
+2. Record results (W/L per bet type, odds, payouts)
+3. Add event to the backtest dataset
+4. Update the cache with new event data
+5. Increment event count
+6. Regenerate summary statistics
+7. Commit updated registry + cache to git
+```
+
+### Never Shrink
+If the current backtest covers 75 events and a re-run produces results for only 71 → **ABORT**. This is a data regression. Restore from backup.
+
+---
+
+## 7. Optimizer Integration
+
+### Optional Optimizer Pairing
+The backtestor can be paired with a parameter optimizer, but with strict guardrails:
+
+### Optimizer Rules
+1. **Optimizer searches parameters; backtestor evaluates them** — separation of concerns
+2. **Walk-forward applies to optimizer too** — no peeking at future data during parameter search
+3. **Coefficient changes must be explainable** — "the optimizer found 0.173" is not a reason
+4. **Stability test** — optimal parameters ±10% should produce similar results
+5. **Out-of-sample validation** — always holdout recent events for validation
+6. **Log every optimizer run** — parameter values, resulting metrics, timestamp
+7. **Feature count < N/20** — more parameters = more overfitting risk
+
+### What the Optimizer Searches
+- Coefficient weights for prediction features
+- Thresholds (confidence cutoffs, edge minimums)
+- Decay rates for time-weighted stats
+- **NOT** model architecture or bet type logic
+
+---
+
+## 8. The Audit Checklist
+
+Run this COMPLETE checklist when auditing any backtestor. Every item must pass.
+
+### File Hygiene
+- [ ] Exactly ONE canonical backtestor file exists (no duplicates, no old versions)
+- [ ] Old versions archived with `.ARCHIVED` suffix and header
+- [ ] Clear comment at top identifying it as canonical
+- [ ] No backtestor code in `/tmp/`, worktrees, or non-project directories
+
+### Walk-Forward Integrity
+- [ ] Every stat computation has a date/event cutoff parameter
+- [ ] No `.mean()` or aggregate without temporal filter
+- [ ] No full-season averages used (must be point-in-time)
+- [ ] Accuracy is plausible (not suspiciously high — >75% ML = suspect)
+
+### Odds & Payouts
+- [ ] Real Vegas odds sourced for every bet
+- [ ] Wins pay at odds, NOT flat +1u
+- [ ] Losses are exactly -1u per bet
+- [ ] No assumed/default odds (missing odds = `__NO_ODDS__`)
+- [ ] Parlay odds calculated correctly from component legs
+
+### Bet Type Coverage
+- [ ] ALL sport-defined bet types are scored
+- [ ] No bet type silently skipped or dropped
+- [ ] Each bet type has W-L records consistent with total bets placed
+- [ ] Parlays included where applicable (UFC: HC + high-ROI per event)
+
+### Data Integrity
+- [ ] Cache files exist and are populated
+- [ ] Cache is committed to git
+- [ ] No re-scraping of historical data during backtest
+- [ ] New events scraped and cached properly
+- [ ] Registry/results not overwritten with smaller dataset (size regression check)
+
+### Statistical Validity
+- [ ] Profit > 0 requires Wins > 0 (for every bet type)
+- [ ] W + L = total bets placed (for every bet type)
+- [ ] Sum of category profits ≈ total profit
+- [ ] Per-win profit is plausible given typical odds
+- [ ] Results consistent across multiple run attempts (deterministic)
+
+### Growth & Maintenance
+- [ ] Event window meets or exceeds sport-specific minimum
+- [ ] New events can be added without breaking existing data
+- [ ] Backup exists before any destructive operation
+- [ ] Version tracking in place (algorithm version tied to results)
+
+---
+
+## 9. When This Skill Fires
+
+### Build Mode
+Creating a new backtestor → enforce all standards from the start. Use this checklist as the spec.
+
+### Audit Mode
+"Audit the backtestor" or "check the backtest" → run the full checklist. Report every failure.
+
+### Run Mode
+Before/after any backtest run → verify file hygiene, check results against data invariants.
+
+### Cleanup Mode
+Multiple backtestor files found → archive old ones, consolidate into canonical version.
+
+## Rules
+
+1. **ONE backtestor per sport** — consolidate, never proliferate
+2. **Walk-forward or worthless** — no exceptions to temporal integrity
+3. **Real odds or marked missing** — never substitute, never assume
+4. **Cache everything, scrape minimally** — seconds not hours
+5. **Growing window, never shrinking** — data loss is irreversible
+6. **Audit before trusting** — run the checklist before claiming results are correct
+7. **This skill + backtest skill + profit-driven-development** — the complete backtesting stack
