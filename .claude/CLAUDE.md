@@ -278,7 +278,7 @@ cat ~/Projects/site-to-repo-map.json | python3 -m json.tool | grep -A5 "SITE_NAM
 
 Then verify the local path matches:
 ```bash
-cd ~/Projects/<category>/<repo>
+cd ~/Projects/<project>
 git remote get-url origin  # Must match the GitHub repo from the mapping
 ```
 
