@@ -470,3 +470,23 @@
   4. NEVER deploy from git when git is behind production — check the live site version vs git version first
   5. Add to FAILSAFE 3 (Version Regression Detection): compare live site version to git version, not just git to git
 - **Applies when**: ANY Cloudflare deploy (Pages or Workers). There is no undo button. There is no KV recovery. Deploy = permanent.
+
+### ROOT CAUSE: "STALE" MISCLASSIFICATION DESTROYS CURRENT WORK — 2026-03-25
+- **Context**: researcharia.com redesign destroyed because Cloudflare classified redesign assets as "stale" during a deploy from git. The redesign existed in production but not in git.
+- **Root cause chain**:
+  1. Session A deployed a redesign to Cloudflare but never committed it to git
+  2. Session B saw git was at the old version and deployed from git
+  3. Cloudflare Workers Sites classified the redesign's compiled assets as "stale" and PURGED THEM
+  4. The redesign was permanently destroyed
+- **The fundamental error**: Treating "not in git" as "stale/outdated." Files can be AHEAD of git (deployed but uncommitted). Production is sometimes NEWER than git. Staleness must be determined by COMPARING DATES AND VERSIONS, not by which system has it.
+- **Definition of stale (CORRECTED)**:
+  - STALE = a file that has been EXPLICITLY REPLACED by a newer version (e.g., v2 replaced by v3, old backtester replaced by new one)
+  - NOT STALE = a file that is different from git, production, or another copy — difference ≠ staleness
+  - NOT STALE = compiled/built assets on a live server that don't match local source — they may be the LATEST deploy
+  - NOT STALE = uncommitted local changes — they may be work in progress
+- **Rule**: NEVER classify a file as stale based solely on it being absent from git, absent from local, or different from another copy. Staleness requires EVIDENCE that it was replaced:
+  1. A newer file exists that does the same job
+  2. A commit message says "replaced X with Y"
+  3. The user explicitly says the file is outdated
+  Without this evidence, the file is NOT stale — it's a version discrepancy that needs investigation, not deletion.
+- **Applies when**: cleanup-old-files skill, any archival operation, any deploy that overwrites, any time the word "stale" is used about files or assets
