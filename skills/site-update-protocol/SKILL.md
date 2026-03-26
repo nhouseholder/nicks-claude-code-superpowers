@@ -123,47 +123,7 @@ for event in registry:
     assert ml.wins + ml.losses == total_ml_bets
 ```
 
-## CANONICAL DIRECTORY (CRITICAL — Wrong directory = catastrophic reversion)
-
-**The ONLY directory to build/deploy from is `ufc-predict/webapp/frontend/`.**
-
-The root `webapp/` directory is a STALE COPY frozen at v10.68. Deploying from it OVERWRITES production with months-old code. This has already happened once (v11.9.3 → v10.68 reversion on 2026-03-25).
-
-**Before ANY build or deploy:**
-```bash
-# VERIFY you're in the right directory
-cat version.js 2>/dev/null || cat src/version.js 2>/dev/null
-# Must show v11.x+. If it shows v10.x, STOP — you're in the wrong directory.
-echo "Current directory: $(pwd)"
-# Must contain "ufc-predict/webapp" in the path
-```
-
-**If you're in root webapp/:** STOP. `cd` to `ufc-predict/webapp/frontend/` instead.
-
 ## Update Procedure
-
-### Step 0: Sync from Canonical Source (MANDATORY)
-```bash
-# Sync ALL data files from ufc-predict → root webapp
-SRC="ufc-predict/webapp/frontend/public/data"
-DST="webapp/frontend/public/data"
-for f in algorithm_stats.json ufc_profit_registry.json ufc_systems_registry.json current_picks.json fight_breakdowns.json constants.json optimizer_results.json; do
-  cp "$SRC/$f" "$DST/$f"
-done
-# Also check for source file divergence
-diff -rq ufc-predict/webapp/frontend/src/ webapp/frontend/src/ | head -20
-```
-**Why:** This step was missing and caused 25 events showing instead of 71 on the live site.
-
-### Step 0.5: Verify Registry Totals (MANDATORY)
-Check that `ufc_profit_registry.json` totals include ALL 5 bet types:
-- `ml_wins`, `ml_losses`, `ml_pnl`
-- `method_wins`, `method_losses`, `method_pnl`
-- `round_wins`, `round_losses`, `round_pnl`
-- `combo_wins`, `combo_losses`, `combo_pnl`
-- `parlay_wins`, `parlay_losses`, `parlay_pnl`
-
-If parlay fields are missing, recompute totals from event-level data.
 
 ### Step 1: Copy Data Files
 ```bash
@@ -250,10 +210,6 @@ These bugs have been found on the live site via screenshots. Check for ALL of th
 | 8 | Event cards show only "ML/Method/Round" — missing Combo and Parlay | Event history cards | Cards show 3 summary badges instead of 5 | Update EventCard component to include combo + parlay badges |
 | 9 | Event table in history shows "ML ODDS / ML / METHOD ODDS" — missing Round/Combo/Parlay columns | History page inline table | Table only has 3 data columns | Update HistoryPage table to use same 5-column format as EventBetsDropdown |
 | 10 | Two different profit curves on same site — one shows ML+Method+Round (3 lines), other shows all 5 | Multiple pages | Inconsistent chart data | Ensure ALL charts use the same registryData.js computeCurveFromRegistry with all 5 bet types |
-| 11 | Registry totals missing parlay fields — Combo/Parlay show 0W-0L +0.00u on hero | Landing page hero cards | Parlay card shows +0.00u, combined P/L is wrong | Verify registry totals include ALL 5 bet types with wins/losses/pnl. Recompute from events if missing. |
-| 12 | Confidence shows >100% (e.g., "260% conf") | Picks page FightCard | pick.diff * 100 displayed as percentage | Display raw diff value (e.g., "2.60 diff") — diff is NOT a percentage |
-| 13 | Data files not synced between ufc-predict/webapp/ and root webapp/ | All pages | Stale P/L numbers, wrong event count, old version | After EVERY backtest/optimizer/prediction run, sync 7 data files + modified source files from ufc-predict/webapp/ → root webapp/ |
-| 14 | algorithm_stats.json missing parlay_pnl | Admin page, any component reading stats | Combined P/L doesn't include parlay | Always include parlay_pnl, parlay_wins, parlay_losses in algorithm_stats.json |
 
 ## Rules
 
@@ -267,18 +223,3 @@ These bugs have been found on the live site via screenshots. Check for ALL of th
 8. **Read domain knowledge first** — `ufc_betting_domain_knowledge.md` before any UFC website work
 9. **Never overwrite algorithm_stats.json version** — only update P/L fields, never touch version fields
 10. **Consistent charts everywhere** — if one chart shows 5 bet types, ALL charts must show 5
-11. **NEVER say "looks correct" without checking each item** — read ~/.claude/memory/topics/ufc_website_maintenance_rules.md BEFORE reviewing any screenshot. Check each of the 15 items individually with specific values.
-12. **Both parlays must appear** — High Confidence parlay AND High ROI parlay. If only one shows, the second is broken.
-13. **Combo bets must appear on picks cards** — every fight with method AND round prediction shows a combo bet. If NONE show combos, rendering is broken.
-14. **Gating must be enforced visually** — if SUB gating is on, NO "by SUB" in recommended bets. If round gating applies, NO round bet displayed.
-15. **Event detail pages show full P/L** — every LOST prop bet = -1u (not blank), every WON prop bet = units at odds (not blank), parlay results shown.
-
-## MANDATORY PRE-REVIEW STEP (Added 2026-03-25)
-
-**Before reviewing ANY UFC website screenshot or claiming ANY page "looks correct":**
-1. Read `~/.claude/memory/topics/ufc_website_maintenance_rules.md`
-2. Check EACH item on the 15-item checklist
-3. State specific values for each check, not "looks fine"
-4. If you can't verify something, say "UNABLE TO VERIFY" — do NOT assume correct
-
-**This step exists because on 2026-03-24, the AI said "no obvious bugs" while 260% confidence values, SUB-gated bets, missing combos, missing parlay, empty optimizer values, and broken event detail P/L were ALL visible on screen.**

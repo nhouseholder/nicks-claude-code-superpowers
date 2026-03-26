@@ -2,73 +2,79 @@
 
 > A comprehensive intelligence stack for Claude Code — making it smarter, more efficient, better at memory, and more capable.
 
-## ⚡ 63 Skills at a Glance
+## ⚡ 67 Skills at a Glance
 
 | # | Skill | What it does |
 |---|-------|------|
 | 1 | **adaptive-voice** | Matches the user's energy and pace — terse in flow, detailed when learning, calm when frustrated — so responses always feel natural. |
-| 2 | **anti-slop** | Zero tolerance for placeholder data ("Unknown", "N/A", "TBD") in any deliverable — every field gets real data or an explicit gap explanation so the user never receives AI-generated garbage. |
-| 3 | **audit** | Scans codebases for hardcoded secrets, security issues, and anti-patterns so vulnerabilities don't ship. |
-| 4 | **backtest** | Runs prediction model backtests with walk-forward integrity, overfitting guards, and future-accuracy focus so model changes are data-driven. |
-| 5 | **brainstorming** | Explores intent, requirements, and design before complex implementations so you build the right thing. |
-| 6 | **calibrated-confidence** | Makes Claude honest about what it knows vs guesses — dynamically adjusts speed and flags uncertainty so the user knows when to trust and when to verify. |
-| 7 | **codebase-cartographer** | Maps codebase architecture with fast-path for documented projects so Claude navigates instantly without redundant exploration. |
-| 8 | **coding-standards** | Enforces universal best practices for TypeScript, JavaScript, React, and Node.js so code quality is consistent. |
-| 9 | **cleanup-old-files** | When code advances significantly, identifies and removes stale files (old backtestors, deprecated configs, superseded scripts) that would confuse future agents into running the wrong version. |
-| 10 | **confusion-prevention** | Detects when Claude is confused and forces re-orientation instead of spiraling — prevents the "wait... actually... let me check..." pattern that burns 15+ tool calls. |
-| 11 | **content-research-writer** | Full research + writing assistant — searches the web, gathers sources, builds outlines, and drafts content with citations. Use for blog posts, articles, documentation, and any structured writing that needs research backing. |
-| 11 | **continuous-learning-v2** | Observes sessions via hooks and creates atomic instincts with confidence scoring so Claude gets smarter over time. |
-| 12 | **data-consistency-check** | Validates that displayed data is mathematically and logically consistent before claiming correctness — catches impossible stats like profit with 0 wins. |
-| 13 | **deep-research** | Stops and researches unfamiliar concepts from authoritative sources before implementing so solutions are expert-level. |
-| 14 | **deploy** | Handles full deployment with Cloudflare-specific checks, smoke tests, and auto-rollback so broken code never reaches production. |
-| 15 | **dispatching-parallel-agents** | Launches 2+ independent tasks as concurrent subagents so wall-clock time is cut in half (or more). |
-| 16 | **error-memory** | Captures failed approaches and working solutions so Claude never wastes tokens retrying known-bad fixes. |
-| 17 | **executing-plans** | Executes written implementation plans with review checkpoints so multi-step work stays on track. |
-| 18 | **expert-lens** | Activates domain-expert mental models so output meets professional-grade bars. |
-| 19 | **finishing-a-development-branch** | Guides branch completion with structured merge/PR/cleanup options so work integrates cleanly. |
-| 20 | **fix-loop** | Self-healing CI loop that runs tests, diagnoses, fixes, and re-runs until all pass so broken builds resolve autonomously. |
-| 21 | **fpf-hypotheses** | Executes first-principles hypothesis cycles so complex decisions are grounded in evidence, not gut feeling. |
-| 22 | **git-sorcery** | Smart commit messages, conflict resolution, bisect, and cherry-pick so git operations are expert-level. |
-| 23 | **implicit-preferences** | Detects patterns in user corrections and adapts without being told — if the user corrects the same thing repeatedly, treats it as a permanent preference for the session. |
-| 24 | **isolate-before-iterate** | Before debugging via full pipelines, isolate the suspect logic in a minimal standalone test — prevents 30+ minute feedback loops when a 5-line script would answer in seconds. |
-| 25 | **iterative-retrieval** | Progressively refines context retrieval so subagents get exactly the information they need, no more. |
-| 26 | **mid-task-triage** | Instantly classifies mid-task messages as addendum, course correction, or queue item so nothing derails active work. |
-| 27 | **never-give-up** | Never abandon a proven-valuable idea because integration failed — failed execution is not a failed idea. Iterate, learn, try harder. |
-| 28 | **opportunistic-improvement** | Fixes no-brainer code issues in files already being touched so the project gets cleaner with every interaction. |
-| 29 | **parallel-sweep** | Runs parallel parameter sweeps with walk-forward and overfitting guards so optimization finishes in minutes, not hours. |
-| 30 | **pattern-propagation** | When a pattern changes in one place, updates ALL instances across the codebase so nothing is left inconsistent. |
-| 31 | **pre-debug-check** | Checks known anti-patterns and past failures BEFORE attempting fixes so tokens aren't wasted on dead-end approaches. |
-| 32 | **precision-reading** | Grep-first, read-only-relevant-lines so large files don't waste thousands of tokens on irrelevant content. |
-| 33 | **predictive-next** | After completing a task, offers the most likely next step in one line so workflow momentum is maintained. |
-| 34 | **proactive-qa** | Walks the user journey after every implementation, catching edge cases and fixing adjacent bugs before you notice. |
-| 35 | **process-monitor** | Detects hung processes, port conflicts, and zombie tasks so dev environment issues are caught before they cascade. |
-| 36 | **profit-driven-development** | The north star for all sports prediction work — every change must answer "will this make the NEXT picks more correct and more profitable?" |
-| 37 | **progressive-disclosure** | Leads with the answer or action, then offers details only if asked — prevents walls of text when the user just wants the result. |
-| 38 | **prompt-architect** | Internally decomposes every prompt into intent, context, scope, and unstated requirements so execution is perfect first try. |
-| 39 | **qa-gate** | Mandatory QA checkpoint before delivering any feature — dispatches independent testing agent to exercise the implementation end-to-end so the user never finds bugs first. |
-| 40 | **receiving-code-review** | Evaluates review feedback with technical rigor before implementing so bad suggestions don't degrade code quality. |
-| 41 | **reflexion** | Self-refinement and review framework. `/reflexion:reflect` for quick self-assessment, `/reflexion:critique` for deep multi-dimensional review via a reviewer agent. |
-| 42 | **response-recap** | Provides plain English summary ONLY after complex multi-step work so the user understands what changed without wading through diffs. |
-| 43 | **screenshot-dissector** | Methodical pixel-level screenshot analysis during debugging — catches layout bugs, state issues, console errors, and UI regressions beyond the obvious. |
-| 44 | **search-first** | Searches for existing tools and libraries before writing custom code so wheels aren't reinvented. |
-| 45 | **senior-dev-mindset** | Ships complete, production-ready features with inferred requirements so nothing needs hand-holding or follow-up. |
-| 46 | **skill-manager** | Prevents skill overload — enforces weight classes (passive/light/heavy), skill cap, resolves conflicts, and detects overthinking. |
-| 47 | **smart-clarify** | Asks structured multiple-choice questions instead of open-ended ones so ambiguity resolves in one round, not three. |
-| 48 | **spec-interview** | Interviews the user about a feature before writing any code, producing a reusable SPEC.md artifact. |
-| 49 | **strategic-compact** | Suggests context compaction at logical task boundaries so important context survives rather than being arbitrarily truncated. |
-| 50 | **systematic-debugging** | Root-cause-first debugging methodology so bugs are actually fixed, not band-aided. |
-| 51 | **take-your-time** | Matches effort to prompt complexity — a 20-bullet spec gets 20 careful implementations, not one rushed pass. Prevents AI slop by treating each requirement as its own unit of work. |
-| 52 | **task-router** | Automatically routes tasks to Opus or Sonnet based on complexity — Opus for debugging/planning/strategy, Sonnet for execution/simple edits/following plans. |
-| 53 | **test-driven-development** | RED-GREEN-REFACTOR cycle for business logic so code is tested from the start, not as an afterthought. |
-| 54 | **think-efficiently** | Before every action, checks if it will produce new information, if there's a faster path, and if effort is proportional — prevents token-burning non-actions. |
-| 55 | **total-recall** | Lazy-loads project context at session start and saves everything at session end — with crash-safe checkpointing and pre-compaction capture. |
-| 56 | **user-rules** | Captures and enforces hard constraints the user sets ("max 70 events", "always use X") — persists across sessions, checked before every relevant action. |
-| 57 | **using-git-worktrees** | Creates isolated git worktrees for feature work so experiments don't risk the current workspace. |
-| 58 | **verification-before-completion** | Requires running verification commands and reading output before any success claim — with speed tiers and repeat-bug escalation. |
-| 59 | **version-bump** | Automated semantic versioning — determines patch/minor/major from changes, bumps package.json, and formats commit messages with version prefix. |
-| 60 | **writing-plans** | Creates comprehensive implementation plans with file mapping and TDD cycles so multi-step work has a roadmap before code is touched. |
-| 61 | **z-ai-switch** | Dynamic model routing — maps Haiku in the model picker to GLM-5 via Z AI proxy. No restart needed. Type `/z` for help. |
-| 62 | **zero-iteration** | Mentally traces code execution before writing it so bugs are caught in the mind, not in the test suite. |
+| 2 | **always-improving** | When the to-do list is empty, suggests the top 1-3 highest-impact project improvements so nothing stagnates. |
+| 3 | **anti-slop** | Zero tolerance for placeholder data ("Unknown", "N/A", "TBD") in any deliverable — every field gets real data or an explicit gap explanation so the user never receives AI-generated garbage. |
+| 4 | **audit** | Scans codebases for hardcoded secrets, security issues, and anti-patterns so vulnerabilities don't ship. |
+| 5 | **backtest** | Runs prediction model backtests with walk-forward integrity, overfitting guards, and future-accuracy focus so model changes are data-driven. |
+| 6 | **brainstorming** | Explores intent, requirements, and design before complex implementations so you build the right thing. |
+| 7 | **calibrated-confidence** | Makes Claude honest about what it knows vs guesses — dynamically adjusts speed and flags uncertainty so the user knows when to trust and when to verify. |
+| 8 | **codebase-cartographer** | Maps codebase architecture with fast-path for documented projects so Claude navigates instantly without redundant exploration. |
+| 9 | **coding-standards** | Enforces universal best practices for TypeScript, JavaScript, React, and Node.js so code quality is consistent. |
+| 10 | **command-center** | Decomposes complex tasks into parallel subagent workstreams so multi-domain work executes at maximum speed. |
+| 11 | **confusion-prevention** | Detects when Claude is confused and forces re-orientation instead of spiraling — prevents the "wait... actually... let me check..." pattern that burns 15+ tool calls. |
+| 12 | **context-hydration** | Ensures all relevant files are loaded before edits so Claude never modifies code it hasn't read. |
+| 13 | **continuous-learning-v2** | Observes sessions via hooks and creates atomic instincts with confidence scoring so Claude gets smarter over time. |
+| 14 | **deep-research** | Stops and researches unfamiliar concepts from authoritative sources before implementing so solutions are expert-level. |
+| 15 | **deploy** | Handles full deployment with Cloudflare-specific checks, smoke tests, and auto-rollback so broken code never reaches production. |
+| 16 | **dispatching-parallel-agents** | Launches 2+ independent tasks as concurrent subagents so wall-clock time is cut in half (or more). |
+| 17 | **error-memory** | Captures failed approaches and working solutions so Claude never wastes tokens retrying known-bad fixes. |
+| 18 | **executing-plans** | Executes written implementation plans with review checkpoints so multi-step work stays on track. |
+| 19 | **expert-lens** | Activates domain-expert mental models with pre-loaded cannabis pharmacology and sports analytics so output meets professional-grade bars. |
+| 20 | **finishing-a-development-branch** | Guides branch completion with structured merge/PR/cleanup options so work integrates cleanly. |
+| 21 | **fix-loop** | Self-healing CI loop that runs tests, diagnoses, fixes, and re-runs until all pass so broken builds resolve autonomously. |
+| 22 | **fpf-hypotheses** | Executes first-principles hypothesis cycles so complex decisions are grounded in evidence, not gut feeling. |
+| 23 | **git-sorcery** | Smart commit messages, conflict resolution, bisect, and cherry-pick so git operations are expert-level. |
+| 24 | **intent-detection** | Maps natural language to the right skill/command automatically so the user never needs to memorize slash commands. |
+| 25 | **isolate-before-iterate** | Before debugging via full pipelines, isolate the suspect logic in a minimal standalone test — prevents 30+ minute feedback loops when a 5-line script would answer in seconds. |
+| 26 | **iterative-retrieval** | Progressively refines context retrieval so subagents get exactly the information they need, no more. |
+| 27 | **mid-task-triage** | Instantly classifies mid-task messages as addendum, course correction, or queue item so nothing derails active work. |
+| 28 | **never-give-up** | Never abandon a proven-valuable idea because integration failed — failed execution is not a failed idea. Iterate, learn, try harder. |
+| 29 | **opportunistic-improvement** | Fixes no-brainer code issues in files already being touched so the project gets cleaner with every interaction. |
+| 30 | **parallel-sweep** | Runs parallel parameter sweeps with walk-forward and overfitting guards so optimization finishes in minutes, not hours. |
+| 31 | **pattern-propagation** | When a pattern changes in one place, updates ALL instances across the codebase so nothing is left inconsistent. |
+| 32 | **pre-debug-check** | Checks known anti-patterns and past failures BEFORE attempting fixes so tokens aren't wasted on dead-end approaches. |
+| 33 | **precision-reading** | Grep-first, read-only-relevant-lines so large files don't waste thousands of tokens on irrelevant content. |
+| 34 | **predictive-next** | After completing a task, offers the most likely next step in one line so workflow momentum is maintained. |
+| 35 | **profit-driven-development** | The north star for all sports prediction work — every change must answer "will this make the NEXT picks more correct and more profitable?" Prevents overfitting and endless backtest loops. |
+| 36 | **proactive-qa** | Walks the user journey after every implementation, catching edge cases and fixing adjacent bugs before you notice. |
+| 37 | **process-monitor** | Detects hung processes, port conflicts, and zombie tasks so dev environment issues are caught before they cascade. |
+| 38 | **prompt-anchoring** | Keeps Claude anchored to the original prompt objective during long sessions — periodic drift checks prevent "Claude ADHD" without reducing proactivity. |
+| 39 | **prompt-architect** | Internally decomposes every prompt into intent, context, scope, and unstated requirements so execution is perfect first try. |
+| 40 | **prompt-improver** | Catches genuinely vague prompts and enriches them with research-based clarifying questions so ambiguity is resolved before work begins. |
+| 41 | **qa-gate** | Mandatory QA checkpoint before delivering any feature — dispatches independent testing agent to exercise the implementation end-to-end so the user never finds bugs first. |
+| 42 | **receiving-code-review** | Evaluates review feedback with technical rigor before implementing so bad suggestions don't degrade code quality. |
+| 43 | **reflexion-critique** | Comprehensive single-reviewer code review with Chain-of-Verification so blind spots are caught efficiently. |
+| 44 | **reflexion-memorize** | Curates insights from reflections into CLAUDE.md so learnings persist across sessions as permanent guidance. |
+| 45 | **reflexion-reflect** | Self-refinement framework that reviews prior output for iterative improvement so quality compounds over time. |
+| 46 | **requesting-code-review** | Dispatches a code-reviewer subagent with precise context so work is independently verified before shipping. |
+| 47 | **response-recap** | Provides plain English summary ONLY after complex multi-step work so the user understands what changed without wading through diffs. |
+| 48 | **sanity-check** | Flags requests that could break things or waste effort — also evaluates whether proposed new skills are necessary or redundant. |
+| 49 | **screenshot-dissector** | Methodical pixel-level screenshot analysis during debugging — catches layout bugs, state issues, console errors, and UI regressions beyond the obvious. |
+| 50 | **seamless-resume** | On "continue", picks up exactly where it left off with zero re-reading or re-orientation so momentum is never lost. |
+| 51 | **search-first** | Searches for existing tools and libraries before writing custom code so wheels aren't reinvented. |
+| 52 | **senior-dev-mindset** | Ships complete, production-ready features with inferred requirements so nothing needs hand-holding or follow-up. |
+| 53 | **site-update-protocol** | Universal checklist for updating sports prediction websites after algorithm changes — covers all tabs, stats, data files, and deployment across all sites. |
+| 54 | **skill-manager** | Prevents skill overload — enforces weight classes (passive/light/heavy), 69-skill cap, resolves conflicts, and detects overthinking. |
+| 55 | **smart-clarify** | Asks structured multiple-choice questions instead of open-ended ones so ambiguity resolves in one round, not three. |
+| 56 | **strategic-compact** | Suggests context compaction at logical task boundaries so important context survives rather than being arbitrarily truncated. |
+| 57 | **subagent-driven-development** | Executes implementation plans by dispatching independent tasks to subagents so parallel work happens within a single session. |
+| 58 | **systematic-debugging** | Root-cause-first debugging methodology so bugs are actually fixed, not band-aided. |
+| 59 | **take-your-time** | Matches effort to prompt complexity — a 20-bullet spec gets 20 careful implementations, not one rushed pass. Prevents AI slop by treating each requirement as its own unit of work. |
+| 60 | **test-driven-development** | RED-GREEN-REFACTOR cycle for business logic so code is tested from the start, not as an afterthought. |
+| 61 | **think-efficiently** | Before every action, checks if it will produce new information, if there's a faster path, and if effort is proportional — prevents token-burning non-actions. |
+| 62 | **token-awareness** | Makes Claude conscious of token costs so responses and tool usage stay concise and efficient. |
+| 63 | **total-recall** | Lazy-loads project context at session start and saves everything at session end — with crash-safe checkpointing and pre-compaction capture. |
+| 64 | **user-rules** | Captures and enforces hard constraints the user sets ("max 70 events", "always use X") — persists across sessions, checked before every relevant action. |
+| 65 | **using-git-worktrees** | Creates isolated git worktrees for feature work so experiments don't risk the current workspace. |
+| 66 | **verification-before-completion** | Requires running verification commands and reading output before any success claim — with speed tiers and repeat-bug escalation. |
+| 67 | **version-bump** | Automated semantic versioning — determines patch/minor/major from changes, bumps package.json, and formats commit messages with version prefix. |
+| 68 | **writing-plans** | Creates comprehensive implementation plans with file mapping and TDD cycles so multi-step work has a roadmap before code is touched. |
+| 69 | **zero-iteration** | Mentally traces code execution before writing it so bugs are caught in the mind, not in the test suite. |
 
 ---
 
@@ -94,22 +100,21 @@ rm -rf ~/.claude-tmp
 
 ## 📦 What's Included
 
-### Skills (63 total)
+### Skills (67 total)
 
 | Category | Skills |
 |----------|--------|
-| **Thinking & Reasoning** | brainstorming, systematic-debugging, reflexion, fpf-hypotheses, zero-iteration |
-| **Autonomy & Completeness** | senior-dev-mindset, proactive-qa, response-recap, smart-clarify, adaptive-voice, predictive-next, process-monitor, expert-lens, mid-task-triage, never-give-up, screenshot-dissector, take-your-time, calibrated-confidence, implicit-preferences, progressive-disclosure, data-consistency-check |
-| **Memory & Learning** | continuous-learning-v2, error-memory, pre-debug-check, total-recall, user-rules |
-| **Debugging** | systematic-debugging, confusion-prevention, fix-loop, isolate-before-iterate |
+| **Thinking & Reasoning** | brainstorming, systematic-debugging, reflexion-reflect, reflexion-critique, fpf-hypotheses, zero-iteration |
+| **Autonomy & Completeness** | senior-dev-mindset, proactive-qa, response-recap, intent-detection, smart-clarify, seamless-resume, adaptive-voice, predictive-next, process-monitor, expert-lens, mid-task-triage, always-improving, sanity-check, never-give-up, screenshot-dissector, take-your-time, prompt-anchoring, calibrated-confidence |
+| **Memory & Learning** | continuous-learning-v2, reflexion-memorize, error-memory, pre-debug-check, total-recall, user-rules |
+| **Debugging** | systematic-debugging, confusion-prevention, fix-loop |
 | **Coding Quality** | coding-standards, test-driven-development, verification-before-completion, pattern-propagation, opportunistic-improvement, qa-gate, anti-slop |
-| **Planning & Execution** | writing-plans, executing-plans, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch, spec-interview |
-| **Research & Context** | search-first, deep-research, iterative-retrieval, strategic-compact, think-efficiently, precision-reading, codebase-cartographer, content-research-writer |
-| **Review & Collaboration** | receiving-code-review |
-| **Workflow Automation** | audit, backtest, deploy, fix-loop, parallel-sweep, version-bump, profit-driven-development |
+| **Planning & Execution** | writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, finishing-a-development-branch, command-center |
+| **Research & Context** | search-first, deep-research, iterative-retrieval, strategic-compact, context-hydration, token-awareness, think-efficiently, precision-reading, codebase-cartographer |
+| **Review & Collaboration** | requesting-code-review, receiving-code-review |
+| **Workflow Automation** | backtest, audit, deploy, fix-loop, parallel-sweep, version-bump, profit-driven-development |
 | **Git Intelligence** | git-sorcery |
-| **Model Routing** | task-router, z-ai-switch |
-| **Meta** | prompt-architect, skill-manager |
+| **Meta** | prompt-improver, prompt-architect, skill-manager |
 
 ### Hooks (4 total)
 
@@ -125,6 +130,7 @@ rm -rf ~/.claude-tmp
 | Command | Description |
 |---------|-------------|
 | /audit | Scan for hardcoded secrets and code quality issues |
+| /backtest | Run model backtest with baseline comparison |
 | /brainstorm | Start brainstorming session |
 | /deploy | Full deploy pipeline with rollback |
 | /execute-plan | Execute plan with checkpoints |
@@ -201,6 +207,7 @@ The `pre-debug-check` skill now includes barrier recognition — detecting famil
 
 ### 11. Workflow Automation
 Five purpose-built skills for common development workflows:
+- `backtest`: Run model backtests with `| tee`, compare against baseline, commit improvements
 - `audit`: Scan for hardcoded secrets/API keys, fix by moving to env vars, commit
 - `deploy`: Full Cloudflare Pages/Workers pipeline — lint, test, build, deploy, verify, rollback on failure
 - `fix-loop`: Self-healing CI — run tests, diagnose, fix source (never tests), re-run until green
@@ -251,7 +258,7 @@ Five purpose-built skills for common development workflows:
 
 ### 18. Expert Lens — Domain Expert Perspectives
 `expert-lens` activates professional-grade thinking for any domain:
-- **Explicit**: "You are an expert in X" → activates domain-specific mental models
+- **Explicit**: "You are an expert NBA statistician" → activates sports analytics mental models (WAR, regression to the mean, sample size)
 - **Implicit**: Detects domain from task context and auto-applies the right expert framework
 - Loads 4 layers: mental models, domain vocabulary, quality standards, and amateur-mistake avoidance
 - ~30-50 tokens per activation — expert framing often makes output SHORTER and more precise
@@ -287,18 +294,18 @@ Five purpose-built skills for common development workflows:
 | Skill | Trigger | Automatic? |
 |-------|---------|-----------|
 | adaptive-voice | Every response | Always-on |
+| always-improving | No active tasks | Automatic |
 | anti-slop | Structured output | Always-on |
 | audit | `/audit` or security scan tasks | Manual |
 | backtest | `/backtest` or backtest tasks | Manual |
 | brainstorming | `/brainstorm` or large+ambiguous scope | Manual |
 | calibrated-confidence | Every response | Always-on |
-| cleanup-old-files | After major refactors or architecture changes | Automatic |
 | codebase-cartographer | Session start | Automatic |
 | coding-standards | Active | Always-on |
+| command-center | Complex multi-domain tasks | Automatic |
 | confusion-prevention | Confusion signals detected | Always-on |
-| content-research-writer | Writing tasks requiring research | Manual |
+| context-hydration | Pre-edit | Automatic |
 | continuous-learning-v2 | Every tool call | Automatic (hook) |
-| data-consistency-check | Any data display or stats output | Always-on |
 | deep-research | Unfamiliar concepts | Automatic |
 | deploy | `/deploy` or deploy tasks | Manual |
 | dispatching-parallel-agents | 2+ independent tasks | Automatic |
@@ -309,45 +316,49 @@ Five purpose-built skills for common development workflows:
 | fix-loop | `/fix-loop` or test failures | Manual |
 | fpf-hypotheses | Complex decisions | Manual |
 | git-sorcery | Git operations | Always-on |
-| implicit-preferences | Repeated user corrections | Always-on |
-| isolate-before-iterate | Before running full pipeline to debug | Automatic |
+| intent-detection | Every prompt | Always-on |
 | iterative-retrieval | Subagent context loading | Automatic |
 | mid-task-triage | New message arrives mid-task | Always-on |
 | never-give-up | Integration failure of validated idea | Automatic |
 | opportunistic-improvement | Files already being touched | Automatic |
-| parallel-sweep | Parameter sweeps | Manual |
+| parallel-sweep | Coefficient sweeps | Manual |
 | pattern-propagation | Pattern changes | Automatic |
 | pre-debug-check | Before debugging | Automatic |
 | precision-reading | Large file reads | Automatic |
 | predictive-next | After task completion | Automatic |
-| proactive-qa | After implementation | Always-on |
 | process-monitor | Background processes | Automatic |
-| profit-driven-development | Sports prediction directories | Always-on (scoped) |
-| progressive-disclosure | Every response | Always-on |
+| profit-driven-development | Sports prediction work | Always-on |
+| proactive-qa | After implementation | Always-on |
+| prompt-anchoring | Long sessions | Always-on |
 | prompt-architect | Every prompt | Always-on |
+| prompt-improver | Ambiguous prompts only | Automatic (hook) |
 | qa-gate | Before feature delivery | Automatic |
 | receiving-code-review | Review feedback received | Automatic |
-| reflexion | `/reflexion:reflect` or `/reflexion:critique` | Manual |
+| reflexion-critique | Review | Manual |
+| reflexion-memorize | Learning | Manual |
+| reflexion-reflect | Explicit request or high-risk verification | Manual |
+| requesting-code-review | Before shipping | Manual |
 | response-recap | After complex multi-step work | Automatic |
+| sanity-check | Risky or wasteful requests | Automatic |
 | screenshot-dissector | Screenshot provided during debugging | Automatic |
+| seamless-resume | On "continue" / session resume | Always-on |
 | search-first | Before writing custom code | Automatic |
 | senior-dev-mindset | Active | Always-on |
 | skill-manager | Every message (meta) | Always-on |
 | smart-clarify | Ambiguous requests | Automatic |
-| spec-interview | Non-trivial new feature request | Automatic |
 | strategic-compact | Context growth | Automatic |
+| subagent-driven-development | Plan execution with independent tasks | Manual |
 | systematic-debugging | Bugs | Automatic |
 | take-your-time | Complex multi-item prompts | Always-on |
-| task-router | Every message | Always-on |
 | test-driven-development | Feature/bugfix implementation | Automatic |
 | think-efficiently | Before every action | Always-on |
+| token-awareness | Active | Always-on |
 | total-recall | Session start + end | Always-on |
 | user-rules | Hard constraint detected | Always-on |
 | using-git-worktrees | Feature work needing isolation | Manual |
 | verification-before-completion | Before claiming done | Automatic |
 | version-bump | Commits with version changes | Automatic |
 | writing-plans | `/write-plan` | Manual |
-| z-ai-switch | `/z` or model picker Haiku selection | Manual |
 | zero-iteration | Code generation | Always-on |
 
 ---
@@ -455,6 +466,6 @@ MIT - Skills are from various sources with their own licenses.
 
 ---
 
-**63 skills. 4 hooks. 8 commands. One intelligence stack.**
+**69 skills. 4 hooks. 9 commands. One intelligence stack.**
 
 **Made with ❤️ for smarter AI-assisted development**

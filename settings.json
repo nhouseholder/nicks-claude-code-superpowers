@@ -41,6 +41,15 @@
             "command": "python3 ~/.claude/hooks/stop-memory-save.py"
           }
         ]
+      },
+      {
+        "description": "Session-aware notification with project name",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/notify-session.py"
+          }
+        ]
       }
     ],
     "PostToolUse": [

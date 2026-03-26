@@ -1,4 +1,4 @@
-# Skills Quick Reference — 67 Skills in One Line Each
+# Skills Quick Reference — 69 Skills in One Line Each
 
 | # | Skill | What it does & why it matters |
 |---|-------|-------------------------------|
@@ -6,7 +6,8 @@
 | 2 | **always-improving** | When the to-do list is empty, suggests the top 1-3 highest-impact project improvements so nothing stagnates. |
 | 3 | **anti-slop** | Zero tolerance for placeholder data ("Unknown", "N/A", "TBD") in any deliverable — every field gets real data or an explicit gap explanation so the user never receives AI-generated garbage. |
 | 4 | **audit** | Scans codebases for hardcoded secrets, security issues, and anti-patterns so vulnerabilities don't ship. |
-| 5 | **brainstorming** | Explores intent, requirements, and design before complex implementations — triggers only when BOTH scope is large AND approach is ambiguous. |
+| 5 | **backtest** | Runs prediction model backtests with walk-forward integrity, overfitting guards, and future-accuracy focus so model changes are data-driven. |
+| 6 | **brainstorming** | Explores intent, requirements, and design before complex implementations — triggers only when BOTH scope is large AND approach is ambiguous. |
 | 7 | **calibrated-confidence** | Makes Claude honest about what it knows vs guesses — dynamically adjusts speed and flags uncertainty so the user knows when to trust and when to verify. |
 | 8 | **codebase-cartographer** | Maps codebase architecture with fast-path for documented projects so Claude navigates instantly without redundant exploration. |
 | 9 | **coding-standards** | Enforces universal best practices for TypeScript, JavaScript, React, and Node.js so code quality is consistent. |
@@ -19,7 +20,7 @@
 | 16 | **dispatching-parallel-agents** | Launches 2+ independent tasks as concurrent subagents so wall-clock time is cut in half (or more). |
 | 17 | **error-memory** | Captures failed approaches and working solutions — tracks in-session patterns and token waste, not just cross-session bugs. |
 | 18 | **executing-plans** | Executes written implementation plans with review checkpoints so multi-step work stays on track. |
-| 19 | **expert-lens** | Activates domain-expert mental models so output meets professional-grade bars. |
+| 19 | **expert-lens** | Activates domain-expert mental models with pre-loaded cannabis pharmacology and sports analytics so output meets professional-grade bars. |
 | 20 | **finishing-a-development-branch** | Guides branch completion with structured merge/PR/cleanup options so work integrates cleanly. |
 | 21 | **fix-loop** | Self-healing CI loop that runs tests, diagnoses, fixes, and re-runs until all pass so broken builds resolve autonomously. |
 | 22 | **fpf-hypotheses** | Executes first-principles hypothesis cycles so complex decisions are grounded in evidence, not gut feeling. |
@@ -35,7 +36,8 @@
 | 32 | **pre-debug-check** | Checks known anti-patterns and past failures BEFORE attempting fixes so tokens aren't wasted on dead-end approaches. |
 | 33 | **precision-reading** | Grep-first, read-only-relevant-lines so large files don't waste thousands of tokens on irrelevant content. |
 | 34 | **predictive-next** | After completing a task, offers the most likely NEXT step in the current workflow — suppresses when always-improving should fire instead. |
-| 35 | **proactive-qa** | Walks the user journey after every implementation, catching edge cases and fixing adjacent bugs before you notice. |
+| 35 | **profit-driven-development** | The north star for sports prediction work — every change must answer "will this make the NEXT picks more correct and profitable?" Prevents overfitting and endless backtest spinning. |
+| 36 | **proactive-qa** | Walks the user journey after every implementation, catching edge cases and fixing adjacent bugs before you notice. |
 | 37 | **process-monitor** | Detects hung processes, port conflicts, and zombie tasks so dev environment issues are caught before they cascade. |
 | 38 | **prompt-anchoring** | Keeps Claude anchored to the original prompt objective during long sessions — periodic drift checks prevent "Claude ADHD" without reducing proactivity. |
 | 39 | **prompt-architect** | Internally decomposes every prompt into intent, context, scope, and unstated requirements — with anti-inflation rule: never upgrade a simple request into a complex one. |
@@ -52,7 +54,8 @@
 | 50 | **seamless-resume** | On "continue", picks up exactly where it left off — with crash recovery that reads `current_work.md` after disconnects. |
 | 51 | **search-first** | Searches for existing tools and libraries before writing custom code so wheels aren't reinvented. |
 | 52 | **senior-dev-mindset** | Ships complete, production-ready features with inferred requirements so nothing needs hand-holding or follow-up. |
-| 53 | **skill-manager** | Prevents skill overload — enforces weight classes (passive/light/heavy), skill cap, resolves conflicts, and detects overthinking. |
+| 53 | **site-update-protocol** | Universal checklist for updating sports prediction websites after algorithm changes — covers all tabs, stats, data files, and deployment across OctagonAI, Diamond Predictions, and Courtside AI. |
+| 54 | **skill-manager** | Prevents skill overload — enforces weight classes (passive/light/heavy), 69-skill cap, resolves conflicts, and detects overthinking. |
 | 55 | **smart-clarify** | Asks structured multiple-choice questions instead of open-ended ones so ambiguity resolves in one round, not three. |
 | 56 | **strategic-compact** | Suggests context compaction at logical task boundaries so important context survives rather than being arbitrarily truncated. |
 | 57 | **subagent-driven-development** | Executes implementation plans by dispatching independent tasks to subagents so parallel work happens within a single session. |

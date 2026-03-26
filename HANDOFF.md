@@ -1,126 +1,109 @@
-# Handoff — Superpowers (Claude Code Skills System) — 2026-03-25 02:00
+# Handoff — Superpowers (Cross-Project: Loss Analyst) — 2026-03-25 03:30 AM
 ## Model: Claude Opus 4.6 (1M context)
-## Previous handoff: handoff_20260324_2145.md
+## Previous handoff: Nest Wise handoff from 2026-03-25 01:30
 
 ---
 
 ## 1. Session Summary
-Massive infrastructure session. Upgraded all 14 commands (deleted 3, elevated 11), built `/mmalogic` dedicated agent, created permanent prevention for v10.68 deploy disaster + UFC site bugs, added file freshness rules (Rule 22), fixed Enhanced Health AI CI, mapped all 26 GitHub repos across 30+ local directories, and built `/reorganize-all` to consolidate everything into `~/Projects/`. The reorganize command is written but NOT yet executed (2 active UFC sessions must close first).
+User wanted AI-powered bet loss analysis added to ALL 5 sports betting websites (UFC, NHL, NBA, NCAA, MLB) with deep algorithm understanding, sports betting intelligence, and concrete Claude Code prompts for self-improvement. Built the `loss-analyst` Python package, integrated it into every sport's pipeline and admin page, then upgraded the system with a prompt generator that creates ready-to-paste investigation, backtest, and discovery prompts grounded in actual loss data. All 6 repos pushed to GitHub.
 
 ## 2. What Was Done (Completed Tasks)
-- **Command audit + upgrade**: All 14 commands reviewed. Deleted 3 deprecated stubs. Upgraded 4 thin wrappers to pre-check→execute→verify. Elevated 4 site commands (inter-phase files, max 2 agents, --quick/--phase modes). Upgraded /full-handoff (12 improvements), /mem (unified memory), /skill-insights (fast mode), /z (status+recovery).
-- **UFC prevention**: 15-item checklist (`ufc_website_maintenance_rules.md`), wrong-directory deploy prevention (Rule 21 + deploy Phase 0), site-update-protocol updated (rules 11-15 + canonical directory gate)
-- **Built /mmalogic**: Dedicated UFC website agent — loads 6 knowledge files, freshness check vs GitHub, routes to update/debug/audit/redesign, self-updates after every task
-- **CLAUDE.md Rules 20-23**: No narration pauses, deploy verification, file freshness, UFC→/mmalogic
-- **Fixed Enhanced Health AI CI**: ESLint quotes, unused vars, missing GoalTag types — GH Actions passing
-- **Full filesystem mapping**: 26 repos, 30+ local directories, identified 5+ UFC copies, 6+ Strain Finder copies, exposed PAT
-- **Built /reorganize-all**: Consolidates all projects into ~/Projects/{sports,health,cannabis,apps,tools}
+- **Push loss analysis to all GitHub repos**: ufc-predict, icebreaker-ai, courtside-ai, collegeedge-ai, diamond-predictions, loss-analyst — all pushed with orchestrators, admin components, and data
+- **Created LOSS_ANALYSIS.md reference docs**: One per sport repo so future agents understand the system
+- **Built `prompt_generator.py`** (loss-analyst package): 5 prompt types — INVESTIGATE, BACKTEST, DISCOVER, CROSS-PATTERN, ROI OPTIMIZER
+- **Upgraded `report.py`**: Added `suggestions_detail`, `claude_code_prompts`, `total_addressable_units`, `estimated_recoverable_units` to JSON output
+- **Updated all 5 orchestrators**: 6-step to 7-step pipeline (added prompt generation step)
+- **Updated all 5 admin UIs**: Added ROI Opportunity banner, Suggestions tab, AI Prompts tab with copy-to-clipboard
+- **Fixed Diamond Predictions multi-sport**: NHL loss analysis data now served correctly alongside MLB
 
 ## 3. What Failed (And Why)
-- **iCloud deep scan timed out**: find across all iCloud took >30s. Used background task + targeted scans.
-- **Git push rejected once**: Remote had concurrent commits. Fixed with rebase.
+- **NCAA repo confusion**: collegeedge-ai and courtside-ai repos overlap (courtside-ai is shared NBA+NCAA). Worked around by pushing NCAA content to collegeedge-ai only.
+- **UFC loss_analysis dir missing locally**: Only existed in GitHub from prior /tmp push. Had to clone from GitHub to update.
 
 ## 4. What Worked Well
-- **Audit-then-improve**: Presented all findings before implementing — user validated the plan
-- **Direct fixes > agent delegation**: Main agent doing the work produces better results than spawning agents
+- Clone-to-/tmp-and-push pattern for iCloud repos
+- NHL as reference implementation, then propagated to all sports via agent
+- Parallel agent for admin UI updates across NBA/NCAA/MLB
 
 ## 5. What The User Wants (Goals & Priorities)
-- **Primary**: Permanently prevent recurring failures (wrong deploys, stale files, "looks correct" approval)
-- **Secondary**: Dedicated MMALogic agent that carries all domain knowledge
-- **Tertiary**: Full filesystem reorganization — one location per project, no duplicates
-- **Frustrations**: "AI keeps fucking this up and i want it permanently prevented"
+- Self-improving algorithms — every lost bet feeds back with AI analysis and improvement suggestions
+- Concrete Claude Code prompts for investigation and ROI improvements
+- Admin-only tab in each sport's website
+- Autonomous self-improvement keeping user in the loop
 
-### User Quotes
-- "AI keeps fucking this up and i want it permanently prevented" — on UFC site bugs
-- "not just reorganize ufc, we are going to reorganize all local folders for all projects" — scope expansion
-- "ensure you aren't missing anything in the project map, do a deeper scan" — thoroughness demand
+### User Quotes (Verbatim)
+- "i want our bet loss analysis to go deeper and make concrete suggestions for algorithm refinement" — after initial loss analysis built
+- "check to see each loss analyst has a dynamic and comprehensive understanding of every aspect of every algorithm" — quality check
 
 ## 6. What's In Progress (Unfinished Work)
-- **/reorganize-all**: Written, NOT executed. Requires closing 2 UFC sessions first.
-- **Enhanced Health AI PR merge**: CI green, CF Pages still failing. Need to disconnect CF Pages git integration.
+- **Deploy updated websites**: Code pushed to GitHub but not deployed to Cloudflare
+- **Run orchestrators**: Need `python3 loss_analysis/run_analysis.py` in each project to generate JSON with prompts
+- **Verify admin tabs**: Check each site shows Suggestions and AI Prompts sections
 
 ## 7. Blocked / Waiting On
-- **/reorganize-all**: 2 active Claude sessions in UFC Algs/ (PIDs 81638, 83363) must be closed
-- **GitHub PAT rotation**: Exposed in recipes-app remote URL — must revoke at github.com/settings/tokens
-- **CF Pages disconnect**: User action in Cloudflare dashboard for enhanced-health-ai
+Nothing blocked — all code-complete and pushed. Just needs deploy + orchestrator runs.
 
 ## 8. Next Steps (Prioritized)
-1. **Revoke exposed GitHub PAT** — security, immediate
-2. **Close UFC sessions → run /reorganize-all** — eliminates stale-file root cause
-3. **Disconnect CF Pages for EHAI → merge PR #1**
-4. **Test /mmalogic on a real UFC task** — validate the agent works
-5. **Test /site-audit --quick on a project** — validate elevated commands
+1. **Run all orchestrators** — Generate fresh loss_analysis.json with prompts for each sport
+2. **Deploy all websites** — Pull latest, build, deploy to Cloudflare
+3. **Verify admin tabs** — Check Suggestions and AI Prompts render correctly
+4. **Use the prompts** — Pick highest-priority prompt from UFC and run it end-to-end
+5. **Hook into automated pipelines** — Auto-run orchestrator after game grading
 
 ## 9. Agent Observations
 
 ### Recommendations
-- Run /reorganize-all ASAP — stale iCloud copies are active danger
-- Make ~/Projects/ the default Claude Code opening directory
-- The superpowers repo itself should eventually move out of iCloud
-
-### Patterns & Insights
-- Duplicate directories are the #1 systemic risk — 5 copies of UFC, 6 of Strain Finder
-- iCloud + git = unreliable. ~/Projects/ (local) is the right home.
-- Commands that specify "main agent does X" work better than "spawn agent to do X"
+- Run UFC orchestrator first (496 losses = most useful prompts)
+- GRAP_MATCHUP_COEFF (UFC, currently DISABLED at 0.0) is a prime improvement target
+- Consider scheduling orchestrator runs via cron
 
 ### Where I Fell Short
-- Should have scanned for exposed secrets proactively during filesystem audit
+- Didn't run orchestrators to verify prompt generator works end-to-end
+- Didn't verify admin UIs in browser
 
 ## 10. Miscommunications to Address
-None — session was well-aligned.
+None — session well-aligned after initial redirect from "just push" to "deeper analysis + prompts"
 
 ## 11. Files Changed This Session
-GitHub commits: 3efd57f, b027e7d, 687b371, a80d211, 3a60974, a2571a8
 
-| File | Action | Description |
-|------|--------|-------------|
-| commands/*.md (11 files) | rewritten | Full command audit upgrade |
-| commands/mmalogic.md | created | Dedicated UFC agent |
-| commands/reorganize-all.md | created | Full filesystem reorg |
-| commands/reorganize-ufc.md | created | UFC-specific reorg |
-| commands/{brainstorm,execute-plan,write-plan}.md | deleted | Deprecated stubs |
-| ~/.claude/CLAUDE.md | modified | Rules 20-23 |
-| skills/site-update-protocol/SKILL.md | modified | Rules 11-15, canonical dir, pre-review |
-| memory/topics/ufc_website_maintenance_rules.md | created | 15-item checklist |
-| memory/topics/ufc_canonical_paths.md | created | Path lookup table |
-| anti-patterns.md | modified | 2 new entries |
-| EHAI: terms/page.tsx, page.tsx, types/health.ts | modified | CI fixes |
+| Repo | Commits | Key Changes |
+|------|---------|-------------|
+| loss-analyst | 2 | prompt_generator.py (new), report.py (upgraded) |
+| ufc-predict | 2 | AdminLossAnalysis.jsx, run_analysis.py, LOSS_ANALYSIS.md |
+| icebreaker-ai | 3 | AdminPage.jsx, run_analysis.py, LOSS_ANALYSIS.md |
+| courtside-ai | 3 | AdminPage.jsx, run_analysis.py, LOSS_ANALYSIS.md |
+| collegeedge-ai | 3 | AdminPage.jsx, run_analysis.py, LOSS_ANALYSIS.md |
+| diamond-predictions | 3 | LossAnalysisTab.jsx, run_analysis.py, LOSS_ANALYSIS.md |
 
 ## 12. Current State
-- **Branch**: N/A (iCloud, synced via /tmp)
-- **Last GitHub commit**: a2571a8
-- **Build status**: N/A (skills system)
+- **All 6 repos**: Pushed to GitHub main
+- **Build/Deploy status**: Not deployed — needs build + deploy for all 5 sites
 - **Uncommitted changes**: None
 
 ## 13. Environment State
 - **Node.js**: v25.6.1 | **Python**: 3.14.3
-- **Running dev servers**: None
-- **Active MCP**: Chrome, Preview, Desktop Commander, PDF, PowerPoint, Word, Drive, scheduled-tasks
+- **Running dev servers**: Vite on all-things-ai, Vite on mystrainai (5174)
+- **Environment variables set**: None
 
 ## 14. Session Metrics
-- **Duration**: ~3 hours
-- **Tasks completed**: 15+ / 15+
-- **User corrections**: 0
-- **Commits**: 6 (superpowers) + 2 (enhanced-health-ai)
+- **Duration**: ~2 hours
+- **Tasks completed**: 5/5
+- **User corrections**: 1
+- **Commits made**: 16 across 6 repos
+- **Skills/commands invoked**: /full-handoff
 
 ## 15. Memory & Anti-Patterns Updated
-- **anti-patterns.md**: UFC_SITE_GLANCE_AND_APPROVE, UFC_WRONG_DIRECTORY_DEPLOY
-- **Project memory**: feedback_no_narration_pauses.md
-- **Topics**: ufc_website_maintenance_rules.md, ufc_canonical_paths.md
-- **core.md**: Pointer to maintenance rules
+No memory updates — implementation session, no new anti-patterns discovered. LOSS_ANALYSIS.md files serve as reference docs.
 
 ## 16. Skills & Agents Used
-| Skill/Agent | How It Was Used | Was It Helpful? |
-|-------------|----------------|-----------------|
-| General-purpose agent | Read all 14 commands | Yes |
-| General-purpose agent | Update 4 site commands | Yes |
-| Glob/Grep/Bash | Full filesystem scan | Yes |
+| Skill/Agent | How It Was Used | Helpful? |
+|-------------|----------------|----------|
+| Agent (general) | Created LOSS_ANALYSIS.md for 5 repos in parallel | Yes |
+| Agent (general) | Updated admin components for NBA/NCAA/MLB | Yes |
 
 ## 17. For The Next Agent — Read These First
 1. This HANDOFF.md
-2. ~/.claude/anti-patterns.md (2 new entries)
-3. ~/.claude/CLAUDE.md (rules 20-23 new)
-4. ~/.claude/commands/reorganize-all.md (PENDING)
-5. ~/.claude/commands/mmalogic.md (NEW)
-6. ~/.claude/memory/topics/ufc_canonical_paths.md
-7. ~/.claude/memory/topics/ufc_website_maintenance_rules.md
+2. ~/.claude/anti-patterns.md
+3. ~/Projects/loss-analyst/ — shared Python package (prompt_generator.py is new)
+4. Any sport's LOSS_ANALYSIS.md in its GitHub repo root
+5. ~/.claude/memory/topics/ufc_betting_model_spec.md (for UFC work)
