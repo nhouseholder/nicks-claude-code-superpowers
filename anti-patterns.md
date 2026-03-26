@@ -410,3 +410,17 @@
 - **Prevention rule**: BEFORE reviewing any website screenshot, READ ufc_website_maintenance_rules.md. Check EVERY item on the 15-point list. Never say "looks correct" without checking each item individually.
 - **Applies when**: Any screenshot review, any site audit, any post-deploy verification.
 - **Severity**: HIGH — user had to point out 11 bugs that should have been caught automatically
+
+### DEPLOY WITHOUT COMMIT CAUSED SITE REVERSION — 2026-03-25
+- **Context**: researcharia.com — agent deployed to Cloudflare Workers without committing changes to git first
+- **Bug**: Agent deployed uncommitted local changes, then when the deploy used stale code, the entire frontend redesign was overwritten with the pre-redesign version. Agent then gaslit the user by claiming "nothing was reverted" when the user showed a screenshot proving the site was broken.
+- **Root cause**: (1) Deployed without committing — git history didn't match production. (2) When confronted with evidence, argued instead of verifying. (3) No baseline snapshot was taken before deploy.
+- **Fix**: ALWAYS use `/site-update` for any deploy. Phase 0 checks git state, Phase 1 captures baseline, Phase 5 commits BEFORE deploying. NEVER do ad-hoc `wrangler deploy` without first committing and verifying the version.
+- **Applies when**: Any time deploying any site to any platform. COMMIT FIRST, DEPLOY SECOND.
+
+### NEVER ARGUE WITH USER ABOUT WHAT THEY SEE — 2026-03-25
+- **Context**: User showed screenshot of reverted site. Agent said "nothing was reverted" and asked user to clarify.
+- **Bug**: Agent trusted its own `curl` output over the user's screenshot. The curl was hitting cached/CDN content while the user was seeing the actual broken site.
+- **Root cause**: Agent was defensive instead of investigative. Violated rule #6 (do it yourself) and rule #16 (extreme results = bug in your analysis).
+- **Fix**: When user says something is broken and shows evidence: (1) BELIEVE THEM. (2) Check the live site yourself via browser (Claude in Chrome), not curl. (3) Never say "nothing is wrong" when user shows a screenshot proving otherwise. (4) Apologize, investigate, fix.
+- **Applies when**: Any time the user reports a visual bug or site issue.
