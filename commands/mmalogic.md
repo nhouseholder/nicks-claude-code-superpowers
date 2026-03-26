@@ -280,18 +280,69 @@ This script lives at `ufc-predict/validate_registry.py`. It reads `ufc_profit_re
 
 ---
 
-## Learning & Growth
+## Learning & Growth (MANDATORY — NOT OPTIONAL)
 
-After EVERY task, this agent updates its knowledge:
+**Every /mmalogic session MUST update knowledge before ending.** This is not a suggestion — it's a hard requirement. The output format below has a "Knowledge updated" field. If it says "none" AND you fixed a bug or learned something, you failed this step.
 
-1. **New bug found?** → append to `~/.claude/anti-patterns.md` with UFC prefix
-2. **New display rule learned?** → append to `~/.claude/memory/topics/ufc_website_maintenance_rules.md`
-3. **New verification item?** → add to validator checks
-4. **Canonical path changed?** → update `~/.claude/memory/topics/ufc_canonical_paths.md`
-5. **Validator rule added?** → update `validate_registry.py` + this command's validator table
-6. **Commit all knowledge updates** to GitHub via the superpowers sync workflow
+### What to record (check ALL, record any that apply)
 
-This ensures the NEXT session has everything THIS session learned.
+| Trigger | Where to write | Format |
+|---------|---------------|--------|
+| Fixed a bug | `~/.claude/anti-patterns.md` | `### [SHORT_TITLE] — [DATE]` with Context, Bug, Root cause, Fix, Applies when |
+| Bug occurred before | `~/.claude/recurring-bugs.md` | Add recurrence count + link to anti-pattern |
+| New display rule | `ufc_website_maintenance_rules.md` | Add numbered rule to the appropriate section |
+| New validator check needed | `ufc_ground_truth_spec.md` + `validate_registry.py` | Add check function + table entry |
+| Scoring rule clarification | `ufc_betting_model_spec.md` | Add to appropriate rule section (ONLY with user approval) |
+| Path or structure changed | `ufc_canonical_paths.md` | Update the affected path |
+| Frontend component behavior | `ufc_website_maintenance_rules.md` | Add to Bug History table |
+| Parlay logic learned | `ufc_betting_model_spec.md` Parlay Rules section | Document the edge case |
+| Tiebreaker behavior | `ufc_betting_model_spec.md` | Document the tiebreaker rule |
+| Odds scraper behavior | `ufc_website_maintenance_rules.md` rule 22/28 | Update scraper instructions |
+
+### How to record
+
+1. **Be specific.** "Fixed table bug" is useless. "EventBetsDropdown showed method_pnl=null for fighter losses because safePnl() returned early on null odds before checking ml_correct" is useful.
+2. **Include the root cause.** Not just what was wrong — WHY it was wrong. What assumption was flawed?
+3. **Include "Applies when".** When should a future agent check this? "Any time you modify safePnl() or add a new bet type column."
+4. **Date everything.** Use ISO format (2026-03-26).
+5. **Cross-reference.** If a bug relates to an existing anti-pattern, link them.
+
+### How to sync knowledge to GitHub
+
+After writing to any memory/anti-pattern file:
+
+```bash
+# Clone superpowers repo fresh (NEVER push from iCloud)
+cd /tmp && rm -rf superpowers-sync
+git clone https://github.com/nhouseholder/nicks-claude-code-superpowers.git superpowers-sync 2>&1 | tail -1
+
+# Copy updated files
+cp ~/.claude/anti-patterns.md /tmp/superpowers-sync/
+cp ~/.claude/recurring-bugs.md /tmp/superpowers-sync/
+cp ~/.claude/memory/topics/ufc_*.md /tmp/superpowers-sync/memory/topics/
+cp ~/.claude/commands/mmalogic.md /tmp/superpowers-sync/commands/
+
+# Commit and push
+cd /tmp/superpowers-sync
+git add -A
+git commit -m "MMALogic session learning: [brief description of what was learned]"
+git push origin main
+
+# Cleanup
+rm -rf /tmp/superpowers-sync
+```
+
+**This sync MUST happen before the session ends.** Knowledge that only lives in one session's memory is worthless — it dies when the session closes.
+
+### Verification
+
+At session end, ask yourself:
+- Did I fix any bugs? → Did I record them in anti-patterns?
+- Did I learn any display rules? → Did I add them to maintenance rules?
+- Did I discover any data edge cases? → Did I add validator checks?
+- Did I push all knowledge to GitHub? → Is the sync done?
+
+If ANY answer is "no" when it should be "yes", **do it now before writing the output format.**
 
 ---
 
@@ -307,6 +358,7 @@ Version: [version.js value]
 Freshness: [verified against GitHub ✓]
 Validator: [ALL 12 RULES PASS / N failures — list them]
 15-item checklist: [N/15 passed]
-Knowledge updated: [list of files updated, or "none"]
+Knowledge updated: [list of files updated — or "none (no new learnings)" with justification]
+Knowledge synced to GitHub: [yes/no — commit SHA]
 Deployed: [yes/no — if yes, via GitHub CI]
 ```
