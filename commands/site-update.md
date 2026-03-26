@@ -8,24 +8,58 @@ Update a website/webapp safely. Baseline → changes → verify → deploy. The 
 - `--no-deploy` = skip deployment, just make and verify changes
 - If no argument, ask what needs updating
 
-## Phase 0: Orient (~30 seconds, main agent)
+## Phase 0: Gate Check (~30 seconds, main agent)
+
+**MANDATORY — prevents deploying from stale or wrong state.**
 
 ```bash
 PROJECT_NAME=$(basename "$(pwd)")
+echo "=== GATE CHECK ==="
+echo "Directory: $(pwd)"
+echo "Branch: $(git branch --show-current 2>/dev/null)"
+
+# Verify on main/master — never deploy from feature branches
+BRANCH=$(git branch --show-current 2>/dev/null)
+if [ "$BRANCH" != "main" ] && [ "$BRANCH" != "master" ]; then
+  echo "⚠️ NOT ON MAIN — you are on branch: $BRANCH"
+  echo "Switch to main before deploying, or use --no-deploy"
+fi
+
+# Check local matches remote (FAILSAFE 8)
+git fetch origin --quiet 2>/dev/null
+LOCAL_SHA=$(git rev-parse HEAD 2>/dev/null)
+REMOTE_SHA=$(git rev-parse origin/main 2>/dev/null || git rev-parse origin/master 2>/dev/null)
+if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
+  echo "⚠️ LOCAL IS STALE — pulling..."
+  git pull
+fi
+echo "Local SHA:  $LOCAL_SHA"
+echo "Remote SHA: $REMOTE_SHA"
+
+# Check current version (FAILSAFE 3)
+cat VERSION 2>/dev/null || node -e "console.log(require('./package.json').version)" 2>/dev/null || echo "No version file"
+
+# Stack detection
 [ -f package.json ] && node -e "const p=require('./package.json'); console.log('Stack:', Object.keys(p.dependencies||{}).filter(d=>/react|next|vue|svelte|express/.test(d)).join(', '))"
+
+# Recent commits
 git log --oneline -3 2>/dev/null
 git status --short 2>/dev/null
 ```
+
+**If branch is not main/master:** Ask user before proceeding. Deploying from a feature branch overwrites production.
+**If local is behind remote:** Pull first. Never build on stale code.
 
 Read anti-patterns and project memory. If UFC project, read `~/.claude/memory/topics/ufc_website_maintenance_rules.md`.
 
 ## Phase 1: Baseline Snapshot (~2 min, main agent)
 
 Do this yourself:
-1. Start dev server if not running
+1. Start dev server if not running (check `ps aux | grep -E "next|vite|express"` first to avoid port conflicts)
 2. Take screenshots or read current state of every page affected by this update
 3. Record specific values for everything that currently works — numbers, text, colors, layouts
-4. Note the build/deploy status
+4. Note the current version number from VERSION or package.json
+5. Note the build/deploy status
 
 **Write:** `_update/phase1_baseline.md` — every working item with specific values. NOT "looks fine."
 
@@ -42,7 +76,13 @@ Do this yourself:
    - Frontend: read `~/.claude/skills/frontend-design/SKILL.md` patterns
    - Backend: read `~/.claude/skills/senior-backend/SKILL.md` patterns
    - UFC site: read `~/.claude/skills/site-update-protocol/SKILL.md` rules + data sync step
-2. If UFC/MMALogic project — **DATA SYNC (MANDATORY):**
+
+2. **CREDENTIAL PROTECTION (MANDATORY):**
+   - NEVER remove or overwrite Firebase, Supabase, Stripe, or any auth credentials
+   - If touching config files, verify all credential env vars are still present after your edit
+   - `grep -c "FIREBASE\|SUPABASE\|STRIPE\|API_KEY" <file>` before AND after — counts must match
+
+3. If UFC/MMALogic project — **DATA SYNC (MANDATORY):**
    - Sync all 7 data files from `ufc-predict/webapp/frontend/public/data/` → `webapp/frontend/public/data/`
    - Check `diff -rq` for source file divergence
    - Verify registry totals include ALL 5 bet types
@@ -65,12 +105,23 @@ If the fix creates regressions, iterate until baseline is restored AND the updat
 
 Skip if `--no-deploy` was specified.
 
-1. Commit:
+1. **Version check (FAILSAFE 3):** Compare current version to what was recorded in Phase 1 baseline. If the version is LOWER than what's in production, ABORT — you are deploying a regression.
+
+2. **Clean up temp files:**
 ```bash
-git add -A && git commit -m "update: [description of what changed]"
+rm -rf _update/ 2>/dev/null
 ```
-2. Deploy using project-appropriate method (invoke `/deploy` or manual)
-3. Post-deploy: verify the live site matches what you saw in Phase 4
+
+3. **Commit specific files (not git add -A):**
+```bash
+# Stage only the files you intentionally changed — never blind add
+git add [specific files you changed]
+git commit -m "update: [description of what changed]"
+```
+
+4. Deploy using project-appropriate method (invoke `/deploy` or manual)
+
+5. Post-deploy: verify the live site matches what you saw in Phase 4
 
 **If deploy fails or live site has regressions:**
 1. Rollback: `npx wrangler rollback` or `git revert HEAD`
@@ -89,18 +140,23 @@ If any bugs were found/fixed during verification:
 SITE UPDATE COMPLETE
 ====================
 Update: [description]
-Changed: [list of files]
+Branch: [main/master] ✓
+Version: [before] → [after]
+Changed: [list of specific files]
 Baseline: [N] items verified — [all ✓ / N failed → fixed]
 Build: passing ✓
 Deployed: [yes/no/rolled back]
 Bugs found: [N] | Fixed: [N]
-
-Update files: _update/ (baseline, plan if complex)
+Credentials: verified intact ✓
 ```
 
 ## Design Principles
 - **Main agent does everything.** Zero subagents. This is the lightweight command.
+- **Gate check before anything else.** Stale code + deploy = production regression.
 - **Baseline is sacred.** If ANYTHING from baseline breaks, fix it before declaring done.
 - **Specific values, not "looks fine."** Every baseline check states what it sees.
+- **Specific files, not `git add -A`.** Never accidentally commit temp files or credentials.
+- **Never touch credentials.** Count them before and after edits.
+- **Clean up after yourself.** Remove `_update/` before committing.
 - **Token budget: ~10 min.** This is the fast, safe update path.
 - **One commit** for the whole update.
