@@ -36,7 +36,7 @@ Before executing: is this response shaped by understanding of the task, or by a 
 | Moderate (single task) | 3-5 |
 | Complex (multi-part) | 5-8 |
 
-**Golden rule:** Skills enhance Claude's natural intelligence, not replace it. If ignoring a skill produces a better answer, ignore it.
+**Golden rule:** Skills enhance Claude's natural intelligence. Safety, verification, and domain-knowledge skills are NEVER optional — they exist because Claude's 'natural intelligence' has caused real damage without them. Enhancement/style skills can be suppressed when they'd add noise.
 
 ## 2. Task-to-Model Routing
 

@@ -14,7 +14,7 @@ When you encounter something you don't deeply understand, STOP. Research it thor
 
 | Level | Action | Time | Examples |
 |-------|--------|------|----------|
-| **Routine** | Skip research, just build | 0 min | CRUD, UI components, config, CSS fixes |
+| **Routine** | Minimal research — 1 quick validation check | 0 min | Standard patterns with zero domain logic | CRUD, pure UI, config |
 | **Familiar** | Quick check (1-2 searches) | 2 min | Pagination, JWT auth, caching |
 | **Technical** | Targeted research (3 searches + 1-2 reads) | 5 min | Elo rating, cosine similarity, token bucket |
 | **Complex** | Full literature review (5 searches + 3 reads) | 10 min | Bayesian scoring, binding models, recommendation engines |
@@ -48,7 +48,7 @@ NEVER implement before presenting research. Wait for user to confirm approach, c
 ## Token Economy
 
 1. **Max 5 WebSearch + 3 WebFetch per topic.** Be specific with queries. Ask WebFetch for targeted info, not "summarize everything."
-2. **Skip what you know.** If 80%+ confident, do 1-2 validation searches only.
+2. **Validate what you think you know.** 1-2 quick checks even at high confidence. Overconfidence has cost hours.
 3. **Reuse within session.** Don't re-search or re-fetch topics/URLs already covered.
 
 ## Quality: Cross-reference claims across 2+ sources. Prefer recent (2023+), cited, peer-reviewed sources. Always include source URLs.

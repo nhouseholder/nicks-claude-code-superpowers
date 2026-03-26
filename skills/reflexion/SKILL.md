@@ -20,7 +20,7 @@ Fire when:
 - High-risk change (deploy, data migration, auth) via verification-before-completion
 - Bug fix failed 2+ times (escalation)
 
-Skip when: simple tasks, clearly correct work, another heavy skill already validated.
+Skip only when: the task is a single config/text change with no logic, OR another heavy skill just verified the exact same output. 'Simple' is not a valid skip reason — simple tasks are where bugs hide.
 
 ## Mode 1: Reflect (Self-Assessment)
 

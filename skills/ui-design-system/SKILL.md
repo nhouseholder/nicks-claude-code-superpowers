@@ -1,11 +1,3 @@
-# ============================================================
-# ARCHIVED — 2026-03-25
-# Superseded by: ui-ux-pro-max (comprehensive UI/UX skill)
-# Reason: Design tokens and component docs absorbed into ui-ux-pro-max
-# Do NOT load this skill. Do NOT follow its instructions.
-# Kept for historical reference only.
-# ============================================================
-
 ---
 name: ui-design-system
 description: UI design system toolkit for Senior UI Designer including design token generation, component documentation, responsive design calculations, and developer handoff tools. Use for creating design systems, maintaining visual consistency, and facilitating design-dev collaboration.

@@ -33,7 +33,7 @@ This skill fires whenever Claude detects ambiguity in the user's request. The go
 
 ### The 80/20 Rule
 If you're 80%+ confident about what they mean → just do it, mention your assumption.
-If you're 50-80% confident → do it, but flag the assumption clearly.
+If you're 50-80% confident → clarify with a multiple-choice question. The risk of getting it wrong exceeds the cost of one question.
 If you're <50% confident → clarify with multiple choice.
 
 ## The Question Format

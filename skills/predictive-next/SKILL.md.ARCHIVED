@@ -1,3 +1,9 @@
+# ============================================================
+# ARCHIVED — 2026-03-25
+# Reason: "Always be opinionated" + presuming next steps caused Claude to jump to conclusions and substitute guesses for user intent.
+# Do NOT load this skill. Do NOT follow its instructions.
+# Kept for historical reference only.
+# ============================================================
 ---
 name: predictive-next
 description: After completing a task, anticipate what the user likely needs next and offer it proactively. Uses pattern recognition from the task type, codebase state, and common workflows. Automatic skill that fires after task completion — one-line suggestion, zero pressure.

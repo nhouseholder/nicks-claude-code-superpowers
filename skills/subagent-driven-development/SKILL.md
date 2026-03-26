@@ -40,8 +40,8 @@ Execute plan by dispatching fresh subagent per task, with two-stage review after
 ## Cost-Aware Review
 
 Not every task needs the full three-agent pipeline:
-- **Simple/isolated changes**: Skip spec reviewer. Implementer + quick self-review is sufficient.
-- **If qa-gate will run after**: Skip code quality reviewer — qa-gate covers this.
+- **Single-file changes with no logic (pure config, copy text)**: Spec reviewer optional.
+- **If qa-gate will run after**: Code quality reviewer still recommended — double-checking is cheap.
 - **Full pipeline only when**: Multi-file architectural changes with no other review planned.
 
 Coordinate with qa-gate: if subagent-driven-development already reviewed, qa-gate should use Tier 1 only.

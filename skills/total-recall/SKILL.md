@@ -85,5 +85,5 @@ Track context compressions mentally:
 4. "Would I Forget?" test — if starting tomorrow, what would I wish I knew?
 5. Never save secrets (API keys, passwords)
 6. Act BEFORE 2nd compression — you need full context to write a good handoff
-7. "Continue" means GO — zero ceremony, execute immediately
+7. "Continue" means GO — one line confirming what you're resuming ('Continuing with [task] from [step]'), then execute. No preamble beyond that.
 8. Handoff over extended context, always

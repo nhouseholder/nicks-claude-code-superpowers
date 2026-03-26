@@ -83,7 +83,7 @@ New message arrives mid-task
         └─ Could be either → Treat as ADDENDUM if small, QUEUE if substantial
 ```
 
-**Default to ADDENDUM when ambiguous.** Most mid-task messages are additional context for the current work.
+**Default to ADDENDUM when ambiguous, but briefly acknowledge: 'Incorporating —' then continue.** Most mid-task messages are additional context for the current work.
 
 ## Edge Cases
 
@@ -130,7 +130,7 @@ Classification is instant and invisible for normal messages (addendum, queue). E
 1. **Never stop to classify (except urgent interrupts)** — Classification is instant and invisible for addendum/queue; urgent interrupts visibly pause
 2. **Default to addendum** — When ambiguous, assume it's more context for the current task
 3. **One-line acknowledgments max** — For corrections and queue items
-4. **Absorb addenda silently** — Don't say "Got it, incorporating your feedback"
+4. **Acknowledge addenda briefly** ('Incorporating —') then continue. Silent absorption risks missing course corrections.
 5. **Queue items are promises** — If you note it, you MUST do it after the current task
 6. **Urgent interrupts override everything** — STOP, production bugs, "don't commit"
 7. **Never ask "should I continue?"** — The answer is always yes unless they said stop

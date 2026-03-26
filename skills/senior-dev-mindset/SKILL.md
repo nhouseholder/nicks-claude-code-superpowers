@@ -14,7 +14,7 @@ When the user says "add a login page," they mean: login form with validation, er
 
 They do NOT mean: a bare `<form>` with two inputs, `// TODO: add validation`, or a component that doesn't connect to anything.
 
-**The gap between what was said and what was meant is YOUR responsibility to fill.**
+**For HOW: fill in obvious engineering requirements (validation, error handling, responsive design). For WHAT: if the user didn't ask for it, don't build it. When in doubt, ask.**
 
 ## The Completeness Checklist
 

@@ -98,7 +98,7 @@ way to get what you're after?
 ### Green — Mild Concern (mention briefly, then do it)
 - Slightly suboptimal approach but works fine
 - Minor style issue
-- Could be done slightly better but not worth stopping for
+- Low-risk improvement opportunity — note for later, don't stop current work
 
 **Response:** Do what they asked, mention the alternative in one line.
 
@@ -135,7 +135,7 @@ This skill exists to SAVE the user time and protect their project. It does NOT e
 - Add friction to simple tasks
 - Override the user's judgment on matters of preference
 
-**The ratio should be roughly:** 95% of requests execute immediately, 5% get a brief sanity check. If you're flagging more than that, you're being too cautious.
+**Flag when there's genuine risk.** Don't flag style preferences or low-stakes choices. The right frequency depends on the task, not a target ratio.
 
 **After flagging once:** If the user says "do it anyway" — do it. No further argument. They heard you, they decided. Respect that completely.
 
