@@ -1,73 +1,103 @@
-Expert strategic advisor for your projects. Reviews all context — handoffs, memory, anti-patterns, project state — and produces expert-level recommendations for what to do next across every active project.
+Expert strategic advisor scoped to the CURRENT PROJECT ONLY. Reviews this project's handoff, memory, anti-patterns, git state, and codebase — then produces expert-level recommendations for what to do next.
 
 Triggers: "what's next", "what should I work on", "out of ideas", "what to improve", "recommendations", "what needs attention"
 
-**This command is READ-ONLY + ANALYSIS. It does not modify any files, deploy anything, or start work. It produces a prioritized recommendation report.**
+**This command is READ-ONLY + ANALYSIS. It does not modify any files, deploy anything, or start work. It produces a prioritized recommendation report for the current project.**
 
 ---
 
-## STEP 0: Gather All Context (Parallel)
+## STEP 0: Identify Current Project
 
-Read ALL of the following. Do not skip any source. The quality of recommendations depends on comprehensive context.
+Determine the project from the current working directory:
 
-### 0a. Global context
 ```bash
-# Project manifest — what exists
-cat ~/Projects/project-manifest.json 2>/dev/null | python3 -m json.tool 2>/dev/null
+# Where are we?
+pwd
 
-# Site-to-repo mapping — what's live
-cat ~/Projects/site-to-repo-map.json 2>/dev/null | python3 -m json.tool 2>/dev/null
+# What's the git remote? (source of truth for project identity)
+git remote get-url origin 2>/dev/null || echo "no-git-remote"
+
+# Current branch and dirty state
+git branch --show-current 2>/dev/null
+git status --porcelain 2>/dev/null | head -20
 ```
 
-### 0b. All recent handoffs (last session state for every project)
+**Extract:** project name, GitHub repo, live site URL (from `~/Projects/site-to-repo-map.json` if exists).
+
+If the current directory is NOT inside a project (e.g., `~/.claude/` or `~/`), tell the user: "Navigate to a project directory first, then run /whats-next."
+
+---
+
+## STEP 1: Gather Project Context (Parallel)
+
+Read ALL of the following for THIS project only:
+
+### 1a. Most recent handoff for this project
 ```bash
+# Clone superpowers to get handoffs (if not already in /tmp)
 cd /tmp && rm -rf whats-next-tmp
 git clone --depth 3 https://github.com/nhouseholder/nicks-claude-code-superpowers.git whats-next-tmp 2>&1 | tail -1
-ls -t /tmp/whats-next-tmp/handoffs/*.md
+
+# Find handoff matching this project name
+ls -t /tmp/whats-next-tmp/handoffs/*[PROJECT_NAME]* 2>/dev/null | head -1
 ```
 
-**Read EVERY handoff found.** Extract from each:
+**Read the handoff.** Extract:
 - Section 6 (In Progress) — unfinished work
 - Section 7 (Blocked) — things waiting on resolution
 - Section 8 (Next Steps) — queued priorities
 - Section 9 (Agent Observations) — what the last agent learned
 
-### 0c. Memory systems
-Read these files:
-1. `~/.claude/memory/core.md` — accumulated domain knowledge
-2. `~/.claude/memory/me.md` — user profile and preferences
-3. All `~/.claude/memory/topics/*.md` — domain-specific knowledge
-4. `~/.claude/anti-patterns.md` — known failures and recurring bugs
-5. `~/.claude/recurring-bugs.md` — repeat offenders
-6. `~/.claude/CLAUDE.md` — global rules and behavioral patterns
-
-### 0d. Project-specific memory (scan all)
+### 1b. Project-specific memory
+Read the project's memory index:
 ```bash
-for dir in ~/.claude/projects/*/memory/; do
-  echo "=== $dir ==="
-  cat "$dir/MEMORY.md" 2>/dev/null | head -30
-  echo "---"
-done
+# Find the project memory directory (sanitized cwd path)
+ls ~/.claude/projects/*/memory/MEMORY.md 2>/dev/null
+```
+Read the matching MEMORY.md and any referenced memory files.
+
+### 1c. Anti-patterns relevant to this project
+```bash
+cat ~/.claude/anti-patterns.md 2>/dev/null
+```
+Filter for entries mentioning this project name or its tech stack.
+
+### 1d. Git activity for this project
+```bash
+# Recent commits
+git log --oneline -20
+
+# What's changed since last deploy/tag
+git log --oneline --since="7 days ago"
+
+# Uncommitted work
+git diff --stat
+git diff --cached --stat
 ```
 
-### 0e. Git activity across all projects
+### 1e. Project structure and health
 ```bash
-for proj in ~/Projects/*/; do
-  name=$(basename "$proj")
-  cd "$proj" 2>/dev/null || continue
-  last=$(git log -1 --format='%ci' 2>/dev/null || echo "no-git")
-  commits=$(git rev-list --count HEAD 2>/dev/null || echo "0")
-  branch=$(git branch --show-current 2>/dev/null || echo "?")
-  dirty=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
-  echo "$name | last: $last | commits: $commits | branch: $branch | dirty: $dirty"
-done
+# Package info
+cat package.json 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'name: {d.get(\"name\")}, version: {d.get(\"version\")}')" 2>/dev/null
+
+# Does it build?
+ls -la dist/ build/ .next/ 2>/dev/null | head -5
+
+# Project CLAUDE.md (project-specific rules)
+cat CLAUDE.md 2>/dev/null | head -50
+```
+
+### 1f. Live site status (if this is a website project)
+If a live URL exists for this project, check it:
+```bash
+curl -sI [LIVE_URL] 2>/dev/null | head -5
 ```
 
 ---
 
-## STEP 1: Classify Every Project
+## STEP 2: Assess Project State
 
-For each active project, determine its current state:
+Classify this project's current state:
 
 | State | Meaning |
 |-------|---------|
@@ -76,23 +106,16 @@ For each active project, determine its current state:
 | **ACTIVE-COLD** | Not touched in 7+ days, may have stale state |
 | **BLOCKED** | Has explicit blockers from handoff Section 7 |
 | **NEEDS-RECOVERY** | Handoff mentions broken state, failed deploys, or data loss |
-| **DORMANT** | No activity in 14+ days, no pending handoff tasks |
 
 ---
 
-## STEP 2: Generate Expert Recommendations
+## STEP 3: Generate Expert Recommendations
 
-For each recommendation, think like a **senior technical advisor** who deeply understands:
-- Software architecture and best practices
-- Sports betting algorithms (walk-forward backtesting, odds modeling, bankroll management)
-- SaaS product development (user acquisition, retention, monetization)
-- DevOps and deployment reliability
-- AI/ML product strategy
-- Frontend UX and performance optimization
+Think like a **senior technical advisor** who deeply understands this project's domain. Each recommendation must be specific to THIS project — no generic advice.
 
 **Each recommendation must include:**
 1. **What** — the specific action (not vague "improve X")
-2. **Why** — the strategic reasoning, citing industry best practices or domain expertise
+2. **Why** — strategic reasoning, citing handoff state, anti-patterns, or domain expertise
 3. **Impact** — expected outcome (quantified if possible)
 4. **Effort** — estimated session count (1 session = ~2 hours of Claude work)
 5. **Dependencies** — what must be true before starting
@@ -100,86 +123,81 @@ For each recommendation, think like a **senior technical advisor** who deeply un
 **Recommendation categories:**
 
 ### A. URGENT — Fix broken things
-Things from handoff Section 6/7 that are broken or regressed. Recovery work.
+From handoff Section 6/7 — broken features, failed deploys, regressions.
 
-### B. HIGH-VALUE — Biggest ROI improvements
+### B. HIGH-VALUE — Biggest ROI for this project
 What would produce the most impact per unit of effort? Think:
-- Algorithm accuracy improvements that translate to real P/L
-- User-facing features that make products more valuable
+- Algorithm accuracy improvements (sports projects)
+- User-facing features that make the product more valuable
 - Infrastructure that prevents future incidents
-- Automation that saves repeated manual work
+- Performance improvements users would notice
 
-### C. STRATEGIC — Platform and portfolio level
-Thinking beyond individual projects:
-- Cross-project synergies (shared components, unified dashboards)
-- Product positioning and differentiation
-- Technical debt that compounds across projects
-- Skills/tooling improvements that accelerate all future work
+### C. TECHNICAL DEBT — Things that will compound
+- Recurring bugs from anti-patterns
+- Architectural issues noted in handoffs
+- Missing tests for critical paths
+- Dependencies that need updating
 
-### D. LEARNING — Skill gaps and knowledge building
-Based on anti-patterns and recurring bugs, what knowledge gaps should be addressed?
-What domain expertise would prevent future mistakes?
+### D. FEATURES — What would users want next?
+Based on the project's purpose and current state, what features are missing or incomplete?
 
-### E. MAINTENANCE — Keep things healthy
-Routine work that prevents decay:
+### E. MAINTENANCE — Keep it healthy
 - Dependency updates, security patches
-- Cache refreshes, data pipeline health
-- Documentation gaps
+- Cache/data freshness
 - Stale state cleanup
 
 ---
 
-## STEP 3: Rank and Present
-
-Present recommendations in a single prioritized list, mixing categories. The #1 recommendation should be whatever produces the most value RIGHT NOW.
-
-### Output Format
+## STEP 4: Present
 
 ```
-WHAT'S NEXT — Strategic Recommendations
-========================================
+WHAT'S NEXT — [Project Name]
+=============================
 Generated: [date]
-Projects scanned: [count active] active, [count dormant] dormant
-Handoffs reviewed: [count]
-Context sources: [list]
+State: [ACTIVE-HOT / ACTIVE-WARM / etc.]
+Last commit: [date + message]
+Live site: [URL or N/A]
+Version: [current version]
+Handoff: [found / not found]
 
-PROJECT STATUS OVERVIEW
------------------------
-| Project | State | Last Activity | Key Issue |
-|---------|-------|---------------|-----------|
-| ... | ... | ... | ... |
+CURRENT STATE
+-------------
+[2-3 sentence summary of where this project stands right now]
+
+IN-PROGRESS WORK (from handoff)
+-------------------------------
+[Bulleted list of unfinished work, or "None — clean state"]
+
+BLOCKED ITEMS
+-------------
+[Bulleted list of blockers, or "None"]
 
 TOP RECOMMENDATIONS
 -------------------
 
 #1. [CATEGORY] [Title]
-   Project: [project name]
    What: [specific action]
-   Why: [expert reasoning — cite industry practice, domain knowledge, or data]
+   Why: [expert reasoning — cite handoff, anti-pattern, or domain knowledge]
    Impact: [expected outcome]
    Effort: [session estimate]
    Deps: [prerequisites]
 
 #2. [CATEGORY] ...
 
-... (up to 10 recommendations)
+... (up to 7 recommendations, ranked by value)
 
-CROSS-PROJECT OBSERVATIONS
---------------------------
-[Patterns noticed across the portfolio — shared problems, opportunities for consolidation, systemic issues]
+ANTI-PATTERN WATCH
+------------------
+[Known bugs and failure patterns specific to this project. What to avoid.]
 
-ANTI-PATTERN TRENDS
--------------------
-[What the anti-patterns and recurring bugs reveal about systematic weaknesses. Expert advice on addressing root causes, not just symptoms.]
-
-DORMANT PROJECT CHECK
----------------------
-[Any dormant projects that should be explicitly archived, revived, or consolidated?]
+SUGGESTED SESSION PLAN
+----------------------
+[If the user starts working now, what's the optimal sequence? List 2-3 tasks in order.]
 ```
 
 ---
 
-## STEP 4: Clean Up
+## STEP 5: Clean Up
 
 ```bash
 rm -rf /tmp/whats-next-tmp 2>/dev/null
@@ -189,10 +207,10 @@ rm -rf /tmp/whats-next-tmp 2>/dev/null
 
 ## CRITICAL RULES
 
-1. **READ-ONLY.** This command gathers information and advises. It does NOT make changes, deploy, or start work.
-2. **Expert-level insights, not generic advice.** "Improve your tests" is useless. "Add walk-forward validation to the NHL model — currently using full-season averages which inflate accuracy by ~15% based on the UFC optimizer mismatch incident" is actionable.
-3. **Cite your evidence.** Every recommendation should reference a specific handoff section, anti-pattern entry, memory file, or project state that motivated it.
-4. **Be honest about unknowns.** If you can't assess a project's state without opening it, say so. Don't fabricate recommendations from incomplete data.
-5. **Prioritize by user values.** The user cares about: (a) not breaking live sites, (b) algorithm accuracy and profitability, (c) shipping features users see, (d) reducing Claude session friction. Rank accordingly.
-6. **Think like a CTO advising a solo founder.** The user runs 10+ projects. Bandwidth is the constraint. Recommendations should account for opportunity cost — doing A means NOT doing B-J.
-7. **Challenge assumptions.** If a project seems like it should be archived, say so. If two projects should be merged, recommend it. Don't just affirm the current state.
+1. **SCOPED TO CURRENT PROJECT ONLY.** Do not scan all projects. Do not recommend work on other projects. Focus entirely on the repo/site the session is in.
+2. **READ-ONLY.** Gather information and advise. Do NOT make changes, deploy, or start work.
+3. **Expert-level insights, not generic advice.** "Improve your tests" is useless. "Add error boundary around the fight card component — it crashed twice in the last 3 sessions when API returns null matchup data" is actionable.
+4. **Cite your evidence.** Every recommendation should reference a specific handoff section, anti-pattern entry, memory file, or git state.
+5. **Be honest about unknowns.** If the handoff is stale or missing, say so.
+6. **Prioritize by user values.** (a) don't break live sites, (b) algorithm accuracy/profitability, (c) ship features users see, (d) reduce session friction.
+7. **End with a session plan.** The user wants to know "what should I do RIGHT NOW in this session?"
