@@ -292,16 +292,41 @@ This script lives at `ufc-predict/validate_registry.py`. It reads `ufc_profit_re
 - Manual trigger: `curl -X POST https://mmalogic-live-tracker.nikhouseholdr.workers.dev/`
 - Secret: `FIREBASE_SA_KEY` configured on the Worker
 
+### Scoring Data Rules (MANDATORY — prevents the #1 recurring bug class)
+- **NEVER accept missing odds.** If prop odds are null/missing, RUN THE SCRAPER before doing anything else. "—" in a payout cell is NEVER acceptable. Only after the scraper confirms the source is genuinely unavailable can you note "odds unavailable."
+- **NEVER manually patch the registry.** Always re-run the backtester (`UFC_BACKTEST_MODE=1 UFC_CACHE_ONLY=1`) to fix scoring. Manual patches diverge from the backtester's logic and cause inconsistencies. The ONE exception: patching the most recent event's method prediction when the backtester's walk-forward diverges from prediction_archive (see Backtester vs Prediction Archive above).
+- **R1 KO gating in registry**: If prediction is NOT R1 KO, then `round_correct` and `combo_correct` MUST be `null` (not `false`). `false` = bet placed and lost. `null` = no bet placed.
+- **KO R1 losses need BOTH round AND combo at -1u**: If prediction was KO R1 but actual was DEC/SUB or wrong round, `round_pnl = -1` AND `combo_pnl = -1`. Not null.
+- **Fighter loss = ALL placed bets lose -1u.** Method loses -1u (regardless of odds availability). Round/Combo lose -1u only if KO R1 was predicted.
+- **Event totals must match sum of bout P/L.** After ANY registry change, verify: `event.ml.pnl == sum(bout.ml_pnl)` for each bet type.
+- **Parlay totals aggregated separately.** Backtester doesn't aggregate parlays in registry totals — must be computed from event-level parlay data after each backtest.
+
+### Data Analysis Integrity (LEARNED — 2026-03-25/26)
+- **Cross-query consistency.** If you run the same analysis twice and get different numbers, your query has a bug. NEVER present shifting numbers — use standalone scripts with assertions.
+- **Extreme results = bug in your analysis.** 0% or 100% win rates, results that seem too good — suspect your code first, not the data.
+- **Validate on known data.** Before presenting analysis as a "verdict", trace 1-2 specific events manually to confirm your query is correct.
+
+### Apply & Regenerate Pipeline (VERIFIED — 2026-03-26)
+- "Apply & Regenerate Picks" on admin optimizer page: saves constants to Firestore → dispatches GitHub Actions `run-predictions` workflow → GH Actions syncs constants from Firestore (`UFC_SYNC_CONSTANTS=1`) → runs algorithm → ingests predictions to site + commits to GitHub.
+- Requires: `GITHUB_TOKEN` + `INGEST_SECRET` in Cloudflare Pages env vars, `GOOGLE_APPLICATION_CREDENTIALS_JSON` + `INGEST_SECRET` in GitHub repo secrets. All verified configured.
+- Async: takes ~1-2 minutes. UI shows "Prediction run started."
+
+### KO R2 Routing (ANALYZED — 2026-03-26, script: analysis_ko_r2_routing.py)
+- KO R2 predictions: 19.4% end R1 KO, 12.5% exact R2 KO, 29.2% DEC, 26.4% fighter loses.
+- Routing R2→R1: -40.4% ROI. Routing R2→DEC: -1.1% ROI. Current gating (no bet): 0% ROI.
+- **Gating is correct.** Neither alternative routing is profitable.
+
 ### Display Rules (Most Violated)
 - Confidence = raw differential (0.14–3.0+), NOT a percentage
-- Losses show -1u (not blank, not "—")
-- Wins show payout at odds (not +1u flat, not blank)
+- Losses show -1u (not blank, not "—"). Losses NEVER need odds — a loss is always -1u regardless.
+- Wins show payout at real Vegas odds (not +1u flat, not blank). No odds for a WIN → show ✓ with "—" (no dollar amount).
 - All 5 bet types on every page and every table component
 - Both parlays per event
 - Event count = 71+ (current backtest window)
 - ALL table components must show the same bet types: EventBetsDropdown, AdminBacktest, EventSlideshow, LastWeekPicks, HistoryPage
 - **Event breakdown tables must include parlay rows** (HC + ROI) below fight rows, showing legs, W/L, American odds, and P/L
 - **Parlay P/L must be included in the Combined total** in both summary chips and TOTALS row
+- **AdminBacktest must match EventBetsDropdown format**: Combo column, Parlay row, safePnl for losses, all 5 types in chart/totals
 
 ### Canonical Paths
 - Webapp: `ufc-predict/webapp/frontend/` (NEVER root `webapp/`)
