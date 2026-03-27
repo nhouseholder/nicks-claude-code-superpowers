@@ -230,6 +230,22 @@
         "hooks": [
           {
             "type": "command",
+            "command": "python3 ~/.claude/hooks/impossible-stats-detector.py"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/missing-odds-detector.py"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
             "command": "/Users/nicholashouseholder/.cargo/bin/parry-guard hook",
             "timeout": 5000
           }

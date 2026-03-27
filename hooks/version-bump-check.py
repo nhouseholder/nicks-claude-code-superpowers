@@ -76,7 +76,46 @@ def main():
 
     cwd = os.getcwd()
 
-    # Only enforce for website projects
+    # BLOCK: Deploying from /tmp/ or worktree directories
+    if "/tmp/" in cwd or "/.claude/worktrees/" in cwd:
+        result = {
+            "decision": "block",
+            "reason": (
+                f"WRONG DIRECTORY: Deploying from {cwd} which is a temp/worktree directory. "
+                f"Deploy from the canonical project directory under ~/Projects/. "
+                f"Deploying from /tmp/ or worktrees has caused version reversions."
+            ),
+        }
+        print(json.dumps(result))
+        sys.exit(2)
+
+    # BLOCK: Version looks suspiciously old
+    for vf in VERSION_FILES:
+        vpath = os.path.join(cwd, vf)
+        if os.path.exists(vpath):
+            try:
+                with open(vpath, "r") as f:
+                    content = f.read()
+                # Check for very old version patterns (v10.x when we expect v11+)
+                import re as re_mod
+                ver_match = re_mod.search(r'["\']?v?(\d+)\.\d+', content)
+                if ver_match:
+                    major = int(ver_match.group(1))
+                    if major < 10 and "ufc" in cwd.lower():
+                        result = {
+                            "decision": "block",
+                            "reason": (
+                                f"STALE VERSION: {vf} shows major version {major} which looks old. "
+                                f"You may be in the wrong directory. Check version against production."
+                            ),
+                        }
+                        print(json.dumps(result))
+                        sys.exit(2)
+            except Exception:
+                pass
+            break
+
+    # Only enforce version bump for website projects
     if not is_website_project(cwd):
         sys.exit(0)
 

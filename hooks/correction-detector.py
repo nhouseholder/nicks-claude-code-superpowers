@@ -32,6 +32,19 @@ CORRECTION_SIGNALS = [
     r"\byou (?:broke|destroyed|removed|deleted)\b",
     r"\bthat was (?:a )?(?:win|loss|correct|wrong)\b",
     r"\bshould (?:have been|be)\b.*\bnot\b",
+    # Flip-flop signals — agent changed its answer without reading spec
+    r"\byou just said\b",
+    r"\byou changed\b",
+    r"\bmake up your mind\b",
+    r"\bwhich is it\b",
+    r"\byou keep changing\b",
+    r"\bstop flip.?flopping\b",
+    r"\bpick one\b",
+    r"\byou contradicted\b",
+    r"\bthat contradicts\b",
+    r"\bearlier you said\b",
+    r"\bbefore you said\b",
+    r"\bnow you'?re saying\b",
 ]
 
 
