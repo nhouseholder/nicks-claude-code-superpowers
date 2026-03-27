@@ -229,6 +229,10 @@ ROUTES = [
     (r"\btest|tdd|coverage|spec|unit.?test|integration.?test",
      60, "tester"),
 
+    # What's next — strategic advisor
+    (r"what.?s.*next|what.*should.*work.*on|out.*of.*ideas|what.*to.*improve|recommendations|what.*needs.*attention",
+     90, "_cmd:/whats-next"),
+
     # Simple commands
     (r"backtest|model.?accuracy|prediction|coefficient|sweep|betting|odds",
      80, "_cmd:/backtest"),
