@@ -358,11 +358,23 @@ This script lives at `ufc-predict/validate_registry.py`. It reads `ufc_profit_re
   - Otherwise → return null (no bet placed)
 - This is a safety net, NOT a replacement for correct backtester output. The backtester should write complete data.
 
+### Systems Layer (CRITICAL — NOT separate bets)
+- **Systems are scoring pipeline MODIFIERS, not parallel bets.** They adjust the algorithm's confidence (diff score), NOT place independent wagers. The "Systems P/L" on the website is hypothetical tracking — NOT included in combined P/L.
+- When systems agree with a pick → diff is boosted (more likely to bet). When they disagree → diff is penalized (might skip).
+- System params: `SYSTEM_BET_BOOST` (+diff per agreeing system), `SYSTEM_FADE_PENALTY` (-diff per disagreeing system), `SYS_THRESH_ADJ` (lower pick threshold per net signal), `SYS_METHOD_BOOST` (method score amplification), `SYS_SCORE_WEIGHT` (base weight for score modification).
+- `SYSTEM_SCORE_WEIGHT = 0.0` means systems are independent (don't modify fighter scores). Non-zero means they actively modify the scoring pipeline.
+
 ### Constants & Parameters
 - `constants.json` = single source of truth for all algorithm parameters
 - Optimizer saves optimized values to Firestore `algorithm_data/constants`
 - Algorithm reads from `constants.json` at startup (or syncs from Firestore via `UFC_SYNC_CONSTANTS=1`)
-- 56+ optimized parameters covering scoring weights, gating thresholds, system boosts
+- 61+ optimized parameters covering scoring weights, gating thresholds, system boosts
+- **Optimizer zero-param problem:** If a parameter is at 0.0, the optimizer can't explore it (0 × anything = 0). To test a new param group (e.g., activating systems), seed non-zero starting values in both the .py file AND constants.json before running the optimizer.
+
+### Odds Cache Rules (MANDATORY)
+- **All Vegas odds must be cached and committed to GitHub.** `ufc_odds_cache.json` and `ufc_prop_odds_cache.json` are IRREPLACEABLE historical data. Once an event passes, BFO pages disappear.
+- **Backtests default to cache-only.** `UFC_CACHE_ONLY=1` is the default in backtest mode. All 71+ events have complete ML + prop odds cached. Never re-scrape during backtest — it wastes 20+ minutes and risks overwriting good data with stale or unavailable data.
+- **After any scrape, commit the updated cache files.** `git add ufc_odds_cache.json ufc_prop_odds_cache.json && git commit`.
 
 ### Canonical Paths
 - Webapp: `ufc-predict/webapp/frontend/` (NEVER root `webapp/` — it's archived)
