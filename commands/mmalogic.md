@@ -252,14 +252,15 @@ This script lives at `ufc-predict/validate_registry.py`. It reads `ufc_profit_re
 
 ## Domain Rules (Quick Reference — full spec in the knowledge base files)
 
-### The 4+1 Bet Model
-- **ML** (moneyline): fighter wins = payout at odds, fighter loses = -1u
-- **Method** (ML + exact method): requires ML win + correct method. KO/TKO grouped.
-- **Round** (ML + exact round): requires ML win + correct round. ONLY for R1 KO predictions.
-- **Combo** (ML + method + round): requires ALL three correct. ONLY for R1 KO predictions.
-- **Parlay** (per event): HC parlay + High ROI parlay (if no fighter overlap)
-- Fighter loss = ALL bets on that fighter lose (-1u each, up to -4u)
-- Method and Round are scored INDEPENDENTLY
+### The 4+1 Bet Model (CORRECTED — 2026-03-25, user-confirmed)
+- **ML** (moneyline): 1u bet. Fighter wins = payout at odds. Fighter loses = -1u.
+- **Method** (exact method): 1u bet. **ALWAYS placed** when we have a method prediction. Fighter loses = -1u. Fighter wins + wrong method = -1u. Fighter wins + correct method = payout at method prop odds.
+- **Round** (exact round): 1u bet. ONLY placed for R1 KO predictions. Fighter loses = -1u. Correct round = payout at round odds. Wrong round = -1u.
+- **Combo** (method + round): 1u bet. ONLY placed for R1 KO predictions. Requires BOTH method AND round correct to win. Otherwise -1u.
+- **Parlay** (per event): 1u bet. HC parlay + High ROI parlay (if no fighter overlap).
+- **Fighter loss = ALL placed bets lose.** For DEC predictions: ML (-1u) + Method (-1u) = **-2.00u combined**. For KO R1 predictions: ML (-1u) + Method (-1u) + Round (-1u) + Combo (-1u) = **-4.00u combined**.
+- Method and Round are scored INDEPENDENTLY.
+- **Method bet does NOT require ML win to be PLACED.** It requires ML win to WIN, but it's always placed and always scored. This was the #1 most-confused rule across 5+ sessions.
 
 ### Parlay Rules (LEARNED — 2026-03-26)
 - **HC Parlay** = top 2 FAVORITES by implied probability from active picks (not passes). Underdogs are NEVER HC legs.
@@ -356,7 +357,19 @@ This script lives at `ufc-predict/validate_registry.py`. It reads `ufc_profit_re
   - `correct === true && odds != null` → return payout at odds
   - `pnl != null` → return pnl (registry value takes priority)
   - Otherwise → return null (no bet placed)
+- **safePnl must NEVER assume +1.0 for wins.** If pnl is null and correct is true but no odds, show ✓ with "—" (correct prediction but no bet placed).
 - This is a safety net, NOT a replacement for correct backtester output. The backtester should write complete data.
+
+### Firestore Data Protection (LEARNED — 2026-03-25, caused catastrophic data regression)
+- **track_results.py upload can OVERWRITE the full Firestore registry.** If it uploads 25 events, it destroys the 71-event registry.
+- **Before any Firestore upload:** check existing event count. If new data has FEWER events, ABORT.
+- **The Firestore `loadRegistry()` prefers Firestore over static JSON** when Firestore has bout-level data. If Firestore has stale 25-event data, the website shows 25 events even though the static JSON has 71.
+- **After any backtest re-run:** verify Firestore was updated with the full registry, not just the static JSON.
+
+### BFO Scraping Stability (LEARNED — 2026-03-25)
+- **BFO scraping crashes the process on macOS** — silently killed around event 28-34 due to memory/resource limits.
+- **Always use `UFC_CACHE_ONLY=1` for backtests.** Cache-only mode processes 71 events in ~5 minutes. Full scraping takes 30+ minutes and crashes.
+- **If you MUST scrape:** run in smaller batches or use standalone scraper scripts, not the full algorithm import.
 
 ### Systems Layer (CRITICAL — NOT separate bets)
 - **Systems are scoring pipeline MODIFIERS, not parallel bets.** They adjust the algorithm's confidence (diff score), NOT place independent wagers. The "Systems P/L" on the website is hypothetical tracking — NOT included in combined P/L.
