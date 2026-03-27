@@ -186,6 +186,14 @@
         "hooks": [
           {
             "type": "command",
+            "command": "python3 ~/.claude/hooks/no-narration-stops.py"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
             "command": "python3 ~/.claude/hooks/auto-checkpoint.py"
           }
         ]
