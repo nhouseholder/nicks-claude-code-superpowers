@@ -1,6 +1,20 @@
 Redesign a website/webapp with production-grade quality. Takes an existing site and rebuilds the visual layer with a distinctive aesthetic.
 
-**Sequential pipeline. Each phase produces artifacts the next phase consumes.**
+**REQUIRES OPUS MODEL.** Creative design work requires Opus-level reasoning. If running on Sonnet or Haiku, STOP and tell the user: "Site redesign requires Opus for design quality. Please switch to Opus before running /site-redesign."
+
+**Sequential pipeline. Each phase produces artifacts the next phase consumes. Main agent does ALL design work — no subagents for creative decisions.**
+
+## Pre-Flight Check
+
+Before starting:
+1. **Verify model is Opus.** If not, abort with message above.
+2. **Identify the site.** Check `~/Projects/site-to-repo-map.json` for the current project.
+3. **Load the site-specific command** if one exists (`/mmalogic`, `/update-diamond`, `/update-courtside`, `/update-mystrainai`, `/update-enhancedhealth`, `/update-researcharia`, `/update-nestwisehq`). Read its knowledge base — it has domain-specific display rules that the redesign MUST preserve.
+4. **Load skills sequentially** (read each SKILL.md, don't just "apply mentally"):
+   - `~/.claude/skills/frontend-design/SKILL.md` — anti-generic design rules
+   - `~/.claude/skills/ui-ux-pro-max/SKILL.md` — design system intelligence
+   - `~/.claude/skills/website-guardian/SKILL.md` — Rule Zero (surgical scope)
+   - `~/.claude/skills/react-best-practices/SKILL.md` — performance rules
 
 ## Arguments
 - `$ARGUMENTS` = project directory path (default: current directory)
@@ -189,11 +203,13 @@ Redesign files: _redesign/ (direction, theme, progress, verification)
 ```
 
 ## Design Principles
+- **Opus only.** Creative design requires Opus-level reasoning. Sonnet and Haiku lack the aesthetic judgment for redesign work. The NFL Draft incident (2026-03-26) proved this — Sonnet agents replaced Tailwind with inline styles.
 - **User chooses the direction.** Phase 1 is interactive — present options, don't dictate.
-- **Main agent does ALL component work.** NEVER spawn subagents for component redesign. Subagents replaced Tailwind with inline styles on the NFL Draft project (2026-03-26) — they lack design context and make destructive styling decisions.
+- **Main agent does ALL design and component work.** NEVER spawn subagents for redesign. No design system agents, no component agents. The main Opus agent does everything sequentially to maintain design coherence.
 - **Max 1 subagent** (backend review only, and only if backend exists). Everything else is done by the main agent directly.
-- **PRESERVE the CSS framework.** Tailwind stays Tailwind. CSS modules stay CSS modules. A redesign changes colors/fonts/layout — NOT the styling architecture. Converting Tailwind to inline styles is a regression, not a redesign.
-- **Update, don't rewrite.** Swap classes and values in existing components. Don't rewrite 750-line components from scratch — that's how functionality gets lost and styling frameworks get replaced.
+- **Load site-specific knowledge first.** If this site has a dedicated command (`/mmalogic`, `/update-diamond`, etc.), read its knowledge base. It contains display rules that MUST survive the redesign.
+- **PRESERVE the CSS framework.** Tailwind stays Tailwind. CSS modules stay CSS modules. A redesign changes colors/fonts/layout — NOT the styling architecture.
+- **Update, don't rewrite.** Swap classes and values in existing components. Don't rewrite 750-line components from scratch.
 - **Inter-phase data via `_redesign/` files.** THEME.md is the single source of truth for all component work.
 - **Token budget: ~45 min total.** `--design-only` mode: ~12 min. If hitting limits, commit progress and hand off.
 - **Commit frequently.** Every 2-3 components, not one giant commit at the end.
