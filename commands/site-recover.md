@@ -4,6 +4,15 @@ Triggers: "recover the site", "rollback", "site is broken", "deploy destroyed it
 
 **This command tries EVERY recovery vector. Do NOT give up after one fails.**
 
+## Skill Pipeline (load at each phase — read SKILL.md, don't "apply mentally")
+
+| Phase | Skills to Load |
+|-------|---------------|
+| Phase 0 | `website-guardian` (stop the bleeding, assess damage) |
+| Phase 1 | None — pure recovery mechanics |
+| Phase 2 | `screenshot-dissector` (verify recovery visually) |
+| Phase 3 | `error-memory` (MANDATORY — log the incident permanently) |
+
 ---
 
 ## Phase 0: Stop the Bleeding (~30 seconds)

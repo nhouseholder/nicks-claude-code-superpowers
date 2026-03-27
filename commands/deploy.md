@@ -1,5 +1,15 @@
 Full deployment pipeline: pre-flight checks, build, deploy to Cloudflare Pages/Workers, post-deploy verification, automatic rollback on failure.
 
+## Skill Pipeline (load at each phase — read SKILL.md, don't "apply mentally")
+
+| Phase | Skills to Load |
+|-------|---------------|
+| Phase 0 | `website-guardian` (directory verification, version check) |
+| Phase 1-2 | `code-reviewer` (pre-flight quality check) |
+| Phase 3 | `deploy` skill protocol |
+| Phase 4 | `qa-gate` + `screenshot-dissector` (post-deploy verification) |
+| Phase 5 | `error-memory` (log any failures) |
+
 ## Arguments
 - `$ARGUMENTS` = project directory, environment (prod/staging), or specific flags
 

@@ -1,6 +1,17 @@
 Run a comprehensive website/webapp audit. Finds every issue across frontend, backend, design, and functionality — then fixes the critical ones.
 
-**IMPORTANT:** Sequential pipeline. Complete each phase fully before starting the next.
+**Sequential pipeline with pre-built skill agents. Complete each phase fully before starting the next.**
+
+## Skill Pipeline (load at each phase — read SKILL.md, don't "apply mentally")
+
+| Phase | Skills to Load |
+|-------|---------------|
+| Phase 0 | `website-guardian` (Rule Zero, baseline) |
+| Phase 2 | `frontend-design`, `react-best-practices`, `senior-frontend` |
+| Phase 3 | `senior-backend`, `code-reviewer`, `senior-architect` |
+| Phase 4 | `screenshot-dissector`, `data-consistency-check` |
+| Phase 5 | `error-memory` (log all bugs found) |
+| Phase 6 | `qa-gate` (final verification) |
 
 ## Arguments
 - `$ARGUMENTS` = project directory path (default: current directory)
@@ -130,13 +141,17 @@ Output format — write to _audit/phase3_backend.md:
 ```
 
 ## Phase 4: Visual Verification (~3 min, main agent)
+**Skills:** `screenshot-dissector` + `data-consistency-check`
 
 Do this yourself using Claude Preview or Claude in Chrome:
-1. Start the dev server if not running
-2. Screenshot every main page/route
-3. For each screenshot, check against the frontend findings from Phase 2
-4. Look for: broken layouts, missing data, wrong colors, truncated text, console errors
-5. If UFC project: run the 15-item checklist from ufc_website_maintenance_rules.md with SPECIFIC values
+1. Read `~/.claude/skills/screenshot-dissector/SKILL.md` — follow the pixel-level examination protocol
+2. Read `~/.claude/skills/data-consistency-check/SKILL.md` — validate all numbers/stats before presenting
+3. Start the dev server if not running
+4. Screenshot every main page/route
+5. For each screenshot, apply `screenshot-dissector` protocol: examine every element, every value, every state
+6. Apply `data-consistency-check`: profit>0 requires wins>0, W+L=total, etc.
+7. Look for: broken layouts, missing data, wrong colors, truncated text, console errors
+8. If UFC project: run the 15-item checklist from ufc_website_maintenance_rules.md with SPECIFIC values
 
 **Write:** `_audit/phase4_visual.md` — visual issues with screenshots/descriptions.
 

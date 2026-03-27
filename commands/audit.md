@@ -1,5 +1,13 @@
 Scan the current project for hardcoded secrets, API keys, credentials, and code quality issues. Fix found issues by moving secrets to env vars.
 
+## Skill Pipeline (load at each phase — read SKILL.md, don't "apply mentally")
+
+| Phase | Skills to Load |
+|-------|---------------|
+| Phase 1 | `website-guardian` (pre-checks, .gitignore verification) |
+| Phase 2 | `audit` skill + `code-reviewer` (security scanning) + `senior-backend` (backend anti-patterns) |
+| Phase 3 | `error-memory` (log any findings permanently) |
+
 ## Arguments
 - `$ARGUMENTS` = project directory or specific files to scan (default: current directory)
 

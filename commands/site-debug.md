@@ -1,6 +1,18 @@
 Debug a website/webapp systematically. Find the bug, fix it, verify the fix, log it permanently.
 
-**Sequential pipeline. Do NOT skip phases.**
+**Sequential pipeline with pre-built skill agents. Do NOT skip phases.**
+
+## Skill Pipeline (load at each phase — read SKILL.md, don't "apply mentally")
+
+| Phase | Skills to Load |
+|-------|---------------|
+| Phase 0 | `pre-debug-check` (check anti-patterns FIRST), `website-guardian` (baseline) |
+| Phase 1 | `screenshot-dissector` (if visual bug) |
+| Phase 2 | `isolate-before-iterate`, `systematic-debugging` |
+| Phase 3 | `systematic-debugging` (hypothesis → test → fix) |
+| Phase 4 | `frontend-design` or `senior-backend` (based on bug location), `data-consistency-check` |
+| Phase 5 | `qa-gate` (verify fix didn't break anything) |
+| Phase 6 | `error-memory` (MANDATORY — log the bug permanently) |
 
 ## Arguments
 - `$ARGUMENTS` = bug description, URL, screenshot, or project directory

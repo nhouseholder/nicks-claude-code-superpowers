@@ -1,6 +1,16 @@
 Update a website/webapp safely. Baseline → changes → verify → deploy. The guardrail command — ensures updates don't break what already works.
 
-**Sequential pipeline. Do NOT skip phases.**
+**Sequential pipeline with pre-built skill agents. Do NOT skip phases.**
+
+## Skill Pipeline (load at each phase — read SKILL.md, don't "apply mentally")
+
+| Phase | Skills to Load |
+|-------|---------------|
+| Phase 0 | `website-guardian` (Rule Zero, gate check) |
+| Phase 1 | `screenshot-dissector` (baseline snapshot quality) |
+| Phase 3 | `frontend-design` and/or `senior-backend` (based on change type) |
+| Phase 4 | `data-consistency-check`, `qa-gate` (verification) |
+| Phase 6 | `error-memory` (log any bugs found/fixed) |
 
 ## Arguments
 - `$ARGUMENTS` = specific update description (e.g., "add dark mode toggle", "update hero section copy")
@@ -107,21 +117,31 @@ Skip if `--no-deploy` was specified.
 
 1. **Version check (FAILSAFE 3):** Compare current version to what was recorded in Phase 1 baseline. If the version is LOWER than what's in production, ABORT — you are deploying a regression.
 
-2. **Clean up temp files:**
+2. **Bump version number (MANDATORY):**
+   - Patch bump (x.y.Z+1) for fixes and small changes
+   - Minor bump (x.Y+1.0) for new features
+   - Update in version.js, package.json, or wherever the project stores its version
+   - Update any "last updated" date display on the site (footer, version tag, etc.)
+
+3. **Clean up temp files:**
 ```bash
 rm -rf _update/ 2>/dev/null
 ```
 
-3. **Commit specific files (not git add -A):**
+4. **Commit and push (not git add -A):**
 ```bash
 # Stage only the files you intentionally changed — never blind add
 git add [specific files you changed]
-git commit -m "update: [description of what changed]"
+git commit -m "v[X.Y.Z]: [description of what changed]"
+git push origin main
 ```
 
-4. Deploy using project-appropriate method (invoke `/deploy` or manual)
+5. Deploy using project-appropriate method (invoke `/deploy` or manual)
 
-5. Post-deploy: verify the live site matches what you saw in Phase 4
+6. **Post-deploy verification (MANDATORY):** Open the live site and confirm:
+   - New version number is displayed
+   - Updated date is displayed
+   - The actual changes are visible and working
 
 **If deploy fails or live site has regressions:**
 1. Rollback: `npx wrangler rollback` or `git revert HEAD`
@@ -141,11 +161,14 @@ SITE UPDATE COMPLETE
 ====================
 Update: [description]
 Branch: [main/master] ✓
-Version: [before] → [after]
+Version: [before] → [after] (bumped ✓)
+Date tag: updated ✓
 Changed: [list of specific files]
 Baseline: [N] items verified — [all ✓ / N failed → fixed]
 Build: passing ✓
+Pushed: origin/main ✓
 Deployed: [yes/no/rolled back]
+Live verification: version + date + changes confirmed ✓
 Bugs found: [N] | Fixed: [N]
 Credentials: verified intact ✓
 ```
