@@ -4,6 +4,15 @@
 > Claude checks this before debugging to avoid repeating known-bad approaches.
 > Last updated: 2026-03-27
 
+## MyStrainAI — Mobile max-h Clips Expanded Card Content
+
+### MOBILE_MAX_H_CLIPS_BOTTOM_CTA — 2026-03-27
+- **Context**: MyStrainAI — StrainCard expanded section uses `max-h-[3000px]` for CSS transition animation
+- **Bug**: "Find strain near me" button (last item in StrainCardExpanded) invisible on mobile iOS — content height exceeds 3000px on narrow screens
+- **Root cause**: CSS transition trick uses `max-h` to animate open/close. 3000px is enough on desktop but not on mobile where all sections stack vertically to >3000px
+- **Fix**: Increase to `max-h-[6000px]` for the expanded state (`StrainCard.jsx` line ~302)
+- **Applies when**: ANY time content is hidden with a `max-h` CSS transition and the content length is variable or longer on mobile. Always set max-h generously (2x expected max content height)
+
 ## Critical — parry-guard .parry-tainted Blocks Entire Sessions
 
 ### PARRY_TAINT_BLOCKS_ALL_TOOLS — 2026-03-27
@@ -593,3 +602,10 @@
 - **Root cause**: Walk-forward training window differs slightly from live prediction, shifting KO/DEC scores just enough to flip the tiebreaker. Backtester blindly overwrites without checking prediction_archive.
 - **Fix**: After any backtest re-run, cross-check the most recent 1-2 events against prediction_archive. If method predictions diverge, the archive is ground truth. Manually patch the registry.
 - **Applies when**: After ANY backtest re-run (`UFC_BACKTEST_MODE=1`), check the most recent event's method predictions and parlay legs. HC parlay = top 2 favorites by implied probability from active picks (not underdogs).
+
+### LANDING_PAGE_WRONG_FETCH_URL — 2026-03-27
+- **Context**: Diamond Predictions MLB landing page, free pick of the day
+- **Bug**: MLB free pick never displayed on the landing page in production. LandingPage.jsx fetched from `/api/picks` which is a dev-only proxy path — no such route exists in Cloudflare Pages production (returns 404). The `r.ok` check silently returned null.
+- **Root cause**: LandingPage.jsx was written to use the dev API proxy (`/api/picks`) but never updated to use the production static path (`/data/picks.json`). NHL landing page was correctly using `/data/nhl-predictions-today.json`.
+- **Fix**: Changed `fetch('/api/picks')` → `fetch('/data/picks.json')` in LandingPage.jsx.
+- **Applies when**: Any new page or component that fetches data — always use `/data/*.json` paths directly in production, never `/api/*` paths (those only work in dev mode through the Vite proxy).
