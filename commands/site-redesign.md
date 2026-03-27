@@ -1,153 +1,183 @@
-Redesign a website/webapp with production-grade quality. Takes an existing site and rebuilds the visual layer with a distinctive aesthetic using a sequential pipeline of pre-built skill agents.
+Redesign a website/webapp with production-grade quality using an agent pipeline architecture. Each phase dispatches a specialized agent. Agents communicate through shared memory files in `_redesign/`. Context is handed off explicitly between phases.
 
-**REQUIRES OPUS MODEL.** Creative design work requires Opus-level reasoning. If running on Sonnet or Haiku, STOP and tell the user: "Site redesign requires Opus for design quality. Please switch to Opus before running /site-redesign."
-
-**Sequential pipeline. 8 phases. Each phase invokes specific pre-built skills. Main agent (Opus) does ALL design and component work — no subagents for creative decisions.**
+**REQUIRES OPUS MODEL.** If running on Sonnet or Haiku, STOP: "Site redesign requires Opus. Please switch to Opus before running /site-redesign."
 
 ## Arguments
 - `$ARGUMENTS` = project directory path (default: current directory)
-- `--phase N` = skip to Phase N
-- `--design-only` = Phases 0-3 only (discovery + design system, no component rebuild)
-
-## Pre-Flight Check
-
-Before starting:
-1. **Verify model is Opus.** If not, abort.
-2. **Identify the site.** Check `~/Projects/site-to-repo-map.json`.
-3. **Load the site-specific command** if one exists (`/mmalogic`, `/update-diamond`, `/update-courtside`, `/update-mystrainai`, `/update-enhancedhealth`, `/update-researcharia`, `/update-nestwisehq`). Read its knowledge base — it has domain-specific display rules that the redesign MUST preserve.
-4. **Identify the CSS framework** — Tailwind? CSS modules? Styled-components? This MUST be preserved.
+- `--phase N` = skip to Phase N (reads existing `_redesign/` context)
+- `--design-only` = Phases 0-3 only
 
 ---
 
-## Phase 1: Discovery & Audit (~3 min)
-**Skills:** Explore agent + `/site-audit`
+## Shared Memory Architecture
 
-1. Run `/site-audit` on the project (or quick version: map structure + screenshots)
-2. Take screenshots of every main page via Claude Preview/Chrome
-3. Read project memory and anti-patterns for site-specific rules
-4. Document: current pages, components, data flow, pain points
-5. Identify: what works (KEEP), what's broken (FIX), what's ugly (REDESIGN)
+All agents communicate via files in `_redesign/`. **Every agent reads `_redesign/CONTEXT.md` before doing any work.** The orchestrator (main Opus agent) writes and updates this file between phases.
 
-**Write:** `_redesign/phase1_discovery.md` — current state, screenshots, keep/fix/redesign list
-
-## Phase 2: Design Direction (~5 min, INTERACTIVE — requires user input)
-**Skills:** `brainstorming` + `frontend-design` + `spec-interview`
-
-1. Invoke `brainstorming` skill — explore design direction with the user
-2. Read `~/.claude/skills/frontend-design/SKILL.md` anti-generic rules
-3. Propose 3 design directions. For each:
-   - **Name** the aesthetic (not generic — "Warm Clinical" not "Modern")
-   - **Typography**: specific font pair (NO Inter, Roboto, Arial)
-   - **Color**: dominant + accent + neutral. Show hex values.
-   - **Layout**: asymmetric? bento? editorial? card-based?
-   - **Mood**: what emotion should the user feel?
-4. Ask the user which direction (or combine). **Wait for response.**
-5. Use `spec-interview` to confirm scope
-
-**Write:** `_redesign/phase2_direction.md` — chosen aesthetic, fonts, colors, layout
-
-## Phase 3: Design System Setup (~5 min)
-**Skills:** `ui-design-system` + `ui-ux-pro-max`
-
-Do this yourself (main agent). Do NOT spawn a subagent.
-
-1. **Identify the existing CSS framework and PRESERVE IT.**
-   - Tailwind → update `tailwind.config` with custom tokens
-   - CSS modules → update module variables
-   - Plain CSS → update custom properties in globals.css
-2. Read `~/.claude/skills/ui-design-system/SKILL.md` — generate design tokens
-3. Read `~/.claude/skills/ui-ux-pro-max/SKILL.md` — palette/font/style guidance
-4. Build: color palette, typography scale, spacing system, shadows, animations
-5. Create `_redesign/THEME.md` documenting all tokens with usage examples
-
-**Write:** Modified config files + `_redesign/THEME.md`
-
-**If `--design-only`, STOP HERE** and present the design system.
-
-## Phase 4: Component Redesign (~15 min, MAIN AGENT ONLY)
-**Skills:** `frontend-design` + `senior-frontend` + `react-best-practices`
-
-**NEVER spawn subagents for this phase.** Main Opus agent does all component work sequentially.
-
-**THE FRAMEWORK PRESERVATION RULE (NON-NEGOTIABLE):**
-- Tailwind stays Tailwind. CSS modules stay CSS modules. NEVER convert between approaches.
-- NEVER replace Tailwind classes with inline `style={{}}` objects.
-- **Update, don't rewrite.** Swap classes/values, don't rewrite 750-line components from scratch.
-
-For EACH page (prioritize: landing > dashboard > detail pages > settings):
-1. Read the current component
-2. Read `_redesign/THEME.md` for design tokens
-3. Follow `frontend-design` differentiation protocol:
-   - Purpose → Tone → Constraints → "What makes this UNFORGETTABLE?"
-4. Follow `senior-frontend` patterns:
-   - Component composition, state management, accessibility
-5. Follow `react-best-practices` performance rules:
-   - Memoization, code splitting, lazy loading, no barrel imports
-6. Apply: new typography, colors, layout — using the EXISTING CSS framework
-7. Handle all states: empty, loading, error, success
-8. Responsive: mobile-first, tablet, desktop
-9. Accessible: ARIA labels, keyboard nav, contrast ratios
-
-**Commit after every 2-3 components:**
-```bash
-git add -A && git commit -m "redesign: [component names] — [aesthetic name]"
+### `_redesign/CONTEXT.md` — Master Context (written by orchestrator)
+```
+PROJECT: [name]
+CSS_FRAMEWORK: [Tailwind | CSS modules | styled-components | plain CSS]  ← NEVER CHANGE THIS
+TECH_STACK: [Next.js/React/Vue/etc.]
+PACKAGE_MANAGER: [npm/pnpm/yarn]
+SITE_SPECIFIC_COMMAND: [/mmalogic | /update-diamond | etc. | none]
+ANTI_PATTERNS: [known bugs and regressions for this project]
+PHASE_STATUS: [which phases completed]
 ```
 
-**Write:** `_redesign/phase4_progress.md` — track which components done/remaining
-
-## Phase 5: Backend Review (~5 min, 1 agent IF backend exists)
-**Skills:** `senior-backend` + `senior-architect`
-
-Skip if no API routes exist. Otherwise spawn ONE general-purpose agent:
-- Read `~/.claude/skills/senior-backend/SKILL.md`
-- Read `~/.claude/skills/senior-architect/SKILL.md`
-- Review API routes: security, performance, error handling
-- Fix P0/P1 issues directly
-- Ensure frontend-backend contract matches
-
-**Write:** `_redesign/phase5_backend.md`
-
-## Phase 6: Integration Testing (~5 min)
-**Skills:** `webapp-testing` + `qa-gate`
-
-1. Run `npm run build` — must pass with zero errors
-2. Start dev server, visit every page
-3. Read `~/.claude/skills/webapp-testing/SKILL.md` — use Playwright if available
-4. Check: console errors? Broken layouts? Missing data? Wrong colors?
-5. If site-specific rules exist (e.g., UFC 15-item checklist), run them
-6. Fix any issues found
-
-**Write:** `_redesign/phase6_testing.md` — pass/fail per page
-
-## Phase 7: Visual QA (~3 min)
-**Skills:** `ui-ux-pro-max` + `screenshot-dissector`
-
-Final pixel-level review:
-1. Check each page at mobile (375px), tablet (768px), desktop (1280px)
-2. Read `~/.claude/skills/screenshot-dissector/SKILL.md` — methodical examination
-3. Verify: consistent spacing, typography hierarchy, color usage
-4. Check: dark mode if applicable, focus states, contrast ratios
-5. Compare the FEEL against Phase 2 direction — does it match the intended mood?
-6. Fix any issues found. Commit.
-
-## Phase 8: Deploy & Verify (~3 min)
-**Skills:** `deploy` + `website-guardian`
-
-1. Read `~/.claude/skills/website-guardian/SKILL.md` — pre-deploy checklist
-2. Final build: `npm run build` (or lint + typecheck + build)
-3. Invoke `/deploy` or deploy manually via the project's deploy method
-4. Post-deploy: visual verification on live site via Claude in Chrome
-5. Log design decisions to project memory
-6. Log bugs found/fixed to `~/.claude/anti-patterns.md`
-
-**Final commit:**
-```bash
-git add -A && git commit -m "redesign complete: [aesthetic name] — [N] pages, [N] components
-
-Fonts: [primary] + [secondary]
-Colors: [dominant] + [accent]
-Layout: [approach]"
+### Handoff Protocol
+Each agent writes `_redesign/handoff_phaseN.md` at the end of its work:
 ```
+PHASE: N
+AGENT: [type]
+STATUS: complete | partial | failed
+DECISIONS: [key decisions made]
+FILES_WRITTEN: [list]
+NEXT_AGENT_MUST_KNOW: [critical context for the next phase]
+WARNINGS: [anything that could break if ignored]
+```
+
+---
+
+## Pre-Flight (Orchestrator — before spawning any agent)
+
+1. Verify Opus model. Abort if not.
+2. Check `~/Projects/site-to-repo-map.json` — identify repo.
+3. Load site-specific command knowledge base if one exists.
+4. Identify CSS framework from `package.json` / config files.
+5. **Write `_redesign/CONTEXT.md`** with all known values.
+6. Create `_redesign/` directory.
+
+---
+
+## Phase 1: Discovery
+**Agent type:** `Explore`
+**Input:** `_redesign/CONTEXT.md`
+**Output:** `_redesign/phase1_discovery.md`, `_redesign/handoff_phase1.md`
+
+Dispatch prompt to Explore agent:
+> Read `_redesign/CONTEXT.md` first. Then map the entire codebase: all pages, all components, all data flows. Identify what works (KEEP), what's broken (FIX), what's ugly (REDESIGN). Screenshot every main page via browser tools. Document current color palette, fonts, spacing. Write findings to `_redesign/phase1_discovery.md`. End by writing `_redesign/handoff_phase1.md`.
+
+Orchestrator reads `handoff_phase1.md` before proceeding.
+
+---
+
+## Phase 2: Design Direction
+**Agent type:** Main orchestrator (INTERACTIVE — requires user input)
+**Input:** `_redesign/phase1_discovery.md`, `_redesign/CONTEXT.md`
+**Output:** `_redesign/phase2_direction.md`
+
+**Do this yourself (no subagent) — user interaction required.**
+
+1. Read `phase1_discovery.md` — understand what currently exists.
+2. Read `~/.claude/skills/frontend-design/SKILL.md` — anti-generic rules.
+3. Invoke `brainstorming` skill.
+4. Propose **3 design directions**. For each:
+   - **Name**: specific aesthetic (NOT "modern" or "clean")
+   - **Typography**: named font pair — NEVER Inter, Roboto, Arial
+   - **Color**: dominant + accent + neutral (show hex)
+   - **Layout**: asymmetric / bento / editorial / card-grid / etc.
+   - **Mood**: one sentence — what should the user feel?
+5. **Wait for user to choose.** Do not proceed without explicit choice.
+6. Write `_redesign/phase2_direction.md` with the chosen direction in full detail.
+
+---
+
+## Phase 3: Design System
+**Agent type:** `general-purpose`
+**Input:** `_redesign/CONTEXT.md`, `_redesign/phase2_direction.md`
+**Output:** `_redesign/THEME.md`, updated config files, `_redesign/handoff_phase3.md`
+
+Dispatch prompt:
+> Read `_redesign/CONTEXT.md` — note CSS_FRAMEWORK, never change it. Read `_redesign/phase2_direction.md` — this is the chosen design direction. Read `~/.claude/skills/ui-design-system/SKILL.md` and `~/.claude/skills/ui-ux-pro-max/SKILL.md`. Build the design token system:
+> - If Tailwind: update `tailwind.config` with custom color/font/spacing tokens
+> - If CSS modules: update shared variables file
+> - If plain CSS: update custom properties in globals.css
+>
+> Create `_redesign/THEME.md` — this is the single source of truth for all subsequent agents. Include: every color with hex + usage, font names + weights, spacing scale, shadow levels, animation timing. End by writing `_redesign/handoff_phase3.md`.
+
+Orchestrator validates `THEME.md` exists and CSS framework was preserved before Phase 4.
+
+---
+
+## Phase 4: Component Redesign
+**Agent type:** Multiple `general-purpose` agents (parallel where files are independent)
+**Input:** `_redesign/CONTEXT.md`, `_redesign/THEME.md`, specific component files
+**Output:** Updated component files, `_redesign/phase4_progress.md`, `_redesign/handoff_phase4.md`
+
+**Parallelism rule:** Group components by independence. Components that share no files run in parallel. Components that share a CSS file run sequentially.
+
+For EACH component group, dispatch:
+> Read `_redesign/CONTEXT.md` — CSS_FRAMEWORK is [X]. This CANNOT change. Read `_redesign/THEME.md` — apply these tokens using the existing CSS framework. Do NOT convert Tailwind to inline styles. Do NOT convert CSS modules to any other approach. Update, do not rewrite.
+>
+> Components assigned to you: [list component files]
+>
+> For each component:
+> 1. Read the current file fully before touching it
+> 2. Apply THEME.md tokens — swap classes/values, don't rewrite from scratch
+> 3. Handle all states: empty, loading, error, success
+> 4. Mobile-first responsive: 375px, 768px, 1280px
+> 5. Accessibility: ARIA labels, keyboard nav, contrast ratios
+> 6. Commit after every 2-3 components: `git add -A && git commit -m "redesign: [names]"`
+>
+> Write progress to `_redesign/phase4_progress.md`. Write `_redesign/handoff_phase4.md` at the end.
+
+**Orchestrator validation after each agent:** Check that no inline `style={{}}` objects were added where Tailwind classes existed. If framework was converted — revert and re-dispatch with stronger constraints.
+
+---
+
+## Phase 5: Backend Review
+**Agent type:** `general-purpose` (skip entirely if no API routes)
+**Input:** `_redesign/CONTEXT.md`, `_redesign/handoff_phase4.md`
+**Output:** `_redesign/phase5_backend.md`, `_redesign/handoff_phase5.md`
+
+Dispatch prompt:
+> Read `_redesign/CONTEXT.md`. Read `~/.claude/skills/senior-backend/SKILL.md` and `~/.claude/skills/senior-architect/SKILL.md`. Review all API routes for: security issues, performance problems, error handling gaps, frontend-backend contract mismatches. Fix P0/P1 issues directly. Write findings to `_redesign/phase5_backend.md`. Write `_redesign/handoff_phase5.md`.
+
+---
+
+## Phase 6: Integration Testing
+**Agent type:** `general-purpose`
+**Input:** `_redesign/CONTEXT.md`, all previous handoff files
+**Output:** `_redesign/phase6_testing.md`, `_redesign/handoff_phase6.md`
+
+Dispatch prompt:
+> Read `_redesign/CONTEXT.md`. Read all `_redesign/handoff_phase*.md` files — understand what was changed. Read `~/.claude/skills/webapp-testing/SKILL.md`. Run:
+> 1. `npm run build` — must pass zero errors
+> 2. Start dev server, visit every page via browser
+> 3. Check: console errors, broken layouts, missing data, wrong colors
+> 4. Site-specific rules from CONTEXT.md ANTI_PATTERNS — run each check
+> 5. Fix issues found. Commit fixes.
+> Write `_redesign/phase6_testing.md` with pass/fail per page. Write `_redesign/handoff_phase6.md`.
+
+---
+
+## Phase 7: Visual QA
+**Agent type:** Main orchestrator (screenshot tools required)
+**Input:** `_redesign/CONTEXT.md`, `_redesign/phase2_direction.md`, `_redesign/handoff_phase6.md`
+
+**Do this yourself — screenshot and visual inspection tools are only available to the main agent.**
+
+1. Read `phase2_direction.md` — what mood/aesthetic was chosen?
+2. Screenshot each page at 375px, 768px, 1280px via Claude Preview/Chrome.
+3. Read `~/.claude/skills/screenshot-dissector/SKILL.md` — methodical pixel examination.
+4. Verify: spacing consistency, typography hierarchy, color adherence to THEME.md.
+5. Check: focus states, contrast ratios, dark mode if applicable.
+6. Ask: does the FEEL match the intended mood from Phase 2?
+7. Fix issues. Commit.
+
+---
+
+## Phase 8: Deploy & Verify
+**Agent type:** Main orchestrator
+**Input:** All `_redesign/` files
+
+1. Read `~/.claude/skills/website-guardian/SKILL.md` — pre-deploy checklist.
+2. Final build: `npm run build` (or project's build command).
+3. Invoke `/deploy` or project's deploy method.
+4. Post-deploy: visual verification on live site via Claude in Chrome.
+5. Log design decisions to project memory.
+6. Log bugs found/fixed to `~/.claude/anti-patterns.md`.
+7. Final commit: include aesthetic name, page count, component count.
 
 ---
 
@@ -162,6 +192,16 @@ Colors: [dominant hex] + [accent hex] + [neutral hex]
 Layout: [approach]
 CSS Framework: [preserved — Tailwind/CSS modules/etc.]
 
+Agent pipeline:
+  Phase 1 (Discovery):     Explore agent
+  Phase 2 (Direction):     Orchestrator + user
+  Phase 3 (Design System): general-purpose agent
+  Phase 4 (Components):    [N] general-purpose agents ([M] parallel groups)
+  Phase 5 (Backend):       general-purpose agent | skipped
+  Phase 6 (Testing):       general-purpose agent
+  Phase 7 (Visual QA):     Orchestrator
+  Phase 8 (Deploy):        Orchestrator
+
 Pages redesigned: [N] / [total]
 Components updated: [N]
 Backend fixes: [N]
@@ -174,8 +214,7 @@ Verification:
 - Accessibility: [pass/fail]
 - Site-specific rules: [N/N passed]
 
-Skills used: [list of skills invoked]
-Redesign files: _redesign/ (direction, theme, progress, verification)
+Shared memory: _redesign/ ([N] files — direction, theme, handoffs, progress)
 
 ✅ Version bumped: v[old] → v[new]
 ✅ GitHub synced: committed and pushed (commit [SHA])
@@ -185,14 +224,14 @@ Redesign files: _redesign/ (direction, theme, progress, verification)
 
 ---
 
-## Design Principles
-- **Opus only.** Creative design requires Opus-level reasoning. Sonnet lacks aesthetic judgment.
-- **Sequential skill pipeline.** Each phase invokes specific pre-built skills by reading their SKILL.md. Don't "apply mentally" — actually load and follow the skill protocol.
-- **User chooses the direction.** Phase 2 is interactive — present options, don't dictate.
-- **Main agent does ALL design and component work.** NEVER spawn subagents for Phases 2-4. Only Phase 5 (backend) gets a subagent.
-- **PRESERVE the CSS framework.** Tailwind stays Tailwind. Converting to inline styles is a regression. (NFL Draft incident, 2026-03-26)
-- **Update, don't rewrite.** Swap classes and values. Don't rewrite components from scratch.
-- **Load site-specific knowledge first.** Dedicated commands contain display rules that MUST survive.
-- **Inter-phase data via `_redesign/` files.** THEME.md is the single source of truth.
-- **Token budget: ~45 min total.** `--design-only`: ~13 min. Commit frequently.
-- **Never use Inter, Roboto, or Arial.** The whole point is to look different.
+## Agent Pipeline Rules
+
+- **Orchestrator controls flow.** Main Opus agent dispatches agents, reads handoffs, validates output, proceeds or retries.
+- **Every agent reads CONTEXT.md first.** No exceptions. CSS framework is in CONTEXT.md — this prevents framework drift.
+- **Every agent writes a handoff.** No agent finishes without writing `_redesign/handoff_phaseN.md`.
+- **Phases 2, 7, 8 stay with orchestrator.** Phase 2 needs user interaction. Phases 7-8 need screenshot tools only available to main agent.
+- **Framework preservation is enforced by orchestrator validation** between Phase 3 → Phase 4. Orchestrator checks output before dispatching next agent.
+- **Parallelism only for independent files.** Components sharing a CSS file are sequential. Never parallel-write the same file.
+- **Retry on framework violation.** If an agent converts Tailwind to inline styles — revert, add stronger constraint to prompt, re-dispatch.
+- **Commit after every agent phase.** Rate limits and crashes don't lose work.
+- **NEVER use Inter, Roboto, or Arial.** Non-negotiable. The whole point is differentiation.
