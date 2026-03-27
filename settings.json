@@ -41,6 +41,14 @@
         "hooks": [
           {
             "type": "command",
+            "command": "python3 ~/.claude/hooks/parry-taint-cleaner.py"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
             "command": "python3 ~/.claude/hooks/api-banner.py"
           }
         ]
