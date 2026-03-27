@@ -2,7 +2,18 @@
 
 > This file is auto-maintained by the error-memory skill.
 > Claude checks this before debugging to avoid repeating known-bad approaches.
-> Last updated: 2026-03-25
+> Last updated: 2026-03-26
+
+## Critical — Subagents Must Not Replace CSS Frameworks
+
+### SUBAGENT_REPLACED_TAILWIND_WITH_INLINE_STYLES — 2026-03-26
+- **Context**: NFL Draft Predictor site-redesign, /site-redesign command
+- **Bug**: Two Sonnet subagents were spawned to redesign components. Both replaced all Tailwind utility classes with verbose inline `style={{}}` objects using CSS custom properties. Lost hover states, transitions, responsive breakpoints, and readability.
+- **Root cause**: Subagents were given too much freedom ("redesign this component") without the constraint "preserve the existing CSS framework." They interpreted "redesign" as "rewrite everything" including the styling architecture.
+- **Fix**: Updated /site-redesign: (1) Phase 3 is NEVER done by subagents — main agent only, (2) Framework Preservation Rule: Tailwind stays Tailwind, CSS modules stay CSS modules, (3) "Update, don't rewrite" principle for components
+- **Flawed assumption**: That subagents can maintain consistent design decisions across components without full context
+- **Reasoning lesson**: A redesign changes the visual output, not the styling architecture. Never delegate component styling to subagents.
+- **Applies when**: ANY /site-redesign invocation, ANY time subagents are considered for CSS/styling work
 
 ## PERMANENT RULE — NEVER Accept Missing Prop Odds (NON-NEGOTIABLE)
 

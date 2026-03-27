@@ -53,43 +53,51 @@ Example directions:
 
 **Write:** `_redesign/phase1_direction.md` — chosen aesthetic, fonts, colors, layout approach.
 
-## Phase 2: Design System (~5 min, 1 agent)
+## Phase 2: Design System (~5 min, main agent — NO subagents)
 
-Spawn ONE **general-purpose agent**:
-```
-"DESIGN SYSTEM AGENT
+Do this yourself. Do NOT spawn a subagent for the design system — it needs to understand the existing CSS approach to avoid destroying it.
 
-Context: Read _redesign/phase0_discovery.md and _redesign/phase1_direction.md.
-Also read: ~/.claude/skills/ui-design-system/SKILL.md and ~/.claude/skills/ui-ux-pro-max/SKILL.md.
+1. **Identify the existing CSS framework** — Tailwind? CSS modules? Styled-components? Plain CSS?
+2. **PRESERVE IT.** A redesign changes colors, fonts, spacing, and layout — NOT the styling approach. If the project uses Tailwind, the redesigned code uses Tailwind. Period.
+3. Create/update the design tokens IN the existing framework:
+   - **Tailwind projects**: update `tailwind.config` with custom colors, fonts, spacing, shadows. Use `@apply` or utility classes. NEVER replace Tailwind with inline `style={{}}`.
+   - **CSS modules**: update the module variables and class definitions
+   - **Plain CSS**: update CSS custom properties in globals.css
+4. Create `_redesign/THEME.md` documenting all tokens with examples
 
-Your task: Build the design foundation.
-1. Create/update tailwind.config with: custom colors (from direction), font families, spacing scale, border radius tokens, shadow tokens, animation keyframes
-2. Create/update globals.css with: CSS custom properties mirroring Tailwind tokens, @font-face or Google Fonts imports for chosen fonts, base styles
-3. Create a theme reference file: _redesign/THEME.md documenting all tokens with examples
-
-Output: Modified tailwind.config + globals.css + _redesign/THEME.md. Write all files directly."
-```
+**Write:** Modified config files + `_redesign/THEME.md`
 
 **If `--design-only` was specified, STOP HERE** and present the design system.
 
-## Phase 3: Component Rebuild (~15 min, main agent, component by component)
+## Phase 3: Component Rebuild (~15 min, main agent ONLY — NEVER subagents)
 
-Do this yourself — do NOT spawn agents for individual components. You need the design system context.
+**Do this yourself. NEVER spawn agents for component redesign work.** This rule exists because:
+- Subagents lack the full design system context and make inconsistent choices
+- Subagents have replaced Tailwind with inline styles (2026-03-26 NFL Draft incident)
+- Subagents can't maintain visual consistency across components
+- Only the main agent with THEME.md in context can ensure coherent design
+
+**THE FRAMEWORK PRESERVATION RULE (NON-NEGOTIABLE):**
+- If the project uses **Tailwind** → redesigned components use **Tailwind utility classes**
+- If the project uses **CSS modules** → redesigned components use **CSS modules**
+- If the project uses **styled-components** → redesigned components use **styled-components**
+- **NEVER** replace one CSS approach with another during a redesign
+- **NEVER** convert Tailwind classes to inline `style={{}}` objects
+- **NEVER** convert utility classes to CSS custom properties accessed via `style={{var(--x)}}`
+- A redesign changes the VISUAL OUTPUT, not the STYLING ARCHITECTURE
 
 For EACH page (prioritize: landing > dashboard > detail pages > settings):
 1. Read the current component
 2. Read `_redesign/THEME.md` for design tokens
-3. Read `~/.claude/skills/frontend-design/SKILL.md` differentiation protocol:
-   - Purpose → Tone → Constraints → "What makes this UNFORGETTABLE?"
-4. Rewrite the component applying:
-   - New typography (from THEME.md)
-   - New color palette
-   - New layout approach
-   - All states: empty, loading, error, success
-   - Responsive: mobile-first, tablet, desktop
-   - Accessible: ARIA labels, keyboard nav, contrast ratios
-5. Follow `~/.claude/skills/react-best-practices/SKILL.md`:
-   - No barrel imports, proper memoization, lazy loading where appropriate
+3. Read `~/.claude/skills/frontend-design/SKILL.md` differentiation protocol
+4. **Update** the component (don't rewrite from scratch):
+   - Swap color classes/values to new palette
+   - Swap font classes to new typography
+   - Adjust spacing and layout using existing framework's utilities
+   - Preserve ALL existing functionality, state handling, data flow
+   - Add responsive breakpoints using the EXISTING framework's approach
+   - Add accessibility: ARIA labels, keyboard nav, contrast ratios
+5. Follow `~/.claude/skills/react-best-practices/SKILL.md`
 
 **Commit after every 2-3 components:**
 ```bash
@@ -182,8 +190,10 @@ Redesign files: _redesign/ (direction, theme, progress, verification)
 
 ## Design Principles
 - **User chooses the direction.** Phase 1 is interactive — present options, don't dictate.
-- **Main agent does component work.** Agents can't maintain design consistency across components — only the main agent with THEME.md in context can.
-- **Max 2 subagents** (design system + backend review). Everything else is direct.
+- **Main agent does ALL component work.** NEVER spawn subagents for component redesign. Subagents replaced Tailwind with inline styles on the NFL Draft project (2026-03-26) — they lack design context and make destructive styling decisions.
+- **Max 1 subagent** (backend review only, and only if backend exists). Everything else is done by the main agent directly.
+- **PRESERVE the CSS framework.** Tailwind stays Tailwind. CSS modules stay CSS modules. A redesign changes colors/fonts/layout — NOT the styling architecture. Converting Tailwind to inline styles is a regression, not a redesign.
+- **Update, don't rewrite.** Swap classes and values in existing components. Don't rewrite 750-line components from scratch — that's how functionality gets lost and styling frameworks get replaced.
 - **Inter-phase data via `_redesign/` files.** THEME.md is the single source of truth for all component work.
 - **Token budget: ~45 min total.** `--design-only` mode: ~12 min. If hitting limits, commit progress and hand off.
 - **Commit frequently.** Every 2-3 components, not one giant commit at the end.
