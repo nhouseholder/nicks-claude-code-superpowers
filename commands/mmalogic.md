@@ -261,6 +261,37 @@ This script lives at `ufc-predict/validate_registry.py`. It reads `ufc_profit_re
 - Fighter loss = ALL bets on that fighter lose (-1u each, up to -4u)
 - Method and Round are scored INDEPENDENTLY
 
+### Parlay Rules (LEARNED — 2026-03-26)
+- **HC Parlay** = top 2 FAVORITES by implied probability from active picks (not passes). Underdogs are NEVER HC legs.
+- **ROI Parlay** = top 2 highest American odds picks (biggest underdogs), no overlap with HC legs.
+- Implied probability: `abs(odds) / (abs(odds) + 100)` for favorites, `100 / (odds + 100)` for underdogs.
+- Both parlays should appear per event in the registry as `parlay` (HC) and `parlay_roi` (ROI).
+
+### Odds Format (PERMANENT RULE — 2026-03-26)
+- **ALL odds on the site must be American format** (+150, -200). NEVER decimal/European (1.90x, 2.50x).
+- Parlay combined odds stored as `parlay_odds_decimal` internally — convert for display: `dec >= 2.0 → +((dec-1)*100)`, `dec < 2.0 → -(100/(dec-1))`.
+- This applies everywhere: event tables, admin panels, prediction output, parlay rows, all components.
+
+### BFO Prop Odds Mapping (LEARNED — 2026-03-26)
+- Prop odds cache uses `f1`/`f2` keys. f1 = first fighter in the `name1|||name2` key, f2 = second.
+- f1/f2 do NOT always match red/blue corners. The BFO page order can be swapped.
+- **ALWAYS validate**: favorite DEC odds should be LOWER than underdog DEC odds. If a -450 favorite shows +850 DEC, the f1/f2 mapping is WRONG.
+- Cross-check: `f1_dec` vs `f2_dec` — the one closer to +100/+200 belongs to the favorite.
+
+### Backtester vs Prediction Archive (LEARNED — 2026-03-26)
+- The backtester's vectorized scoring path normalizes KO/DEC/SUB scores (divides by total), which eliminates small gaps that the DEC tiebreaker targets.
+- The live prediction path does NOT normalize the same way, so tiebreaker fires for close calls.
+- **After ANY backtest re-run**: cross-check the most recent 1-2 events' method predictions against `prediction_archive/`. If they diverge, the archive is ground truth.
+- Manually patch the registry for recent events after re-running the backtester.
+
+### Live Tracking Worker (DEPLOYED — 2026-03-26)
+- `mmalogic-live-tracker` Cloudflare Worker at `https://mmalogic-live-tracker.nikhouseholdr.workers.dev`
+- Cron: `*/5 * * * *` — fires every 5 min, only processes during Saturday 22:00-Sunday 09:00 UTC
+- Scrapes UFCStats.com for completed bouts, scores ML/method/round/combo, updates Firestore `live_events/{slug}`
+- Frontend picks up changes via `onSnapshot` — zero manual work on fight night
+- Manual trigger: `curl -X POST https://mmalogic-live-tracker.nikhouseholdr.workers.dev/`
+- Secret: `FIREBASE_SA_KEY` configured on the Worker
+
 ### Display Rules (Most Violated)
 - Confidence = raw differential (0.14–3.0+), NOT a percentage
 - Losses show -1u (not blank, not "—")
@@ -269,6 +300,8 @@ This script lives at `ufc-predict/validate_registry.py`. It reads `ufc_profit_re
 - Both parlays per event
 - Event count = 71+ (current backtest window)
 - ALL table components must show the same bet types: EventBetsDropdown, AdminBacktest, EventSlideshow, LastWeekPicks, HistoryPage
+- **Event breakdown tables must include parlay rows** (HC + ROI) below fight rows, showing legs, W/L, American odds, and P/L
+- **Parlay P/L must be included in the Combined total** in both summary chips and TOTALS row
 
 ### Canonical Paths
 - Webapp: `ufc-predict/webapp/frontend/` (NEVER root `webapp/`)
