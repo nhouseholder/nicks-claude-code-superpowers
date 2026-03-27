@@ -136,15 +136,6 @@
         ]
       },
       {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "dippy"
-          }
-        ]
-      },
-      {
         "matcher": "Write",
         "hooks": [
           {
