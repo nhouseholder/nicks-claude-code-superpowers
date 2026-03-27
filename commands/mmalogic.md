@@ -328,13 +328,43 @@ This script lives at `ufc-predict/validate_registry.py`. It reads `ufc_profit_re
 - **Parlay P/L must be included in the Combined total** in both summary chips and TOTALS row
 - **AdminBacktest must match EventBetsDropdown format**: Combo column, Parlay row, safePnl for losses, all 5 types in chart/totals
 
+### Deploy Rules (CRITICAL — caused catastrophic v11.9.3 → v10.68 reversion)
+- **NEVER run `wrangler deploy` manually.** Push to `ufc-predict` main branch → GitHub CI auto-deploys. Manual deploys risk deploying from the wrong directory.
+- **Before ANY deploy: check version.js.** `cat webapp/frontend/src/config/version.js` — if it shows an OLD version, you're in the WRONG directory. ABORT.
+- **Root `webapp/` is ARCHIVED** (`archive/webapp_ROOT_STALE_v10.68/`). It froze at v10.68 and deploying from it destroyed months of work. NEVER build or deploy from it.
+- **The correct deploy chain:** edit files in `ufc-predict/webapp/frontend/` → commit → push → CI builds and deploys automatically.
+
+### Data Sync After Backtest (MANDATORY)
+- After every backtest or optimizer run, copy output files to webapp data dir:
+  ```
+  cp ufc_profit_registry.json webapp/frontend/public/data/
+  cp algorithm_stats.json webapp/frontend/public/data/
+  cp prediction_output.json webapp/frontend/public/data/
+  ```
+- Then commit and push to trigger CI redeploy with fresh data.
+- **Parlay totals must be computed separately** — backtester doesn't aggregate them. Run parlay aggregation after every backtest.
+
+### Frontend Safety Net: safePnl (LEARNED — 2026-03-25)
+- `EventBetsDropdown.jsx` has a `safePnl(correct, pnl, odds)` function that computes P/L when registry data is incomplete:
+  - `correct === false` → return `-1` (loss is always -1u regardless of odds)
+  - `correct === true && odds != null` → return payout at odds
+  - `pnl != null` → return pnl (registry value takes priority)
+  - Otherwise → return null (no bet placed)
+- This is a safety net, NOT a replacement for correct backtester output. The backtester should write complete data.
+
+### Constants & Parameters
+- `constants.json` = single source of truth for all algorithm parameters
+- Optimizer saves optimized values to Firestore `algorithm_data/constants`
+- Algorithm reads from `constants.json` at startup (or syncs from Firestore via `UFC_SYNC_CONSTANTS=1`)
+- 56+ optimized parameters covering scoring weights, gating thresholds, system boosts
+
 ### Canonical Paths
-- Webapp: `ufc-predict/webapp/frontend/` (NEVER root `webapp/`)
+- Webapp: `ufc-predict/webapp/frontend/` (NEVER root `webapp/` — it's archived)
 - Data: `ufc-predict/webapp/frontend/public/data/`
 - Algorithm: `ufc-predict/`
 - Validator: `ufc-predict/validate_registry.py`
 - GitHub repo: `nhouseholder/ufc-predict`
-- GitHub CI deploys on push to main
+- GitHub CI deploys on push to main — this is the ONLY correct deploy method
 
 ---
 
