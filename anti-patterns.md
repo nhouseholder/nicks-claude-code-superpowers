@@ -4,6 +4,17 @@
 > Claude checks this before debugging to avoid repeating known-bad approaches.
 > Last updated: 2026-03-26
 
+## Critical — Parallel Agents Clobbered Shared Files
+
+### PARALLEL_SWEEP_SHARED_FILE_CLOBBER — 2026-03-26
+- **Context**: UFC DEC_TIEBREAK parameter sweep, 5 worktree agents
+- **Bug**: 5 agents ran parameter sweeps in parallel, all writing results to the same `ufc_profit_registry.json`. The last agent to finish overwrote all others. All 4 thresholds appeared identical because only one agent's output survived.
+- **Root cause**: Agents shared a write target. Additionally, `sed`/`re.sub` with `count=1` only patched the first occurrence of the constant, missing a second usage site in the vectorized backtest path.
+- **Fix**: (1) CLAUDE.md rule #32: max 2 agents, Opus only, separate output files, (2) parameter sweeps must run SEQUENTIALLY, (3) verify ALL usage sites of a constant before patching
+- **Flawed assumption**: That isolated worktree agents would produce independent results even when writing to the same output file
+- **Reasoning lesson**: Parallel writes to shared state = data corruption. Parameter sweeps must be sequential with result-reading between runs.
+- **Applies when**: ANY parameter sweep, coefficient search, or multi-run comparison task
+
 ## Critical — Subagents Must Not Replace CSS Frameworks
 
 ### SUBAGENT_REPLACED_TAILWIND_WITH_INLINE_STYLES — 2026-03-26
