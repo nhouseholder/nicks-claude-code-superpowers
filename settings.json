@@ -52,6 +52,14 @@
             "command": "python3 ~/.claude/hooks/ufc-context-loader.py"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/memory-consolidate-loader.py"
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -194,6 +202,14 @@
           {
             "type": "command",
             "command": "osascript -e 'display notification \"Claude finished a task and needs your attention\" with title \"Claude Code\" sound name \"Glass\"'"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/memory-consolidate.py"
           }
         ]
       }
