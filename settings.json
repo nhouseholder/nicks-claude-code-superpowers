@@ -1,12 +1,7 @@
 {
-  "env": {
-    "API_TIMEOUT_MS": "3000000",
-    "Z_AI_API_KEY": "d8047c5f5b4246fd9a94b672adfe4882.t2Sn4v37ISjM4IaE",
-    "OPENAI_API_KEY": "d8047c5f5b4246fd9a94b672adfe4882.t2Sn4v37ISjM4IaE",
-    "OPENAI_API_URL": "https://api.z.ai/api/paas/v4/",
-    "ANTHROPIC_BASE_URL": "http://127.0.0.1:17532"
-  },
+  "model": "claude-opus-4-6",
   "permissions": {
+    "defaultMode": "bypassPermissions",
     "allow": [
       "Bash",
       "Write",
@@ -23,266 +18,57 @@
       "mcp__PowerPoint__By_Anthropic__*",
       "mcp__Word__By_Anthropic__*",
       "mcp__PDF_Tools_-_Analyze__Extract__Fill__Compare__*",
-      "mcp__PDF_Tools_-_Fill__Analyze__Extract__View__*",
-      "mcp__Claude_Preview__*",
-      "mcp__c1fc4002-5f49-5f9d-a4e5-93c4ef5d6a75__*",
-      "mcp__scheduled-tasks__*",
       "mcp__mcp-registry__*"
-    ],
-    "defaultMode": "bypassPermissions",
-    "additionalDirectories": [
-      "~/.claude"
     ]
   },
-  "model": "claude-opus-4-6",
   "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/parry-taint-cleaner.py"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/api-banner.py"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/ufc-context-loader.py"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/memory-consolidate-loader.py"
-          }
-        ]
-      }
-    ],
     "UserPromptSubmit": [
       {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/api-banner.py"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/session-bridge.py"
-          }
-        ]
-      },
-      {
+        "description": "Improves user prompts by adding clarifying questions",
         "hooks": [
           {
             "type": "command",
             "command": "python3 ~/.claude/hooks/improve-prompt.py"
           }
         ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/correction-detector.py",
-            "timeout": 2000
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/nicholashouseholder/.cargo/bin/parry-guard hook",
-            "timeout": 2000
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/nicholashouseholder/.claude/hooks/rtk-rewrite.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/block-dangerous-commands.py"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/deploy-guard.py"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/version-bump-check.py"
-          }
-        ]
-      },
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/protect-skills.py"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/protect-skills.py"
-          }
-        ]
-      },
-      {
-        "matcher": "Agent",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/agent-limit.py"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/nicholashouseholder/.cargo/bin/parry-guard hook",
-            "timeout": 1000
-          }
-        ]
       }
     ],
     "Stop": [
       {
+        "description": "Reminds Claude to save important learnings to memory",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/no-narration-stops.py"
+            "command": "python3 ~/.claude/hooks/stop-memory-save.py"
           }
         ]
       },
       {
+        "description": "Session-aware notification with project name",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/auto-checkpoint.py"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "osascript -e 'display notification \"Claude finished a task and needs your attention\" with title \"Claude Code\" sound name \"Glass\"'"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/memory-consolidate.py"
+            "command": "python3 ~/.claude/hooks/notify-session.py"
           }
         ]
       }
     ],
     "PostToolUse": [
       {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/glm5-focus-guard.py"
-          }
-        ]
-      },
-      {
+        "description": "Background observation for continuous learning",
         "hooks": [
           {
             "type": "command",
             "command": "python3 ~/.claude/hooks/observe.py"
           }
         ]
-      },
-      {
-        "matcher": "Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/surgical-scope.py"
-          }
-        ]
-      },
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/surgical-scope.py"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/impossible-stats-detector.py"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/missing-odds-detector.py"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/nicholashouseholder/.cargo/bin/parry-guard hook",
-            "timeout": 5000
-          }
-        ]
       }
     ]
   },
-  "skipDangerousModePermissionPrompt": true
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "32f68de74aa64000b5fee5aa28d79bc9.JlqfKe8f78KwZA5W",
+    "ANTHROPIC_BASE_URL": "https://api.z.ai/api/anthropic",
+    "API_TIMEOUT_MS": "3000000",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": 1
+  }
 }
