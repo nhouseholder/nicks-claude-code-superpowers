@@ -26,6 +26,13 @@ After reading, summarize in one line what you loaded: "Loaded: 15-item checklist
 # Where am I?
 echo "Working directory: $(pwd)"
 
+# Branch check — NEVER deploy from feature branches
+BRANCH=$(git branch --show-current 2>/dev/null)
+echo "Branch: $BRANCH"
+if [ "$BRANCH" != "main" ] && [ "$BRANCH" != "master" ]; then
+  echo "⚠️ NOT ON MAIN — you are on branch: $BRANCH. Switch to main before deploying."
+fi
+
 # Is this iCloud? (iCloud folders diverge from GitHub)
 [[ "$(pwd)" == *"Mobile Documents"* ]] && echo "⚠️ iCLOUD DIRECTORY — must verify freshness against GitHub"
 
@@ -46,6 +53,25 @@ fi
 ```
 
 **RULE: If local is stale, work from the fresh GitHub clone in /tmp/. Never edit stale files.**
+**RULE: If branch is not main, switch before deploying. Feature branch deploys overwrite production.**
+
+## Step 1.5: Baseline Snapshot (MANDATORY for Update/Deploy/Feature/Debug tasks)
+
+Before making ANY changes, record what currently works. This prevents regressions.
+
+1. **Record current version:** `cat webapp/frontend/src/config/version.js`
+2. **Record current state of affected pages** — specific values, not "looks fine":
+   - Hero cards: 5 cards with exact P/L values
+   - Latest event table: row count, parlay row present, combined total
+   - Chart: how many lines, starting point
+   - Any other pages affected by this task
+3. **Record credential counts in config files you'll touch:**
+   ```bash
+   grep -c "FIREBASE\|SUPABASE\|API_KEY\|SECRET" <files-you-will-edit> 2>/dev/null
+   ```
+4. **Write baseline to `_update/baseline.md`** (will be cleaned up before commit)
+
+**RULE: If you can't state specific values for what currently works, you can't detect regressions. Record the baseline.**
 
 ## Step 2: Determine Task Type
 
@@ -69,9 +95,31 @@ Based on what the user asked, route to the appropriate workflow:
 2. **If validator fails** — fix data issues BEFORE any display work
 3. **Data sync** — copy data files from `ufc-predict/webapp/frontend/public/data/`
 4. **Source sync** — check for divergence: `diff -rq ufc-predict/webapp/frontend/src/ webapp/frontend/src/`
-5. **Build** — `cd ufc-predict/webapp/frontend && npm run build` (NEVER from root webapp/)
-6. **Deploy** — commit + push to `ufc-predict` main branch to trigger GitHub CI auto-deploy
-7. **Post-deploy verification** — run 15-item checklist on the live site via Claude in Chrome
+5. **Credential protection** — before AND after edits, verify credential env vars are intact:
+   ```bash
+   grep -c "FIREBASE\|SUPABASE\|API_KEY\|SECRET\|VITE_" webapp/frontend/.env* wrangler.toml 2>/dev/null
+   ```
+   Counts must match before and after. If count drops, you removed a credential — UNDO immediately.
+6. **Build** — `cd ufc-predict/webapp/frontend && npm run build` (NEVER from root webapp/)
+7. **Version bump** — patch for fixes, minor for features. Update `version.js` and any "last updated" display.
+8. **Clean up temp files** — `rm -rf _update/ 2>/dev/null` before committing
+9. **Commit with specific files** — NEVER `git add -A`. Stage only files you intentionally changed:
+   ```bash
+   git add webapp/frontend/src/config/version.js webapp/frontend/public/data/*.json [other specific files]
+   git commit -m "v[X.Y.Z]: [description]"
+   git push origin main
+   ```
+10. **Post-deploy verification (MANDATORY)** — open mmalogic.com in Claude in Chrome or Preview:
+    - Confirm new version number is displayed
+    - Confirm updated date is displayed
+    - Run FULL 15-item checklist with specific values for each item
+    - Spot-check 1 event table end-to-end (fight-level P/L matches registry)
+11. **If deploy fails or live site has regressions:**
+    ```bash
+    git revert HEAD    # revert the bad commit
+    git push origin main  # CI redeploys the reverted state
+    ```
+    Log failure to `~/.claude/anti-patterns.md` with root cause.
 
 ## Step 3B: Debug
 
@@ -173,13 +221,17 @@ npm run build
 
 ### Phase 5: Deploy & Verify
 ```bash
-# Commit everything
-git add -A
+# Stage specific files — NEVER git add -A (prevents accidental backup/temp file commits)
+git add ufc_profit_registry.json algorithm_stats.json prediction_output.json
+git add webapp/frontend/public/data/*.json
+git add webapp/frontend/src/config/version.js
+# Add any other intentionally changed files by name
 git commit -m "Clean rebuild: fresh backtest + validated registry + rebuilt frontend"
 git push origin main  # Triggers GitHub CI auto-deploy
 
 # Wait for deploy, then visual verification via Claude in Chrome
 # Run FULL 15-item checklist on live site
+# If live site has regressions: git revert HEAD && git push origin main
 ```
 
 ### Phase 6: Snapshot Baseline
@@ -473,11 +525,16 @@ MMALOGIC TASK COMPLETE
 ======================
 Task: [what was done]
 Directory: [confirmed canonical path]
-Version: [version.js value]
+Branch: [main ✓ / other — explain why]
+Version: [before] → [after] (bumped ✓ / N/A — no deploy)
 Freshness: [verified against GitHub ✓]
+Baseline: [N items recorded] — [all preserved ✓ / N regressions fixed]
 Validator: [ALL 12 RULES PASS / N failures — list them]
 15-item checklist: [N/15 passed]
+Credentials: [verified intact ✓ — counts match before/after]
+Changed files: [list of specific files staged]
 Knowledge updated: [list of files updated — or "none (no new learnings)" with justification]
 Knowledge synced to GitHub: [yes/no — commit SHA]
 Deployed: [yes/no — if yes, via GitHub CI]
+Live verification: [version + date + changes confirmed on mmalogic.com ✓]
 ```
