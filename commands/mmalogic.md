@@ -301,6 +301,12 @@ This script lives at `ufc-predict/validate_registry.py`. It reads `ufc_profit_re
 - **Event totals must match sum of bout P/L.** After ANY registry change, verify: `event.ml.pnl == sum(bout.ml_pnl)` for each bet type.
 - **Parlay totals aggregated separately.** Backtester doesn't aggregate parlays in registry totals — must be computed from event-level parlay data after each backtest.
 
+### Odds Scraping Operational Knowledge (LEARNED — 2026-03-25)
+- **BFO event name mismatch:** BFO uses short names ("UFC Seattle") while the algorithm uses full names ("UFC Fight Night: Adesanya vs. Pyfer"). The scraper's event-name matching needs fuzzy/token matching — if scraping returns 0 odds, check BFO's actual event name manually.
+- **`__NO_PROPS__: true` blocks re-scraping:** The prop odds cache marks fights with no props found. On subsequent runs, the scraper skips these. To force re-scraping, delete the `__NO_PROPS__` entries from `ufc_prop_odds_cache.json` before running.
+- **Prelim odds timing:** Prelim fight odds typically appear on BFO 1-2 days before the event, not a week before. Don't panic if prelim odds are missing early fight week — they'll appear Wed-Sat. The scheduled odds refresh workflow (Wed/Thu/Fri 3pm ET, Sat 9am ET) catches these automatically.
+- **Registry totals vs algorithm_stats.json:** These come from different pipelines and CAN disagree. The registry (from `track_results.py`) is the source of truth for actual results. `algorithm_stats.json` (from the backtester) may have different ML/Method numbers due to different scoring interpretations. When they disagree, update `algorithm_stats.json` to match registry-computed values.
+
 ### Data Analysis Integrity (LEARNED — 2026-03-25/26)
 - **Cross-query consistency.** If you run the same analysis twice and get different numbers, your query has a bug. NEVER present shifting numbers — use standalone scripts with assertions.
 - **Extreme results = bug in your analysis.** 0% or 100% win rates, results that seem too good — suspect your code first, not the data.
