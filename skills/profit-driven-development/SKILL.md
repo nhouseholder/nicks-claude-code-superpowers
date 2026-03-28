@@ -102,6 +102,22 @@ After EVERY backtest result:
 - If two features are correlated, keep the one with stronger domain justification
 - A simple model that's 53% accurate and robust > a complex model that's 58% on paper
 
+## Mandatory Pre-Deploy Gate for Algorithm Changes
+
+**NO algorithm change ships to production without ALL of these passing:**
+
+1. **Granular analysis first** — Run the analysis at the tightest increment (+25 for odds, per-category for bet types) BEFORE writing any code. If an aggregate analysis says "gate +150-200" — break it down first. The aggregate may hide profitable sub-ranges.
+
+2. **Reconcile contradictions** — If the same metric gives different values across analyses, STOP. The methodology is wrong. Find out why before acting. (See: DEC_DEADZONE_PREMATURE_DEPLOY in anti-patterns.md)
+
+3. **Minimum threshold** — Marginal improvements below +0.10u per event are noise, not signal. Don't implement gates for +0.04u/event savings.
+
+4. **Backtest BEFORE deploy** — Run a full backtest with the gate applied BEFORE committing. Compare total P/L to the pre-gate baseline. If P/L drops by more than 2u, the gate is wrong.
+
+5. **Understand the mechanics** — Before gating an odds range, trace what happens to BOTH wins and losses in that range. Blocking a range blocks profitable longshots too, not just the losses you see in the aggregate.
+
+6. **Never deploy then analyze** — The sequence is: analyze → granular breakdown → backtest with gate → compare → THEN deploy. Never deploy first and analyze after.
+
 ## Rules
 
 1. **Future-first** — Every change must be justified by its impact on FUTURE predictions, not historical fit
@@ -112,3 +128,4 @@ After EVERY backtest result:
 6. **Holdout always** — Never evaluate a change only on the data used to develop it
 7. **Domain knowledge first** — Start from what we know about sports, not from what the data mining found
 8. **Would you bet on it?** — If you wouldn't increase bet size based on the change, it's not real
+9. **Analyze before implementing** — Granular breakdown at tightest increment BEFORE writing any gate code (see Pre-Deploy Gate above)

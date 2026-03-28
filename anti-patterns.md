@@ -4,6 +4,17 @@
 > Claude checks this before debugging to avoid repeating known-bad approaches.
 > Last updated: 2026-03-28
 
+## UFC — DEC Method Odds Gate Caused -91.95u Regression (REVERTED)
+
+### DEC_ODDS_GATE_REGRESSION — 2026-03-28
+- **Context**: Attempted to gate DEC method bets outside -125 to +250 odds range
+- **Bug**: Method P/L dropped from +100.61u to +12.75u (-91.95u). Deployed as v11.16.0, caught immediately, reverted to v11.16.1.
+- **Root cause**: Gating +250+ odds also blocked longshot DEC bets at +300 to +800+ that pay 3-10x per hit. Those longshot wins (+83u) cross-subsidize the small mid-range losses (-7.50u total). Removing the whole tail destroyed the portfolio.
+- **Fix**: Gate disabled (floor=-99999, ceiling=+99999). All DEC method bets placed regardless of odds.
+- **Flawed assumption**: That losing odds ranges can be gated independently. Method bets are a portfolio where longshot wins fund mid-range losses.
+- **Reasoning lesson**: NEVER gate prop bets by odds range without simulating FULL P/L including longshots. Always run the backtest BEFORE deploying odds-based gates.
+- **Applies when**: ANY proposal to gate/skip bets based on odds thresholds.
+
 ## UFC — Parlay Legs Rendered as "+" (String vs Object Format Mismatch)
 
 ### PARLAY_LEGS_STRING_VS_OBJECT — 2026-03-28
@@ -686,3 +697,14 @@
 - **Flawed assumption**: That 25% Location weight balances well with effect-matching pillars. For regionally popular strains, the Location floor was too high for any effect-matching difference to overcome.
 - **Fix**: (1) Reduced Location from 25% → 15% in both flavor/no-flavor modes, redistributing 10% to Science and Community. (2) Fixed `calcEffectReportScore` to accumulate reports for duplicate effect names instead of overwriting. New weights (no dispensary): 40/30/15/15 (Sci/Com/Common/Loc) without flavor; 35/25/15/15/10 with flavor.
 - **Applies when**: Any scoring weight rebalancing. Keep effect-independent pillars (Location + Commonness) at ≤30% total. Effect matching should drive quiz results.
+
+## UFC — Deploy-Before-Analyze: DEC Dead Zone Gate Regression
+
+### DEC_DEADZONE_PREMATURE_DEPLOY — 2026-03-28
+- **Context**: DEC method bet odds gating — implemented +150-200 dead zone gate, deployed to production as v11.16.0, then discovered through granular analysis that the gate was wrong
+- **Bug**: Three cascading failures: (1) Deployed gate based on first analysis showing -5% ROI, (2) Subsequent +25-increment analysis showed the range was actually breakeven/profitable, (3) Widening the gate to +250/-125 caused -91.95u catastrophic regression because it blocked profitable longshots
+- **Root cause**: Implemented and deployed an algorithm change BEFORE running the granular analysis that would have prevented it. The same odds range showed -5%, 0%, and +3.1% ROI across three different analyses without reconciling the contradiction. Gate logic also didn't account for how the backtester attributes wins/losses across odds ranges.
+- **Flawed assumption**: That a single aggregate analysis is sufficient to justify an algorithm gate. Also assumed odds-range gating is symmetric — blocking a range blocks both wins AND losses in that range, including profitable longshots.
+- **Reasoning lesson**: (1) NEVER deploy algorithm changes before granular analysis at the tightest increment. (2) When the same metric gives different values across analyses, the methodology is wrong — stop and reconcile before acting. (3) Marginal improvements (+0.04u/event) are noise, not signal — minimum threshold should be +0.10u/event. (4) Always backtest the gate in isolation BEFORE touching production code.
+- **Fix**: Reverted to pre-gate state. Mandatory pre-deploy backtest rule added.
+- **Applies when**: ANY algorithm gating rule based on odds ranges or statistical thresholds. Run +25 increment analysis FIRST, reconcile any contradictions, backtest in isolation, THEN deploy.
