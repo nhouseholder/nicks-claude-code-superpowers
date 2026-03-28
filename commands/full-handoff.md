@@ -133,7 +133,9 @@ Create the file at `$PROJECT_PATH/HANDOFF.md`. Also save a copy as `$HANDOFF_FIL
 [Every completed task. Format: "- **Task name**: files changed — outcome"]
 
 ## 3. What Failed (And Why)
-[Every failure. Format: "- **What failed**: root cause → what was tried → lesson"]
+[Every failure. Format: "- **What failed**: root cause → what was tried → lesson → anti-pattern ID if logged"]
+[Include: bugs found, wrong approaches attempted, regressions caused, data contradictions encountered]
+[Link each to its anti-patterns.md entry if one was created: "See DEC_DEADZONE_PREMATURE_DEPLOY in anti-patterns.md"]
 [If nothing failed: "No failures this session."]
 
 ## 4. What Worked Well
@@ -159,8 +161,12 @@ Create the file at `$PROJECT_PATH/HANDOFF.md`. Also save a copy as `$HANDOFF_FIL
 ### Recommendations
 [Technical and process recommendations with reasoning.]
 
+### Data Contradictions Detected
+[If any metric gave conflicting values across analyses (e.g., same odds range showing -5%, 0%, +3.1% ROI), list each contradiction with the two+ conflicting values and which was resolved as correct.]
+[If none: "No data contradictions."]
+
 ### Where I Fell Short
-[Honest self-critique. What to do differently.]
+[Honest self-critique. What to do differently. Reference anti-pattern IDs if relevant: "Repeated DEC_DEADZONE_PREMATURE_DEPLOY pattern — see anti-patterns.md"]
 
 ## 10. Miscommunications
 [Misunderstandings, corrections, wrong assumptions. Or: "None — session aligned."]
@@ -192,6 +198,8 @@ Create the file at `$PROJECT_PATH/HANDOFF.md`. Also save a copy as `$HANDOFF_FIL
 
 ## 15. Memory Updates
 [What was saved to anti-patterns, recurring-bugs, project memory, topics.]
+[For each anti-pattern entry: list the ID (e.g., DEC_DEADZONE_PREMATURE_DEPLOY) so the next agent can grep for it.]
+[For each memory file: list filename and 1-line summary.]
 [If none: "No updates — [reason]."]
 
 ## 16. Skills Used

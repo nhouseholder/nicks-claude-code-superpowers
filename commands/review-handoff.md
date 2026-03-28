@@ -54,11 +54,13 @@ ls "$PROJECT_PATH/HANDOFF.md" 2>/dev/null
 Read the ENTIRE handoff document. Do not skim. Do not summarize prematurely. Read every section.
 
 Pay special attention to:
+- **Section 3 (What Failed)** — every failure includes an anti-pattern ID if logged; grep `~/.claude/anti-patterns.md` for each ID to get full context
 - **Section 6 (In Progress)** — this is where you pick up
 - **Section 7 (Blocked)** — things that may still be blocked
 - **Section 8 (Next Steps)** — your priority list
-- **Section 9 (Agent Observations)** — learn from the previous agent's mistakes
+- **Section 9 (Agent Observations)** — learn from the previous agent's mistakes AND check for data contradictions
 - **Section 10 (Miscommunications)** — avoid repeating these
+- **Section 15 (Memory Updates)** — check which anti-patterns and memories were added; read the full entries
 - **Section 17 (For The Next Agent)** — mandatory reading list
 
 ---
@@ -129,6 +131,7 @@ PRIORITY QUEUE:
 WARNINGS:
   [Any items from Section 9/10 the next agent should know]
   [Any gate failures from Step 3]
+  [NEW anti-patterns from Section 15: list IDs + 1-line summary]
 
 Ready to work. What would you like to tackle?
 ```
