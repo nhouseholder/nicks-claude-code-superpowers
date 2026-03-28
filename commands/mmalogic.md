@@ -458,6 +458,15 @@ This script lives at `ufc-predict/validate_registry.py`. It reads `ufc_profit_re
   - Registry-side (lines ~1646-1650): Fixed 2026-03-28. Previously took first 2 in card order (BUG). Now mirrors prediction-side logic with favorites filter + implied probability sort.
   - **After ANY change to parlay logic, verify BOTH paths agree.** Grep for `parlay_candidates` and `_hc_legs` to find them.
 
+### Mega Parlay Rules (IMPLEMENTED — 2026-03-28)
+- **Mega Parlay** = ALL heavy favorites (-400 or stronger) on the same card, minimum 3 legs
+- **Only fires when 3+ picks qualify** — occurs on ~7% of events
+- **Backtested:** 4W-1L (80% WR, +55.2% ROI, +2.76u across 5 qualifying events)
+- **Registry key:** `parlay_mega` (alongside `parlay` for HC and `parlay_roi` for ROI)
+- **Prediction output:** Third entry in `parlays` array with label "Mega Parlay"
+- **Threshold constant:** `MEGA_PARLAY_THRESHOLD = -400`
+- **KO R2+ routing verdict (2026-03-28):** Route→R1 = -59.80u. Route→DEC = -20.60u. **No bet (current) is correct.** Do NOT revisit.
+
 ### Odds Format (PERMANENT RULE — 2026-03-26)
 - **ALL odds on the site must be American format** (+150, -200). NEVER decimal/European (1.90x, 2.50x).
 - Parlay combined odds stored as `parlay_odds_decimal` internally — convert for display: `dec >= 2.0 → +((dec-1)*100)`, `dec < 2.0 → -(100/(dec-1))`.
@@ -551,6 +560,15 @@ This script lives at `ufc-predict/validate_registry.py`. It reads `ufc_profit_re
   3. `getFreePick()` Firestore path (line ~125)
 - **Correct free pick = highest diff among eligible picks** (not heavy favorites, not null ML)
 - **If Firestore free_pick doc is stale, the recomputation path or static JSON fallback will override**
+
+### Parlay Leg Rendering (LEARNED — 2026-03-28)
+- **Registry stores parlay legs as STRING ARRAY** (`["Fighter A", "Fighter B"]`)
+- **Some components assumed OBJECT ARRAY** (`[{fighter: "A"}, {fighter: "B"}]`)
+- **Safe pattern for ALL parlay leg rendering:** `legs.map(l => typeof l === 'string' ? l : l.fighter || l).join(' + ')`
+- **Fixed in:** HistoryPage.jsx (line 163), EventBetsDropdown.jsx (line 146), AdminBacktest.jsx (line 182)
+- **Still correct (use `.join` directly):** LastWeekPicks.jsx, EventSlideshow.jsx (legs are always strings from registry)
+- **Parlay odds key mismatch:** Registry uses `parlay_odds_decimal`, some components looked for `combined_decimal_odds`. Use `(parlay.parlay_odds_decimal || parlay.combined_decimal_odds)` for compatibility.
+- **After ANY parlay data format change:** grep ALL components for `parlay.legs` and `decimal_odds` to verify consistency
 
 ### Display Rules (Most Violated)
 - Confidence = raw differential (0.14–3.0+), NOT a percentage
