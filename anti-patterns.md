@@ -624,3 +624,11 @@
 - **Flawed assumption**: That `effect.reports` for adverse effects is a per-effect count. For AEs from the scraper, it's actually the strain's total reporter count.
 - **Fix**: Hide per-effect report counts for adverse effects in EffectsBreakdown.jsx (`!isAdverse` guard on the reports display). The clinically-calibrated percentages already convey relative incidence. Use `estReviewers` (derived from positive effects) for the "Based on X user reviews" subtitle instead of `grouped.negative[0].reports`.
 - **Applies when**: Any display of scraped adverse effect data — never trust raw per-effect report counts for AEs. The data quality is lower than positive effects. Rely on relative ordering + clinical calibration ceilings instead.
+
+### LOCATION_PILLAR_DOMINANCE — 2026-03-27
+- **Context**: MyStrainAI quiz — user in LA got Runtz as #1 result regardless of different effect selections
+- **Bug**: Location pillar at 25% weight + Commonness at 15% = 40% of score was effect-independent. Runtz (reg[0]=90 for LA) got 22.5 points from Location alone, an insurmountable floor. Additionally, `calcEffectReportScore` overwrote duplicate effect names instead of accumulating reports (1,263 strains affected).
+- **Root cause**: Scoring weights over-indexed on "can you find this strain" vs "does this strain match your effects." A quiz should be primarily about effect matching.
+- **Flawed assumption**: That 25% Location weight balances well with effect-matching pillars. For regionally popular strains, the Location floor was too high for any effect-matching difference to overcome.
+- **Fix**: (1) Reduced Location from 25% → 15% in both flavor/no-flavor modes, redistributing 10% to Science and Community. (2) Fixed `calcEffectReportScore` to accumulate reports for duplicate effect names instead of overwriting. New weights (no dispensary): 40/30/15/15 (Sci/Com/Common/Loc) without flavor; 35/25/15/15/10 with flavor.
+- **Applies when**: Any scoring weight rebalancing. Keep effect-independent pillars (Location + Commonness) at ≤30% total. Effect matching should drive quiz results.
