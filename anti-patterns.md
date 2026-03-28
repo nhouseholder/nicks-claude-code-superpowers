@@ -4,6 +4,17 @@
 > Claude checks this before debugging to avoid repeating known-bad approaches.
 > Last updated: 2026-03-28
 
+## UFC — SUB→DEC Fallback Missing from Prediction Output Picks Array
+
+### SUB_DEC_NOT_IN_PICKS_ARRAY — 2026-03-28
+- **Context**: `UFC_Alg_v4_fast_2026.py` line ~10663, `prediction_output.json` picks array
+- **Bug**: Chiesa showed "by Submission (-120)" on the live picks page despite SUB→DEC fallback being enabled. The FightCard component reads `predicted_method` from the picks array.
+- **Root cause**: The picks array at line 10663 wrote `pc.get("method_pred", "")` — the RAW algorithm prediction — without applying SUB→DEC fallback. The fallback was only applied in `final_bets` (lines 10717-10719) and backtester scoring (lines 9271-9273), but NOT in the picks array that the website displays.
+- **Fix**: Changed line 10663 to: `"DEC" if (method_pred == "SUB" and SUB_DEC_FALLBACK) else method_pred`. Also set `predicted_round: None` when fallback fires (DEC has no round).
+- **Flawed assumption**: That fixing the `final_bets` section was sufficient. The picks array is a separate output path read by completely different frontend components.
+- **Reasoning lesson**: When a business rule (SUB→DEC) spans multiple output formats, grep ALL usage sites. The algorithm has 5+ sections that compute/output method: backtester scoring, card display, summary display, JSON output/final_bets, and picks array.
+- **Applies when**: ANY change to method prediction logic, any new fallback or gating rule. Check ALL output paths.
+
 ## UFC — Free Pick Filter Allows Null ML Through (Nullish Coalescing Bug)
 
 ### FREE_PICK_NULL_ML_BYPASS — 2026-03-28
