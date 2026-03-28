@@ -607,5 +607,12 @@
 - **Context**: Diamond Predictions MLB landing page, free pick of the day
 - **Bug**: MLB free pick never displayed on the landing page in production. LandingPage.jsx fetched from `/api/picks` which is a dev-only proxy path — no such route exists in Cloudflare Pages production (returns 404). The `r.ok` check silently returned null.
 - **Root cause**: LandingPage.jsx was written to use the dev API proxy (`/api/picks`) but never updated to use the production static path (`/data/picks.json`). NHL landing page was correctly using `/data/nhl-predictions-today.json`.
-- **Fix**: Changed `fetch('/api/picks')` → `fetch('/data/picks.json')` in LandingPage.jsx.
-- **Applies when**: Any new page or component that fetches data — always use `/data/*.json` paths directly in production, never `/api/*` paths (those only work in dev mode through the Vite proxy).
+- **Fix**: Changed `fetch('/api/picks')` → `fetch('/data/picks.json')` in LandingPage.jsx, PremiumPage.jsx, DashboardPage.jsx, and useAdminData.js (4 files total).
+- **Applies when**: Any new page or component that fetches data — always use `/data/*.json` paths directly in production, never `/api/*` paths (those only work in dev mode through the Vite proxy). When fixing, grep ALL src files for `fetch('/api/` to catch every instance at once.
+
+### CONSENSUS_SLIP_THROUGH — 2026-03-27
+- **Context**: NFL Draft Predictor — Carnell Tate (grade 90, consensus rank 9.4) missing from draft entirely
+- **Bug**: Consensus-weighted model penalizes prospects at picks far from their expert-mocked range. If a prospect is #2 at many picks but #1 at none, greedy assignment passes on them at every slot. By mid-round, their consensus score is too low to compete, even though they're a top-10 talent still on the board.
+- **Root cause**: No "value available" signal. Real drafts have a cascading value effect — when a top talent slides, the NEXT team with that position need gets MORE excited, not less. The model lacked this.
+- **Fix**: Added "fallen prospect value boost" (V4.1) in `engine/prospect_model.py`. When a prospect with grade >= 85 is still available past consensus_rank + 2, a value boost kicks in (overshoot * 3, max 25 points, 1.5x for position-need match). Carnell Tate R1 rate: 73.4% → 99.8%.
+- **Applies when**: Any consensus-driven prediction model where plurality voting per slot can miss "always #2, never #1" candidates. The fix is universal: when a high-quality option cascades past expectations, its value should INCREASE, not plateau.
