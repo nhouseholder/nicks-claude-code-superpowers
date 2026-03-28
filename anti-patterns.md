@@ -4,6 +4,27 @@
 > Claude checks this before debugging to avoid repeating known-bad approaches.
 > Last updated: 2026-03-28
 
+## UFC — Parlay Legs Rendered as "+" (String vs Object Format Mismatch)
+
+### PARLAY_LEGS_STRING_VS_OBJECT — 2026-03-28
+- **Context**: HistoryPage.jsx line 163, EventBetsDropdown.jsx line 146 — parlay row display
+- **Bug**: Parlay row showed "+" with no fighter names. Expected "Duncan + Page".
+- **Root cause**: Registry stores `parlay.legs` as a string array `["Duncan", "Page"]`, but components used `l.fighter` (expects objects). `undefined.join(' + ')` = `" + "` → renders as "+".
+- **Fix**: Changed to `legs.map(l => typeof l === 'string' ? l : l.fighter || l)` in all 3 affected components. Also fixed `combined_decimal_odds` → `parlay_odds_decimal` key mismatch.
+- **Flawed assumption**: That all parlay data uses the same format. The registry format (strings) differs from the prediction output format (objects with `.fighter`).
+- **Applies when**: ANY component that renders parlay legs. Grep for `parlay.legs` and verify the map handles both string and object formats.
+
+## UFC — Backtester Output Not Retroactively Enforcing Business Rules (166 violations)
+
+### REGISTRY_STALE_BUSINESS_RULES — 2026-03-28
+- **Context**: Full registry scan across 71 events after implementing SUB→DEC fallback + R1 KO gating
+- **Bug**: 166 violations found: 55 bouts still showing "SUB" instead of DEC, 56 bouts with KO R2+ having round/combo bets (should be gated to R1 only), 55 method wins with no payout (missing prop odds lookup)
+- **Root cause**: Business rules (SUB→DEC fallback, R1 KO gate) were added to the backtester's SCORING path but not retroactively applied to the REGISTRY DATA that the website displays. The backtester generates walk-forward predictions which may differ from the rules. After the backtest runs, the registry contains raw backtester output that hasn't been post-processed.
+- **Fix**: Created a post-backtest registry sweep script that: (1) Converts all SUB→DEC, (2) Nulls round/combo for KO R2+, (3) Looks up missing method odds from prop cache, (4) Recalculates all combined_pnl, event totals, and global totals
+- **Flawed assumption**: That the backtester applies ALL business rules consistently. It doesn't — the walk-forward scoring path may produce different method predictions than the rules require.
+- **Reasoning lesson**: Business rules are post-processing on backtester output, not intrinsic to the walk-forward logic. A sweep is MANDATORY after every backtest.
+- **Applies when**: After EVERY backtest re-run, every `track_results.py` scoring, every registry modification
+
 ## UFC — SUB→DEC Fallback Missing from Prediction Output Picks Array
 
 ### SUB_DEC_NOT_IN_PICKS_ARRAY — 2026-03-28
