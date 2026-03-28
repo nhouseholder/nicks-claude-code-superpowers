@@ -448,11 +448,15 @@ This script lives at `ufc-predict/validate_registry.py`. It reads `ufc_profit_re
 - Method and Round are scored INDEPENDENTLY.
 - **Method bet does NOT require ML win to be PLACED.** It requires ML win to WIN, but it's always placed and always scored. This was the #1 most-confused rule across 5+ sessions.
 
-### Parlay Rules (LEARNED — 2026-03-26)
+### Parlay Rules (LEARNED — 2026-03-26, UPDATED 2026-03-28)
 - **HC Parlay** = top 2 FAVORITES by implied probability from active picks (not passes). Underdogs are NEVER HC legs.
 - **ROI Parlay** = top 2 highest American odds picks (biggest underdogs), no overlap with HC legs.
 - Implied probability: `abs(odds) / (abs(odds) + 100)` for favorites, `100 / (odds + 100)` for underdogs.
 - Both parlays should appear per event in the registry as `parlay` (HC) and `parlay_roi` (ROI).
+- **CRITICAL: TWO parlay selection paths exist — BOTH must use the same logic:**
+  - Prediction-side (lines ~10764-10767): Correctly filters favorites + sorts by implied probability ✅
+  - Registry-side (lines ~1646-1650): Fixed 2026-03-28. Previously took first 2 in card order (BUG). Now mirrors prediction-side logic with favorites filter + implied probability sort.
+  - **After ANY change to parlay logic, verify BOTH paths agree.** Grep for `parlay_candidates` and `_hc_legs` to find them.
 
 ### Odds Format (PERMANENT RULE — 2026-03-26)
 - **ALL odds on the site must be American format** (+150, -200). NEVER decimal/European (1.90x, 2.50x).
@@ -465,11 +469,21 @@ This script lives at `ufc-predict/validate_registry.py`. It reads `ufc_profit_re
 - **ALWAYS validate**: favorite DEC odds should be LOWER than underdog DEC odds. If a -450 favorite shows +850 DEC, the f1/f2 mapping is WRONG.
 - Cross-check: `f1_dec` vs `f2_dec` — the one closer to +100/+200 belongs to the favorite.
 
-### Backtester vs Prediction Archive (LEARNED — 2026-03-26)
+### Backtester vs Prediction Archive (LEARNED — 2026-03-26, REINFORCED 2026-03-28)
 - The backtester's vectorized scoring path normalizes KO/DEC/SUB scores (divides by total), which eliminates small gaps that the DEC tiebreaker targets.
 - The live prediction path does NOT normalize the same way, so tiebreaker fires for close calls.
+- **EXAMPLE (2026-03-28):** Duncan had KO=0.450 vs DEC=0.435 in live prediction — DEC tiebreaker fired → DEC (correct). Backtester re-run produced KO (tiebreaker didn't fire) → wrong. Cost: -1u method loss instead of +10.65u win. **This is a $11.65u swing per affected fight.**
 - **After ANY backtest re-run**: cross-check the most recent 1-2 events' method predictions against `prediction_archive/`. If they diverge, the archive is ground truth.
 - Manually patch the registry for recent events after re-running the backtester.
+- **MANDATORY post-backtest check script:**
+  ```python
+  # Compare last event's predictions: backtester vs prediction_archive
+  for bout in registry_event['bouts']:
+      archive_method = archive_picks[bout['picked']]['predicted_method']
+      if bout['predicted_method'] != archive_method:
+          print(f"DIVERGENCE: {bout['picked']} backtester={bout['predicted_method']} archive={archive_method}")
+          # Patch to archive value
+  ```
 
 ### Live Tracking Worker (DEPLOYED — 2026-03-26)
 - `mmalogic-live-tracker` Cloudflare Worker at `https://mmalogic-live-tracker.nikhouseholdr.workers.dev`
@@ -478,6 +492,15 @@ This script lives at `ufc-predict/validate_registry.py`. It reads `ufc_profit_re
 - Frontend picks up changes via `onSnapshot` — zero manual work on fight night
 - Manual trigger: `curl -X POST https://mmalogic-live-tracker.nikhouseholdr.workers.dev/`
 - Secret: `FIREBASE_SA_KEY` configured on the Worker
+
+### Post-Backtest Registry Sweep (MANDATORY — 2026-03-28, prevents 166+ violations)
+- **After EVERY backtest re-run, sweep the ENTIRE registry for rule violations:**
+  1. **SUB→DEC:** Any `predicted_method == "SUB"` → change to "DEC", null the round, re-score method (DEC vs actual)
+  2. **KO R2+ gating:** Any `predicted_method == "KO"` with `predicted_round > 1` → null round_correct/combo_correct/round_pnl/combo_pnl (no bet placed)
+  3. **Method win no payout:** Any `method_correct == true && method_pnl == null` → look up prop odds from cache, fill payout
+  4. **Recalculate combined_pnl for every affected bout, event-level totals, and global totals**
+- **Why this is needed:** The backtester generates registry data using its walk-forward logic, which may produce different predictions than the live system. The SUB→DEC fallback and R1 KO gate are business rules that must be retroactively enforced across all 71+ events.
+- **50 method wins will legitimately show "—" (no payout)** — these are prelim fights where BFO never had prop odds. This is NOT a bug. Only flag it as a bug if the fight was a main/co-main card bout.
 
 ### Scoring Data Rules (MANDATORY — prevents the #1 recurring bug class)
 - **NEVER accept missing odds.** If prop odds are null/missing, RUN THE SCRAPER before doing anything else. "—" in a payout cell is NEVER acceptable. Only after the scraper confirms the source is genuinely unavailable can you note "odds unavailable."
@@ -508,6 +531,26 @@ This script lives at `ufc-predict/validate_registry.py`. It reads `ufc_profit_re
 - KO R2 predictions: 19.4% end R1 KO, 12.5% exact R2 KO, 29.2% DEC, 26.4% fighter loses.
 - Routing R2→R1: -40.4% ROI. Routing R2→DEC: -1.1% ROI. Current gating (no bet): 0% ROI.
 - **Gating is correct.** Neither alternative routing is profitable.
+
+### SUB→DEC Fallback in Prediction Output (LEARNED — 2026-03-28)
+- **SUB→DEC fallback must be applied in THREE places, not just the backtester:**
+  1. **Backtester scoring** (lines ~9271-9273): Applied ✅
+  2. **JSON output / final_bets** (lines ~10717-10719): Applied ✅
+  3. **Prediction output picks array** (line ~10663): Fixed 2026-03-28 — was writing raw `method_pred` without fallback
+- **The picks array `predicted_method` field is what the FightCard component reads.** If it says "SUB", the site shows "by Submission" regardless of what `final_bets` says.
+- **When SUB→DEC fires, `predicted_round` must be set to null.** DEC has no round — a fight going to decision means it went the distance.
+- **After ANY algorithm change, check ALL output paths:** picks array, final_bets, backtester scoring, card display, summary display. There are 5+ sections that compute method.
+
+### Free Pick Rules (LEARNED — 2026-03-28)
+- **FREE_PICK_MAX_FAVORITE = -180** — never give away heavy favorites as the free pick
+- **Three conditions must ALL pass:** `pick_ml != null AND pick_ml < 0 AND pick_ml > -180`
+- **Null ML = ineligible.** The `?? 0` pattern makes null pass `> -180` — NEVER use `(pick_ml ?? 0)` for this check
+- **Three code paths for free pick selection — ALL must apply the same filter:**
+  1. `getPublicFreePick()` Firestore path (line ~66)
+  2. `getPublicFreePick()` recomputation path (via `pickByConfidence`, line ~80)
+  3. `getFreePick()` Firestore path (line ~125)
+- **Correct free pick = highest diff among eligible picks** (not heavy favorites, not null ML)
+- **If Firestore free_pick doc is stale, the recomputation path or static JSON fallback will override**
 
 ### Display Rules (Most Violated)
 - Confidence = raw differential (0.14–3.0+), NOT a percentage

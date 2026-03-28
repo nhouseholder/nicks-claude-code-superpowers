@@ -25,41 +25,61 @@ skip_tools = {"Glob", "Grep", "Read", "ToolSearch"}
 if tool_name in skip_tools:
     sys.exit(0)
 
-# Detect project
+# Detect project — use cached hash if available to avoid git subprocess on every call
 homunculus_dir = Path.home() / ".claude" / "homunculus"
 project_dir = homunculus_dir
 
+# Cache file stores {cwd: project_hash} to skip git calls for known dirs
+cache_file = homunculus_dir / ".project_cache.json"
+cwd = os.getcwd()
+
 try:
-    import subprocess
-    result = subprocess.run(
-        ["git", "remote", "get-url", "origin"],
-        capture_output=True, text=True, timeout=2
-    )
-    if result.returncode == 0:
-        remote_url = result.stdout.strip()
-        project_hash = hashlib.sha256(remote_url.encode()).hexdigest()[:12]
+    project_cache = {}
+    if cache_file.exists():
+        try:
+            project_cache = json.loads(cache_file.read_text())
+        except json.JSONDecodeError:
+            project_cache = {}
+
+    if cwd in project_cache:
+        project_hash = project_cache[cwd]
         project_dir = homunculus_dir / "projects" / project_hash
         project_dir.mkdir(parents=True, exist_ok=True)
+    else:
+        import subprocess
+        result = subprocess.run(
+            ["git", "remote", "get-url", "origin"],
+            capture_output=True, text=True, timeout=2, cwd=cwd
+        )
+        if result.returncode == 0:
+            remote_url = result.stdout.strip()
+            project_hash = hashlib.sha256(remote_url.encode()).hexdigest()[:12]
+            project_dir = homunculus_dir / "projects" / project_hash
+            project_dir.mkdir(parents=True, exist_ok=True)
 
-        # Save project registry
-        registry_file = homunculus_dir / "projects.json"
-        registry = {}
-        if registry_file.exists():
-            try:
-                registry = json.loads(registry_file.read_text())
-            except json.JSONDecodeError:
-                registry = {}
-        if project_hash not in registry:
-            repo_root = subprocess.run(
-                ["git", "rev-parse", "--show-toplevel"],
-                capture_output=True, text=True, timeout=2
-            ).stdout.strip()
-            registry[project_hash] = {
-                "name": os.path.basename(repo_root),
-                "path": repo_root,
-                "remote": remote_url
-            }
-            registry_file.write_text(json.dumps(registry, indent=2))
+            # Cache this cwd → hash mapping
+            project_cache[cwd] = project_hash
+            cache_file.write_text(json.dumps(project_cache, indent=2))
+
+            # Save project registry (only on first encounter)
+            registry_file = homunculus_dir / "projects.json"
+            registry = {}
+            if registry_file.exists():
+                try:
+                    registry = json.loads(registry_file.read_text())
+                except json.JSONDecodeError:
+                    registry = {}
+            if project_hash not in registry:
+                repo_root = subprocess.run(
+                    ["git", "rev-parse", "--show-toplevel"],
+                    capture_output=True, text=True, timeout=2
+                ).stdout.strip()
+                registry[project_hash] = {
+                    "name": os.path.basename(repo_root),
+                    "path": repo_root,
+                    "remote": remote_url
+                }
+                registry_file.write_text(json.dumps(registry, indent=2))
 except Exception:
     pass
 

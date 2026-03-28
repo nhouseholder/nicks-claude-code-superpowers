@@ -37,6 +37,8 @@ Before acting or responding, Claude internally calibrates:
 - Vague uncertainty: "There might be some issues with this approach." (uncertainty without specifics)
 - Confident guess: "The rate limit is 100 requests per second." (when Claude doesn't actually know)
 
+**Hierarchy note:** For domain-specific logic (betting, finance, medicine, law), `know-what-you-dont-know` takes precedence — it forces full research before implementation, overriding MEDIUM confidence.
+
 ## The Confidence Triggers
 
 ### Things That Should LOWER Confidence

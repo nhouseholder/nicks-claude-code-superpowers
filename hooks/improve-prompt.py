@@ -38,7 +38,7 @@ AGENT_PROFILES = {
             (1, "ui-ux-pro-max", "50 styles, accessibility checklist, search scripts for recommendations"),
             (2, "react-best-practices", "40+ performance rules — read relevant rules/ files for the task"),
             (2, "senior-frontend", "Component patterns, state management, bundle optimization"),
-            (3, "ui-design-system", "Design token generator — run scripts/design_token_generator.py for tokens"),
+            (3, "impeccable-design", "Design tokens + reference library — run reference/design_token_generator.py for tokens"),
             (3, "coding-standards", "TypeScript/React patterns and conventions"),
             (4, "senior-dev-mindset", "Frontend checklist: all states, responsive, accessible, no stubs"),
         ],
@@ -105,7 +105,7 @@ AGENT_PROFILES = {
         "skills": [
             (1, "canvas-design", "Design philosophy creation → visual expression"),
             (1, "frontend-design", "Bold aesthetic direction, anti-generic rules"),
-            (2, "ui-design-system", "Design token generator for colors/typography/spacing"),
+            (2, "impeccable-design", "Design tokens + reference library for colors/typography/spacing"),
             (2, "ui-ux-pro-max", "Style/palette/font search, accessibility rules"),
         ],
         "after": "Output: design philosophy doc + visual artifact (.png/.pdf)",

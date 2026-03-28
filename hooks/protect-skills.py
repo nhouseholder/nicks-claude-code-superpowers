@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """PreToolUse hook: Block modifications to protected aitmpl.com skills.
 
-These 11 skills were installed from AI Templates and are READ-ONLY.
+These 10 skills were installed from AI Templates and are READ-ONLY.
 Claude may READ their SKILL.md but must NEVER edit, replace, or overwrite them.
 
 Exit code 2 = block. Exit code 0 = allow.
@@ -16,7 +16,6 @@ PROTECTED_SKILLS = {
     "senior-backend",
     "senior-frontend",
     "skill-creator",
-    "ui-design-system",
     "ui-ux-pro-max",
     "webapp-testing",
     "senior-prompt-engineer",

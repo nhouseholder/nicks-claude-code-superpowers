@@ -19,6 +19,7 @@ They do NOT mean: a bare `<form>` with two inputs, `// TODO: add validation`, or
 ## The Completeness Checklist
 
 **Scope-match:** Single-file fixes check only relevant items. Multi-file features check the full list.
+**Dedup note:** This checklist covers *feature completeness* (are all user-facing states handled?). For *code quality patterns*, see `coding-standards`. For *implementation specifics*, see `senior-frontend` / `senior-backend`.
 
 ### Frontend
 - [ ] All states handled (empty, loading, error, success, partial)

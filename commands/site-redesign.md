@@ -90,7 +90,7 @@ Orchestrator reads `handoff_phase1.md` before proceeding.
 **Output:** `_redesign/THEME.md`, updated config files, `_redesign/handoff_phase3.md`
 
 Dispatch prompt:
-> Read `_redesign/CONTEXT.md` — note CSS_FRAMEWORK, never change it. Read `_redesign/phase2_direction.md` — this is the chosen design direction. Read `~/.claude/skills/ui-design-system/SKILL.md` and `~/.claude/skills/ui-ux-pro-max/SKILL.md`. Build the design token system:
+> Read `_redesign/CONTEXT.md` — note CSS_FRAMEWORK, never change it. Read `_redesign/phase2_direction.md` — this is the chosen design direction. Read `~/.claude/skills/impeccable-design/SKILL.md` (includes design token generator) and `~/.claude/skills/ui-ux-pro-max/SKILL.md`. Build the design token system:
 > - If Tailwind: update `tailwind.config` with custom color/font/spacing tokens
 > - If CSS modules: update shared variables file
 > - If plain CSS: update custom properties in globals.css

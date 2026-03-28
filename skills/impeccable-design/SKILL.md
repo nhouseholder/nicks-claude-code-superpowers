@@ -60,11 +60,19 @@ When reviewing or updating an existing site (not a fresh build), normalize again
 4. **Propose additions**: If existing tokens are insufficient, propose new ones that extend (not replace) the system
 5. **Never mix systems**: If the project uses Tailwind custom colors, add to tailwind.config — don't add inline OKLCH
 
+## Design Token Generation
+
+Generate complete design system tokens from brand colors:
+
+**Usage**: `python ~/.claude/skills/impeccable-design/reference/design_token_generator.py [brand_color] [style] [format]`
+- Styles: modern, classic, playful
+- Formats: json, css, scss
+- Generates: color palette, modular typography scale, 8pt spacing grid, shadow/animation tokens, responsive breakpoints
+
 ## Integration Points
 
 This skill enhances but never replaces:
 - `frontend-design` — still provides the core aesthetic direction and creative philosophy
 - `ui-ux-pro-max` — still provides the searchable design system database
-- `ui-design-system` — still provides token generation scripts
 
-This skill adds what those lack: expert-depth reference material, a concrete slop detection checklist, and normalization discipline.
+This skill adds what those lack: expert-depth reference material, a concrete slop detection checklist, design token generation, and normalization discipline.

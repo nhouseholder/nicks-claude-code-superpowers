@@ -16,6 +16,7 @@ import sys
 VERSION_FILES = [
     "version.js",
     "src/version.js",
+    "src/lib/version.ts",
     "package.json",
     "VERSION",
 ]
@@ -40,10 +41,11 @@ def is_deploy_or_push(command):
 
 
 def version_was_bumped(cwd):
-    """Check if any version file was modified in the current git diff."""
+    """Check if any version file was modified in working tree, staged, or latest commit."""
     diff = run("git diff --name-only HEAD", cwd=cwd)
     staged = run("git diff --cached --name-only", cwd=cwd)
-    all_changed = (diff + "\n" + staged).strip()
+    committed = run("git diff --name-only HEAD~1..HEAD", cwd=cwd)
+    all_changed = (diff + "\n" + staged + "\n" + committed).strip()
 
     for vf in VERSION_FILES:
         if vf in all_changed:
