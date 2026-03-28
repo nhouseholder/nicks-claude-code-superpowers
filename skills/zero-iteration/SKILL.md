@@ -125,6 +125,22 @@ Common reasoning failure categories to check:
 
 If the current task matches a known reasoning failure category → apply the lesson BEFORE writing code, not after finding the bug.
 
+## Anti-Rationalization Check
+
+Before claiming a task is complete, run this check:
+
+1. **"Did I actually verify, or am I rationalizing?"** — If you changed 3 functions but only traced 1, you didn't verify — you rationalized that the others are "obvious."
+2. **"Am I claiming completion because it SHOULD work, or because I CHECKED it works?"** — "Should work" is not evidence. Trace it or test it.
+3. **"Would I bet money on this?"** — If the answer is "probably" instead of "yes", you're not done.
+
+**Red flags that you're rationalizing:**
+- "This is straightforward so it doesn't need verification" — the straightforward ones are where bugs hide
+- "I already checked something similar" — similar ≠ same
+- "The change is small so it can't break anything" — small changes cause big failures
+- "It worked before so it still works" — you just changed the code, "before" is irrelevant
+
+When you catch yourself rationalizing: stop, go back, actually verify.
+
 ## Rules
 
 1. **Trace before you type** — Never write a function without mentally running it first

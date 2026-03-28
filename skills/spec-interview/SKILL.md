@@ -62,6 +62,20 @@ Date: [today]
 ## Integration Points
 - [Systems, APIs, databases this touches]
 
+## Acceptance Criteria (BDD)
+For each requirement, write at least one acceptance criterion:
+```
+Given [precondition]
+When [action]
+Then [expected outcome]
+```
+Example:
+```
+Given a user with no saved addresses
+When they reach the checkout page
+Then they see an "Add Address" form instead of an address selector
+```
+
 ## Open Questions
 - [Any unresolved decisions]
 

@@ -119,15 +119,28 @@ Do not deliver known-broken code with a disclaimer.
 5. Show evidence: "I tested by [action] and got [result]"
 6. If you can't test it (requires user's browser, specific device), say so explicitly
 
-### Step 5 — Report to User
+### Step 5 — Escalation Status
+
+Don't reduce QA to binary pass/fail. Use escalation statuses:
+
+| Status | Meaning | Action |
+|--------|---------|--------|
+| **DONE** | All tests pass, no concerns | Ship it |
+| **DONE_WITH_CONCERNS** | Tests pass, but something feels off (perf, edge case coverage, design smell) | Ship with noted concerns for future attention |
+| **NEEDS_CONTEXT** | Can't fully verify without information you don't have (user's env, specific data, third-party state) | Ship but explicitly state what you couldn't verify and why |
+| **BLOCKED** | Tests fail or critical issue found that you cannot resolve | Do NOT ship. Explain the blocker clearly. |
+
+### Step 6 — Report to User
 
 ```
 Tested: [what was tested]
+Status: [DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED]
 Verified: [key scenarios that passed]
 Fixed during QA: [anything caught and fixed]
+Concerns/Blockers: [if applicable]
 ```
 
-Keep to 2-3 lines.
+Keep to 3-4 lines.
 
 ## Subagent QA Brief Template
 

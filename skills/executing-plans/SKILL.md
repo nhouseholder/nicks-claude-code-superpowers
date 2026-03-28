@@ -28,9 +28,20 @@ For each task:
 3. Run verifications as specified
 4. Mark as completed
 
-### Step 3: Complete Development
+### Step 3: UNIFY — Reconcile Plan vs Actual
 
-After all tasks complete and verified:
+After all tasks complete, reconcile what was planned vs what actually happened:
+
+1. **Diff the plan** — For each planned task, note: done as planned, modified (why), skipped (why), or added (why)
+2. **Record decisions** — Any mid-execution judgment calls that diverged from the plan. Future sessions need to know WHY, not just WHAT.
+3. **Log deferred items** — Anything discovered during execution that should be done but wasn't in scope. Add to a `## Deferred` section in the plan file.
+4. **Flag drift** — If >30% of tasks were modified or skipped, the plan had a gap. Note what information would have made the plan better.
+
+This step prevents "plan says X but code does Y" confusion in future sessions.
+
+### Step 4: Complete Development
+
+After UNIFY reconciliation:
 - Announce: "I'm using the finishing-a-development-branch skill to complete this work."
 - **REQUIRED SUB-SKILL:** Use superpowers:finishing-a-development-branch
 - Follow that skill to verify tests, present options, execute choice
