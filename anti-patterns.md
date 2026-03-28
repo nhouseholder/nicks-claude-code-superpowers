@@ -616,3 +616,11 @@
 - **Root cause**: No "value available" signal. Real drafts have a cascading value effect — when a top talent slides, the NEXT team with that position need gets MORE excited, not less. The model lacked this.
 - **Fix**: Added "fallen prospect value boost" (V4.1) in `engine/prospect_model.py`. When a prospect with grade >= 85 is still available past consensus_rank + 2, a value boost kicks in (overshoot * 3, max 25 points, 1.5x for position-need match). Carnell Tate R1 rate: 73.4% → 99.8%.
 - **Applies when**: Any consensus-driven prediction model where plurality voting per slot can miss "always #2, never #1" candidates. The fix is universal: when a high-quality option cascades past expectations, its value should INCREASE, not plateau.
+
+### INFLATED_PER_EFFECT_REPORTS — 2026-03-27
+- **Context**: MyStrainAI — Adverse effects all showing identical inflated report counts (e.g. "2,198 reports" for every AE on Cherry Pie)
+- **Bug**: Scraped data stored `reported_by` (total reporters for the strain) as the `reports` field for EVERY negative effect. 1,385 of 1,421 strains with 2+ AEs had this bug. The EffectsBreakdown component displayed raw `effect.reports` per row, showing the same inflated total for each.
+- **Root cause**: Scraper wrote the strain-level reporter count to each individual effect instead of distributing it. The merge_adverse_effects.py script fixed strain-data.js (backend) with weighted distribution, but strains.json (frontend) retained the original inflated values.
+- **Flawed assumption**: That `effect.reports` for adverse effects is a per-effect count. For AEs from the scraper, it's actually the strain's total reporter count.
+- **Fix**: Hide per-effect report counts for adverse effects in EffectsBreakdown.jsx (`!isAdverse` guard on the reports display). The clinically-calibrated percentages already convey relative incidence. Use `estReviewers` (derived from positive effects) for the "Based on X user reviews" subtitle instead of `grouped.negative[0].reports`.
+- **Applies when**: Any display of scraped adverse effect data — never trust raw per-effect report counts for AEs. The data quality is lower than positive effects. Rely on relative ordering + clinical calibration ceilings instead.
