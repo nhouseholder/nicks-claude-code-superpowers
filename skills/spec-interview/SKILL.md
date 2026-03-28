@@ -38,6 +38,10 @@ Ask targeted questions using AskUserQuestion. Cover:
 
 Ask in batches (2-3 questions at a time), not one at a time. Stop when you have full clarity.
 
+**Prefer multiple-choice over open-ended.** When a question has a finite set of likely answers, use AskUserQuestion with predefined options. This is faster for the user and forces clearer thinking. Reserve open-ended questions for truly novel requirements. Example:
+- Bad: "What kind of auth do you want?"
+- Good: AskUserQuestion with options: "Email/password", "OAuth (Google/GitHub)", "Magic link", "None — public app", "Something else"
+
 **Step 3 — Write SPEC.md**
 
 ```markdown
