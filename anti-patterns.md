@@ -2,7 +2,29 @@
 
 > This file is auto-maintained by the error-memory skill.
 > Claude checks this before debugging to avoid repeating known-bad approaches.
-> Last updated: 2026-03-27
+> Last updated: 2026-03-28
+
+## UFC — Free Pick Filter Allows Null ML Through (Nullish Coalescing Bug)
+
+### FREE_PICK_NULL_ML_BYPASS — 2026-03-28
+- **Context**: Free pick selection in `webapp/frontend/src/services/api.js`, both `getPublicFreePick()` and `getFreePick()` + `pickByConfidence()`
+- **Bug**: Free pick showed Navajo Stirling (-440 heavy favorite) with "ML (N/A)" instead of Maycee Barber (-158). Stirling was stored in Firestore `free_pick` doc with null `pick_ml`.
+- **Root cause**: The -180 filter used `(pick_ml ?? 0) > -180`. When `pick_ml` is null/undefined, `?? 0` defaults to 0, and `0 > -180` = TRUE. So picks with NO odds pass the "not a heavy favorite" filter. Same bug in `pickByConfidence()` let all-null-odds picks through, sorting purely by diff.
+- **Fix**: Changed all three code paths to require: `pick_ml != null && pick_ml < 0 && pick_ml > -180`. Null ML = ineligible, period.
+- **Flawed assumption**: That `?? 0` is a safe default for odds comparison. In betting, null odds ≠ 0 — null means "no line available."
+- **Reasoning lesson**: Nullish coalescing (`??`) defaults are dangerous for numeric comparisons where 0 has semantic meaning. Always use explicit null checks for betting odds.
+- **Applies when**: ANY filter or comparison involving `pick_ml`, `odds`, or any betting line. NEVER use `?? 0` for odds — use explicit null checks.
+
+## UFC — Registry Parlay Uses Card Order Instead of Implied Probability
+
+### REGISTRY_PARLAY_CARD_ORDER — 2026-03-28
+- **Context**: UFC backtest registry parlay selection (UFC_Alg_v4_fast_2026.py line ~1646-1650)
+- **Bug**: HC Parlay for Evloev vs. Murphy showed "Lerone Murphy (+180) + Michael Page (-180)" instead of "Duncan (-450) + Page (-180)". Murphy is an underdog — HC parlay should ONLY include favorites.
+- **Root cause**: TWO separate parlay selection paths exist: (1) prediction-side (line ~10764) correctly filters favorites and sorts by implied probability, (2) registry-side (line ~1650) took `parlay_candidates[:2]` — first 2 in card order, ignoring odds entirely.
+- **Fix**: Changed line 1650 to mirror prediction-side logic: filter favorites (odds < 0), sort by implied probability descending, take top 2.
+- **Flawed assumption**: That bouts in the registry are "already in order from algorithm" — they're in card order, not probability order.
+- **Reasoning lesson**: When the same business logic exists in two code paths, both must implement the same rules. Grep for ALL usage sites before declaring a fix complete.
+- **Applies when**: ANY time parlay logic is modified, ANY backtest re-run. Check BOTH paths: `parlay_candidates` (registry) and `_hc_legs` (prediction).
 
 ## MyStrainAI — Mobile max-h Clips Expanded Card Content
 
