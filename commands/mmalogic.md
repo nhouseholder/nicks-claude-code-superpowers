@@ -86,6 +86,7 @@ Based on what the user asked, route to the appropriate workflow:
 | "add [feature]" / "change [component]" | **Feature Work** | → Step 3E |
 | "check the site" / "how does it look" | **Visual Verification** | → Step 3F |
 | "clean rebuild" / "start fresh" / "nuke and rebuild" | **Clean Rebuild** | → Step 3G |
+| "review" / "--review" / "is this ready" / "pre-merge review" | **Domain-Safe Review** | → Step 3H |
 
 ---
 
@@ -248,6 +249,139 @@ Commit: [SHA]
 ```
 
 Save this baseline to `~/.claude/memory/topics/ufc_clean_rebuild_baseline.md` so future sessions know the last known-good state.
+
+---
+
+## Step 3H: Domain-Safe Review (--review)
+
+Multi-agent site review with MMALogic guardrails. This is `/site-review` adapted to respect the betting model, scoring pipeline, and display rules. All agents are constrained to prevent the exact types of breakage we've seen 15+ times.
+
+### Pre-Review Gate
+
+Before dispatching agents, run the validator:
+```bash
+cd ufc-predict && python3 validate_registry.py
+```
+If validator fails, fix data FIRST — don't review broken state.
+
+### Shared Context
+
+Write `_review/CONTEXT.md` with standard project info PLUS:
+```
+DOMAIN_CONSTRAINTS:
+- DO NOT suggest changes to: validate_registry.py, ufc_profit_registry.json, any scoring logic,
+  algorithm files (UFC_Alg_*.py), constants.json, odds cache files
+- DO NOT suggest "simplifying" P/L calculations — they implement 12 verified scoring rules
+- DO NOT suggest removing bet types, columns, or parlay rows from any table
+- DO NOT suggest changing odds format (MUST stay American: +150, -200)
+- DO NOT suggest merging/refactoring EventBetsDropdown safePnl() — it's a safety net for 6 edge cases
+- The 4+1 bet model is FINAL and user-confirmed. Do not suggest alternatives.
+- confidence = raw differential (0.14–3.0+), NOT a percentage. Do not "fix" this.
+
+PROTECTED FILES (read-only during review):
+- webapp/frontend/.env*
+- wrangler.toml
+- validate_registry.py
+- UFC_Alg_*.py
+- constants.json
+- ufc_odds_cache.json / ufc_prop_odds_cache.json
+- ufc_profit_registry.json
+
+SAFE TO REVIEW:
+- webapp/frontend/src/components/ (visual/UX only, not scoring logic)
+- webapp/frontend/src/pages/ (layout, navigation, UX)
+- webapp/frontend/src/styles/ (CSS, Tailwind)
+- webapp/frontend/public/ (assets, not data/*.json)
+- Workers (live-tracker, API routes — security and reliability only)
+```
+
+### Agent 1: Frontend Reviewer (MMALogic-constrained)
+
+**Dispatch prompt:**
+> You are reviewing mmalogic.com's frontend. Read `_review/CONTEXT.md` — pay special attention to DOMAIN_CONSTRAINTS. Read `~/.claude/skills/senior-frontend/SKILL.md` and `~/.claude/skills/frontend-design/SKILL.md`.
+>
+> Review ONLY visual/UX quality in `webapp/frontend/src/`:
+> - Component architecture (are components too large? good composition?)
+> - User experience (loading states, empty states, error states, mobile responsiveness)
+> - Visual design quality (typography, spacing, color consistency)
+> - Performance (bundle size, lazy loading, image optimization)
+> - Accessibility (ARIA, keyboard nav, contrast)
+>
+> **HARD CONSTRAINTS:**
+> - DO NOT suggest changes to ANY table column content, P/L calculation, or bet type display
+> - DO NOT suggest changes to safePnl(), scoring logic, or data processing
+> - DO NOT suggest removing ANY existing functionality
+> - If you see something in a protected file that looks odd, NOTE IT but do NOT suggest changing it
+>
+> Rate findings P0-P3. End with TOP 3 FRONTEND IMPROVEMENTS (visual/UX only).
+> Write to `_review/frontend_review.md`.
+
+### Agent 2: Backend/Worker Reviewer (MMALogic-constrained)
+
+**Dispatch prompt:**
+> You are reviewing mmalogic.com's backend infrastructure. Read `_review/CONTEXT.md`. Read `~/.claude/skills/senior-backend/SKILL.md`.
+>
+> Review ONLY reliability and security:
+> - Live tracker Worker: error handling, timeout handling, Firestore write safety
+> - API routes: input validation, auth on protected endpoints
+> - CORS configuration
+> - Secrets management (are any hardcoded?)
+> - Firestore rules and data protection
+> - GitHub Actions workflows: are they robust?
+>
+> **HARD CONSTRAINTS:**
+> - DO NOT suggest changes to scoring logic or the algorithm
+> - DO NOT suggest changes to the registry format or validator
+> - DO NOT suggest removing or restructuring the live tracker's cron schedule
+> - Focus on: "could this break in production?" and "is this secure?"
+>
+> Rate findings P0-P3. End with TOP 3 RELIABILITY IMPROVEMENTS.
+> Write to `_review/backend_review.md`.
+
+### Agent 3: Product Reviewer (MMALogic-constrained)
+
+**Dispatch prompt:**
+> You are reviewing mmalogic.com as a product. Read `_review/CONTEXT.md`. Read `~/.claude/skills/senior-dev-mindset/SKILL.md`.
+>
+> Review the site as a USER would experience it:
+> - Does the site deliver on its promise (UFC betting predictions with transparent P/L)?
+> - Is the navigation intuitive? Can users find what they need?
+> - Are there dead pages, stub features, or confusing flows?
+> - Is the data presentation clear to someone who bets on UFC?
+> - What's the #1 thing that would make this more valuable to a bettor?
+>
+> **HARD CONSTRAINTS:**
+> - DO NOT suggest changing the betting model, bet types, or scoring rules
+> - DO NOT suggest "simplifying" the data — bettors want the detail
+> - Focus on: "what would make a UFC bettor come back every week?"
+>
+> Rate findings P0-P3. End with TOP 3 PRODUCT IMPROVEMENTS.
+> Write to `_review/fullstack_review.md`.
+
+### Synthesis (Orchestrator)
+
+After all agents complete:
+1. Read all 3 review files
+2. Deduplicate findings (same issue from multiple agents = 1 entry)
+3. **FILTER OUT any suggestion that touches protected files or scoring logic** — if an agent violated constraints, drop that finding
+4. Merge into ranked P0-P3 list
+5. Present the standard site-review report format
+
+### Post-Review
+
+```
+MMALOGIC REVIEW COMPLETE
+=========================
+Validator: [ALL 12 RULES PASS ✓]
+Reviewers: Frontend + Backend + Product (all MMALogic-constrained)
+Protected files: [confirmed untouched]
+Findings: [N total] (P0: X, P1: Y, P2: Z, P3: W)
+Constraint violations filtered: [N findings removed for touching protected areas]
+
+[Standard site-review report follows]
+```
+
+The review is READ-ONLY. It produces recommendations. The user decides what to act on, and any implementation goes through the normal `/mmalogic` workflow with validator checks.
 
 ---
 
