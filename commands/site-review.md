@@ -43,11 +43,11 @@ Launch **3 agents simultaneously** (2 if `--quick`, 4 if `--deep`). Each agent r
 
 ### Agent 1: Senior Frontend Reviewer
 **Agent type:** `general-purpose`
-**Skills:** `senior-frontend`, `react-best-practices`, `frontend-design`
+**Skills:** `senior-frontend`, `react-best-practices`, `frontend-design`, `impeccable-design`, `design-critique`
 **Output:** `_review/frontend_review.md`
 
 Dispatch prompt:
-> You are a senior frontend engineer reviewing a production website. Read `_review/CONTEXT.md` for project context. Read `~/.claude/skills/senior-frontend/SKILL.md`, `~/.claude/skills/react-best-practices/SKILL.md`, and `~/.claude/skills/frontend-design/SKILL.md`.
+> You are a senior frontend engineer reviewing a production website. Read `_review/CONTEXT.md` for project context. Read `~/.claude/skills/senior-frontend/SKILL.md`, `~/.claude/skills/react-best-practices/SKILL.md`, `~/.claude/skills/frontend-design/SKILL.md`, `~/.claude/skills/impeccable-design/SKILL.md`, and `~/.claude/skills/design-critique/SKILL.md`.
 >
 > Review the ENTIRE frontend codebase. For each area, note both **problems** and **improvement opportunities**:
 >
@@ -65,9 +65,13 @@ Dispatch prompt:
 > - Performance feel: perceived speed, loading indicators, skeleton screens?
 >
 > **3. Visual Design Quality**
-> - Typography consistency and hierarchy
-> - Spacing and alignment consistency
-> - Color usage — intentional or random?
+> - Run the AI Slop Detection checklist from `impeccable-design` — count fingerprints (0-10 scale)
+> - Run Nielsen's Heuristics scoring from `design-critique` — score each of 10 heuristics 0-4 (/40 total)
+> - Run cognitive load assessment from `design-critique` — 8-item checklist
+> - Select 2-3 relevant personas from `design-critique` and walk through the primary user flow
+> - Typography consistency and hierarchy (consult `impeccable-design/reference/typography.md`)
+> - Spacing and alignment consistency (consult `impeccable-design/reference/spatial-design.md`)
+> - Color usage — intentional or random? (consult `impeccable-design/reference/color-and-contrast.md`)
 > - Does the design feel professional or amateur?
 > - What one visual change would have the biggest impact?
 >
@@ -223,6 +227,11 @@ Generated: [date]
 Live site: [URL or N/A]
 Tech stack: [stack]
 Reviewers: Senior Frontend + Senior Backend + Senior Dev [+ Architect]
+
+DESIGN SCORES
+-------------
+Heuristics: [N]/40 — [Rating]  |  AI Slop: [N]/10 fingerprints  |  Cognitive Load: [Low/Moderate/High]
+Weakest heuristic: [name] ([score])  |  Personas tested: [names]
 
 EXECUTIVE SUMMARY
 -----------------

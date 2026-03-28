@@ -70,7 +70,9 @@ Orchestrator reads `handoff_phase1.md` before proceeding.
 
 1. Read `phase1_discovery.md` — understand what currently exists.
 2. Read `~/.claude/skills/frontend-design/SKILL.md` — anti-generic rules.
-3. Invoke `brainstorming` skill.
+3. Read `~/.claude/skills/impeccable-design/SKILL.md` — deep reference library + AI slop detection.
+4. Read relevant references from `~/.claude/skills/impeccable-design/reference/` (typography, color, spatial at minimum).
+5. Invoke `brainstorming` skill.
 4. Propose **3 design directions**. For each:
    - **Name**: specific aesthetic (NOT "modern" or "clean")
    - **Typography**: named font pair — NEVER Inter, Roboto, Arial
@@ -160,10 +162,13 @@ Dispatch prompt:
 1. Read `phase2_direction.md` — what mood/aesthetic was chosen?
 2. Screenshot each page at 375px, 768px, 1280px via Claude Preview/Chrome.
 3. Read `~/.claude/skills/screenshot-dissector/SKILL.md` — methodical pixel examination.
-4. Verify: spacing consistency, typography hierarchy, color adherence to THEME.md.
-5. Check: focus states, contrast ratios, dark mode if applicable.
-6. Ask: does the FEEL match the intended mood from Phase 2?
-7. Fix issues. Commit.
+4. Read `~/.claude/skills/impeccable-design/SKILL.md` — run AI Slop Detection checklist against output.
+5. Read `~/.claude/skills/design-critique/SKILL.md` — run Nielsen's Heuristics scoring (/40) + cognitive load assessment + persona testing.
+6. Verify: spacing consistency, typography hierarchy, color adherence to THEME.md.
+7. Check: focus states, contrast ratios, dark mode if applicable.
+8. Ask: does the FEEL match the intended mood from Phase 2?
+9. If slop score 3+ → flag for redesign before proceeding. If heuristics score <28 → flag P0/P1 issues.
+10. Fix issues. Commit.
 
 ---
 
