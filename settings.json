@@ -64,6 +64,15 @@
             "command": "python3 ~/.claude/hooks/memory-consolidate-loader.py"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/memory-migrator.py",
+            "timeout": 5000
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -96,6 +105,15 @@
           {
             "type": "command",
             "command": "python3 ~/.claude/hooks/correction-detector.py",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/smart-model-router.py",
             "timeout": 2000
           }
         ]
@@ -162,6 +180,24 @@
           {
             "type": "command",
             "command": "python3 ~/.claude/hooks/agent-limit.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/mmalogic-site-guard.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/mmalogic-site-guard.py"
           }
         ]
       }
