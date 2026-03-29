@@ -728,3 +728,13 @@
 - **Reasoning lesson**: (1) NEVER deploy algorithm changes before granular analysis at the tightest increment. (2) When the same metric gives different values across analyses, the methodology is wrong — stop and reconcile before acting. (3) Marginal improvements (+0.04u/event) are noise, not signal — minimum threshold should be +0.10u/event. (4) Always backtest the gate in isolation BEFORE touching production code.
 - **Fix**: Reverted to pre-gate state. Mandatory pre-deploy backtest rule added.
 - **Applies when**: ANY algorithm gating rule based on odds ranges or statistical thresholds. Run +25 increment analysis FIRST, reconcile any contradictions, backtest in isolation, THEN deploy.
+
+## Diamond Predictions — Local Build Deployed Without Firebase Auth
+
+### LOCAL_BUILD_NO_AUTH — 2026-03-29
+- **Context**: Ran `vite build` locally to deploy updated pick data. Local machine had no `.env.local` with VITE_FIREBASE_* vars.
+- **What went wrong**: Deployed build had undefined Firebase credentials, disabling all user authentication on production site.
+- **Root cause**: GitHub Actions injects Firebase secrets at build time. Local builds don't have these unless `.env.local` exists.
+- **Fix**: Created `.env.local` with Firebase config extracted from previous working Cloudflare deployment. Rebuilt and redeployed.
+- **Prevention**: Before ANY local build+deploy, verify `.env.local` exists. Check bundle size — missing Firebase SDK = ~130KB smaller bundle.
+- **Rule**: NEVER deploy without verifying auth integrations are intact. This is a specific case of "NEVER disconnect working integrations."
