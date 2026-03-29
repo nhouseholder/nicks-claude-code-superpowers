@@ -4,6 +4,16 @@
 > Claude checks this before debugging to avoid repeating known-bad approaches.
 > Last updated: 2026-03-28
 
+## UFC — Ghost X Bug: *_correct Set Without *_pnl (206 Bad Cells)
+
+### GHOST_X_NO_PLACED_FLAG — 2026-03-28
+- **Context**: Event history tables on mmalogic.com showed `✗ —` (red X with no dollar amount) in 206 cells across 504 bouts
+- **Bug**: Backtester sets `*_correct = false` for accuracy tracking even when no bet was placed (e.g., DEC predictions getting round_correct=false, KO R2 predictions getting combo_correct=false). The renderer sees `false` → shows ✗, sees `null` pnl → shows —. Also: 27 method wins had null pnl because prop odds were scraped after the backtest ran.
+- **Root cause**: No explicit `*_placed` flag in the registry schema. The system inferred bet placement from `*_correct !== null`, but the backtester sets `*_correct` for display/tracking even for unplaced bets.
+- **Fix**: Added `ml_placed`, `method_placed`, `round_placed`, `combo_placed` boolean flags to every bout in the registry. Migration script `fix_registry_placed_flags.py` cleaned up 206 ghost Xs. Frontend BetCell component now uses `*_placed` instead of inferring from `*_correct`. Validation gate `validate_registry_cells.py` enforces invariants.
+- **Flawed assumption**: That `*_correct !== null` reliably indicates a bet was placed. The backtester has multiple code paths that set `*_correct` for tracking without actually placing the bet.
+- **Applies when**: ANY registry write — always run `python3 validate_registry_cells.py --strict` after modifying the registry.
+
 ## UFC — DEC Method Odds Gate Caused -91.95u Regression (REVERTED)
 
 ### DEC_ODDS_GATE_REGRESSION — 2026-03-28
