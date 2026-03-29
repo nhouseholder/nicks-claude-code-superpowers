@@ -1,8 +1,17 @@
 #!/usr/bin/env python3
-"""
-Background observation hook for continuous learning.
-Captures tool usage patterns and stores them for later analysis.
-Runs on PostToolUse — lightweight, non-blocking.
+"""PostToolUse observer — captures meaningful context from tool usage.
+
+Records WHAT happened (not just which tool ran) so future sessions can
+search observations semantically. Extracts:
+- Files created/modified and why
+- Commands run and their outcomes
+- Decisions made (commit messages, config changes)
+- Errors encountered
+
+Stores observations as JSONL with rich text summaries alongside the raw
+tool data. Kept lightweight (<50ms) by doing string extraction, not LLM calls.
+
+Exit code 0 always.
 """
 import json
 import sys
@@ -16,24 +25,98 @@ try:
 except (json.JSONDecodeError, EOFError):
     sys.exit(0)
 
-# Get tool info
 tool_name = input_data.get("tool_name", "unknown")
 tool_input = input_data.get("tool_input", {})
+tool_response = input_data.get("tool_response", {})
 
-# Skip noisy/trivial tool calls
-skip_tools = {"Glob", "Grep", "Read", "ToolSearch"}
+# Skip read-only tools — they don't produce observations worth storing
+skip_tools = {"Glob", "Grep", "Read", "ToolSearch", "WebFetch", "WebSearch"}
 if tool_name in skip_tools:
     sys.exit(0)
 
-# Detect project — use cached hash if available to avoid git subprocess on every call
+# === Extract meaningful context based on tool type ===
+
+summary = None
+tags = []
+file_path = None
+
+if tool_name in ("Write", "Edit"):
+    file_path = tool_input.get("file_path", "")
+    fname = os.path.basename(file_path)
+    if tool_name == "Write":
+        # New file or full rewrite
+        content = tool_input.get("content", "")
+        lines = len(content.splitlines())
+        summary = f"Created/rewrote {fname} ({lines} lines)"
+        tags = ["file-write", fname]
+    else:
+        old = tool_input.get("old_string", "")[:80]
+        new = tool_input.get("new_string", "")[:80]
+        summary = f"Edited {fname}: '{old}' → '{new}'"
+        tags = ["file-edit", fname]
+
+elif tool_name == "Bash":
+    cmd = tool_input.get("command", "")
+    # Extract meaningful commands, skip trivial ones
+    if any(cmd.startswith(skip) for skip in ("ls", "pwd", "echo", "cat ", "head ", "tail ")):
+        sys.exit(0)
+
+    # Capture git commits specifically — these are decisions
+    if "git commit" in cmd:
+        summary = f"Git commit: {cmd[:200]}"
+        tags = ["git-commit", "decision"]
+    elif "git push" in cmd:
+        summary = f"Pushed to remote: {cmd[:150]}"
+        tags = ["git-push", "deploy"]
+    elif cmd.startswith(("npm ", "npx ", "pip ", "python3 ", "node ")):
+        summary = f"Ran: {cmd[:200]}"
+        tags = ["command"]
+        # Check for errors in response
+        resp_str = str(tool_response)[:500] if tool_response else ""
+        if "error" in resp_str.lower() or "Error" in resp_str:
+            tags.append("error")
+            summary += " [HAD ERRORS]"
+    elif "deploy" in cmd.lower() or "wrangler" in cmd.lower():
+        summary = f"Deploy: {cmd[:200]}"
+        tags = ["deploy", "decision"]
+    else:
+        summary = f"Command: {cmd[:200]}"
+        tags = ["command"]
+
+elif tool_name == "Agent":
+    prompt = tool_input.get("prompt", "")[:200]
+    agent_type = tool_input.get("subagent_type", "general")
+    summary = f"Spawned {agent_type} agent: {prompt}"
+    tags = ["agent", agent_type]
+
+elif tool_name == "Skill":
+    skill = tool_input.get("skill", "")
+    args = tool_input.get("args", "")
+    summary = f"Invoked /{skill} {args}".strip()
+    tags = ["skill", skill]
+
+elif tool_name == "TodoWrite":
+    # Skip — internal tracking, not meaningful context
+    sys.exit(0)
+
+else:
+    # Generic fallback
+    summary = f"{tool_name}: {str(tool_input)[:150]}"
+    tags = [tool_name.lower()]
+
+if not summary:
+    sys.exit(0)
+
+# === Detect project ===
+
 homunculus_dir = Path.home() / ".claude" / "homunculus"
 project_dir = homunculus_dir
-
-# Cache file stores {cwd: project_hash} to skip git calls for known dirs
 cache_file = homunculus_dir / ".project_cache.json"
 cwd = os.getcwd()
+project_name = os.path.basename(cwd)
 
 try:
+    homunculus_dir.mkdir(parents=True, exist_ok=True)
     project_cache = {}
     if cache_file.exists():
         try:
@@ -57,11 +140,10 @@ try:
             project_dir = homunculus_dir / "projects" / project_hash
             project_dir.mkdir(parents=True, exist_ok=True)
 
-            # Cache this cwd → hash mapping
             project_cache[cwd] = project_hash
             cache_file.write_text(json.dumps(project_cache, indent=2))
 
-            # Save project registry (only on first encounter)
+            # Save project registry
             registry_file = homunculus_dir / "projects.json"
             registry = {}
             if registry_file.exists():
@@ -80,20 +162,35 @@ try:
                     "remote": remote_url
                 }
                 registry_file.write_text(json.dumps(registry, indent=2))
+
+            project_name = registry.get(project_hash, {}).get("name", project_name)
 except Exception:
     pass
 
-# Record observation
+# === Record observation ===
+
 observation = {
-    "timestamp": datetime.now().isoformat(),
+    "ts": datetime.now().isoformat(),
+    "project": project_name,
     "tool": tool_name,
-    "input_summary": str(tool_input)[:200],
+    "summary": summary,
+    "tags": tags,
 }
+if file_path:
+    observation["file"] = file_path
 
 obs_file = project_dir / "observations.jsonl"
 try:
     with open(obs_file, "a") as f:
         f.write(json.dumps(observation) + "\n")
+except Exception:
+    pass
+
+# === Rotate if too large (>5000 lines → keep last 2000) ===
+try:
+    lines = obs_file.read_text().splitlines()
+    if len(lines) > 5000:
+        obs_file.write_text("\n".join(lines[-2000:]) + "\n")
 except Exception:
     pass
 
