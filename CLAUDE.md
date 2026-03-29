@@ -27,17 +27,18 @@ When switching projects: drop all assumptions, read project CLAUDE.md + memory, 
 
 ## Rules (non-hook-enforced — these need YOUR attention)
 
-1. **Commit between tasks** — rate limits kill 79% of multi-task sessions
-2. **Use site commands** — `/mmalogic`, `/update-diamond`, `/update-courtside`, `/update-mystrainai`, `/update-enhancedhealth`, `/update-researcharia`, `/update-nestwisehq`
-3. **Handoff = /full-handoff always**
-4. **Read the spec, not the code** — for domain questions, read the spec file first
-5. **Never flip-flop** — read spec before changing your answer
-6. **Do it yourself** — never tell user to do something manually if tools can do it
-7. **Never delete** — always archive. When in doubt, ask.
-8. **NEVER disconnect working integrations** — preserve API calls, webhooks, GitHub Actions triggers
-9. **Simplest fix first** — 5-line fix beats 200-line refactor
-10. **Stream long-running scripts** — `| tee output.log`
-11. **Never poll background tasks** — use `run_in_background` or long timeout
+1. **Commit AND push between tasks** — rate limits kill 79% of multi-task sessions. GitHub is the source of truth, not iCloud. Every commit must be pushed.
+2. **GitHub-first for git ops** — iCloud corrupts `.git/objects/` on active repos. For any git-heavy work, clone from GitHub to `/tmp/`, do the work there, push, then let iCloud sync passively. Never trust iCloud git state over GitHub.
+3. **Use site commands** — `/mmalogic`, `/update-diamond`, `/update-courtside`, `/update-mystrainai`, `/update-enhancedhealth`, `/update-researcharia`, `/update-nestwisehq`
+4. **Handoff = /full-handoff always**
+5. **Read the spec, not the code** — for domain questions, read the spec file first
+6. **Never flip-flop** — read spec before changing your answer
+7. **Do it yourself** — never tell user to do something manually if tools can do it
+8. **Never delete** — always archive. When in doubt, ask.
+9. **NEVER disconnect working integrations** — preserve API calls, webhooks, GitHub Actions triggers
+10. **Simplest fix first** — 5-line fix beats 200-line refactor
+11. **Stream long-running scripts** — `| tee output.log`
+12. **Never poll background tasks** — use `run_in_background` or long timeout
 
 ## Hooks Handle These (don't duplicate in context — they fire mechanically)
 
