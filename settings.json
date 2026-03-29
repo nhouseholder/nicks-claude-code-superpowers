@@ -125,15 +125,6 @@
             "timeout": 2000
           }
         ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/smart-model-router.py",
-            "timeout": 2000
-          }
-        ]
       }
     ],
     "PreToolUse": [
