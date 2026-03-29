@@ -90,6 +90,15 @@
             "command": "node \"/Users/nicholashouseholder/.claude/hooks/gsd-check-update.js\""
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/anti-pattern-enforcer.py",
+            "timeout": 3000
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -216,6 +225,16 @@
             "type": "command",
             "command": "node \"/Users/nicholashouseholder/.claude/hooks/gsd-prompt-guard.js\"",
             "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ~/.claude/hooks/anti-pattern-gate.py",
+            "timeout": 2000
           }
         ]
       }

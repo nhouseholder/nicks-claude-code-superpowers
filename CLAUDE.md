@@ -42,7 +42,7 @@ When switching projects: drop all assumptions, read project CLAUDE.md + memory, 
 
 ## Hooks Handle These (don't duplicate in context — they fire mechanically)
 
-`impossible-stats-detector.py`, `missing-odds-detector.py`, `surgical-scope.py`, `protect-skills.py`, `agent-limit.py`, `correction-detector.py`, `no-narration-stops.py`, `version-bump-check.py`, `block-dangerous-commands.py`, `deploy-guard.py`, `ufc-context-loader.py`, `memory-migrator.py`, `session-context-loader.py`, `observe.py`, `unpushed-commits-check.py`
+`impossible-stats-detector.py`, `missing-odds-detector.py`, `surgical-scope.py`, `protect-skills.py`, `agent-limit.py`, `correction-detector.py`, `no-narration-stops.py`, `version-bump-check.py`, `block-dangerous-commands.py`, `deploy-guard.py`, `ufc-context-loader.py`, `memory-migrator.py`, `session-context-loader.py`, `observe.py`, `unpushed-commits-check.py`, `anti-pattern-enforcer.py`, `anti-pattern-gate.py`
 
 ## Scheduled Agents (run autonomously — don't duplicate)
 
