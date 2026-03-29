@@ -237,6 +237,44 @@ When the user reports a visual bug or provides a screenshot:
 3. Never argue "it looks fine to me" based on CLI output when user has visual proof
 4. The user's screenshot IS the ground truth — your job is to figure out WHY it looks wrong, not WHETHER it's wrong
 
+## Universal Deploy Verification (All 7 Sites)
+
+These patterns are promoted from site-update-protocol (UFC-specific) to apply universally.
+
+### Every Deploy Must Include
+
+1. **Visual verification of EVERY affected page** — not just the one you changed. Use Claude in Chrome or preview tools.
+2. **Spot-check one data row end-to-end** — pick one piece of data, trace it from the source (JSON/API/DB) through the code to the rendered page. If the numbers don't match, the deploy is broken.
+3. **Check ALL action buttons still work** — any button that calls an API, triggers a workflow, or submits data. Click it (or verify the handler is wired). Integration breakage is silent.
+4. **Version/data regression check** — compare the deployed version number and key data counts against pre-deploy baseline. If version went backwards or data count dropped, STOP.
+5. **Console error scan** — load every affected page and check browser console for new errors/warnings. Zero new errors is the bar.
+
+### Per-Page Verification Template
+
+```
+POST-DEPLOY CHECK — [site] [date]
+Page: [URL]
+  [ ] Renders without errors
+  [ ] All data present (not empty, not placeholder)
+  [ ] All interactive elements respond (buttons, links, forms)
+  [ ] No visual regressions (layout, colors, spacing)
+  [ ] No console errors
+  [ ] Data matches source (spot-checked 1 row)
+```
+
+### Data Consistency Invariants (Universal)
+
+These apply to ANY site displaying computed data:
+
+| Invariant | Violation Example |
+|-----------|-------------------|
+| Positive metric requires positive count | "Revenue: $500" with "Sales: 0" |
+| Percentages must be 0-100 | "260% confidence" |
+| Totals must equal sum of parts | "Combined: $100" but parts sum to $85 |
+| Win/loss records must match detail | "5W-3L" but table shows 4 wins |
+| Dates must be chronological | Future dates in historical data |
+| No null/undefined in rendered output | "undefined" or "NaN" visible on page |
+
 ## Integration with Other Skills
 
 - **error-memory**: Website Guardian handles the investigation; error-memory handles the persistence format
