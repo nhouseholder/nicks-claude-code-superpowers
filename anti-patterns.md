@@ -4,6 +4,16 @@
 > Claude checks this before debugging to avoid repeating known-bad approaches.
 > Last updated: 2026-03-28
 
+## UFC — GSA Hybrid SUB Gate Tested: +0.00u Delta (NO IMPROVEMENT)
+
+### GSA_GATE_NO_IMPROVEMENT — 2026-03-28
+- **Context**: Proposed replacing blanket SUB→DEC fallback with a Grappling Submission Advantage (GSA) score to selectively keep SUB bets for elite grapplers
+- **Formula**: GSA = (SubAvg × 2) + (sub_sc × 3) + max(0, (0.60 - opp_TDDef) / 0.20), threshold=3.5
+- **Result**: +0.00u delta vs blanket DEC fallback. Zero improvement.
+- **Root cause**: Elite grapplers (Makhachev, Oliveira, Chimaev, Rakhmonov) who pass the GSA gate still mostly win by DEC (55%), not SUB (25%). The GSA gate correctly identifies submission specialists, but submission specialists DON'T actually finish by submission — they control and decision. The 8 correct SUB wins captured were offset by ~12 DEC wins lost.
+- **Flawed assumption**: That high grappling stats predict submission finishes. In reality, the best grapplers use takedowns for control and positional dominance, winning by DEC. The submission threat creates the control, not the finish.
+- **Applies when**: ANY proposal to selectively override the SUB→DEC fallback. The blanket fallback captures the dominant outcome (56% DEC) and is optimal.
+
 ## UFC — Ghost X Bug: *_correct Set Without *_pnl (206 Bad Cells)
 
 ### GHOST_X_NO_PLACED_FLAG — 2026-03-28
