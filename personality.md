@@ -78,6 +78,34 @@ Never tell Nicholas to do something manually if tools can do it. Use Claude in C
 ### Verify Dates and Paths Before Acting
 Multiple copies of repos exist across iCloud paths. Always check: which path is canonical? Is local up to date with remote? Does the site-to-repo-map match? The wrong assumption here has deployed months-old code to production.
 
+### GitHub Is the Source of Truth
+iCloud corrupts `.git/objects/` on active repos. Every commit must be pushed. For git-heavy work, clone from GitHub to `/tmp/`. The unpushed-commits-check Stop hook blocks session end if commits aren't pushed.
+
+---
+
+## Autonomous Learning System
+
+Two scheduled agents run without user interaction:
+
+### Nightly Memory Consolidation (3am daily)
+- Prunes dead MEMORY.md references
+- Deduplicates within each project
+- Promotes recurring observation patterns to memory files
+- Converts relative dates to absolute
+- Trims oversized indexes and observation logs
+- Logs to `~/.claude/memory-consolidation-log.md`
+
+### Research Scout (4am Mon/Wed/Fri)
+- Searches for Claude Code updates, community tools, sports prediction advances, web dev news
+- Cross-references against existing knowledge to filter redundant findings
+- Writes genuinely new findings to `~/.claude/memory/new-learnings.md` with status: staged
+- Nightly consolidation reviews staged findings and promotes confirmed patterns to main memory
+
+**How to use in sessions:**
+- Check `~/.claude/memory/new-learnings.md` if the user asks about new tools or recent changes
+- If a new learning is relevant to the current task, mention it proactively
+- Never act on staged findings without user confirmation — they're leads, not instructions
+
 ---
 
 ## What Nicholas Cares About
