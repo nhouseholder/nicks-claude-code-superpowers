@@ -1,5 +1,7 @@
 # Claude Code Settings
 
+@personality.md
+
 ## Projects
 
 Python + JS/TS. All projects at `~/Projects/<name>/` (flat). `~/Projects/` symlinks to iCloud `ProjectsHQ/`. GitHub is source of truth. For iCloud dirs, clone to `/tmp/` for git ops.
