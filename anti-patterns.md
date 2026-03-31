@@ -2,7 +2,7 @@
 
 > This file is auto-maintained by the error-memory skill.
 > Claude checks this before debugging to avoid repeating known-bad approaches.
-> Last updated: 2026-03-28
+> Last updated: 2026-03-29
 
 ## UFC — GSA Hybrid SUB Gate Tested: +0.00u Delta (NO IMPROVEMENT)
 
@@ -77,6 +77,21 @@
 - **Flawed assumption**: That `?? 0` is a safe default for odds comparison. In betting, null odds ≠ 0 — null means "no line available."
 - **Reasoning lesson**: Nullish coalescing (`??`) defaults are dangerous for numeric comparisons where 0 has semantic meaning. Always use explicit null checks for betting odds.
 - **Applies when**: ANY filter or comparison involving `pick_ml`, `odds`, or any betting line. NEVER use `?? 0` for odds — use explicit null checks.
+
+## UFC — Dual-Path Algorithm Divergence (3 improvements backtest-only)
+
+### DUAL_PATH_DIVERGENCE — 2026-03-29
+- **Context**: Algorithm has separate `if BACKTEST_MODE:` and `if not BACKTEST_MODE:` code paths. Three shipped improvements (v11.15, v11.16, v11.17) only existed in the backtest path.
+- **Bug**: Live predictions diverged from backtested behavior:
+  - v11.15 KO slight-fav skip: live predictions showed KO picks on -100 to -150 fighters (backtest skipped them)
+  - v11.16 KO>+300 DEC fallback: live predictions bet KO when market priced it at +300+ (backtest swapped to DEC)
+  - v11.17 Heavy fav KO boost: live predictions didn't boost KO for -400+ favorites (backtest did)
+- **Root cause**: When adding algorithm improvements, code was inserted inside the `if BACKTEST_MODE:` block after `pick_ml` was set. The prediction path builds `prediction_cards` in a separate `if not BACKTEST_MODE:` block that ran BEFORE the backtest block, so it used unboosted/ungated values.
+- **Additional root cause**: Constants were defined INLINE inside the backtest block (e.g., `HEAVY_FAV_KO_BOOST = True` at line 8898), causing `NameError` if referenced from the prediction path.
+- **Fix**: (1) Move all constants to top-level (lines 198-209). (2) Add identical gate/boost/fallback logic to prediction path. (3) Add KO>+300 DEC fallback to prediction summary card builder.
+- **Flawed assumption**: That adding code to the fight processing loop would affect both modes. In reality, the backtest scoring section and prediction card builder are completely separate code blocks.
+- **Prevention**: After ANY algorithm change, grep for the feature name and verify it appears in BOTH paths (minimum 2 occurrences). New rule added to CLAUDE.md and /mmalogic command.
+- **Applies when**: ANY algorithmic modification — gates, boosts, fallbacks, skips, method overrides. Check: backtest scoring path, prediction card builder, AND prediction summary display.
 
 ## UFC — Registry Parlay Uses Card Order Instead of Implied Probability
 
@@ -738,3 +753,121 @@
 - **Fix**: Created `.env.local` with Firebase config extracted from previous working Cloudflare deployment. Rebuilt and redeployed.
 - **Prevention**: Before ANY local build+deploy, verify `.env.local` exists. Check bundle size — missing Firebase SDK = ~130KB smaller bundle.
 - **Rule**: NEVER deploy without verifying auth integrations are intact. This is a specific case of "NEVER disconnect working integrations."
+
+[2026-03-29T15:23:22.641653] GLM-5 violations: no_verification_trace, no_uncertainty_flag
+
+[2026-03-29T15:24:28.662553] GLM-5 violations: line_count=53>40, no_uncertainty_flag
+
+[2026-03-29T15:27:01.279096] GLM-5 violations: line_count=41>40
+
+[2026-03-29T15:29:57.275739] GLM-5 violations: no_uncertainty_flag
+
+[2026-03-29T15:31:24.646990] GLM-5 violations: no_uncertainty_flag
+
+[2026-03-29T15:32:22.282711] GLM-5 violations: no_verification_trace, no_uncertainty_flag
+
+[2026-03-29T15:33:33.194813] GLM-5 violations: no_verification_trace
+
+[2026-03-29T15:41:20.421076] GLM-5 violations: no_verification_trace, no_uncertainty_flag
+
+[2026-03-29T15:41:20.665578] GLM-5 violations: line_count=62>40
+
+[2026-03-29T15:45:50.736740] GLM-5 violations: no_verification_trace, no_uncertainty_flag
+
+[2026-03-29T15:47:23.993843] GLM-5 violations: no_uncertainty_flag
+
+[2026-03-29T15:49:53.804854] GLM-5 violations: no_uncertainty_flag
+
+[2026-03-29T15:52:52.270695] GLM-5 violations: no_verification_trace, no_uncertainty_flag
+
+[2026-03-29T16:04:06.350196] GLM-5 violations: no_verification_trace
+
+[2026-03-29T16:33:43.568652] GLM-5 violations: no_uncertainty_flag
+
+[2026-03-29T16:38:14.377770] GLM-5 violations: no_uncertainty_flag
+
+[2026-03-29T16:40:26.070346] GLM-5 violations: no_verification_trace, no_uncertainty_flag
+
+[2026-03-29T16:43:41.183757] GLM-5 violations: no_verification_trace, no_uncertainty_flag
+
+[2026-03-29T16:51:28.441288] GLM-5 violations: line_count=46>40
+
+[2026-03-29T16:53:17.991313] GLM-5 violations: no_verification_trace, no_uncertainty_flag
+
+[2026-03-29T16:54:18.855569] GLM-5 violations: no_uncertainty_flag
+
+[2026-03-29T16:55:02.728087] GLM-5 violations: no_uncertainty_flag
+
+[2026-03-29T17:02:39.127031] GLM-5 violations: line_count=49>40
+
+[2026-03-29T17:05:17.334897] GLM-5 violations: no_verification_trace, no_uncertainty_flag
+
+[2026-03-29T17:07:22.895212] GLM-5 violations: line_count=42>40
+
+[2026-03-29T17:07:40.524007] GLM-5 violations: no_verification_trace
+
+[2026-03-29T17:10:05.234929] GLM-5 violations: no_uncertainty_flag
+
+[2026-03-29T17:10:09.988979] GLM-5 violations: no_uncertainty_flag
+
+[2026-03-29T17:12:51.149056] GLM-5 violations: line_count=63>40
+
+[2026-03-29T17:13:49.151594] GLM-5 violations: no_uncertainty_flag
+
+[2026-03-29T17:19:08.163310] GLM-5 violations: no_uncertainty_flag
+
+[2026-03-29T17:20:49.169675] GLM-5 violations: no_uncertainty_flag
+
+[2026-03-29T17:26:04.251993] GLM-5 violations: line_count=56>40
+
+[2026-03-29T17:26:15.012946] GLM-5 violations: no_uncertainty_flag
+
+[2026-03-29T17:43:39.440309] GLM-5 violations: line_count=74>40, no_uncertainty_flag
+
+[2026-03-29T18:11:27.164853] GLM-5 violations: line_count=74>40
+
+[2026-03-29T18:15:51.404553] GLM-5 violations: no_verification_trace
+
+[2026-03-29T18:16:18.405945] GLM-5 violations: no_verification_trace, no_uncertainty_flag
+
+[2026-03-29T18:16:42.936349] GLM-5 violations: no_verification_trace, no_uncertainty_flag
+
+[2026-03-29T18:20:19.349124] GLM-5 violations: line_count=56>40
+
+[2026-03-29T18:22:51.877081] GLM-5 violations: no_verification_trace, no_uncertainty_flag
+
+[2026-03-29T18:26:26.565467] GLM-5 violations: no_verification_trace, no_uncertainty_flag
+
+[2026-03-29T18:27:08.965741] GLM-5 violations: no_verification_trace, no_uncertainty_flag
+
+[2026-03-29T18:29:03.066023] GLM-5 violations: line_count=45>40
+
+[2026-03-29T18:29:39.124680] GLM-5 violations: line_count=142>40
+
+[2026-03-29T18:31:06.379436] GLM-5 violations: line_count=168>40
+
+[2026-03-29T18:33:41.099641] GLM-5 violations: line_count=98>40
+
+[2026-03-29T18:34:28.355070] GLM-5 violations: line_count=144>40
+
+[2026-03-29T18:35:55.905604] GLM-5 violations: no_uncertainty_flag
+
+[2026-03-29T18:40:50.158549] GLM-5 violations: line_count=46>40, no_uncertainty_flag
+
+[2026-03-29T18:41:55.653477] GLM-5 violations: no_uncertainty_flag
+
+[2026-03-29T18:46:29.841959] GLM-5 violations: no_verification_trace, no_uncertainty_flag
+
+[2026-03-29T18:47:17.286803] GLM-5 violations: line_count=145>40
+
+[2026-03-29T18:48:51.332689] GLM-5 violations: no_uncertainty_flag
+
+[2026-03-29T18:52:47.803267] GLM-5 violations: line_count=45>40
+
+[2026-03-29T18:53:28.405876] GLM-5 violations: no_verification_trace
+
+[2026-03-29T18:54:39.136189] GLM-5 violations: line_count=42>40, no_uncertainty_flag
+
+[2026-03-29T18:54:58.281137] GLM-5 violations: no_uncertainty_flag
+
+[2026-03-29T18:55:51.054608] GLM-5 violations: no_uncertainty_flag

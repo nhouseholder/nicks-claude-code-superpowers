@@ -1,10 +1,6 @@
 {
   "env": {
-    "API_TIMEOUT_MS": "3000000",
-    "Z_AI_API_KEY": "d8047c5f5b4246fd9a94b672adfe4882.t2Sn4v37ISjM4IaE",
-    "OPENAI_API_KEY": "d8047c5f5b4246fd9a94b672adfe4882.t2Sn4v37ISjM4IaE",
-    "OPENAI_API_URL": "https://api.z.ai/api/paas/v4/",
-    "ANTHROPIC_BASE_URL": "http://127.0.0.1:17532"
+    "API_TIMEOUT_MS": "3000000"
   },
   "permissions": {
     "allow": [
@@ -41,14 +37,6 @@
   "model": "claude-opus-4-6",
   "hooks": {
     "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/api-banner.py"
-          }
-        ]
-      },
       {
         "hooks": [
           {
@@ -102,22 +90,6 @@
       }
     ],
     "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/api-banner.py"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/session-bridge.py"
-          }
-        ]
-      },
       {
         "hooks": [
           {
@@ -261,14 +233,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/auto-checkpoint.py"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
             "command": "osascript -e 'display notification \"Claude finished a task and needs your attention\" with title \"Claude Code\" sound name \"Glass\"'"
           }
         ]
@@ -283,14 +247,6 @@
       }
     ],
     "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/glm5-focus-guard.py"
-          }
-        ]
-      },
       {
         "hooks": [
           {
