@@ -116,6 +116,17 @@ AGENT_PROFILES = {
         ],
         "after": "Visual verification of every page after deploy",
     },
+    "builder": {
+        "name": "Structured Build Agent",
+        "skills": [
+            (1, "structured-build", "Full pipeline: Research → Strategize → Plan → Execute → Self-Check → Verify → Deploy"),
+            (1, "know-what-you-dont-know", "Domain ignorance detector — fires during Research phase"),
+            (2, "writing-plans", "Write implementation plan (Phase 3)"),
+            (2, "zero-iteration", "Mental execution before writing code (Phase 4-5)"),
+            (3, "calibrated-confidence", "Honest confidence calibration throughout"),
+        ],
+        "after": "Deliver post-change report. If deployed, follow tiered verification from website-guardian.",
+    },
 }
 
 def format_profile(profile):
@@ -139,6 +150,8 @@ def format_profile(profile):
 
 ROUTES = [
     # --- COMPOSITE AGENT TRIGGERS (user asks for "an agent") ---
+    (r"build.?agent|call.?in.*build|structured.?build|full.?pipeline",
+     130, "builder"),
     (r"front.?end.?agent|call.?in.*front|bring.?in.*front|front.?end.?team|ui.?agent|design.?agent",
      130, "frontend"),
     (r"back.?end.?agent|call.?in.*back|bring.?in.*back|server.?agent|api.?agent",
@@ -157,6 +170,12 @@ ROUTES = [
      130, "deployer"),
 
     # --- TASK-BASED TRIGGERS (infer the right agent from the task) ---
+    # Complex builds / new features (structured pipeline)
+    (r"build.*new|new.*feature|implement.*new|add.*system|create.*system|new.*module|build.*from.*scratch",
+     95, "builder"),
+    (r"build.*me|implement.*feature|add.*functionality|new.*integration|new.*pipeline",
+     90, "builder"),
+
     # Audits
     (r"audit.*front|front.*audit|ui.*audit|ux.*audit", 100, "frontend"),
     (r"audit.*back|back.*audit|api.*audit|security.*audit|server.*audit", 100, "backend"),
