@@ -285,7 +285,7 @@ if prompt.startswith("#"):
 # === CONTINUE ===
 continue_signals = ["continue", "go", "keep going", "go on", "proceed", "carry on", "next"]
 if prompt_lower in continue_signals:
-    output_json(f"{prompt}\n\nIMPORTANT: If you cannot determine what to continue, or if context feels limited, run /compact first to free space, then resume.")
+    output_json(f"{prompt}\n\nIMPORTANT: If you cannot determine what to continue, or if context feels limited, read the todo list and any plan files to recover state. Do NOT run /compact again if compaction just happened — that creates a loop. If you truly have no context, tell the user: 'Context was lost during compaction. What would you like me to work on?'")
     sys.exit(0)
 
 # === ROUTING ===

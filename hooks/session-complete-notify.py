@@ -23,14 +23,54 @@ except (json.JSONDecodeError, EOFError):
 if hook_input.get("stop_hook_active"):
     sys.exit(0)
 
-# Derive project identity from working directory
+# Derive session name — match what the Claude desktop app shows in the header
 cwd = os.getcwd()
-project_name = os.path.basename(cwd)
 
-# Clean up common iCloud path noise
-project_name = project_name.replace("com~apple~CloudDocs", "iCloud")
+# Handle worktree paths: cwd might be something like
+# ~/.claude/worktrees/eager-lewin/nfl-draft-predictor or
+# ~/Projects/nfl-draft-predictor--claude-worktrees-eager-lewin
+# We need to extract the actual project name, not the worktree label
+raw_name = os.path.basename(cwd)
+
+# Strip worktree suffixes: "nfl-draft-predictor--claude-worktrees-eager-lewin" → "nfl-draft-predictor"
+if "--claude-worktrees" in raw_name:
+    raw_name = raw_name.split("--claude-worktrees")[0]
+
+# Handle ~/.claude/worktrees/<label>/<project> paths
+if "worktrees" in cwd or "worktree" in cwd:
+    # Walk up to find a directory that matches a known project
+    parts = cwd.split(os.sep)
+    for part in reversed(parts):
+        clean = part.split("--claude-worktrees")[0] if "--claude-worktrees" in part else part
+        if clean in ("worktrees", "worktree", ".claude", ""):
+            continue
+        # Skip worktree labels (short random names like "eager-lewin", "50fc")
+        if len(clean) <= 12 and "-" in clean and not any(c.isdigit() for c in clean.split("-")[0]):
+            continue
+        raw_name = clean
+        break
+
+# Map known project dirs to their friendly session names (matches app header)
+SESSION_NAMES = {
+    "superpowers": "Superpowers",
+    "mmalogic": "MMALogic",
+    "diamondpredictions": "Diamond Predictions",
+    "courtside-ai": "Courtside AI",
+    "mystrainai": "MyStrainAI",
+    "enhancedhealthai": "Enhanced Health AI",
+    "nestwisehq": "NestWise HQ",
+    "researcharia": "Research Aria",
+    "portfolio": "Portfolio",
+    "all-things-ai": "All Things AI",
+    "nfl-draft-predictor": "NFL Draft Predictor",
+    "Residency-app": "Residency App",
+    "loss-analyst": "Loss Analyst",
+    "Brewmaps": "Brewmaps",
+}
+
+project_name = SESSION_NAMES.get(raw_name, raw_name.replace("-", " ").replace("_", " ").title())
 if not project_name or project_name == "/":
-    project_name = "Unknown Project"
+    project_name = "Unknown Session"
 
 # Get stop reason for context
 stop_reason = hook_input.get("stop_reason", "unknown")
@@ -53,15 +93,7 @@ subprocess.Popen(
     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
 )
 
-# === METHOD 2: Text-to-Speech (short, non-blocking) ===
-# Speaks the project name so you know which session without looking
-say_text = f"{project_name} needs attention"
-subprocess.Popen(
-    ["say", "-v", "Samantha", "-r", "200", say_text],
-    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-)
-
-# === METHOD 3: Dock badge bounce (without stealing focus) ===
+# === METHOD 2: Dock badge bounce (without stealing focus) ===
 # Uses a brief activation trick to trigger dock bounce, then returns focus
 bounce_script = '''
 tell application "System Events"
