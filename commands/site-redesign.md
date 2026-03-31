@@ -69,11 +69,16 @@ Orchestrator reads `handoff_phase1.md` before proceeding.
 **Do this yourself (no subagent) — user interaction required.**
 
 1. Read `phase1_discovery.md` — understand what currently exists.
-2. Read `~/.claude/skills/frontend-design/SKILL.md` — anti-generic rules.
-3. Read `~/.claude/skills/impeccable-design/SKILL.md` — deep reference library + AI slop detection.
-4. Read relevant references from `~/.claude/skills/impeccable-design/reference/` (typography, color, spatial at minimum).
-5. Invoke `brainstorming` skill.
-4. Propose **3 design directions**. For each:
+2. Read `~/.claude/skills/frontend-design/SKILL.md` — anti-generic rules. **This is the creative north star.**
+3. Read `~/.claude/skills/impeccable-design/SKILL.md` — AI slop detection checklist + deep reference library.
+4. Read these references from `~/.claude/skills/impeccable-design/reference/` (ALL mandatory):
+   - `typography.md` — font alternatives, modular scales, fluid type
+   - `color-and-contrast.md` — OKLCH palettes, tinted neutrals, 60-30-10 rule
+   - `spatial-design.md` — 4pt base, squint test, container queries
+   - `motion-design.md` — timing rules, easing defaults
+5. Run `python3 ~/.claude/skills/ui-ux-pro-max/scripts/search.py "<project-type> <industry>" --design-system` — get data-driven style/palette/font recommendations.
+6. Invoke `brainstorming` skill.
+7. Propose **3 design directions**. For each:
    - **Name**: specific aesthetic (NOT "modern" or "clean")
    - **Typography**: named font pair — NEVER Inter, Roboto, Arial
    - **Color**: dominant + accent + neutral (show hex)
@@ -133,7 +138,7 @@ For EACH component group, dispatch:
 **Output:** `_redesign/phase5_backend.md`, `_redesign/handoff_phase5.md`
 
 Dispatch prompt:
-> Read `_redesign/CONTEXT.md`. Read `~/.claude/skills/senior-backend/SKILL.md` and `~/.claude/skills/senior-architect/SKILL.md`. Review all API routes for: security issues, performance problems, error handling gaps, frontend-backend contract mismatches. Fix P0/P1 issues directly. Write findings to `_redesign/phase5_backend.md`. Write `_redesign/handoff_phase5.md`.
+> Read `_redesign/CONTEXT.md`. Read `~/.claude/skills/senior-backend/SKILL.md` (includes architecture review protocol). Review all API routes for: security issues, performance problems, error handling gaps, frontend-backend contract mismatches. Fix P0/P1 issues directly. Write findings to `_redesign/phase5_backend.md`. Write `_redesign/handoff_phase5.md`.
 
 ---
 
@@ -162,13 +167,17 @@ Dispatch prompt:
 1. Read `phase2_direction.md` — what mood/aesthetic was chosen?
 2. Screenshot each page at 375px, 768px, 1280px via Claude Preview/Chrome.
 3. Read `~/.claude/skills/screenshot-dissector/SKILL.md` — methodical pixel examination.
-4. Read `~/.claude/skills/impeccable-design/SKILL.md` — run AI Slop Detection checklist against output.
-5. Read `~/.claude/skills/design-critique/SKILL.md` — run Nielsen's Heuristics scoring (/40) + cognitive load assessment + persona testing.
+4. **SLOP GATE (mandatory — blocks deploy):**
+   - Read `~/.claude/skills/impeccable-design/SKILL.md` — run AI Slop Detection checklist (10 fingerprints).
+   - Score each fingerprint present/absent. **Slop score 3+ = FAIL. Do NOT proceed to Phase 8.**
+   - Fix all slop fingerprints, re-screenshot, re-score until slop < 3.
+5. **UX GATE:**
+   - Read `~/.claude/skills/design-critique/SKILL.md` — run Nielsen's Heuristics scoring (/40) + cognitive load assessment + persona testing.
+   - **Heuristics < 28 = FAIL.** Fix P0/P1 issues before proceeding.
 6. Verify: spacing consistency, typography hierarchy, color adherence to THEME.md.
 7. Check: focus states, contrast ratios, dark mode if applicable.
-8. Ask: does the FEEL match the intended mood from Phase 2?
-9. If slop score 3+ → flag for redesign before proceeding. If heuristics score <28 → flag P0/P1 issues.
-10. Fix issues. Commit.
+8. Ask: does the FEEL match the intended mood from Phase 2? If not — identify what's off and fix it.
+9. Fix all issues. Commit.
 
 ---
 
