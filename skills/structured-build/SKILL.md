@@ -22,19 +22,45 @@ Every new feature or complex task follows this pipeline. No skipping phases. Eac
 
 **Does NOT fire for:** Quick fixes, config changes, simple edits, single-file changes with clear instructions.
 
-## Complexity Check (5 seconds)
+## Triage (5 seconds — before anything else)
 
-Before entering the pipeline, ask:
+Classify the task. This determines which phases you enter and how deep research goes.
 
-| Signal | Simple (skip pipeline) | Complex (use pipeline) |
-|--------|----------------------|----------------------|
-| Files touched | 1-2 | 3+ |
-| Requirements clarity | Exact instructions given | Ambiguous or multi-part |
-| Domain knowledge needed | Standard patterns | Domain-specific rules |
-| Risk of breaking existing | Low | Medium-High |
-| Subsystems involved | 1 | 2+ |
+### Step 1: Do I need to research at all?
 
-**2+ "Complex" signals → enter the pipeline.** Otherwise, just do the work.
+| Ask yourself | YES → Research | NO → Skip research |
+|---|---|---|
+| Am I touching code I haven't read this session? | Read it first | Already read it |
+| Does this involve domain-specific rules (betting, finance, medicine, legal)? | Fire `know-what-you-dont-know` | Standard programming patterns |
+| Has this area failed before? (anti-patterns.md) | Check what failed and why | No prior failures logged |
+| Are the requirements ambiguous or multi-part? | Clarify before building | User gave exact instructions |
+| Am I about to change something with downstream dependents I don't fully understand? | Map the dependencies | I know the call graph |
+
+**Any YES → enter Research phase.** All NO → skip to Strategize or Plan.
+
+### Step 2: How deep does research need to go?
+
+| Research Depth | When | What to do |
+|---|---|---|
+| **None** | Clear instructions, familiar code, standard patterns, single-file change | Skip to Phase 3 (Plan) or Phase 4 (Execute) |
+| **Quick scan** (30 sec) | Touching 2-3 files, known codebase, minor uncertainty | Read target files + quick anti-patterns check. That's it. |
+| **Targeted research** (2-3 min) | New area of codebase, unfamiliar API, user preference unknown | Read files + check memory + check specs + map dependencies |
+| **Deep research** (5+ min) | Domain logic, unfamiliar technology, system design, high-risk change | Full Phase 1 protocol + `know-what-you-dont-know` + external sources |
+
+**Match research depth to actual uncertainty.** Over-researching a CSS tweak wastes tokens. Under-researching a payment integration causes production bugs. The skill is knowing which is which.
+
+### Step 3: Which phases do I need?
+
+| Task Type | Phases | Why |
+|---|---|---|
+| **Exact instructions, familiar code** (e.g., "change button color to blue") | Execute → Self-Check | Nothing to research or plan — just do it and verify |
+| **Clear feature, known codebase** (e.g., "add a loading spinner to the dashboard") | Plan → Execute → Self-Check → Verify | Know what to build, just need to map the steps |
+| **Ambiguous feature or multi-step** (e.g., "add user notifications") | Strategize → Plan → Execute → Self-Check → Verify | Need to pick an approach before planning |
+| **Unfamiliar code or area** (e.g., "add feature to a repo you just opened") | Research → Plan → Execute → Self-Check → Verify | Need to understand what exists before deciding anything |
+| **Domain-specific or high-risk** (e.g., "new betting settlement logic") | Research → Strategize → Plan → Execute → Self-Check → Verify → Deploy | Full pipeline — can't afford to get this wrong |
+| **New system from scratch** | Research → Strategize → Plan → Execute → Self-Check → Verify → Deploy | Full pipeline |
+
+**The default is NOT "full pipeline." The default is "whatever this task actually needs."**
 
 ---
 
@@ -213,24 +239,12 @@ For complex tasks, present options and let the user choose.
 
 ---
 
-## Phase Shortcuts
-
-Not every task needs all 7 phases. Use judgment:
-
-| Task | Start At | Skip |
-|------|----------|------|
-| Simple feature, clear spec | Phase 3 (Plan) | Research + Strategize (already clear) |
-| Bug fix in known area | Phase 1 (Research) | Strategize (fix is the fix) |
-| New system, unfamiliar domain | Phase 1 (Research) | Nothing — full pipeline |
-| UI tweak, user showed screenshot | Phase 4 (Execute) | Research/Strategize/Plan (obvious) |
-
-**When in doubt, start at Phase 1.** The cost of 2 minutes of research is always less than the cost of 20 minutes of rework.
-
 ## Rules
 
-1. **Never skip Research for complex tasks** — the #1 source of rework
-2. **Strategize is where bad approaches die** — kill them here, not in code review
-3. **Self-Check is mandatory** — you are your own first reviewer
-4. **Gates are real** — if a gate fails, stay in that phase
-5. **Communicate phase transitions** — the user should know where you are in the pipeline
-6. **The pipeline is a safety net, not a cage** — use Phase Shortcuts when appropriate
+1. **Triage first** — the Triage section determines which phases you enter. Don't run full pipeline on simple tasks. Don't skip research on complex ones.
+2. **Research depth matches uncertainty** — over-researching wastes tokens, under-researching causes bugs. Match depth to actual unknowns.
+3. **Strategize is where bad approaches die** — kill them here, not in code review
+4. **Self-Check is ALWAYS mandatory** — even for simple tasks, re-read your diff before declaring done
+5. **Gates are real** — if a gate fails, stay in that phase
+6. **Don't announce phases** — the user doesn't need "Entering Phase 3: Plan." Just do the work. Only surface phase transitions when asking the user to make a decision (strategy choice, plan approval).
+7. **The pipeline is a safety net, not a cage** — it exists to prevent jumping to code without thinking. If thinking takes 5 seconds because the task is obvious, that's fine.
