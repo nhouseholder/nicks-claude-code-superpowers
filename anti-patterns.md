@@ -871,3 +871,12 @@
 [2026-03-29T18:54:58.281137] GLM-5 violations: no_uncertainty_flag
 
 [2026-03-29T18:55:51.054608] GLM-5 violations: no_uncertainty_flag
+
+## Diamond Predictions — NHL Pipeline Overwrites MLB prediction_log.json
+
+### NHL_OVERWRITES_MLB_PREDLOG — 2026-03-31
+- **Context**: MLB bet history showed 0 tracked picks for the 2026 season. The prediction_log.json was reset to a single day's data every pipeline run.
+- **Root cause**: NHL daily pipeline writes a dict-format prediction_log.json (with `date`, `generated_at`, `version`, `picks` keys). MLB pipeline expects a list format. When MLB pipeline ran `load_json()` and got a dict, `isinstance(pred_log, list)` returned False, so it created an empty list — losing all prior MLB predictions.
+- **Flawed assumption**: Both sports could share a single `prediction_log.json` file. They have incompatible formats (NHL=dict, MLB=list).
+- **Fix**: Renamed MLB prediction log to `mlb_prediction_log.json` via config.py PREDICTION_LOG_PATH. Also fixed `final_bets` in system_bets_log to include ALL consensus picks (was filtered to EV-positive only, excluding 95% of picks from tracking).
+- **Prevention**: When two pipelines share a repo, never share mutable state files without namespacing by sport.
