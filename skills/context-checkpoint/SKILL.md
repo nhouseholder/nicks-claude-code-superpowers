@@ -1,6 +1,6 @@
 ---
 name: context-checkpoint
-description: Monitors context window usage and creates compact recovery checkpoints before compaction destroys session state. Detects long-running sessions, tracks critical decisions and state, and produces a minimal summary that survives compaction. Prevents the #1 cause of broken sessions — losing track of what was done, what was decided, and what's next.
+description: Monitors context window usage, creates compact recovery checkpoints before compaction, and shows progress updates at task milestones. Prevents the #1 cause of broken sessions — losing track of what was done, what was decided, and what's next.
 weight: passive
 ---
 
@@ -67,9 +67,21 @@ If you notice context has been compacted (earlier messages are summarized):
 5. **DO NOT re-do completed work** — trust your checkpoints
 6. **DO NOT ask the user "what were we working on?"** — figure it out from artifacts
 
+## Progress Display (merged from progress-tracker)
+
+At natural milestones (every 2-3 completed tasks, or on failure), show a compact one-line progress update:
+
+```
+Progress: 4/7 tasks done | ~12min elapsed | 2 remaining
+```
+
+On failure: `Progress: 3/7 tasks done | 1 FAILED (retrying) | 3 remaining`
+On completion: `All 7 tasks complete | ~18min total`
+
+**Rules:** One line only. Don't show for <3 tasks. TodoWrite is the source of truth for counts. Don't estimate remaining time. Don't show after every single task — every 2-3 completions.
+
 ## Integration
 
-- **progress-tracker**: Complements this skill — progress-tracker shows the user updates, context-checkpoint saves state for Claude's own recovery
 - **user-rules**: Rules captured during the session should be persisted to the rules file immediately, not held in context
 - **error-memory**: Debug findings should be written to anti-patterns.md immediately, not held in context
 

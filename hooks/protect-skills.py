@@ -12,13 +12,10 @@ import sys
 PROTECTED_SKILLS = {
     "frontend-design",
     "code-reviewer",
-    "senior-architect",
-    "senior-backend",
     "senior-frontend",
     "skill-creator",
     "ui-ux-pro-max",
     "webapp-testing",
-    "senior-prompt-engineer",
     "brainstorming",
 }
 

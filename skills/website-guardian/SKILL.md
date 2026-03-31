@@ -3,11 +3,11 @@ name: website-guardian
 description: "MANDATORY enforcement skill for ALL web app changes. Before ANY edit to a website/webapp: snapshot baseline state. After ANY edit: verify nothing broke. On ANY bug found: full root cause analysis, identify the carelessness that caused it, log permanently, and update instructions for all future agents. This skill exists because Claude keeps breaking websites during updates and never learns from its mistakes. Every website bug is now treated as a system failure that must be permanently fixed at the instruction level, not just the code level. Fires on EVERY file change in any webapp directory."
 weight: light
 triggers:
-  - ANY file edit in a webapp/, frontend/, site/, web/, dist/, public/, src/components/, src/pages/ directory
   - "update the website", "deploy", "fix the site", "the site is broken"
-  - after ANY deploy or build
+  - after ANY deploy or build (post-deploy verification)
   - when a user reports a visual bug or broken feature
   - when a screenshot shows something wrong
+  - NOTE: Does NOT fire on every file edit — only on deploy, explicit site work, or user-reported bugs
 ---
 
 # Website Guardian — Stop Breaking Things

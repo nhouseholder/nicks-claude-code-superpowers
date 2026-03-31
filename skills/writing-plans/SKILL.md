@@ -17,6 +17,20 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 **Save plans to:** `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`
 - (User preferences for plan location override this default)
 
+## Rigor Level (merged from type-aware-rigor)
+
+Before writing the plan, classify the work type and match depth accordingly:
+
+| Work Type | Plan Depth | QA Tier | Deploy Gate |
+|-----------|-----------|---------|-------------|
+| **Site update** | Bullet list, skip alternatives | Tier 1 (spot-check) | Visual verify |
+| **New feature** | Step-by-step with file paths | Tier 2 (functional + edge case) | Baseline + verify |
+| **New build** | Detailed with alternatives + risks | Tier 3 (comprehensive) | Full smoke test |
+| **Algorithm/model** | Detailed + hypothesis + data validation | Tier 3 + backtest | Backtest + verify |
+| **Campaign/one-off** | Minimal — speed over thoroughness | Tier 1 (it works) | Run once, confirm |
+
+Match effort to cost of failure. When ambiguous, default to **New feature** (Standard).
+
 ## Scope Check
 
 If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during brainstorming. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.

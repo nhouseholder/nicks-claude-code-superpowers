@@ -85,9 +85,10 @@ Skipped (external/network):
 1. **PREFER not to modify test files** — Only modify tests when the test itself is verifiably incorrect (testing wrong behavior, outdated assertions, or broken test setup). If you must modify a test, explain WHY the test was wrong, not just that it failed.
 2. **NEVER suppress test output** — always use `| tee`
 3. **NEVER commit with failing tests** — the loop continues until green
-4. **Max 3 full-suite iterations** — if tests still fail after 3 rounds, stop and report
-5. **Skip flaky/network tests** — note them but don't try to fix external dependencies
-6. **Track every fix** — the commit message must list all changes
+4. **Max 3 full-suite iterations (HARD STOP)** — if tests still fail after 3 full-suite runs, STOP immediately. Do NOT attempt a 4th. Report: which tests still fail, what you tried, and your best diagnosis. Let the user decide next steps.
+5. **Token budget escape hatch** — if a single fix-loop session exceeds ~15 tool calls without reaching green, STOP and report progress. Runaway fix loops burn tokens and often indicate a deeper architectural issue that brute-force fixing won't solve.
+6. **Skip flaky/network tests** — note them but don't try to fix external dependencies
+7. **Track every fix** — the commit message must list all changes
 
 ## Headless Mode
 Run as a batch job:
