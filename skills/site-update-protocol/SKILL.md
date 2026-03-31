@@ -183,8 +183,14 @@ cp /path/to/upcoming_predictions.json webapp/public/data/  # if new picks
 cd webapp && npm run build && npx wrangler pages deploy dist --project-name=octagonai
 ```
 
-### Step 4: Visual Verification (MANDATORY)
-After deploy, check EVERY page:
+### Step 4: Visual Verification (TIERED — match effort to change risk)
+
+**Classify first:**
+- **Data-only update** (new event scored, registry refresh, picks JSON): deploy success = done. Skip visual check.
+- **Frontend code change** (component edit, style tweak): one screenshot of the changed page. Quick scan.
+- **Multi-page / structural change** (redesign, new feature, algorithm affecting display): full check below.
+
+**Full check (structural changes only):**
 
 | Page | What to verify |
 |------|---------------|
@@ -193,7 +199,7 @@ After deploy, check EVERY page:
 | History (/history) | All events listed, 5 columns per event, event names not truncated |
 | Upcoming (/upcoming) | Latest picks displayed |
 
-### Step 5: Spot-Check One Event Table
+### Step 5: Spot-Check One Event Table (MEDIUM + HIGH changes only)
 Pick the latest event. Verify:
 1. Every fighter loss shows -1.00u in EVERY column where a bet was placed
 2. Every fighter win shows correct odds-based P/L (not flat +1.00u)
@@ -261,7 +267,7 @@ These bugs have been found on the live site via screenshots. Check for ALL of th
 2. **No 0.00u with wins** — display "✓ —" for wins without odds, never "✓ 0.00u"
 3. **Fighter loss = -1.00u in every column** — not "X —", show the actual -1.00u
 4. **Chart starts at event 1** — no flat zero lines, no lines starting midway
-5. **Visual verification is mandatory** — check every page after every deploy using Claude in Chrome or screenshots
+5. **Visual verification is tiered** — data-only deploys skip visual check, style changes get one screenshot, structural changes get full multi-page verification
 6. **Never deploy without building** — `npm run build` first, always
 7. **Spot-check one event** — trace one fight's numbers from registry → table
 8. **Read domain knowledge first** — `ufc_betting_domain_knowledge.md` before any UFC website work

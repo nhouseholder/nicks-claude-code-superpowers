@@ -89,14 +89,40 @@ Before editing, answer:
 
 **If the blast radius is more than 1 page, check ALL affected pages after.**
 
-## AFTER Every Web Code Change (Mandatory)
+## AFTER Every Web Code Change — Tiered Verification
 
-### Step 4: Verify Every Baseline Item
+### Step 4: Classify Change Risk
 
-Go through your baseline snapshot. For EACH item:
-- Is it still working? Same values? Same appearance?
-- If ANY baseline item is broken, **STOP AND FIX IT before doing anything else**
+Before verifying, classify what you changed:
 
+| Tier | Change Type | Examples | Verification |
+|------|------------|----------|-------------|
+| **LOW** | Data/content only | New picks JSON, updated stats, text copy, version bump | Deploy CLI success = done. No visual check needed. |
+| **MEDIUM** | Style/layout tweak | Color change, spacing fix, font swap, single component edit | One screenshot of the changed page at one breakpoint. 30 seconds. |
+| **HIGH** | New feature, redesign, multi-file change | New page, component rewrite, redesign phase, algorithm change affecting display | Full verification: all affected pages, all breakpoints, data spot-check. |
+
+**Default to MEDIUM if unsure.** Only go HIGH for multi-page or structural changes.
+
+### Step 5: Verify Per Tier
+
+**LOW risk (data/content):**
+```
+✅ Deploy command succeeded
+✅ No build errors
+Done. Move on.
+```
+
+**MEDIUM risk (style/layout):**
+- One screenshot of the changed page (desktop width)
+- Quick scan: does the change look right? Any obvious breakage?
+- If it looks fine → done
+
+**HIGH risk (feature/redesign/algorithm):**
+- Screenshot every affected page at 375px, 768px, 1280px
+- Check: layout intact? Data correct? All elements present?
+- Spot-check one data row end-to-end
+- Check console for new errors
+- Full baseline comparison:
 ```
 POST-CHANGE VERIFICATION — [date] [time]
 Page: [URL or route]
@@ -107,19 +133,7 @@ Baseline check:
     → FIX BEFORE CONTINUING
 ```
 
-### Step 5: Visual Verification
-
-If you have Claude in Chrome or preview tools:
-- Take a screenshot of EVERY affected page
-- Compare to baseline screenshots
-- Check: layout intact? Data correct? All elements present? No console errors?
-
-If you DON'T have visual tools:
-- Read the rendered DOM/HTML
-- Check data values in the actual output (not just the code)
-- Run the app and verify programmatically
-
-### Step 6: The "Did I Break Anything?" Checklist
+### Step 6: The "Did I Break Anything?" Checklist (HIGH tier only)
 
 ```
 [ ] All features from baseline snapshot still work
@@ -241,13 +255,19 @@ When the user reports a visual bug or provides a screenshot:
 
 These patterns are promoted from site-update-protocol (UFC-specific) to apply universally.
 
-### Every Deploy Must Include
+### Every Deploy Must Include (scaled to tier)
 
-1. **Visual verification of EVERY affected page** — not just the one you changed. Use Claude in Chrome or preview tools.
-2. **Spot-check one data row end-to-end** — pick one piece of data, trace it from the source (JSON/API/DB) through the code to the rendered page. If the numbers don't match, the deploy is broken.
-3. **Check ALL action buttons still work** — any button that calls an API, triggers a workflow, or submits data. Click it (or verify the handler is wired). Integration breakage is silent.
-4. **Version/data regression check** — compare the deployed version number and key data counts against pre-deploy baseline. If version went backwards or data count dropped, STOP.
-5. **Console error scan** — load every affected page and check browser console for new errors/warnings. Zero new errors is the bar.
+**ALL tiers (mandatory):**
+1. Deploy command must exit successfully — if it fails, stop.
+
+**MEDIUM + HIGH tiers only:**
+2. Visual verification of changed pages (MEDIUM: one page, one breakpoint. HIGH: all affected pages, all breakpoints).
+
+**HIGH tier only:**
+3. Spot-check one data row end-to-end — pick one piece of data, trace it from source through code to rendered page.
+4. Check action buttons still work — any button calling APIs, triggering workflows, or submitting data.
+5. Version/data regression check — compare deployed version and data counts against baseline.
+6. Console error scan — load affected pages and check for new errors.
 
 ### Per-Page Verification Template
 
