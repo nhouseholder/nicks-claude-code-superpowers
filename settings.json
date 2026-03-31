@@ -233,7 +233,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "osascript -e 'display notification \"Claude finished a task and needs your attention\" with title \"Claude Code\" sound name \"Glass\"'"
+            "command": "python3 ~/.claude/hooks/session-complete-notify.py",
+            "timeout": 5000
           }
         ]
       },
