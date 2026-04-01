@@ -2,7 +2,18 @@
 
 > This file is auto-maintained by the error-memory skill.
 > Claude checks this before debugging to avoid repeating known-bad approaches.
-> Last updated: 2026-03-29
+> Last updated: 2026-03-31
+
+## Algorithm — Triple Pivot: Running Full Backtests Before Doing Math
+
+### TRIPLE_PIVOT_NO_PRECOMPUTE — 2026-03-31
+- **Context**: Testing whether a 25% Markov penalty could flip ML picks past the PICK_DIFF_THRESHOLD (0.142799)
+- **Bug**: Ran full backtest → got null result → added logging to algorithm → ran again → wrote diagnostic script → ran again → finally parsed output manually. 4 approach changes, 15+ minutes wasted.
+- **Root cause**: Never did the arithmetic first. Average diff is 1.68. 1.68 × 0.75 = 1.26, still 9× above the 0.14 threshold. The null result was mathematically inevitable — no backtest needed.
+- **Fix**: Added Pre-Compute Gate to backtest skill: (1) Can math answer this? (2) Can a 10-line script answer this? (3) Have I locked my approach? All 3 must pass before running a full pipeline.
+- **Flawed assumption**: That running the full pipeline is the fastest way to test a hypothesis. In reality, most algorithm parameter questions are arithmetic that can be answered in seconds without running anything.
+- **Reasoning lesson**: ALWAYS calculate whether a parameter change can mathematically cross the decision threshold before running any pipeline. If penalty × average_value > threshold, the experiment is dead on arrival.
+- **Applies when**: ANY algorithm parameter change, coefficient tweak, gate threshold modification, or penalty adjustment. Do the math FIRST.
 
 ## UFC — GSA Hybrid SUB Gate Tested: +0.00u Delta (NO IMPROVEMENT)
 

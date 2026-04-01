@@ -175,6 +175,8 @@ ROUTES = [
      95, "builder"),
     (r"build.*me|implement.*feature|add.*functionality|new.*integration|new.*pipeline",
      90, "builder"),
+    (r"add.*to.*algorithm|new.*gate|new.*penalty|new.*factor|algorithm.*change|modify.*algorithm",
+     90, "builder"),
 
     # Audits
     (r"audit.*front|front.*audit|ui.*audit|ux.*audit", 100, "frontend"),

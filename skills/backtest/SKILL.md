@@ -27,6 +27,35 @@ After every backtest, run this quick check:
 - **Robust to perturbation?** Slightly different coefficients should give similar results
 - **Explainable?** If you can't explain WHY it works in domain terms → don't trust it
 
+## Pre-Compute Gate (MANDATORY before any backtest run)
+
+Before running ANY backtest or algorithm experiment, answer these 3 questions on paper first:
+
+### 1. Can math answer this without running anything?
+Most parameter changes are arithmetic. Before running a full backtest to test "does X% penalty flip picks?":
+- Read the current threshold value
+- Read the average/min/max values being penalized
+- Calculate: does the penalty cross the threshold? If avg_diff × (1 - penalty) > threshold, the answer is NO and you just saved 30 minutes.
+
+**If arithmetic predicts the null result → don't run the backtest. Report the math.**
+
+### 2. Can a 10-line isolation script answer this?
+If math alone can't answer it, write a standalone script that:
+- Reads the registry JSON directly (no algorithm import)
+- Applies the proposed change to cached data
+- Reports the result in <5 seconds
+
+**If isolation can answer it → don't run the full pipeline.**
+
+### 3. Have I locked my approach before running?
+State your ONE approach before executing. If you find yourself thinking "let me try a different way" mid-run:
+- STOP the current run
+- Go back to the pre-compute gate
+- Pick ONE approach based on what you learned
+- Run it ONCE
+
+**Approach changes mid-backtest = wasted tokens. Three pivots = anti-pattern. Lock your approach first.**
+
 ## Workflow
 
 ### 1. Verify Database
