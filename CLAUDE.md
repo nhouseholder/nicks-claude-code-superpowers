@@ -80,6 +80,7 @@ When switching projects: drop all assumptions, read project CLAUDE.md + memory, 
 10. **Simplest fix first** — 5-line fix beats 200-line refactor
 11. **Stream long-running scripts** — `| tee output.log`
 12. **Never poll background tasks** — use `run_in_background` or long timeout
+14. **No unsolicited Preview** — NEVER use Claude Preview (preview_start, preview_screenshot, etc.) to open or screenshot web pages unless the user explicitly asks to preview, test, or visually verify. Code changes don't need visual confirmation by default.
 13. **Hallucination Prevention** — When working with external data (models, pricing, features, APIs):
     - NEVER invent missing data to "complete" a dataset
     - NEVER guess future product versions

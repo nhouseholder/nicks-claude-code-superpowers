@@ -21,8 +21,7 @@
       "mcp__Desktop_Commander__*",
       "mcp__Claude_in_Chrome__*",
       "mcp__PDF_Tools_-_Fill__Analyze__Extract__View__*",
-      "mcp__Claude_Preview__*",
-      "mcp__scheduled-tasks__*"
+      "mcp__Claude_Preview__*"
     ],
     "defaultMode": "bypassPermissions",
     "additionalDirectories": [
