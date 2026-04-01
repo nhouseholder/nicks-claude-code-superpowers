@@ -41,6 +41,15 @@
         "hooks": [
           {
             "type": "command",
+            "command": "python3 ~/.claude/hooks/session-init-guard.py",
+            "timeout": 1000
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
             "command": "python3 ~/.claude/hooks/ufc-context-loader.py"
           }
         ]

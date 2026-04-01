@@ -153,12 +153,14 @@ def main():
     except:
         hook_input = {}
 
-    # Skip if already loaded recently (prevents re-running on reconnects)
-    stamp = os.path.expanduser("~/.claude/.last-antipattern-load")
+    # Skip if session ALREADY initialized recently (prevents double-fire after compaction)
+    lock = os.path.expanduser("~/.claude/.session-init-lock")
     try:
         import time as _t
-        if os.path.exists(stamp) and (_t.time() - os.path.getmtime(stamp)) < 3600:
-            sys.exit(0)
+        if os.path.exists(lock):
+            age = _t.time() - os.path.getmtime(lock)
+            if 2 < age < 60:
+                sys.exit(0)
     except OSError:
         pass
 
@@ -182,13 +184,6 @@ def main():
             "additionalContext": output
         }
         print(json.dumps(result))
-
-    # Stamp so we don't re-run on reconnects
-    try:
-        with open(stamp, 'w') as f:
-            f.write('')
-    except OSError:
-        pass
 
 if __name__ == '__main__':
     main()

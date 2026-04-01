@@ -35,12 +35,15 @@ except (json.JSONDecodeError, EOFError):
 if hook_input.get("hook_event_name") not in ("SessionStart", None):
     sys.exit(0)
 
-# Skip if already loaded recently (prevents re-running on reconnects)
-_stamp = Path.home() / ".claude" / ".last-context-load"
+# Skip if session ALREADY initialized recently (prevents double-fire after compaction)
+# Lock age >2s means a prior init batch wrote it; <2s means we're in the same batch (proceed)
+_lock = Path.home() / ".claude" / ".session-init-lock"
 try:
     import time as _time
-    if _stamp.exists() and (_time.time() - _stamp.stat().st_mtime) < 3600:
-        sys.exit(0)
+    if _lock.exists():
+        _age = _time.time() - _lock.stat().st_mtime
+        if 2 < _age < 60:
+            sys.exit(0)
 except OSError:
     pass
 
@@ -139,10 +142,5 @@ print(json.dumps({
         "additionalContext": context
     }
 }))
-
-try:
-    _stamp.write_text("")
-except OSError:
-    pass
 
 sys.exit(0)
