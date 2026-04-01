@@ -229,7 +229,7 @@ ROUTES = [
      75, "reviewer"),
 
     # Deploy
-    (r"deploy|ship|release|go.?live|push.?to.?prod|cloudflare|wrangler",
+    (r"deploy|(?<!\w)ship(?!\w)|release|go.?live|push.?to.?prod|cloudflare|wrangler",
      80, "deployer"),
 
     # Planning
@@ -237,13 +237,13 @@ ROUTES = [
      60, "planner"),
 
     # Design
-    (r"poster|visual|art|canvas|infographic|banner",
+    (r"poster|visual|\bart\b|canvas|infographic|banner",
      80, "designer"),
     (r"design.?system|design.?token|theme|color.?palette|typography",
      75, "designer"),
 
     # Testing
-    (r"\btest|tdd|coverage|spec|unit.?test|integration.?test",
+    (r"\btest\b|tdd|coverage|\bspec\b|unit.?test|integration.?test",
      60, "tester"),
 
     # What's next — strategic advisor
@@ -257,7 +257,7 @@ ROUTES = [
      50, "_raw:Follow git-sorcery skill protocol"),
     (r"research|learn.?about|how.?does",
      50, "_raw:Use deep-research skill protocol"),
-    (r"prompt|llm|ai.?product|agent|rag",
+    (r"prompt|llm|ai.?product|\bagent\b|\brag\b",
      60, "_raw:Use deep-research skill for AI/LLM topics"),
     (r"create.*skill|new.*skill|eval.*skill",
      70, "_raw:Use skill-creator SKILL.md protocol"),

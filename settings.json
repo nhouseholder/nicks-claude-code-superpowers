@@ -20,14 +20,9 @@
       "NotebookEdit",
       "mcp__Desktop_Commander__*",
       "mcp__Claude_in_Chrome__*",
-      "mcp__PowerPoint__By_Anthropic__*",
-      "mcp__Word__By_Anthropic__*",
-      "mcp__PDF_Tools_-_Analyze__Extract__Fill__Compare__*",
       "mcp__PDF_Tools_-_Fill__Analyze__Extract__View__*",
       "mcp__Claude_Preview__*",
-      "mcp__c1fc4002-5f49-5f9d-a4e5-93c4ef5d6a75__*",
-      "mcp__scheduled-tasks__*",
-      "mcp__mcp-registry__*"
+      "mcp__scheduled-tasks__*"
     ],
     "defaultMode": "bypassPermissions",
     "additionalDirectories": [
@@ -50,7 +45,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/ufc-context-loader.py"
+            "command": "python3 ~/.claude/hooks/ufc-context-loader.py",
+            "timeout": 2000
           }
         ]
       },
@@ -58,7 +54,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/memory-consolidate-loader.py"
+            "command": "python3 ~/.claude/hooks/memory-consolidate-loader.py",
+            "timeout": 2000
           }
         ]
       },
@@ -77,14 +74,6 @@
             "type": "command",
             "command": "python3 ~/.claude/hooks/session-context-loader.py",
             "timeout": 3000
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/Users/nicholashouseholder/.claude/hooks/gsd-check-update.js\""
           }
         ]
       },
@@ -132,39 +121,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/block-dangerous-commands.py"
+            "command": "python3 ~/.claude/hooks/bash-guard.py"
           }
         ]
       },
       {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/deploy-guard.py"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/version-bump-check.py"
-          }
-        ]
-      },
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/protect-skills.py"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit",
+        "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
@@ -182,30 +144,11 @@
         ]
       },
       {
-        "matcher": "Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/mmalogic-site-guard.py"
-          }
-        ]
-      },
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/mmalogic-site-guard.py"
-          }
-        ]
-      },
-      {
         "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
-            "command": "node \"/Users/nicholashouseholder/.claude/hooks/gsd-prompt-guard.js\"",
-            "timeout": 5
+            "command": "python3 ~/.claude/hooks/mmalogic-site-guard.py"
           }
         ]
       },
@@ -258,6 +201,7 @@
     ],
     "PostToolUse": [
       {
+        "matcher": "Bash|Edit|Write|Agent|Skill",
         "hooks": [
           {
             "type": "command",
@@ -266,7 +210,7 @@
         ]
       },
       {
-        "matcher": "Edit",
+        "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
@@ -275,15 +219,7 @@
         ]
       },
       {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 ~/.claude/hooks/surgical-scope.py"
-          }
-        ]
-      },
-      {
+        "matcher": "Bash|Agent",
         "hooks": [
           {
             "type": "command",
@@ -292,39 +228,16 @@
         ]
       },
       {
+        "matcher": "Bash|Agent",
         "hooks": [
           {
             "type": "command",
             "command": "python3 ~/.claude/hooks/missing-odds-detector.py"
           }
         ]
-      },
-      {
-        "matcher": "Bash|Edit|Write|MultiEdit|Agent|Task",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/Users/nicholashouseholder/.claude/hooks/gsd-context-monitor.js\"",
-            "timeout": 10
-          }
-        ]
       }
     ]
   },
   "skipDangerousModePermissionPrompt": true,
-  "extraKnownMarketplaces": {
-    "autoresearch": {
-      "source": {
-        "source": "github",
-        "repo": "uditgoenka/autoresearch"
-      }
-    }
-  },
-  "enabledPlugins": {
-    "autoresearch@autoresearch": true
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "node \"/Users/nicholashouseholder/.claude/hooks/gsd-statusline.js\""
-  }
+  "enabledPlugins": {}
 }
