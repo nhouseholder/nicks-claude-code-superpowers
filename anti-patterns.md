@@ -2,7 +2,22 @@
 
 > This file is auto-maintained by the error-memory skill.
 > Claude checks this before debugging to avoid repeating known-bad approaches.
-> Last updated: 2026-03-31
+> Last updated: 2026-04-01
+
+## General — Empty Output Retry Loop (BLIND_RETRY)
+
+### BLIND_RETRY_NO_DIAGNOSIS — 2026-04-01
+- **Context**: Running backtests in /tmp/ clone, background task produced empty output, Claude re-ran 4+ times without diagnosing why
+- **Bug**: Background Bash task → empty log → "let me re-run" → empty again → "let me try one at a time" → empty again → "must have timed out, let me try again". 5+ retries, zero diagnosis, massive token burn.
+- **Root cause**: Never investigated WHY the output was empty. Possible causes: wrong working directory, missing dependencies in /tmp/ clone, timeout too short, script error swallowed by redirect, background task not awaited. Claude skipped all diagnosis and jumped to "retry."
+- **Fix**: When ANY command produces empty or unexpected output:
+  1. **STOP** — do NOT re-run the same command
+  2. **Diagnose** — check: exit code, stderr, working directory, file existence, dependencies
+  3. **Isolate** — run the smallest possible version (e.g., 1 event not 71, print("hello") not full pipeline)
+  4. **Fix** — address the actual cause, THEN re-run
+- **Flawed assumption**: That empty output means "it needs more time" or "try again." In reality, empty output almost always means the command failed silently — retrying identical commands is pure token waste.
+- **Reasoning lesson**: Empty output is a SYMPTOM, not a diagnosis. Treat it like a bug: form a hypothesis, test it, fix it. Never retry blindly.
+- **Applies when**: ANY Bash command produces empty output, unexpected results, or "no output." Also applies to background tasks that appear to produce nothing.
 
 ## Algorithm — Triple Pivot: Running Full Backtests Before Doing Math
 

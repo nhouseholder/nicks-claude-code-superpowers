@@ -81,6 +81,7 @@ When switching projects: drop all assumptions, read project CLAUDE.md + memory, 
 11. **Stream long-running scripts** — `| tee output.log`
 12. **Never poll background tasks** — use `run_in_background` or long timeout
 14. **No unsolicited Preview** — NEVER use Claude Preview (preview_start, preview_screenshot, etc.) to open or screenshot web pages unless the user explicitly asks to preview, test, or visually verify. Code changes don't need visual confirmation by default.
+15. **Never retry blind** — If a command produces empty/unexpected output, STOP. Diagnose (check exit code, stderr, cwd, deps) before re-running. Empty output = silent failure, not "needs more time." See BLIND_RETRY anti-pattern.
 13. **Hallucination Prevention** — When working with external data (models, pricing, features, APIs):
     - NEVER invent missing data to "complete" a dataset
     - NEVER guess future product versions
