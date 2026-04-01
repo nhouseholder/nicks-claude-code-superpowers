@@ -35,6 +35,15 @@ except (json.JSONDecodeError, EOFError):
 if hook_input.get("hook_event_name") not in ("SessionStart", None):
     sys.exit(0)
 
+# Skip if already loaded recently (prevents re-running on reconnects)
+_stamp = Path.home() / ".claude" / ".last-context-load"
+try:
+    import time as _time
+    if _stamp.exists() and (_time.time() - _stamp.stat().st_mtime) < 3600:
+        sys.exit(0)
+except OSError:
+    pass
+
 # Detect project
 cwd = os.getcwd()
 homunculus_dir = Path.home() / ".claude" / "homunculus"
@@ -130,5 +139,10 @@ print(json.dumps({
         "additionalContext": context
     }
 }))
+
+try:
+    _stamp.write_text("")
+except OSError:
+    pass
 
 sys.exit(0)

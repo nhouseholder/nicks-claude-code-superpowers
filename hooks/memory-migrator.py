@@ -234,6 +234,18 @@ def main():
     if hook_input.get("hook_event_name") not in ("SessionStart", None):
         sys.exit(0)
 
+    # Skip if we already migrated recently (within last 2 hours)
+    # Prevents re-running on every session re-init / reconnect
+    stamp_file = Path(os.path.expanduser("~/.claude/.last-memory-migrate"))
+    try:
+        if stamp_file.exists():
+            import time
+            age = time.time() - stamp_file.stat().st_mtime
+            if age < 7200:  # 2 hours
+                sys.exit(0)
+    except OSError:
+        pass
+
     identifiers = get_project_identifiers()
     if not identifiers:
         sys.exit(0)
@@ -245,6 +257,11 @@ def main():
 
     if len(all_dirs) <= 1:
         # No fragmentation — nothing to migrate
+        # Touch stamp so we don't re-check for 2 hours
+        try:
+            stamp_file.write_text(datetime.now().isoformat())
+        except OSError:
+            pass
         sys.exit(0)
 
     log(f"Found {len(all_dirs)} matching memory dirs: {[str(d) for d in all_dirs]}")
@@ -267,6 +284,12 @@ def main():
         log(f"Migration complete: {len(migrated)} files migrated")
     else:
         log("No migration needed — all memories already present")
+
+    # Stamp so we don't re-run on reconnects
+    try:
+        stamp_file.write_text(datetime.now().isoformat())
+    except OSError:
+        pass
 
     sys.exit(0)
 

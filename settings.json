@@ -58,7 +58,7 @@
           {
             "type": "command",
             "command": "python3 ~/.claude/hooks/memory-migrator.py",
-            "timeout": 5000
+            "timeout": 3000
           }
         ]
       },
@@ -84,7 +84,7 @@
           {
             "type": "command",
             "command": "python3 ~/.claude/hooks/anti-pattern-enforcer.py",
-            "timeout": 3000
+            "timeout": 2000
           }
         ]
       }
