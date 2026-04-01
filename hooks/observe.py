@@ -29,9 +29,15 @@ tool_name = input_data.get("tool_name", "unknown")
 tool_input = input_data.get("tool_input", {})
 tool_response = input_data.get("tool_response", {})
 
-# Skip read-only tools — they don't produce observations worth storing
-skip_tools = {"Glob", "Grep", "Read", "ToolSearch", "WebFetch", "WebSearch"}
+# Skip read-only tools and internal tools — they don't produce observations worth storing
+skip_tools = {"Glob", "Grep", "Read", "ToolSearch", "WebFetch", "WebSearch", "TodoWrite", "SendMessage"}
 if tool_name in skip_tools:
+    sys.exit(0)
+
+# Skip MCP read-only tools (list/get/read/search operations)
+if tool_name.startswith("mcp__") and any(
+    op in tool_name for op in ["_read", "_list", "_get", "_search", "_fetch", "_find", "_context"]
+):
     sys.exit(0)
 
 # === Extract meaningful context based on tool type ===
@@ -58,7 +64,15 @@ if tool_name in ("Write", "Edit"):
 elif tool_name == "Bash":
     cmd = tool_input.get("command", "")
     # Extract meaningful commands, skip trivial ones
-    if any(cmd.startswith(skip) for skip in ("ls", "pwd", "echo", "cat ", "head ", "tail ")):
+    trivial_prefixes = (
+        "ls", "pwd", "echo", "cat ", "head ", "tail ", "which ", "wc ",
+        "test ", "[ ", "true", "false", "mkdir ", "cd ", "rm -rf /tmp/",
+        "python3 -c", "node -e",  # one-liner checks
+    )
+    if any(cmd.startswith(skip) for skip in trivial_prefixes):
+        sys.exit(0)
+    # Skip short commands that are just checks (< 40 chars, no side effects)
+    if len(cmd) < 40 and not any(w in cmd for w in ("commit", "push", "deploy", "install", "write", "mv ", "cp ")):
         sys.exit(0)
 
     # Capture git commits specifically — these are decisions

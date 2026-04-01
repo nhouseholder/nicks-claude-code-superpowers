@@ -1,7 +1,7 @@
 ---
 name: profit-driven-development
 description: The north star for all sports prediction work — future predictive accuracy and profitability. Every backtest, every parameter change, every algorithm decision must be evaluated against one question: will this make the NEXT picks more correct and more profitable? Prevents getting lost in endless optimization loops that overfit the past. Always-on for sports code sessions.
-weight: passive
+weight: light
 ---
 
 # Profit-Driven Development — Never Lose Sight of the Goal

@@ -8,6 +8,7 @@ they get presented to the user as fact.
 Exit code 0 always (informational warning).
 """
 import json
+import os
 import re
 import sys
 
@@ -62,10 +63,21 @@ def detect_impossible_stats(text):
     return warnings
 
 
+def is_sports_project():
+    """Only run in sports/betting projects — skip all others."""
+    cwd = os.getcwd().lower()
+    sports_markers = ["mmalogic", "ufc", "diamond", "courtside", "nfl-draft", "loss-analyst"]
+    return any(m in cwd for m in sports_markers)
+
+
 def main():
     try:
         hook_input = json.load(sys.stdin)
     except (json.JSONDecodeError, EOFError):
+        sys.exit(0)
+
+    # Skip non-sports projects entirely
+    if not is_sports_project():
         sys.exit(0)
 
     # Check tool output for impossible stats

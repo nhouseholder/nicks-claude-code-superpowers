@@ -1,7 +1,7 @@
 ---
 name: isolate-before-iterate
 description: Before debugging via full pipelines (backtests, builds, deploys), isolate the suspect logic in a minimal standalone test. Prevents the anti-pattern of 30+ minute feedback loops when a 5-line script would answer the question in seconds.
-weight: passive
+weight: light
 category: debugging
 ---
 
