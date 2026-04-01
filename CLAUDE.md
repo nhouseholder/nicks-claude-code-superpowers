@@ -38,7 +38,7 @@
 
 ## Projects
 
-Python + JS/TS. All projects at `~/Projects/<name>/` (flat). `~/Projects/` symlinks to `~/Desktop/ProjectsHQ/` (local SSD, NOT iCloud). GitHub is source of truth. Cloned with `--depth 1` — run `git fetch --unshallow` if full history needed.
+Python + JS/TS. All projects at `~/Projects/<name>/` (flat). `~/Projects/` symlinks to `~/ProjectsHQ/` (home root, NOT iCloud). GitHub is source of truth. Cloned with `--depth 1` — run `git fetch --unshallow` if full history needed.
 
 | Live Site | GitHub Repo | Local Path |
 |-----------|-------------|------------|
