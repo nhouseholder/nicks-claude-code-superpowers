@@ -69,7 +69,7 @@ When switching projects: drop all assumptions, read project CLAUDE.md + memory, 
 ## Rules (non-hook-enforced — these need YOUR attention)
 
 1. **Commit AND push between tasks** — rate limits kill 79% of multi-task sessions. GitHub is the source of truth, not iCloud. Every commit must be pushed.
-2. **GitHub-first for git ops** — iCloud corrupts `.git/objects/` on active repos. For any git-heavy work, clone from GitHub to `/tmp/`, do the work there, push, then let iCloud sync passively. Never trust iCloud git state over GitHub.
+2. **GitHub-first for git ops AND heavy file ops** — iCloud corrupts `.git/objects/` and lazy-downloads files (grep/read stalls). For git work OR multi-file search/refactors: clone from GitHub to `/tmp/`, work there, push. If a grep or file read stalls, do NOT retry with a different tool — clone to `/tmp/` instead. See ICLOUD_STALL anti-pattern.
 3. **Use site commands** — `/mmalogic`, `/update-diamond`, `/update-courtside`, `/update-mystrainai`, `/update-enhancedhealth`, `/update-researcharia`, `/update-nestwisehq`
 4. **Handoff = /full-handoff always**
 5. **Read the spec, not the code** — for domain questions, read the spec file first

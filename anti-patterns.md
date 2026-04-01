@@ -4,6 +4,19 @@
 > Claude checks this before debugging to avoid repeating known-bad approaches.
 > Last updated: 2026-04-01
 
+## General — iCloud Filesystem Stalling (ICLOUD_STALL)
+
+### ICLOUD_STALL_RETRY_LOOP — 2026-04-01
+- **Context**: Working on iCloud-synced projects (~Projects/ symlinks to iCloud). Claude runs grep/bash on files that haven't been downloaded locally → filesystem blocks waiting for iCloud download → timeout → Claude retries with different tool → same stall → burns tokens in a loop.
+- **Bug**: Claude tried grep → stalled → "let me use Read tool" → stalled → "let me try direct read" → stalled. 3+ pivots, never addressed the root cause (files not downloaded from iCloud).
+- **Root cause**: iCloud Drive uses lazy file downloading. Files appear in the directory listing but aren't on disk until accessed. Grep/find/bash operations block waiting for each file to download, causing cascading timeouts.
+- **Fix**: When working on an iCloud project with heavy file operations (grep across many files, multi-file refactors):
+  1. **Clone from GitHub to /tmp/** — `git clone <repo> /tmp/<project>`, work there, push when done. This is the fastest and most reliable option.
+  2. **OR force-download first** — `find <project-dir> -name "*.ts" -o -name "*.tsx" | xargs brctl download` before running grep/search operations.
+  3. **NEVER retry the same stalling operation with a different tool** — if grep stalls, Read will stall on the same file. The issue is iCloud, not the tool.
+- **Flawed assumption**: That switching from grep to Read tool bypasses iCloud stalling. All filesystem access goes through the same iCloud lazy-download mechanism.
+- **Applies when**: ANY grep, find, or multi-file operation on ~/Projects/ (which symlinks to iCloud) that hangs or times out.
+
 ## General — Context Overload From Data Dumps (CONTEXT_FLOOD)
 
 ### CONTEXT_FLOOD_SILENT_STOP — 2026-04-01
@@ -920,3 +933,12 @@
 - **Flawed assumption**: Both sports could share a single `prediction_log.json` file. They have incompatible formats (NHL=dict, MLB=list).
 - **Fix**: Renamed MLB prediction log to `mlb_prediction_log.json` via config.py PREDICTION_LOG_PATH. Also fixed `final_bets` in system_bets_log to include ALL consensus picks (was filtered to EV-positive only, excluding 95% of picks from tracking).
 - **Prevention**: When two pipelines share a repo, never share mutable state files without namespacing by sport.
+
+## UFC — check_prop_odds.py Scans Wrong Level (PROP_CHECK_WRONG_LEVEL)
+
+### PROP_CHECK_WRONG_LEVEL — 2026-04-01
+- **Context**: Website picks showed 3/5 fights missing prop odds. The daily refresh workflow ran but `check_prop_odds.py` said "all odds present" because it checked event-level dicts for `__NO_PROPS__` instead of fight-level entries inside event dicts.
+- **Root cause**: `check_prop_odds.py` line `sum(1 for v in cache.values() if isinstance(v, dict) and v.get("__NO_PROPS__"))` iterates top-level values (event dicts), not nested fight entries. Event dicts never have `__NO_PROPS__` — only individual fight entries within them do.
+- **Flawed assumption**: The prop cache is flat (key→props). It's actually nested: event_name → {fight_key → props}. The `__NO_PROPS__` marker lives at the fight level.
+- **Fix**: Changed to iterate event dicts and check fight-level entries with `"|||" in fight_key`. Also scoped to current event only (via prediction_output.json event_name) to avoid old events triggering unnecessary refreshes.
+- **Prevention**: When checking nested JSON caches, always verify which level the target key lives at. Test with `python3 check_prop_odds.py` locally before assuming the CI check works.
