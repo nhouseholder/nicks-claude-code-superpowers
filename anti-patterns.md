@@ -942,3 +942,13 @@
 - **Flawed assumption**: The prop cache is flat (key→props). It's actually nested: event_name → {fight_key → props}. The `__NO_PROPS__` marker lives at the fight level.
 - **Fix**: Changed to iterate event dicts and check fight-level entries with `"|||" in fight_key`. Also scoped to current event only (via prediction_output.json event_name) to avoid old events triggering unnecessary refreshes.
 - **Prevention**: When checking nested JSON caches, always verify which level the target key lives at. Test with `python3 check_prop_odds.py` locally before assuming the CI check works.
+
+## UFC — fix_registry Missing Prop Cache Backfill (PROP_CACHE_BACKFILL_MISSING)
+
+### PROP_CACHE_BACKFILL_MISSING — 2026-04-01
+- **Context**: Adesanya vs Pyfer event table showed 4 missing bets: Stirling KO method (should be +0.57u win), O'Neill DEC method (should be -1u loss), McKinney R1 combo (genuinely no odds), Barber DEC (correctly gated at -138). The bets existed in prop cache but fix_registry_placed_flags.py never consulted it.
+- **Root cause**: `fix_registry_placed_flags.py` only checked `method_odds` and `combo_odds` fields already in the registry bout dict. When the backtester didn't write odds to the registry (common for undercard fights scraped late), bets were marked unplaced even though odds existed in `ufc_prop_odds_cache.json`.
+- **Flawed assumption**: Registry bouts always have odds populated if the bet is valid. In reality, undercard odds often arrive after the backtest runs and are only in the prop cache.
+- **Fix**: Enhanced `fix_registry_placed_flags.py` to load `ufc_prop_odds_cache.json` and backfill method_odds/combo_odds when they're None. Added `_normalize()` (strips apostrophes for O'Neill-type names), `_name_match()` (fuzzy last-name matching), `_lookup_prop_from_cache()`, `_extract_method_odds()` (applies SUB→DEC and KO>+300→DEC fallbacks), `_extract_combo_odds()` (only KO R1). Registry sweep found 84 changes across 71 events.
+- **Baseline impact**: Combined dropped from +311.35u to +300.72u because 11 previously uncounted combo losses were now correctly scored (combo_odds found in prop cache → combo_placed=True → combo_correct=False → -1u each).
+- **Prevention**: `fix_registry_placed_flags.py` now always consults prop cache. Run it after any registry write: `python3 fix_registry_placed_flags.py`. The prop cache backfill is automatic.
