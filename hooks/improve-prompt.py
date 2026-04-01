@@ -252,7 +252,7 @@ ROUTES = [
 
     # Simple commands
     (r"backtest|model.?accuracy|prediction|coefficient|sweep|betting|odds",
-     80, "_cmd:/backtest"),
+     80, "_backtest"),
     (r"\bcommit|git\b|branch|merge|push|pull.?request|\bpr\b",
      50, "_raw:Follow git-sorcery skill protocol"),
     (r"research|learn.?about|how.?does",
@@ -285,6 +285,17 @@ def route(text):
     # Format based on target type
     if best in AGENT_PROFILES:
         return format_profile(best)
+    elif best == "_backtest":
+        return (
+            "AGENT ROUTE: Invoke /backtest command via Skill tool.\n\n"
+            "PRE-COMPUTE GATE (MANDATORY — answer before running ANY backtest):\n"
+            "1. CAN MATH ANSWER THIS? Read the threshold/parameter values. Calculate: "
+            "does the proposed change cross the decision boundary? If not, report the math — no run needed.\n"
+            "2. CAN A 10-LINE SCRIPT ANSWER THIS? Read registry JSON directly, apply change, report result in <5s.\n"
+            "3. IS YOUR APPROACH LOCKED? State ONE approach. If you pivot mid-run, STOP — go back to gate.\n\n"
+            "ANTI-PATTERN: TRIPLE_PIVOT_NO_PRECOMPUTE — Running full backtests to test hypotheses "
+            "that arithmetic could answer in seconds, then pivoting 3+ times. Do the math FIRST."
+        )
     elif best.startswith("_cmd:"):
         cmd = best[5:]
         return f"AGENT ROUTE: Invoke {cmd} command via Skill tool."
@@ -306,7 +317,15 @@ if prompt.startswith("#"):
 # === CONTINUE ===
 continue_signals = ["continue", "go", "keep going", "go on", "proceed", "carry on", "next"]
 if prompt_lower in continue_signals:
-    output_json(f"{prompt}\n\nIMPORTANT: If you cannot determine what to continue, or if context feels limited, read the todo list and any plan files to recover state. Do NOT run /compact again if compaction just happened — that creates a loop. If you truly have no context, tell the user: 'Context was lost during compaction. What would you like me to work on?'")
+    output_json(f"""{prompt}
+
+IMPORTANT: If you cannot determine what to continue, or if context feels limited, read the todo list and any plan files to recover state. Do NOT run /compact again if compaction just happened — that creates a loop. If you truly have no context, tell the user: 'Context was lost during compaction. What would you like me to work on?'
+
+ANTI-PIVOT RULES (always active):
+- If you're about to change your approach, STOP. Ask: why did the last approach fail? Fix THAT, don't start over.
+- If you've already changed approach once this task, you MUST write a 1-sentence plan before trying a third.
+- Running the same pipeline twice to debug = WRONG. Isolate the problem in a 10-line script first.
+- If arithmetic can answer your question, don't run code. Calculate first.""")
     sys.exit(0)
 
 # === ROUTING ===
@@ -320,7 +339,9 @@ if agent_route:
         f"ENFORCEMENT: Follow the agent profile above. "
         f"Read Priority 1 skills' SKILL.md content yourself for context. "
         f"Do NOT skip skills or 'apply principles mentally.' "
-        f"Do NOT spawn subagents unless the task genuinely requires parallel independent work."
+        f"Do NOT spawn subagents unless the task genuinely requires parallel independent work.\n\n"
+        f"ANTI-PIVOT: If you change approach, diagnose WHY the first failed before trying another. "
+        f"2+ pivots without a written reason = you're thrashing. Stop, write a 1-sentence plan, then execute ONE approach."
     )
 
 # === FAST-PATH ===
