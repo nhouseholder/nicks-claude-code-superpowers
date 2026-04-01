@@ -4,6 +4,20 @@
 > Claude checks this before debugging to avoid repeating known-bad approaches.
 > Last updated: 2026-04-01
 
+## General — Context Overload From Data Dumps (CONTEXT_FLOOD)
+
+### CONTEXT_FLOOD_SILENT_STOP — 2026-04-01
+- **Context**: NBA APEX task — Claude read a 367-line Python file, an archived project file, AND dumped a 50-record JSON blob (12KB single line) via Bash `cat` in ONE turn. Context filled → Claude couldn't generate a response → dead/silent turn. Happened 3+ sessions in a row.
+- **Bug**: Each session, Claude re-read the same large files + dumped the same JSON, consumed all context, went silent, user had to restart. Pure token waste, task never completed.
+- **Root cause**: No awareness of context budget. Reading multiple large files + printing raw JSON data in a single turn leaves zero tokens for the actual response.
+- **Fix**: Before reading files or running data commands:
+  1. **Budget your reads** — max 2 file reads per turn if files are > 100 lines. Act on what you've read before reading more.
+  2. **Never dump raw JSON** — use `python3 -c` to extract specific fields, counts, or summaries. `print(len(data))` not `print(json.dumps(data))`.
+  3. **Act, don't hoard** — read one file, act on it, THEN read the next. Don't read 3 files and a data dump before doing anything.
+  4. **Summarize large outputs** — pipe through `| head -20` or `| wc -l` first to gauge size before full output.
+- **Flawed assumption**: That reading everything first, then acting, is efficient. In reality, it fills context with data and leaves no room for the actual work.
+- **Applies when**: ANY task involving data files (JSON, CSV, logs), multi-file reads, or `/tmp/` artifacts from previous sessions.
+
 ## General — Empty Output Retry Loop (BLIND_RETRY)
 
 ### BLIND_RETRY_NO_DIAGNOSIS — 2026-04-01
