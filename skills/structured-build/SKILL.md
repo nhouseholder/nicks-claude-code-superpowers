@@ -59,6 +59,7 @@ Classify the task. This determines which phases you enter and how deep research 
 | **Unfamiliar code or area** (e.g., "add feature to a repo you just opened") | Research → Plan → Execute → Self-Check → Verify | Need to understand what exists before deciding anything |
 | **Domain-specific or high-risk** (e.g., "new betting settlement logic") | Research → Strategize → Plan → Execute → Self-Check → Verify → Deploy | Full pipeline — can't afford to get this wrong |
 | **New system from scratch** | Research → Strategize → Plan → Execute → Self-Check → Verify → Deploy | Full pipeline |
+| **Experiment / A-B test** (e.g., "test if feature X improves results") | Research → Experiment Plan → Execute → Validate Results | Scientific method — NOT a build. See Experiment Protocol below. |
 
 **The default is NOT "full pipeline." The default is "whatever this task actually needs."**
 
@@ -236,6 +237,59 @@ For complex tasks, present options and let the user choose.
 - [ ] Deployed (or N/A if not a website)
 - [ ] Post-deploy verification passed
 - [ ] Post-change report delivered
+
+---
+
+## Experiment Protocol (for A/B tests, coefficient sweeps, feature evaluation)
+
+**When this fires:** Any task where you're testing whether a change improves measurable results. This is NOT a build — it's a scientific experiment. Different mental model, different gates.
+
+### Step 1: Write the Experiment Card (BEFORE any code or commands)
+
+State these 4 things in plain text to the user before touching anything:
+
+```
+EXPERIMENT: [what you're testing]
+HYPOTHESIS: [why you expect it to work, in domain terms]
+BASELINE: [exact command + expected output to establish the control]
+VARIANT: [exact command — must differ from baseline by ONE variable only]
+```
+
+**Gate: If you can't fill all 4 fields, you don't understand the experiment yet. Research more.**
+
+### Step 2: Establish the Baseline (run it, record the numbers)
+
+Run the baseline command. Record:
+- Event count (e.g., 70+ events, 354W-133L)
+- Pipeline steps executed (every script that ran)
+- Key metrics (units, W/L, accuracy)
+
+**Gate: If event count is suspiciously low (<50 events for UFC), STOP. Check for FAST_MODE, limited date range, or missing data.**
+
+### Step 3: Run the Variant (IDENTICAL pipeline, ONE variable changed)
+
+The variant must use:
+- Same scripts in same order as baseline
+- Same data, same date range, same mode flags
+- ONE thing different: the feature under test
+
+**Gate: Before comparing results, verify event counts match. If they don't, the comparison is invalid — find the pipeline difference first.**
+
+### Step 4: Validate the Delta
+
+Before claiming any improvement:
+1. **Do the numbers add up?** W/L counts should be close. Large divergences = pipeline mismatch.
+2. **Is the effect real?** Test 2-3 coefficient values. If all produce identical results, the feature has no effect — report null immediately, don't keep testing.
+3. **Is the attribution correct?** Could the delta come from a different change (e.g., a script that ran in one pipeline but not the other)?
+
+**Gate: Only claim an improvement if you can point to specific picks that flipped AND explain WHY the feature caused those flips.**
+
+### Experiment Anti-Patterns (stop immediately if you catch yourself doing these)
+
+- Running a "quick test" with FAST_MODE or limited events, then scaling up — just run full from the start
+- Comparing numbers from runs with different pipeline steps
+- Celebrating a delta without checking if coefficient variations produce different results
+- Running 4+ sweeps without a written hypothesis for each one
 
 ---
 

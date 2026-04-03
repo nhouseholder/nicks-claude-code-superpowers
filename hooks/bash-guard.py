@@ -134,12 +134,17 @@ def check_version_bump(command: str, cwd: str):
     if not is_deploy and not is_push:
         return False, ""
 
-    # Block deploys from /tmp/ or worktree dirs
+    # Block deploys from /tmp/ or worktree dirs — but allow if the command
+    # explicitly cd's to a canonical project path first (worktree→canonical push)
     if "/tmp/" in cwd or "/.claude/worktrees/" in cwd:
-        return True, (
-            f"WRONG DIRECTORY: Deploying from {cwd} which is a temp/worktree directory. "
-            f"Deploy from the canonical project directory under ~/Projects/."
-        )
+        # Check if command cd's to a canonical path before push/deploy
+        canonical_cd = re.search(r'cd\s+~/(?:Projects|ProjectsHQ)/\w+', command)
+        if not canonical_cd:
+            return True, (
+                f"WRONG DIRECTORY: Deploying from {cwd} which is a temp/worktree directory. "
+                f"Deploy from the canonical project directory under ~/Projects/. "
+                f"Hint: prefix with 'cd ~/ProjectsHQ/<project> && ' to push from canonical path."
+            )
 
     # Check for suspiciously old version (UFC-specific)
     for vf in VERSION_FILES:
@@ -186,6 +191,19 @@ def check_version_bump(command: str, cwd: str):
     )
 
 
+def check_fast_mode_backtest(command: str):
+    """Block backtests running with FAST_MODE=1 — results are useless for evaluation."""
+    # Detect backtest-like commands with FAST_MODE
+    is_backtest = re.search(r'backtest|sweep|coefficient|param.*test', command, re.IGNORECASE)
+    has_fast_mode = re.search(r'FAST_MODE\s*=\s*1', command)
+    if is_backtest and has_fast_mode:
+        return True, (
+            "BLOCKED: FAST_MODE=1 on a backtest/sweep. Fast mode limits to ~21 events — "
+            "results are meaningless for evaluation. Remove FAST_MODE=1 to run the full dataset."
+        )
+    return False, ""
+
+
 def main():
     try:
         hook_input = json.load(sys.stdin)
@@ -212,6 +230,12 @@ def main():
 
     # Check 3: Version bump (only fires on deploy/push to main)
     blocked, reason = check_version_bump(command, cwd)
+    if blocked:
+        print(json.dumps({"decision": "block", "reason": reason}))
+        sys.exit(2)
+
+    # Check 4: FAST_MODE on backtests (useless results)
+    blocked, reason = check_fast_mode_backtest(command)
     if blocked:
         print(json.dumps({"decision": "block", "reason": reason}))
         sys.exit(2)

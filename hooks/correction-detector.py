@@ -71,12 +71,13 @@ def main():
         print(json.dumps({
             "decision": "allow",
             "context": (
-                "CORRECTION DETECTED — Rule #31 triple-write is MANDATORY. "
-                "Before continuing, you MUST record this correction to ALL THREE locations: "
-                "(1) Project memory (~/.claude/projects/<project>/memory/), "
-                "(2) Anti-patterns (~/.claude/anti-patterns.md), "
-                "(3) GitHub superpowers repo (sync via /tmp/ clone). "
-                "If site-specific, also update the relevant site command."
+                "CORRECTION DETECTED — Extract and save the lesson before continuing. "
+                "1. Identify WHAT went wrong (the specific error or wrong approach). "
+                "2. Identify WHY (flawed assumption, missing context, wrong default). "
+                "3. Save as a feedback memory to project memory with: rule, Why, How to apply. "
+                "4. If it's a recurring pattern (seen before in anti-patterns.md), escalate: update anti-patterns.md. "
+                "5. If domain-specific (betting rules, scoring, data format), also update the relevant site command skill. "
+                "Keep the memory atomic — one lesson per file. Don't bundle multiple corrections."
             )
         }))
 

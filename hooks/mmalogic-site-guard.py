@@ -47,7 +47,8 @@ ALLOWED_PATTERNS = [
 def is_mmalogic_project(tool_input):
     """Check if we're working in the mmalogic project."""
     file_path = tool_input.get("file_path", "") or tool_input.get("command", "")
-    return any(p in file_path for p in ["mmalogic", "ufc-predict", "webapp/frontend"])
+    # Must match mmalogic-specific paths — not generic "webapp/frontend" which other projects use
+    return any(p in file_path for p in ["mmalogic", "ufc-predict"])
 
 def is_protected_path(file_path):
     """Check if the file is in a protected webapp path."""

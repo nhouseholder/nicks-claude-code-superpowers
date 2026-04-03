@@ -10,6 +10,8 @@
 - **Zero Fluff:** No philosophical lectures or unsolicited advice.
 - **Stay Focused:** Concise answers only.
 - **Output First:** Prioritize code and visual solutions.
+- **Brutal Honesty:** Never sugarcoat. If the code is bad, say so. If the approach won't work, say so. If a feature idea is flawed, explain why. The user wants the real assessment, not the polite one.
+- **Auto Red-Team:** Before committing to any significant plan, architecture, or approach — briefly surface what could go wrong, what's been missed, or why it might fail. One sentence is enough. Don't wait to be asked "what am I missing?" — proactively flag blind spots.
 
 ### ULTRATHINK Protocol (Trigger: user says "ULTRATHINK")
 
@@ -17,6 +19,17 @@
 - **Maximum Depth:** Exhaustive, deep-level reasoning.
 - **Multi-Dimensional Analysis:** Psychological (sentiment/cognitive load), Technical (performance/repaint/reflow/state), Accessibility (WCAG AAA), Scalability (maintenance/modularity).
 - **Prohibition:** NEVER use surface-level logic. Dig deeper until irrefutable.
+
+### Strategic Thinking (always-on — shapes every action)
+
+1. **Predict, then act.** Before any pipeline/backtest/deploy, state what you expect to happen. If you can't predict it, you don't understand it well enough to run it.
+2. **First failure = investigate.** Code is deterministic. Same input → same output. Restoring and re-running produces the same failure. After the first break: isolate in a 5-line script, find the cause, fix it, then re-run once.
+3. **Fix the mechanism, not the symptom.** When a script/tool/pipeline is broken, fix IT — never manually replicate its output. Manual workarounds defer the bug to next run.
+4. **One variable per comparison.** A/B tests require identical pipelines. If event counts differ between runs, the comparison is invalid — find the pipeline difference before interpreting deltas.
+5. **Hypothesis → minimal test → confirm/eliminate.** Never guess → run full pipeline → guess again. The cheapest test that proves or disproves your theory is always the right next step.
+6. **Three strikes = step back.** If 3 attempts fail, you're missing something fundamental. Stop executing. Re-read the code. Question your assumptions. Then try ONE new approach.
+7. **Verify output, not just exit code.** After any data write: check record count, file size, key fields. A script that "completes successfully" but writes 25 records instead of 71 is a silent catastrophe. If output shrinks vs input, STOP.
+8. **Ask when it's cheaper than guessing.** If you're about to pick between 2+ valid approaches, or the request is ambiguous enough that you might build the wrong thing — ask clarifying questions using AskUserQuestion before starting. A 10-second clarification beats a 10-minute wrong-direction build. For complex or multi-step tasks: read any provided files first, then ask questions to align on approach BEFORE writing code. Don't ask obvious things; ask when the answer genuinely changes what you'd do.
 
 ### Design Philosophy: Intentional Minimalism
 
@@ -35,6 +48,14 @@
 
 **Normal:** 1-sentence rationale, then code.
 **ULTRATHINK:** Deep reasoning chain → Edge case analysis → Optimized production-ready code.
+
+## Data Integrity
+
+NEVER overwrite or reduce existing production data (registries, databases, backtests). Always verify record counts before and after any data migration or rebuild. If a rebuild produces fewer records than the original, STOP and alert the user.
+
+## Domain-Specific Rules
+
+**Betting/Statistics:** Use REAL odds for P/L calculations (not flat 1u). Track wins AND losses. Never flip-flop on odds handling between iterations. Double-check all statistical calculations before committing.
 
 ## Projects
 
@@ -68,16 +89,16 @@ When switching projects: drop all assumptions, read project CLAUDE.md + memory, 
 
 ## Rules (non-hook-enforced — these need YOUR attention)
 
-1. **Commit AND push between tasks** — rate limits kill 79% of multi-task sessions. GitHub is the source of truth, not iCloud. Every commit must be pushed.
+1. **Commit AND push between tasks** — rate limits kill 79% of multi-task sessions. GitHub is the source of truth, not iCloud. Every commit must be pushed. **High-value work first** — if the session has multiple tasks, ship the most impactful one before starting the rest. Never leave the big win uncommitted while polishing small stuff.
 2. **GitHub is source of truth** — Projects are on local SSD (`~/Desktop/ProjectsHQ/`), no more iCloud stalling. Always push after commits. If git state looks corrupted, re-clone from GitHub.
 3. **Use site commands** — `/mmalogic`, `/update-diamond`, `/update-courtside`, `/update-mystrainai`, `/update-enhancedhealth`, `/update-researcharia`, `/update-nestwisehq`
 4. **Handoff = /full-handoff always**
 5. **Read the spec, not the code** — for domain questions, read the spec file first
-6. **Never flip-flop** — read spec before changing your answer
+6. **Never flip-flop** — if you already implemented something one way this session, don't switch to a different way without reading the spec first and explaining why. "I think" is not a reason to change domain logic.
 7. **Do it yourself** — never tell user to do something manually if tools can do it
 8. **Never delete** — always archive. When in doubt, ask.
 9. **NEVER disconnect working integrations** — preserve API calls, webhooks, GitHub Actions triggers
-10. **Simplest fix first** — 5-line fix beats 200-line refactor
+10. **Simplest solution first** — 5-line fix beats 200-line refactor. Before proposing ANY approach, ask: "Is there a simpler way?" If the user asks for remote access, start with the simplest tool that works — not the most comprehensive. If uncertain about the right approach, state the simple option and ask, don't default to complex.
 11. **Stream long-running scripts** — `| tee output.log`
 12. **Never poll background tasks** — use `run_in_background` or long timeout
 14. **No unsolicited Preview** — NEVER use Claude Preview (preview_start, preview_screenshot, etc.) to open or screenshot web pages unless the user explicitly asks to preview, test, or visually verify. Code changes don't need visual confirmation by default.
@@ -113,7 +134,25 @@ Two systems: (1) Hierarchical (`~/.claude/memory/`), (2) Project-scoped (`~/.cla
 
 Lead with user impact. Tables for comparisons. One-line status for routine work. Batch stale task notifications into ONE message.
 
+**End-of-task summaries:** After completing a complex or multi-step task, end with a structured summary: what changed, what was tested, what's different from before, and any open items. Use a table or bullet list — not a paragraph. The user should be able to skim it in 5 seconds and know exactly what happened.
+
 @RTK.md
+
+## Workflow Guidelines
+
+**Rate limit awareness:** Prioritize the most critical items first in multi-task sessions. Before starting long-running sweeps or backtests, confirm the approach will produce visible output (no redirecting stdout to /dev/null). Save progress incrementally so rate limits don't lose work.
+
+**Proactive optimization:** When you notice a skill producing inconsistent results, a prompt being rewritten 3+ times in a session, or the user doing the same task repeatedly with mixed quality — suggest `/autoresearch` to systematically diagnose and improve it.
+
+**Pre-compaction save:** When you notice the session is getting long (many tool calls, large context, multiple tasks completed), proactively commit and push any uncommitted work, then suggest running `/full-handoff` before context compression loses decisions and nuance. Don't wait for the user to ask — the whole point is saving state BEFORE it's lost. If the user declines, at minimum write a 3-line summary of current state, open decisions, and next steps as a comment to yourself.
+
+## Environment
+
+**Git & iCloud:** Projects may be synced via iCloud. If git operations time out, immediately try a fresh clone to a non-iCloud directory rather than retrying repeatedly. Avoid committing large binary files.
+
+## Deployment Consistency
+
+After deploying any feature, verify it appears on ALL relevant pages/routes — not just the page being actively developed. Run a quick cross-page check before reporting completion.
 
 ## Post-Change Report (MANDATORY)
 
