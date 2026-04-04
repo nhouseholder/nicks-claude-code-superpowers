@@ -2,7 +2,14 @@
 
 > Claude checks this before debugging to avoid repeating known-bad approaches.
 > Pruned 2026-04-01: kept recurring behavioral patterns + permanent rules. One-time bug fixes removed (the fix is in the code).
-> Last updated: 2026-04-01
+> Last updated: 2026-04-03
+
+## UFC — Fabricated O/U Odds Fallback (FABRICATED_ODDS) — 2026-04-03
+- **Pattern**: When real BFO O/U odds exceed the ±400 cap, the algorithm silently falls back to hardcoded -150 (Over) or -130 (Under) defaults. These fabricated odds produce inflated P/L (e.g., -150 pays +67% vs real -430 paying +23%).
+- **Root cause**: Cap was designed for derived odds (which can hit -2000+) but also rejected legitimate real sportsbook odds at -430 to -500. Fallback to hardcoded default was silent — no indication that real odds were rejected.
+- **Impact**: +5.93u inflated P/L from fake odds payouts on heavy-juice Over bets.
+- **Fix**: When real BFO odds exist and exceed ±400, SKIP the bet entirely. Never fall back to fabricated defaults. Applies in both prediction path (UFC_Alg line ~9760) and backtest path (fix_registry_placed_flags.py line ~370).
+- **Applies when**: Any O/U odds handling. If you add a new odds source, ensure the cap-exceeded path SKIPS rather than falls back to a default.
 
 ## UFC — Stale Derived Data Files (STALE_HERO_STATS) — 2026-04-01
 - **Pattern**: Registry is updated (via fix_registry_placed_flags.py or manual sweep) but hero_stats.json and algorithm_stats.json are NOT regenerated. Website shows inflated/wrong numbers (+327.99u instead of +300.72u).
