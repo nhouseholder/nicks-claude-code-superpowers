@@ -114,3 +114,26 @@
 - **Fix**: MADNESS tier disabled in v12.36.3. Code preserved, `if (false &&` guard.
 - **Rule**: Do NOT re-enable postseason picks without a fundamentally different model (not just parameter tuning of Elo). Regular season model works (57.4% ATS, N=8,225).
 - **Applies when**: Any discussion of March Madness picks, tournament tier, or postseason model. Read this before re-enabling MADNESS.
+
+## ResearchAria — Systematic Review Prompt Overflow (REVIEW_PROMPT_OVERFLOW) — 2026-04-05
+- **Pattern**: The 9-phase literature review UI falls back to "Failed. Please try again." because `/api/review/prompt` sends too much paper context to the AI provider.
+- **Root cause**: The review route pulled up to 50 enriched papers and embedded long abstracts plus 2,000-character full-text excerpts into every phase request. Smaller AI-backed flows survived, but the systematic-review prompts exceeded practical context limits and all providers failed.
+- **Fix**: Bound the review context before calling the AI. Prioritize papers marked `screening_decision = 'include'`, then highest-scoring remaining papers, cap total prompt context, and never embed raw full-text excerpts in the 9-phase review path. Also surface the backend error message in the UI instead of replacing it with a generic fallback.
+- **Prevention rule**: Any multi-paper AI route must set an explicit context budget before calling the model. Never pass an unbounded library dump or raw full-text excerpts into a review-generation prompt.
+- **Verification**: Run the bounded review context regression tests and confirm the review route compiles: `node --test --experimental-strip-types test/reviewContext.test.mjs` and `npx tsc --noEmit`.
+
+## ResearchAria — Firebase Popup Hosted Init + Redirect Mismatch Trap (FIREBASE_GOOGLE_AUTH_TRAP) — 2026-04-05
+- **Pattern**: Google sign-in breaks in two layers: the Firebase popup path requests `https://aria-research-app.firebaseapp.com/__/firebase/init.json` and gets a hosted 404 page because the Firebase Hosting auth domain has never been deployed, while a naive switch to `https://researcharia.com/__/auth/handler` triggers Google's `redirect_uri_mismatch` error because that redirect URI is not registered on the OAuth client.
+- **Root cause**: I treated the popup break as a frontend auth-domain problem instead of checking whether the Firebase Hosting auth domain itself had ever been deployed. Without a deployed Hosting site, the reserved Firebase auth URLs are incomplete.
+- **Fix**: Deploy a minimal Firebase Hosting site to `aria-research-app` so `__/firebase/init.json` exists again on `aria-research-app.firebaseapp.com`, keep Firebase `authDomain` on that hosted domain, and continue using Firebase `signInWithPopup`.
+- **Flawed assumption**: I burned time on alternative Google auth flows before verifying that the Firebase auth domain itself was still just the default Hosting 404 site.
+- **Prevention rule**: For Firebase popup auth failures, check `https://<project>.firebaseapp.com/__/firebase/init.json` first. If it returns a Hosting 404 page, deploy the Firebase Hosting site before rewriting app auth code.
+- **Verification**: `curl -s https://aria-research-app.firebaseapp.com/__/firebase/init.json` must return JSON, and a popup probe against `researcharia.com` must no longer show `redirect_uri_mismatch` or a blocking init.json 404.
+
+## BrewMap — Weak Review Flavor Evidence And Permissive Roast Filters (BREWMAP_FLAVOR_FILTER_DRIFT) — 2026-04-05
+- **Pattern**: Review-derived flavor tags included one-off words that barely appeared in Yelp reviews, and the Light/Medium/Dark pill filter still showed shops with no roast data.
+- **Root cause**: Flavor extraction treated any detected term in the combined review text as meaningful evidence, while the roast filter used a permissive predicate that allowed missing roast metadata to pass through an active roast filter.
+- **Fix**: Require a flavor tag to appear in at least 2 separate reviews before it can become a review-derived tag, and fall back to AI flavor estimates when fewer than 2 review-backed tags remain. For roast filters, use explicit roast-bucket matching and exclude shops with no roast data when a roast filter is active.
+- **Flawed assumption**: I assumed a single flavor mention across sparse reviews was enough to drive the UI, and that missing roast data should not narrow a positive roast filter.
+- **Reasoning lesson**: When the UI claims a value is review-derived or filterable, require repeated evidence and use strict inclusion rules instead of permissive fallthroughs.
+- **Applies when**: Extracting structured tags from sparse review text or building categorical filters on partial enrichment data.
