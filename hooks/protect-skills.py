@@ -17,6 +17,9 @@ PROTECTED_SKILLS = {
     "ui-ux-pro-max",
     "webapp-testing",
     "brainstorming",
+    "canvas-design",
+    "react-best-practices",
+    "ui-design-system",
 }
 
 

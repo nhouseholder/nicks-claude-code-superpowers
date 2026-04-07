@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Stop hook: Send macOS notification identifying WHICH session completed.
 
-Three notification methods (all fire simultaneously):
+Two notification methods (all fire simultaneously):
 1. macOS native notification (banner + sound) with project name in title
-2. macOS Say (text-to-speech) announcing the project name
-3. Terminal badge update (dock bounce)
+2. Dock bounce (no focus steal)
 
 The notification includes the project name derived from cwd, so when
 running multiple Claude Code sessions, you know which one needs attention.
