@@ -152,3 +152,13 @@
 - **Flawed assumption**: I treated the whole sheet like a drag surface instead of isolating drag behavior to the handle.
 - **Prevention rule**: Never apply `touch-action:none` to an entire mobile container that also holds scrollable content. Restrict drag-only gesture locking to the explicit handle.
 - **Verification**: On a mobile viewport, confirm the shop list and featured rails can scroll naturally while the sheet handle still drags the panel.
+
+## NestWise — Portfolio Edit Rows Need Spinnerless Numeric Inputs And Inline Context Labels (NESTWISE_PORTFOLIO_EDIT_ROW_CLIPPING) — 2026-04-07
+- **Project**: nestwisehq / dad-financial-planner
+- **Page/Component**: `/portfolio` — `components/portfolio/holdings-table.tsx`, `components/portfolio/trade-form.tsx`, `components/portfolio/portfolio-grade.tsx`
+- **Bug**: Native browser number steppers crowded the portfolio quantity input until the value was effectively hidden, inline edit cells changed meaning without labels, and the QORE distribution rendered as jammed strings like `61%A 39%B`.
+- **Root cause**: Dense financial table inputs reused narrow columns and default browser numeric controls, while edit-mode cells repurposed existing headers without adding local context.
+- **Carelessness type**: Didn't check actual rendered output in a cramped layout.
+- **Fix**: Added a scoped `.input-no-spinner` utility for the affected portfolio number inputs, widened the inline edit fields slightly, labeled the edit cells as `Shares`, `Basis`, and `P/L`, and rendered QORE distribution values as separated badges.
+- **Prevention rule**: In dense financial tables, never ship default browser number steppers or unlabeled edit-mode cells. If a cell changes meaning in edit mode, label it inside the cell and verify the value is readable at the actual table width.
+- **Verification**: On `/portfolio`, inline holding edit must show the full quantity value, trade form numeric inputs must render without native Safari steppers, and the Portfolio Grade QORE buckets must render as distinct badges.
