@@ -35,7 +35,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/session-init-guard.py",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/session-init-guard.py",
             "timeout": 1000
           }
         ]
@@ -44,7 +44,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/ufc-context-loader.py",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/ufc-context-loader.py",
             "timeout": 2000
           }
         ]
@@ -53,7 +53,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/memory-consolidate-loader.py",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/memory-consolidate-loader.py",
             "timeout": 2000
           }
         ]
@@ -62,7 +62,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/memory-migrator.py",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/memory-migrator.py",
             "timeout": 3000
           }
         ]
@@ -71,7 +71,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/session-context-loader.py",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/session-context-loader.py",
             "timeout": 3000
           }
         ]
@@ -80,7 +80,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/anti-pattern-enforcer.py",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/anti-pattern-enforcer.py",
             "timeout": 2000
           }
         ]
@@ -91,7 +91,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/improve-prompt.py"
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/token-advisor.py",
+            "timeout": 1000
           }
         ]
       },
@@ -99,7 +100,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/correction-detector.py",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/improve-prompt.py"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/correction-detector.py",
             "timeout": 2000
           }
         ]
@@ -120,7 +129,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/bash-guard.py"
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/bash-guard.py"
           }
         ]
       },
@@ -129,7 +138,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/protect-skills.py"
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/protect-skills.py"
           }
         ]
       },
@@ -138,7 +147,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/agent-limit.py"
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/agent-limit.py"
           }
         ]
       },
@@ -147,7 +156,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/mmalogic-site-guard.py"
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/mmalogic-site-guard.py"
           }
         ]
       },
@@ -156,7 +165,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/anti-pattern-gate.py",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/anti-pattern-gate.py",
             "timeout": 2000
           }
         ]
@@ -167,7 +176,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/unpushed-commits-check.py",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/unpushed-commits-check.py",
             "timeout": 15000
           }
         ]
@@ -176,7 +185,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/no-narration-stops.py"
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/no-narration-stops.py"
           }
         ]
       },
@@ -184,7 +193,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/session-complete-notify.py",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/session-complete-notify.py",
             "timeout": 5000
           }
         ]
@@ -193,7 +202,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/memory-consolidate.py"
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/memory-consolidate.py"
           }
         ]
       }
@@ -204,7 +213,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/observe.py"
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/observe.py"
           }
         ]
       },
@@ -213,7 +222,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/surgical-scope.py"
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/surgical-scope.py"
           }
         ]
       },
@@ -222,7 +231,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/impossible-stats-detector.py"
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/impossible-stats-detector.py"
           }
         ]
       },
@@ -231,7 +240,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 ~/.claude/hooks/missing-odds-detector.py"
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/missing-odds-detector.py"
           }
         ]
       }
