@@ -1,0 +1,112 @@
+---
+name: opportunistic-improvement
+description: Two modes — (1) While working, notice and fix code smells in files you're already touching. (2) When idle, suggest the highest-impact improvements across the project. Always-on mini-audit while working, proactive suggestions when idle.
+weight: passive
+---
+
+# Opportunistic Improvement — Every Touch Makes It Better
+
+Every file Claude reads is a chance to make the project better. Not a full audit — just sharp eyes while you work. If you stumble across something that's clearly subpar, fix it or flag it. The project should get better with every interaction, not just when explicitly asked.
+
+## Always Active — But Lightweight
+
+This skill runs passively while you work on other tasks. It does NOT:
+- Add a separate scanning step
+- Read files beyond what the current task requires
+- Slow down the primary objective
+- Burn tokens on comprehensive audits
+
+It DOES:
+- Notice problems in files you're already reading
+- Fix obvious issues while you're already editing a file
+- Flag bigger opportunities for the end of the response
+- Stack improvements over time — every session leaves the project cleaner
+
+## The Opportunistic Window
+
+While reading/editing files for your current task, notice issues and fix no-brainers in-place (marginal cost is near zero since you're already there). Report all improvements at the end.
+
+## What Counts as a No-Brainer
+
+Fix these without asking — they're universally good and risk-free:
+
+| Category | Examples |
+|----------|---------|
+| **Dead code** | Unused imports, commented-out blocks, unreachable code, unused variables |
+| **Obvious bugs** | Unclosed resources, missing awaits, wrong comparison operators |
+| **Performance freebies** | Unnecessary re-renders, missing keys in React lists, N+1 patterns in plain sight |
+| **Naming clarity** | `data` → `strainResults`, `temp` → `pendingScore`, `x` → `terpeneWeight` |
+| **Consistency** | Mixing `const`/`let` for same pattern, inconsistent quote styles, mixed naming conventions |
+| **Security basics** | Console.log with sensitive data, hardcoded secrets, missing input sanitization |
+| **DX improvements** | Missing helpful comments on non-obvious logic, outdated TODO comments |
+
+### The No-Brainer Test
+
+```
+1. Is the fix obviously correct? (No judgment calls)
+2. Can it break anything? (No side effects)
+3. Is it in a file I'm already touching? (No extra file reads)
+4. Would ANY developer agree this is better? (Universal improvement)
+
+All 4 = YES → Fix it silently
+Any = NO → Flag it, don't fix
+```
+
+## What Requires Permission
+
+Flag these at the end — don't fix without asking:
+
+| Category | Why Ask |
+|----------|---------|
+| **Refactoring patterns** | Changing how something works, even if cleaner |
+| **API changes** | Renaming exports, changing function signatures |
+| **Architecture shifts** | Moving files, restructuring modules |
+| **Dependency changes** | Adding/removing/updating packages |
+| **Logic changes** | Altering behavior, even if current behavior seems wrong |
+| **Large-scale consistency** | Renaming used across many files |
+
+### The Flag Format
+
+At the end of your response, after completing the primary task:
+
+```
+---
+Improvements made while working:
+- Removed 3 unused imports in QuizResults.jsx
+- Fixed missing await on fetchStrainData() in useStrains.js
+- Renamed `data` → `matchResults` for clarity in recommend.js
+
+Also noticed (needs your call):
+- dispensaryService.js has duplicated geocoding logic (lines 45-67 and 112-134) — want me to extract a shared helper?
+```
+
+## Proactive Mode — When Idle
+
+When all tasks are complete and no active workflow exists, scan the project across 8 dimensions:
+
+1. **PERFORMANCE** — Anything slow, unoptimized, or wasteful?
+2. **UX/UI** — Anything confusing, ugly, or friction-heavy for users?
+3. **CODE QUALITY** — Dead code, duplication, unclear naming, missing types?
+4. **ARCHITECTURE** — Tight coupling, missing abstractions, scaling bottlenecks?
+5. **SECURITY** — Exposed secrets, missing validation, auth gaps?
+6. **TESTING** — Untested critical paths, flaky tests, missing edge cases?
+7. **DX** — Developer experience: slow builds, missing docs, painful setup?
+8. **FEATURES** — Low-hanging fruit that would delight users?
+
+**Quality bar:** Every suggestion must be specific, grounded in code you've seen, impactful, actionable, and aligned with the user's goals.
+
+**Top 1-3 only** — Pick the highest-impact improvements. Don't dump a laundry list.
+
+**Ask, don't do** — Suggest improvements and wait for approval before implementing. If the user declines, back off.
+
+**Boundary with predictive-next:** predictive-next suggests the next step in an active workflow. Proactive mode fires only when there IS no active workflow and no obvious next step.
+
+## Rules
+
+1. **Primary task first** — Never let improvements delay or distract from the actual request
+2. **No-brainer test** — All 4 criteria must pass before silently fixing
+3. **Already there** — Only notice things in files you're already reading/editing for the task
+4. **Report at the end** — Always tell the user what you improved, even if it was trivial
+5. **Flag, don't force** — Anything beyond a no-brainer gets flagged, not fixed
+6. **Compound over time** — Small consistent improvements beat occasional big cleanups
+7. **Zero overhead when clean** — If the code is good, this skill is invisible

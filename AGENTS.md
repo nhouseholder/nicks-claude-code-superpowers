@@ -1,13 +1,15 @@
-# Superpowers — Multi-Platform AI Coding Skills Repository
+# Superpowers — OpenAI Codex CLI Instructions
 
-All universal rules (backtesting, walk-forward, caching, debugging, memory, behavioral rules) are in `~/.claude/CLAUDE.md`. Do NOT duplicate them here.
+> **Platform:** This file is for [OpenAI Codex CLI](https://github.com/openai/codex). Codex uses `AGENTS.md` the same way Claude Code uses `CLAUDE.md`.
+> **Claude Code users:** See `CLAUDE.md` instead.
+
+All universal rules (backtesting, walk-forward, caching, debugging, memory, behavioral rules) are in `~/.codex/AGENTS.md`. Do NOT duplicate them here.
 
 ## This Project
 
-This repo contains the custom skills system shared across AI coding platforms:
-- **Claude Code** (`~/.claude/skills/`) — Primary platform. Uses `CLAUDE.md`, `settings.json`
-- **OpenAI Codex CLI** (`~/.codex/skills/`) — Uses `AGENTS.md`
-- **GitHub Copilot** — `copilot-learning-log.py` hook
+This repo contains the custom skills system. Skills are shared across platforms:
+- **Claude Code:** Installed at `~/.claude/skills/`
+- **OpenAI Codex CLI:** Installed at `~/.codex/skills/`
 
 Syncs to GitHub at `nhouseholder/nicks-claude-code-superpowers`.
 

@@ -1,73 +1,120 @@
-# Skills Quick Reference — 69 Skills in One Line Each
+# Skills Quick Reference — 116 Skills in One Line Each
 
 | # | Skill | What it does & why it matters |
 |---|-------|-------------------------------|
-| 1 | **adaptive-voice** | Matches the user's energy and pace — terse in flow, detailed when learning, calm when frustrated — so responses always feel natural. |
-| 2 | **always-improving** | When the to-do list is empty, suggests the top 1-3 highest-impact project improvements so nothing stagnates. |
-| 3 | **anti-slop** | Zero tolerance for placeholder data ("Unknown", "N/A", "TBD") in any deliverable — every field gets real data or an explicit gap explanation so the user never receives AI-generated garbage. |
-| 4 | **audit** | Scans codebases for hardcoded secrets, security issues, and anti-patterns so vulnerabilities don't ship. |
-| 5 | **backtest** | Runs prediction model backtests with walk-forward integrity, overfitting guards, and future-accuracy focus so model changes are data-driven. |
-| 6 | **brainstorming** | Explores intent, requirements, and design before complex implementations — triggers only when BOTH scope is large AND approach is ambiguous. |
-| 7 | **calibrated-confidence** | Makes Claude honest about what it knows vs guesses — dynamically adjusts speed and flags uncertainty so the user knows when to trust and when to verify. |
-| 8 | **codebase-cartographer** | Maps codebase architecture with fast-path for documented projects so Claude navigates instantly without redundant exploration. |
-| 9 | **coding-standards** | Enforces universal best practices for TypeScript, JavaScript, React, and Node.js so code quality is consistent. |
-| 10 | **command-center** | Decomposes complex tasks into parallel subagent workstreams so multi-domain work executes at maximum speed. |
-| 11 | **confusion-prevention** | Detects when Claude is confused and forces re-orientation instead of spiraling — prevents the "wait... actually... let me check..." pattern that burns 15+ tool calls. |
-| 12 | **context-hydration** | Ensures all relevant files are loaded before edits so Claude never modifies code it hasn't read. |
-| 13 | **continuous-learning-v2** | Observes sessions via hooks and creates atomic instincts with confidence scoring so Claude gets smarter over time. |
-| 14 | **deep-research** | Stops and researches unfamiliar concepts from authoritative sources before implementing so solutions are expert-level. |
-| 15 | **deploy** | Handles full deployment with Cloudflare-specific checks, smoke tests, and auto-rollback so broken code never reaches production. |
-| 16 | **dispatching-parallel-agents** | Launches 2+ independent tasks as concurrent subagents so wall-clock time is cut in half (or more). |
-| 17 | **error-memory** | Captures failed approaches and working solutions — tracks in-session patterns and token waste, not just cross-session bugs. |
-| 18 | **executing-plans** | Executes written implementation plans with review checkpoints so multi-step work stays on track. |
-| 19 | **expert-lens** | Activates domain-expert mental models with pre-loaded cannabis pharmacology and sports analytics so output meets professional-grade bars. |
-| 20 | **finishing-a-development-branch** | Guides branch completion with structured merge/PR/cleanup options so work integrates cleanly. |
-| 21 | **fix-loop** | Self-healing CI loop that runs tests, diagnoses, fixes, and re-runs until all pass so broken builds resolve autonomously. |
-| 22 | **fpf-hypotheses** | Executes first-principles hypothesis cycles so complex decisions are grounded in evidence, not gut feeling. |
-| 23 | **git-sorcery** | Smart commit messages, conflict resolution, bisect, and cherry-pick so git operations are expert-level. |
-| 24 | **intent-detection** | Maps natural language to the right skill/command automatically so the user never needs to memorize slash commands. |
-| 25 | **isolate-before-iterate** | Before debugging via full pipelines, isolate the suspect logic in a minimal standalone test — prevents 30+ minute feedback loops when a 5-line script would answer in seconds. |
-| 26 | **iterative-retrieval** | Progressively refines context retrieval so subagents get exactly the information they need, no more. |
-| 27 | **mid-task-triage** | Instantly classifies mid-task messages as addendum, course correction, or queue item — triage runs BEFORE prompt-architect so nothing derails active work. |
-| 28 | **never-give-up** | Never abandon a proven-valuable idea because integration failed — uses evidence gate + think-efficiently integration to persist smartly, not stubbornly. |
-| 29 | **opportunistic-improvement** | Fixes no-brainer code issues in files already being touched so the project gets cleaner with every interaction. |
-| 30 | **parallel-sweep** | Runs parallel parameter sweeps with walk-forward and overfitting guards so optimization finishes in minutes, not hours. |
-| 31 | **pattern-propagation** | When a pattern changes in one place, updates ALL instances across the codebase so nothing is left inconsistent. |
-| 32 | **pre-debug-check** | Checks known anti-patterns and past failures BEFORE attempting fixes so tokens aren't wasted on dead-end approaches. |
-| 33 | **precision-reading** | Grep-first, read-only-relevant-lines so large files don't waste thousands of tokens on irrelevant content. |
-| 34 | **predictive-next** | After completing a task, offers the most likely NEXT step in the current workflow — suppresses when always-improving should fire instead. |
-| 35 | **profit-driven-development** | The north star for sports prediction work — every change must answer "will this make the NEXT picks more correct and profitable?" Prevents overfitting and endless backtest spinning. |
-| 36 | **proactive-qa** | Walks the user journey after every implementation, catching edge cases and fixing adjacent bugs before you notice. |
-| 37 | **process-monitor** | Detects hung processes, port conflicts, and zombie tasks so dev environment issues are caught before they cascade. |
-| 38 | **prompt-anchoring** | Keeps Claude anchored to the original prompt objective during long sessions — periodic drift checks prevent "Claude ADHD" without reducing proactivity. |
-| 39 | **prompt-architect** | Internally decomposes every prompt into intent, context, scope, and unstated requirements — with anti-inflation rule: never upgrade a simple request into a complex one. |
-| 40 | **prompt-improver** | Catches genuinely vague prompts and enriches them with research-based clarifying questions so ambiguity is resolved before work begins. |
-| 41 | **qa-gate** | Tiered QA checkpoint before delivering features — from mental trace (Tier 1) to full subagent testing (Tier 3), scaled to change complexity. With bug-fix verification and repeat-bug escalation. |
-| 42 | **receiving-code-review** | Evaluates review feedback with technical rigor before implementing so bad suggestions don't degrade code quality. |
-| 43 | **reflexion-critique** | Comprehensive single-reviewer code review with Chain-of-Verification so blind spots are caught efficiently. |
-| 44 | **reflexion-memorize** | Curates insights from reflections into CLAUDE.md so learnings persist across sessions as permanent guidance. |
-| 45 | **reflexion-reflect** | Self-refinement framework — now opt-in by default. Only fires on explicit request, high-risk verification, or 2+ failed bug fixes. |
-| 46 | **requesting-code-review** | Dispatches a code-reviewer subagent with precise context so work is independently verified before shipping. |
-| 47 | **response-recap** | Provides plain English summary ONLY after complex multi-step work so the user understands what changed without wading through diffs. |
-| 48 | **sanity-check** | Flags requests that could break things or waste effort — also evaluates whether proposed new skills are necessary or redundant with existing ones. |
-| 49 | **screenshot-dissector** | Methodical pixel-level screenshot analysis during debugging — catches layout bugs, state issues, console errors, and UI regressions beyond the obvious. |
-| 50 | **seamless-resume** | On "continue", picks up exactly where it left off — with crash recovery that reads `current_work.md` after disconnects. |
-| 51 | **search-first** | Searches for existing tools and libraries before writing custom code so wheels aren't reinvented. |
-| 52 | **senior-dev-mindset** | Ships complete, production-ready features with inferred requirements so nothing needs hand-holding or follow-up. |
-| 53 | **site-update-protocol** | Universal checklist for updating sports prediction websites after algorithm changes — covers all tabs, stats, data files, and deployment across OctagonAI, Diamond Predictions, and Courtside AI. |
-| 54 | **skill-manager** | Prevents skill overload — enforces weight classes (passive/light/heavy), 69-skill cap, resolves conflicts, and detects overthinking. |
-| 55 | **smart-clarify** | Asks structured multiple-choice questions instead of open-ended ones so ambiguity resolves in one round, not three. |
-| 56 | **strategic-compact** | Suggests context compaction at logical task boundaries so important context survives rather than being arbitrarily truncated. |
-| 57 | **subagent-driven-development** | Executes implementation plans by dispatching independent tasks to subagents so parallel work happens within a single session. |
-| 58 | **systematic-debugging** | Root-cause-first debugging methodology so bugs are actually fixed, not band-aided. |
-| 59 | **take-your-time** | Matches effort to prompt complexity — a 20-bullet spec gets 20 careful implementations, not one rushed pass. Prevents AI slop on complex work while staying fast on simple tasks. |
-| 60 | **test-driven-development** | RED-GREEN-REFACTOR cycle for business logic so code is tested from the start, not as an afterthought. |
-| 61 | **think-efficiently** | Before every action, checks if it will produce new information, if there's a faster path, and if effort is proportional — with overthinking test and bias toward action. |
-| 62 | **token-awareness** | Makes Claude conscious of token costs so responses and tool usage stay concise and efficient. |
-| 63 | **total-recall** | Lazy-loads project context at session start and saves everything at session end — with crash-safe checkpointing and pre-compaction capture. |
-| 64 | **user-rules** | Captures and enforces hard constraints the user sets ("max 70 events", "always use X") — persists across sessions, checked before every relevant action. |
-| 65 | **using-git-worktrees** | Creates isolated git worktrees for feature work so experiments don't risk the current workspace. |
-| 66 | **verification-before-completion** | Requires running verification commands before any success claim — with speed tiers (config=mental trace, single function=quick check, multi-file=full gate) and repeat-bug escalation. |
-| 67 | **version-bump** | Automated semantic versioning — determines patch/minor/major from changes, bumps package.json, and formats commit messages with version prefix. |
-| 68 | **writing-plans** | Creates comprehensive implementation plans with file mapping and TDD cycles so multi-step work has a roadmap before code is touched. |
-| 69 | **zero-iteration** | Mentally traces code execution before writing it so bugs are caught in the mind, not in the test suite. |
+| 1 | **adaptive-voice** | Match the user's communication energy and pace. Terse when they're in flow, detailed when they're learning, calm when they're frustrated. Always leads with the answer/action (answer first, never pr... |
+| 2 | **anti-slop** | Zero tolerance for placeholder data in structured output. Every field must be real data or explicitly flagged as unfound. Always-on quality gate |
+| 3 | **audience-monetization** | Turn followers into paying customers. Reviews current business model and builds a monetization plan with offer ideas, pricing structure, funnel design, and the content angles that naturally move pe... |
+| 4 | **audience-psychology** | Deep audience psychology breakdown + ICP builder using Jobs-to-be-Done framework. Maps frustrations, desires, fears, daily habits, and content consumption patterns into specific messaging angles an... |
+| 5 | **audit** | Audit codebases for security issues, code quality problems, and hardcoded secrets. Scans Python and JavaScript files for API keys, credentials, and anti-patterns. Fixes issues and commits with stru... |
+| 6 | **audit-context-building** | Build deep architectural context through ultra-granular code analysis before vulnerability hunting |
+| 7 | **authority-positioning** | Build a personal branding and authority positioning strategy. Defines what makes you THE go-to name in your niche, your unique mechanism, proof stack, and content angles that establish expertise. T... |
+| 8 | **autoresearch** | Systematic skill and prompt optimization using Karpathy's autoresearch method. Diagnose failure patterns, build scoring checklists, run one-change-at-a-time improvement loops, and extract reusable ... |
+| 9 | **backtest** | Run backtests for prediction models (UFC, sports betting). Ensures visible output via tee, compares against baseline accuracy, and commits improvements with structured messages. Enforces walk-forwa... |
+| 10 | **backtestor-quality-control** | Backtestor quality control and audit skill. Ensures every backtestor across all sports projects meets mandatory standards — walk-forward integrity, real Vegas odds, correct unit math, complete bet ... |
+| 11 | **brainstorming** | "Explore intent, requirements, and design before implementing complex features. Triggers on 3+ file changes or ambiguous multi-approach tasks. Skips automatically for clear-scope work." |
+| 12 | **calibrated-confidence** | Makes Claude honest about what it knows vs what it's guessing. Dynamically adjusts speed, depth, and communication based on confidence level. High confidence = move fast, low confidence = slow down... |
+| 13 | **canvas-design** | Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this skill when the user asks to create a poster, piece of art, design, or other static piece. Create ... |
+| 14 | **claude-api** | "Build apps with the Claude API or Anthropic SDK. TRIGGER when: code imports `anthropic`/`@anthropic-ai/sdk`/`claude_agent_sdk`, or user asks to use Claude API, Anthropic SDKs, or Agent SDK. DO NOT... |
+| 15 | **cleanup-old-files** | Autonomous registry cleanup — detects and archives stale, outdated, or duplicate files across local, iCloud, and GitHub repos so no AI agent picks up the wrong version. NEVER deletes — always archi... |
+| 16 | **codebase-cartographer** | Build a mental architecture map of the codebase at session start. Know every directory's purpose, key files, data flow patterns, and entry points. Enables instant navigation and informed decisions ... |
+| 17 | **coding-standards** | Universal coding standards, best practices, and patterns for TypeScript, JavaScript, React, and Node.js development |
+| 18 | **competitor-gap-analysis** | Find whitespace in crowded niches. Analyzes what competitors avoid, underuse, and get wrong across 5 dimensions — topic gaps, format gaps, tone gap, positioning gap, and quick wins. Produces a comp... |
+| 19 | **confusion-prevention** | Detect when Claude is confused and force a re-orientation instead of spiraling. Prevents the "wait... actually... let me check..." pattern. Snapshot critical state before destructive actions, recog... |
+| 20 | **content-calendar** | Generate a full 30-day content calendar with daily content ideas, post formats, core message angles, and goals (reach, trust, conversion). Reads from brand context, audience profile, content pillar... |
+| 21 | **content-performance-audit** | Monthly social media performance audit. Tracks the 5 metrics that predict growth and sales (not vanity metrics). Diagnoses why posts flopped, finds top content angles to double down on, and deliver... |
+| 22 | **content-pillars** | Build 4-5 content pillars mapped to funnel stages (Awareness, Trust, Authority, Conversion). Each pillar includes example topics, platform formats, content ratios, repurposing strategy, and stage-a... |
+| 23 | **content-research-writer** | Full research + writing assistant. Searches the web, gathers sources, builds outlines, drafts content with citations, and iterates section-by-section. Use for blog posts, articles, documentation, c... |
+| 24 | **continuous-learning-v2** | Instinct-based learning system that observes sessions via hooks, creates atomic instincts with confidence scoring, and evolves them into skills/commands/agents. v2.1 adds project-scoped instincts t... |
+| 25 | **data-consistency-check** | Validates that displayed data is mathematically and logically consistent before claiming correctness. Catches impossible statistics (profit with 0 wins, implausible per-unit returns, mismatched tot... |
+| 26 | **deep-research** | Self-directed literature review and expert-level research before implementation. When Claude encounters an unfamiliar concept, statistic, algorithm, technique, or domain — it STOPS, researches exte... |
+| 27 | **deploy** | Deploy projects to Cloudflare Pages/Workers with pre-flight checks, smoke tests, and automatic rollback on failure. Handles linting, testing, building, deploying, verifying, and tagging releases. U... |
+| 28 | **design-critique** | "Structured UX critique using Nielsen's 10 Heuristics (/40 score), cognitive load assessment (8-item checklist), and persona-based testing (5 archetypes). Use during site-review, site-redesign Phas... |
+| 29 | **design-sprint** | Run a structured 5-phase design sprint — problem framing, sketching, deciding, prototyping, testing. Use at the START of a project or feature, not the end. Triggers on "run a design sprint", "ideat... |
+| 30 | **dispatching-parallel-agents** | Parallel agent orchestrator with strict safety controls. Max 2 agents for research, max 3 for independent code tasks. Agents share context via briefings that include memory files, anti-patterns, an... |
+| 31 | **doc-coauthoring** | Guide users through a structured workflow for co-authoring documentation. Use when user wants to write documentation, proposals, technical specs, decision docs, or similar structured content. This ... |
+| 32 | **error-memory** | Captures failed approaches, working solutions, and recurring bugs after debugging sessions. Analyzes WHY Claude's reasoning went wrong — flawed assumptions, not just what broke. Tracks recurrence s... |
+| 33 | **executing-plans** | Use when you have a written implementation plan to execute in a separate session with review checkpoints |
+| 34 | **expert-lens** | Adopt domain-expert perspectives automatically. When the user says "you are an expert in X" or the task implies a specific professional domain, activate that expert's mental models, vocabulary, fra... |
+| 35 | **finishing-a-development-branch** | Use when implementation is complete, all tests pass, and you need to decide how to integrate the work - guides completion of development work by presenting structured options for merge, PR, or cleanup |
+| 36 | **fix-loop** | Self-healing CI loop — run test suite, diagnose failures, fix source code, re-run until all tests pass, then commit. Operates autonomously in a test-driven fix cycle. Use when asked to fix all test... |
+| 37 | **fpf-hypotheses** | Execute complete FPF cycle from hypothesis generation to decision |
+| 38 | **frontend-design** | Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, artifacts, posters, or applications (examples in... |
+| 39 | **full-handoff** | Generate a comprehensive handoff document, sync to all locations, and archive old ones. This is the LAST thing you do before ending a session |
+| 40 | **git-sorcery** | Advanced git intelligence beyond basic add/commit/push. Smart commit messages from diffs, conflict resolution strategies, interactive history analysis, bisect for bug hunting, cherry-pick workflows... |
+| 41 | **hooked-ux** | Analyze product retention using the Hook Model (trigger, action, reward, investment). Use when users aren't coming back, engagement is low, you need to improve retention, or designing a habit loop ... |
+| 42 | **impeccable-design** | "Expert design enhancement layer. Provides deep reference library (typography, color/OKLCH, motion, spatial, interaction, responsive, UX writing), AI slop detection checklist, and design normalizat... |
+| 43 | **implicit-preferences** | Detect patterns in user corrections and adapt without being told. If the user corrects the same type of thing repeatedly, treat it as a permanent preference for this session. Learns from behavior, ... |
+| 44 | **isolate-before-iterate** | Before debugging via full pipelines (backtests, builds, deploys), isolate the suspect logic in a minimal standalone test. Prevents the anti-pattern of 30+ minute feedback loops when a 5-line script... |
+| 45 | **iterative-retrieval** | Pattern for progressively refining context retrieval to solve the subagent context problem |
+| 46 | **know-what-you-dont-know** | Detects when Claude is about to implement domain-specific logic it hasn't verified understanding of. Forces background research BEFORE writing code in specialized domains (betting, finance, medicin... |
+| 47 | **mcp-builder** | Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools. Use when building MCP servers to integrate exte... |
+| 48 | **mid-task-triage** | When the user sends a new message while Claude is mid-task, instantly classify it as an addendum (merge into current work), a course correction (steer current task), or a queue item (address after ... |
+| 49 | **mmalogic** | Dedicated MMALogic/OctagonAI website agent. This command carries ALL domain knowledge for mmalogic.com — betting rules, canonical paths, anti-patterns, verification checklists, ground truth validat... |
+| 50 | **never-give-up** | Never abandon a proven-valuable idea because integration failed. But also never burn tokens on endless retries. Uses an evidence-based triage to distinguish proven ideas worth fighting for from gen... |
+| 51 | **opportunistic-improvement** | Two modes — (1) While working, notice and fix code smells in files you're already touching. (2) When idle, suggest the highest-impact improvements across the project. Always-on mini-audit while wor... |
+| 52 | **parallel-sweep** | Run parallel parameter sweeps using multiple Claude Code headless agents. Each agent explores a different parameter subspace, writes results to shared SQLite database, and a summary report is gener... |
+| 53 | **pattern-propagation** | When a pattern is changed in one place, automatically find and update all instances across the codebase. Covers renames, API changes, style updates, config changes, and structural refactors. Automa... |
+| 54 | **pre-debug-check** | Checks known anti-patterns, past error solutions, and familiar barrier patterns BEFORE attempting any fix. Auto-triggers when Claude encounters an error, test failure, or build problem. Also watche... |
+| 55 | **precision-reading** | Read files surgically — grep first to find relevant sections, then read only those lines with offset+limit. Prevents loading entire 2000-line files when only 5-20 lines matter. Always-on efficiency... |
+| 56 | **predictive-next** | After completing a task, anticipate what the user likely needs next and offer it proactively. Uses pattern recognition from the task type, codebase state, and common workflows. Automatic skill that... |
+| 57 | **process-monitor** | Monitor background processes (dev servers, builds, tests, watchers) during a session. Detect hung processes, runaway resource usage, port conflicts, and zombie processes. Provide status updates onl... |
+| 58 | **profit-driven-development** | The north star for all sports prediction work — future predictive accuracy and profitability. Every backtest, every parameter change, every algorithm decision must be evaluated against one question... |
+| 59 | **progress-tracker** | Track and display progress across multi-step tasks. Shows completion percentage, elapsed time, task count, and milestone updates. Fires at natural task boundaries during multi-step work — not after... |
+| 60 | **prompt-architect** | Restructures prompts for optimal execution, detects intent to route to skills/commands, and stays anchored to the original objective during long sessions. Combines prompt processing, intent detecti... |
+| 61 | **prompt-improver** | This skill enriches vague prompts with targeted research and clarification before execution. Should be used when a prompt is determined to be vague and requires systematic research, question genera... |
+| 62 | **qa-gate** | Mandatory QA gate before delivering any feature, fix, or component. Dispatches an independent testing agent to exercise the implementation end-to-end before returning results to the user |
+| 63 | **react-best-practices** | Comprehensive React and Next.js performance optimization guide with 40+ rules for eliminating waterfalls, optimizing bundles, and improving rendering. Use when optimizing React apps, reviewing perf... |
+| 64 | **receiving-code-review** | Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable - requires technical rigor and verification, not performat... |
+| 65 | **refactoring-ui** | Audit and fix visual design issues using the Refactoring UI system — hierarchy, spacing, shadows, color, typography. Use when the UI looks "off" but you can't explain why, when asked to fix the des... |
+| 66 | **reflexion** | Self-refinement and comprehensive review framework. Two modes — /reflexion:reflect for quick self-assessment of output quality (checklist + confidence score), and /reflexion:critique for deep multi... |
+| 67 | **requesting-code-review** | Use when completing tasks, implementing major features, or before merging to verify work meets requirements |
+| 68 | **response-recap** | Provides a plain English recap ONLY after complex, multi-step work — not after every response. Fires after multi-file changes, debugging sessions, architecture decisions, or multi-step implementati... |
+| 69 | **review-handoff** | Read the most recent handoff for this project and orient yourself to pick up where the last session left off. This is the FIRST thing you do when starting a new session |
+| 70 | **sanity-check** | Before executing a request that could make things worse, waste significant effort, or introduce problems, pause and respectfully flag the concern. Recommend a better approach if one exists. Never b... |
+| 71 | **screenshot-dissector** | Maximizes Claude's visual bug analysis when screenshots are provided during troubleshooting. Enforces a methodical, pixel-level examination instead of a quick glance — catches layout bugs, state is... |
+| 72 | **scroll-stopper** | Write high-engagement social media posts that stop the scroll. Takes a topic, writes a hook, delivers insight, and closes with a CTA that drives comments, saves, or clicks. Platform-aware formattin... |
+| 73 | **search-first** | Research-before-coding workflow. Search for existing tools, libraries, and patterns before writing custom code. Invokes the researcher agent |
+| 74 | **security-review** | Use this skill when adding authentication, handling user input, working with secrets, creating API endpoints, or implementing payment/sensitive features. Provides comprehensive security checklist a... |
+| 75 | **security-scan** | Scan your Claude Code configuration (.claude/ directory) for security vulnerabilities, misconfigurations, and injection risks using AgentShield. Checks CLAUDE.md, settings.json, MCP servers, hooks,... |
+| 76 | **senior-backend** | Backend audit, architecture review, and development skill. Performs systematic audit of backend code — API routes, middleware, auth, database, error handling — plus architecture assessment of servi... |
+| 77 | **site-audit** | Run a comprehensive website/webapp audit. Finds every issue across frontend, backend, design, and functionality — then fixes the critical ones |
+| 78 | **site-debug** | Debug a website/webapp systematically. Find the bug, fix it, verify the fix, log it permanently |
+| 79 | **site-recover** | Recover the last working version of a site after a destructive deploy, accidental overwrite, or data loss. This is the EMERGENCY command — use when production is broken and you need to get back to ... |
+| 80 | **site-redesign** | Redesign a website/webapp with production-grade quality using an agent pipeline architecture. Each phase dispatches a specialized agent. Agents communicate through shared memory files in `_redesign... |
+| 81 | **site-review** | Multi-agent site review panel. Dispatches senior-dev, frontend, and backend agents in parallel to review the current project from a **functional perspective** — not just bugs, but architecture, UX,... |
+| 82 | **site-update** | Update a website/webapp safely. Baseline → changes → verify → deploy. The guardrail command — ensures updates don't break what already works |
+| 83 | **site-update-protocol** | UFC MMA Logic website frontend update and maintenance protocol. Fires after ANY algorithm update, backtest re-run, new event scoring, or website deploy. Ensures all 5 bet types display correctly, c... |
+| 84 | **skill-awareness** | "MANDATORY first-thought on every prompt: 'Is there a skill, hook, command, or agent that handles this?' Before doing ANY work, Claude must scan the available skills list in the system prompt and i... |
+| 85 | **skill-creator** | Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a sk... |
+| 86 | **skill-manager** | Prevents skill overload. Weight class limits, conflict resolution, stack cap at 75. Always-on meta-skill |
+| 87 | **smart-clarify** | When Claude is uncertain about the user's intent, it asks a structured multiple-choice clarification question instead of guessing or asking open-ended questions. Presents 2-4 options (A, B, C, D) t... |
+| 88 | **social-media-strategy** | Build a complete social media strategy OR audit an existing one. Covers brand positioning, content direction, audience targeting, platform strategy, monetization path, and 90-day roadmap. Two modes... |
+| 89 | **spec-interview** | Interview the user about a feature before writing any code. Produces a reusable SPEC.md artifact. Use when starting any non-trivial feature |
+| 90 | **sports-betting-intelligence** | Professional sports betting domain expert — edge identification, system brainstorming, contrarian sharp logic, CLV tracking, and sport-specific knowledge for NFL, NBA, MLB, NHL, UFC, soccer, tennis... |
+| 91 | **strategic-compact** | Suggests manual context compaction at logical intervals to preserve context through task phases rather than arbitrary auto-compaction |
+| 92 | **structured-build** | Mandatory pipeline for new features and complex tasks. Enforces Research → Strategize → Plan → Execute → Self-Check → Verify → Deploy with gates between each phase. Prevents the #1 failure mode: ju... |
+| 93 | **subagent-driven-development** | Use when executing implementation plans with independent tasks in the current session |
+| 94 | **systematic-debugging** | Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes |
+| 95 | **take-your-time** | Match effort to prompt complexity. A 20-bullet detailed prompt deserves 20 individual implementations, not one rushed pass. Prevents AI slop by treating each requirement with the same quality as if... |
+| 96 | **task-router** | Automatically routes tasks to Opus 4.6 or Sonnet 4.6 based on complexity. Opus for debugging, planning, strategy, experimentation. Sonnet for execution, simple edits, cosmetic changes, following ex... |
+| 97 | **test-driven-development** | Use when implementing any feature or bugfix, before writing implementation code |
+| 98 | **think-efficiently** | Prevents wasted tokens — pointless actions, analysis paralysis, redundant work, and disproportionate effort. Always-on efficiency filter |
+| 99 | **total-recall** | Cross-session memory, crash-safe checkpointing, automatic handoff before context degrades, and instant resume. Handles all persistence across sessions. Always-on |
+| 100 | **ui-design-system** | UI design system toolkit for Senior UI Designer including design token generation, component documentation, responsive design calculations, and developer handoff tools. Use for creating design syst... |
+| 101 | **ui-ux-pro-max** | "UI/UX design intelligence. 50 styles, 21 palettes, 50 font pairings, 20 charts, 9 stacks (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui). Actions: plan, build, c... |
+| 102 | **update-courtside** | Dedicated Courtside AI website agent. This command carries ALL domain knowledge for courtside-ai.pages.dev — NBA+NCAA algorithms, betting systems, canonical paths, integrations, anti-patterns, and ... |
+| 103 | **update-diamond** | Dedicated Diamond Predictions website agent. This command carries ALL domain knowledge for diamondpredictions.com — MLB+NHL algorithms, betting systems, canonical paths, integrations, anti-patterns... |
+| 104 | **update-enhancedhealth** | Dedicated Enhanced Health AI website agent. This command carries ALL domain knowledge for enhancedhealthai.com — Next.js 15, TypeScript, Prisma, Cloudflare Workers, health tech domain |
+| 105 | **update-mystrainai** | Dedicated MyStrainAI website agent. This command carries ALL domain knowledge for mystrainai.com — cannabis strain recommendations, Cannalchemy backend, React/Vite frontend, Supabase, and learned e... |
+| 106 | **update-nestwisehq** | Dedicated NestWise HQ website agent. This command carries ALL domain knowledge for nestwisehq.com — Next.js, TypeScript, Prisma, Cloudflare Workers (OpenNext), family finance domain |
+| 107 | **update-researcharia** | Dedicated Research Aria website agent. This command carries ALL domain knowledge for researcharia.com — Workers Sites, D1 database, paper research features, and learned errors from the CATASTROPHIC... |
+| 108 | **user-rules** | Captures, persists, and enforces user-defined rules across sessions. When the user sets a hard constraint ("max 70 events", "always use approach X", "never do Y"), it's saved to a rules file and ch... |
+| 109 | **using-git-worktrees** | Use when starting feature work that needs isolation - creates isolated git worktrees with smart directory selection and safety verification |
+| 110 | **verification-before-completion** | Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evide... |
+| 111 | **version-bump** | Automated semantic versioning for commits. Determines major/minor/patch from the nature of changes, bumps package.json version, and formats commit messages with version prefix. Use when committing ... |
+| 112 | **webapp-testing** | Toolkit for interacting with and testing local web applications using Playwright. Supports verifying frontend functionality, debugging UI behavior, capturing browser screenshots, and viewing browse... |
+| 113 | **website-guardian** | "MANDATORY enforcement skill for ALL web app changes. Before ANY edit to a website/webapp: snapshot baseline state. After ANY edit: verify nothing broke. On ANY bug found: full root cause analysis,... |
+| 114 | **whats-next** | Expert strategic advisor scoped to the CURRENT PROJECT ONLY. Reviews this project's handoff, memory, anti-patterns, git state, and codebase — then produces expert-level recommendations for what to ... |
+| 115 | **writing-plans** | Use when you have a spec or requirements for a multi-step task, before touching code |
+| 116 | **zero-iteration** | Mentally execute code before writing it. Trace inputs through logic, predict outputs, catch bugs before they exist. Reduces edit-test-fix cycles by getting it right the first time. Always-on awaren... |
