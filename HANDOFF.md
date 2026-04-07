@@ -2,7 +2,7 @@
 ## Model: Claude Opus 4.6
 ## Previous handoff: handoff_nicks-claude-code-superpowers_2026-03-28_2107.md
 ## GitHub repo: nhouseholder/nicks-claude-code-superpowers
-## Local path: ~/Library/Mobile Documents/com~apple~CloudDocs/superpowers
+## Local path: ~/ProjectsHQ/superpowers
 ## Last commit date: 2026-03-31 14:37:02 -0700
 
 ---
@@ -130,12 +130,12 @@ Read these files first (in order):
 1. This handoff
 2. handoff_nicks-claude-code-superpowers_2026-03-28_2107.md (previous session)
 3. ~/.claude/anti-patterns.md
-4. ~/Library/Mobile Documents/com~apple~CloudDocs/superpowers/CLAUDE.md
+4. ~/ProjectsHQ/superpowers/CLAUDE.md
 5. ~/.claude/CLAUDE.md (global rules)
 6. ~/.claude/hooks/improve-prompt.py (most complex hook — agent routing)
 7. ~/.claude/hooks/session-complete-notify.py (new this session)
 
-**Canonical local path for this project: ~/Library/Mobile Documents/com~apple~CloudDocs/superpowers**
+**Canonical local path for this project: ~/ProjectsHQ/superpowers**
 **Do NOT open this project from /tmp/. Use the path above.**
 
 ---
@@ -146,5 +146,5 @@ Before doing ANY work, run the 3-Gate Verification from ~/.claude/CLAUDE.md:
 3. GATE 3: Read this handoff + MEMORY.md + anti-patterns.md + recurring-bugs.md
 ALL 3 GATES MUST PASS before touching any code.
 
-**Canonical path for this project: ~/Library/Mobile Documents/com~apple~CloudDocs/superpowers**
+**Canonical path for this project: ~/ProjectsHQ/superpowers**
 **Last verified commit: 838c5b8 on 2026-03-31**
