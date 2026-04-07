@@ -137,3 +137,11 @@
 - **Flawed assumption**: I assumed a single flavor mention across sparse reviews was enough to drive the UI, and that missing roast data should not narrow a positive roast filter.
 - **Reasoning lesson**: When the UI claims a value is review-derived or filterable, require repeated evidence and use strict inclusion rules instead of permissive fallthroughs.
 - **Applies when**: Extracting structured tags from sparse review text or building categorical filters on partial enrichment data.
+
+## BrewMap — Mobile Scroll Blocked By Container Gesture Locking (BREWMAP_SCROLL_GESTURE_LOCK) — 2026-04-06
+- **Pattern**: The site appears not to scroll on mobile because the bottom sheet and list areas ignore normal touch scrolling.
+- **Root cause**: The entire mobile `.sidebar` was set to `touch-action:none`, and the global `touchmove` preventer only exempted a few descendants instead of treating the sidebar as a scrollable interaction region.
+- **Fix**: Keep gesture locking only on the sheet handle, restore normal touch handling on the sidebar, and let the body-level touch blocker allow any touch interaction inside `.sidebar`, `.detail-panel`, `.city-search-results`, `#map`, and `.loading-overlay`.
+- **Flawed assumption**: I treated the whole sheet like a drag surface instead of isolating drag behavior to the handle.
+- **Prevention rule**: Never apply `touch-action:none` to an entire mobile container that also holds scrollable content. Restrict drag-only gesture locking to the explicit handle.
+- **Verification**: On a mobile viewport, confirm the shop list and featured rails can scroll naturally while the sheet handle still drags the panel.
