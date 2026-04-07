@@ -2,13 +2,20 @@
 
 > Claude checks this before debugging to avoid repeating known-bad approaches.
 > Pruned 2026-04-01: kept recurring behavioral patterns + permanent rules. One-time bug fixes removed (the fix is in the code).
-> Last updated: 2026-04-03
+> Last updated: 2026-04-07
+
+## UFC — O/U Odds Source Mismatch After Contract Unification (OU_ODDS_SOURCE_DRIFT) — 2026-04-07
+- **Pattern**: O/U contract unification (v11.23.1, `ou_contract.py`) changed O/U odds source from DEC-prop-derived inline odds (broad coverage, ~438 bets) to BFO scraper cache only (~145 bets). `ufc_ou_odds_cache.json` has 618 flat entries (old derived odds) that are unreachable by `get_ou_odds()` because it requires event-nested keys. This caused a legitimate -104u absolute profit drop while per-bet ROI improved (42% → 55%).
+- **Root cause**: `scrape_ou_odds.get_ou_odds(event_name, ...)` does `cache.get(event_name, {})` — only finds event-nested entries. Old derived odds stored as flat `"fighter_a|||fighter_b"` keys are orphaned.
+- **Impact**: O/U bets dropped from 438 to 145 (-67%), absolute O/U P/L from +181u to +79u, full combined from +779u to +717u.
+- **Status**: RESOLVED v11.23.5 (2026-04-07). DEC-prop-derived fallback added to `get_ou_odds()` + relaxed price gates (floor -400, cap ±600). Recovered 78 O/U bets (+8.65u). Remaining gap (~215 bets) is from prop cache name mismatches and missing DEC props.
+- **Applies when**: Any O/U odds infrastructure change. Verify `get_ou_odds()` can reach all cache entry formats.
 
 ## UFC — Fabricated O/U Odds Fallback (FABRICATED_ODDS) — 2026-04-03
 - **Pattern**: When real BFO O/U odds exceed the ±400 cap, the algorithm silently falls back to hardcoded -150 (Over) or -130 (Under) defaults. These fabricated odds produce inflated P/L (e.g., -150 pays +67% vs real -430 paying +23%).
 - **Root cause**: Cap was designed for derived odds (which can hit -2000+) but also rejected legitimate real sportsbook odds at -430 to -500. Fallback to hardcoded default was silent — no indication that real odds were rejected.
 - **Impact**: +5.93u inflated P/L from fake odds payouts on heavy-juice Over bets.
-- **Fix**: When real BFO odds exist and exceed ±400, SKIP the bet entirely. Never fall back to fabricated defaults. Applies in both prediction path (UFC_Alg line ~9760) and backtest path (fix_registry_placed_flags.py line ~370).
+- **Fix**: When real BFO odds exist and exceed ±600, SKIP the bet entirely. Never fall back to fabricated defaults. Applies in both prediction path and backtest path. Cap raised from ±400 to ±600 in v11.23.5.
 - **Applies when**: Any O/U odds handling. If you add a new odds source, ensure the cap-exceeded path SKIPS rather than falls back to a default.
 
 ## UFC — Stale Derived Data Files (STALE_HERO_STATS) — 2026-04-01
