@@ -121,9 +121,26 @@ python3 ~/.claude/skills/website-design-agent/scripts/design_token_generator.py 
 
 - **Typography**: Distinctive, characterful font choices. Pair a display font with a refined body font. Never default to Inter/Roboto.
 - **Color**: Dominant colors with sharp accents. CSS variables for consistency. 60-30-10 rule. Tinted neutrals (chroma 0.01, not pure gray).
-- **Motion**: High-impact moments — staggered page load reveals, scroll-triggered animations, surprising hover states. CSS-only for HTML; Motion library for React. 100ms micro, 300ms transition, 500ms orchestration.
+- **Motion**: High-impact moments — staggered page load reveals, scroll-triggered animations, surprising hover states. CSS-only for HTML; **Framer Motion for React** (`npm install framer-motion`). Timing: 100ms micro, 300ms transition, 500ms orchestration.
+
+### Framer Motion Patterns (React projects)
+When `framer-motion` is installed or the project is React-based, use these:
+- **Animate on mount**: `<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>`
+- **Exit animations**: Wrap in `<AnimatePresence>` for unmount transitions
+- **Staggered reveals**: Parent `transition={{ staggerChildren: 0.1 }}` + children `variants`
+- **Scroll effects**: `useScroll()` + `useTransform(scrollYProgress, [0, 1], [0, -50])` for parallax
+- **Hover/tap**: `whileHover={{ scale: 1.02 }}` `whileTap={{ scale: 0.98 }}` — subtle, not cartoonish
+- **Layout animations**: `layout` prop on `motion.div` for smooth reflows (list reorder, expand/collapse)
+- **Performance**: Use `willChange` sparingly. Prefer `transform`/`opacity` over `width`/`height`. Exit animations need `key` on `AnimatePresence` children.
 - **Spatial**: Unexpected layouts. Asymmetry. Overlap. Grid-breaking. Generous negative space OR controlled density. 4pt base grid.
 - **Atmosphere**: Gradient meshes, noise textures, geometric patterns, layered transparencies, dramatic shadows, grain overlays. Never default to solid white/dark backgrounds.
+
+### 21st.dev Component Library (on-demand)
+Premium UI building blocks — hero sections, feature grids, pricing tables, testimonials, CTAs, and more. **Not an always-on MCP** — install per-project when building fresh UIs:
+```bash
+claude mcp add magic -- npx -y @21st-dev/magic@latest
+```
+Use when: starting a new site/landing page and need polished component scaffolding faster than building from scratch. Don't use for: minor updates to existing sites (adds unnecessary MCP overhead). After the build session, the MCP can be removed.
 
 ### Library Discipline
 If a UI library (Shadcn, Radix, MUI) is detected: **USE IT**. Don't build custom primitives. Wrap/style library components for the aesthetic, but the underlying primitive must come from the library.
