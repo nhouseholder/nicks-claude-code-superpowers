@@ -62,6 +62,15 @@ def detect_plan_intent(text):
 
 
 if detect_plan_intent(prompt):
+    # Clean up old plan files so Sonnet doesn't confuse them with the current plan
+    plan_dir = os.path.expanduser("~/.claude/plans")
+    try:
+        import glob
+        for old_plan in glob.glob(os.path.join(plan_dir, "*.md")):
+            os.remove(old_plan)
+    except Exception:
+        pass
+
     # Write marker file for plan-execution-guard.py
     try:
         with open(MARKER_FILE, "w") as f:

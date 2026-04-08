@@ -97,15 +97,32 @@ def main():
     except Exception:
         pass
 
+    # Find the plan file path to include in instructions
+    plan_path = "the plan file"
+    try:
+        found = sorted(
+            glob.glob(os.path.join(PLAN_DIR, "*.md")),
+            key=os.path.getmtime,
+            reverse=True,
+        )
+        if found:
+            plan_path = found[0]
+    except Exception:
+        pass
+
     # Block with instructions
     result = {
         "decision": "block",
         "reason": (
             f"PLAN EXECUTION BLOCKED — Switch to Sonnet first.\n"
+            f"Plan: {plan_path}\n"
             f"Complexity: {complexity} | Steps: {step_count} | Files: {file_count}\n\n"
             "MANDATORY — tell the user EXACTLY this:\n"
             "'Plan approved. Run /model sonnet (or click the model selector) "
             "to switch to Sonnet 4.6 for execution, then send \"go\" to begin.'\n\n"
+            "CRITICAL FOR NEXT AGENT (Sonnet): The plan file above is the CURRENT plan. "
+            "READ it and EXECUTE it step by step. Do NOT overwrite it. Do NOT write a new plan. "
+            "It was written by Opus specifically for you to execute mechanically.\n\n"
             "Do NOT attempt ANY code changes this turn. STOP after delivering the message above."
         ),
     }
