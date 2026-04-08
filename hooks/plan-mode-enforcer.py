@@ -18,7 +18,7 @@ import re
 import sys
 
 PLAN_DIR = os.path.expanduser("~/.claude/plans")
-CONSUMED_FILE = os.path.expanduser("~/.claude/.plan-guard-consumed")
+GUARD_ACTIVE = os.path.expanduser("~/.claude/.plan-guard-active")
 
 try:
     input_data = json.load(sys.stdin)
@@ -70,9 +70,11 @@ if detect_plan_intent(prompt):
     except Exception:
         pass
 
-    # Delete consumed marker so guard can block fresh for this new plan
+    # Activate the guard — blocks Edit/Write until user switches to Sonnet
+    # and Claude removes the guard file
     try:
-        os.remove(CONSUMED_FILE)
+        with open(GUARD_ACTIVE, "w") as f:
+            f.write("active")
     except Exception:
         pass
 
