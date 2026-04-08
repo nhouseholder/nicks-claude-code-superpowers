@@ -1,24 +1,27 @@
 #!/usr/bin/env python3
 """
-Plan Mode Enforcer — Injects "Sonnet-proof plan" instructions when planning is detected.
+Plan Mode Enforcer — Two responsibilities:
 
-Fires on UserPromptSubmit. Detects plan-related intent in the user's prompt
-and injects detailed plan requirements so Claude writes plans that Sonnet
-can execute with zero ambiguity.
+1. On plan intent: injects "Sonnet-proof plan" format requirements, cleans old
+   plan files, activates the execution guard.
 
-Also cleans up old plan files and the consumed guard marker so the
-plan-execution-guard can block fresh after new plan completion.
+2. On "go" after plan: writes claude-sonnet-4-6 to settings.json BEFORE the
+   model processes the turn. If Claude Code hot-reloads settings between the
+   hook and model invocation, the switch is automatic. Injects instructions
+   to execute the plan from the file.
 
-Exit code 0 always.
+Fires on UserPromptSubmit. Exit code 0 always.
 """
 import json
 import glob
 import os
 import re
 import sys
+import time
 
 PLAN_DIR = os.path.expanduser("~/.claude/plans")
 GUARD_ACTIVE = os.path.expanduser("~/.claude/.plan-guard-active")
+SETTINGS_PATH = os.path.expanduser("~/.claude/settings.json")
 
 try:
     input_data = json.load(sys.stdin)
@@ -28,9 +31,71 @@ except (json.JSONDecodeError, Exception):
 prompt = input_data.get("prompt", "").strip()
 prompt_lower = prompt.lower()
 
-# Skip empty, very short, or slash-command prompts
-if not prompt or len(prompt) < 3 or prompt.startswith("/"):
+# Skip empty or slash-command prompts
+if not prompt or prompt.startswith("/"):
     sys.exit(0)
+
+# === "GO" DETECTION — Execute plan with Sonnet ===
+# Detect "go", "continue", "execute", "start", "begin", "run it", "do it"
+GO_SIGNALS = [
+    "go", "go!", "lets go", "let's go", "start", "begin", "execute",
+    "run it", "do it", "proceed", "continue", "execute the plan",
+    "execute plan", "run the plan", "start execution", "go ahead",
+]
+
+if prompt_lower.strip().rstrip("!.") in GO_SIGNALS or prompt_lower in GO_SIGNALS:
+    # Check if there's a recent plan file (written within last 30 min)
+    recent_plan = None
+    try:
+        plan_files = sorted(
+            glob.glob(os.path.join(PLAN_DIR, "*.md")),
+            key=os.path.getmtime,
+            reverse=True,
+        )
+        if plan_files:
+            age = time.time() - os.path.getmtime(plan_files[0])
+            if age < 1800:  # 30 minutes
+                recent_plan = plan_files[0]
+    except Exception:
+        pass
+
+    if recent_plan:
+        # Switch model to Sonnet in settings.json BEFORE model processes
+        try:
+            with open(SETTINGS_PATH, "r") as f:
+                settings = json.load(f)
+            if "opus" in settings.get("model", "").lower():
+                settings["model"] = "claude-sonnet-4-6"
+                with open(SETTINGS_PATH, "w") as f:
+                    json.dump(settings, f, indent=2)
+                    f.write("\n")
+        except Exception:
+            pass
+
+        # Remove guard if it exists
+        try:
+            os.remove(GUARD_ACTIVE)
+        except Exception:
+            pass
+
+        output = {
+            "hookSpecificOutput": {
+                "hookEventName": "UserPromptSubmit",
+                "additionalContext": (
+                    f"PLAN EXECUTION MODE — settings.json switched to claude-sonnet-4-6.\n\n"
+                    f"Plan file: {recent_plan}\n\n"
+                    "INSTRUCTIONS:\n"
+                    f"1. Read the plan at {recent_plan}\n"
+                    "2. Execute it step by step — every step exactly as written\n"
+                    "3. Do NOT rewrite, overwrite, or re-plan. Just execute.\n"
+                    "4. Mark tasks as you complete them\n"
+                    "5. If the model did NOT switch to Sonnet automatically, tell the user:\n"
+                    "   'Run /model sonnet first, then send go again.'"
+                )
+            }
+        }
+        print(json.dumps(output))
+        sys.exit(0)
 
 # === PLAN DETECTION SIGNALS ===
 PLAN_SIGNALS = [
@@ -70,8 +135,7 @@ if detect_plan_intent(prompt):
     except Exception:
         pass
 
-    # Activate the guard — blocks Edit/Write until user switches to Sonnet
-    # and Claude removes the guard file
+    # Activate the guard — blocks Edit/Write until "go" triggers model switch
     try:
         with open(GUARD_ACTIVE, "w") as f:
             f.write("active")
@@ -100,8 +164,8 @@ if detect_plan_intent(prompt):
                 "If a step requires choosing between approaches, make the choice NOW "
                 "and document WHY in the plan. Zero decision points for the executor.\n\n"
                 "AFTER writing the plan and calling ExitPlanMode:\n"
-                "Do NOT start executing the plan yourself. Tell the user to switch to Sonnet "
-                "for execution. You are the PLANNER, not the executor."
+                "Do NOT start executing the plan yourself. Tell the user to type 'go' "
+                "to begin execution with Sonnet. You are the PLANNER, not the executor."
             )
         }
     }
