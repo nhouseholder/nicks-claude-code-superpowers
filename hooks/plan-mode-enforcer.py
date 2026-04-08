@@ -43,10 +43,16 @@ if tool_name == "ExitPlanMode":
                 f.write("\n")
     except Exception:
         pass
-    # KEEP guard active — do NOT remove it here.
-    # ExitPlanMode fires during the planning turn, before the user sees the plan.
-    # The guard must remain so plan-execution-guard.py blocks Edit/Write on the
-    # next turn, and so the UserPromptSubmit handler can inject "switch" context.
+    # ENSURE guard exists — CREATE it if plan mode was toggled via UI (not text).
+    # When user toggles plan mode in Desktop app, detect_plan_intent() never fires,
+    # so the guard is never created. ExitPlanMode is our last chance to create it
+    # before the user clicks "Approve plan and start coding".
+    if not os.path.exists(GUARD_ACTIVE):
+        try:
+            with open(GUARD_ACTIVE, "w") as f:
+                f.write("active")
+        except Exception:
+            pass
     sys.exit(0)
 
 prompt = input_data.get("prompt", "").strip()
@@ -57,17 +63,25 @@ if not prompt or prompt.startswith("/"):
     sys.exit(0)
 
 # === "GO" DETECTION — Execute plan with Sonnet ===
-# Detect "go", "continue", "execute", "start", "begin", "run it", "do it"
-# Also covers "Implement Plan" button text variants
-GO_SIGNALS = [
+# Two tiers: exact match for short signals, substring for longer button text.
+# Desktop app button: "Approve plan and start coding"
+# CLI plan mode button: "Implement Plan" or similar
+EXACT_GO = [
     "go", "go!", "lets go", "let's go", "start", "begin", "execute",
-    "run it", "do it", "proceed", "continue", "execute the plan",
-    "execute plan", "run the plan", "start execution", "go ahead",
-    "implement", "implement plan", "implement the plan",
-    "implement it", "do the plan", "apply the plan",
+    "run it", "do it", "proceed", "continue", "go ahead",
+    "implement", "implement it",
+]
+SUBSTRING_GO = [
+    "approve plan", "approve the plan", "start coding",
+    "execute the plan", "execute plan", "run the plan",
+    "implement plan", "implement the plan",
+    "do the plan", "apply the plan", "start execution",
 ]
 
-if prompt_lower.strip().rstrip("!.") in GO_SIGNALS or prompt_lower in GO_SIGNALS:
+cleaned = prompt_lower.strip().rstrip("!.")
+is_go = cleaned in EXACT_GO or any(sg in prompt_lower for sg in SUBSTRING_GO)
+
+if is_go:
     # Check if there's a recent plan file (written within last 30 min)
     recent_plan = None
     try:
@@ -113,8 +127,8 @@ if prompt_lower.strip().rstrip("!.") in GO_SIGNALS or prompt_lower in GO_SIGNALS
                     "2. Execute it step by step — every step exactly as written\n"
                     "3. Do NOT rewrite, overwrite, or re-plan. Just execute.\n"
                     "4. Mark tasks as you complete them\n"
-                    "5. If the model did NOT switch to Sonnet automatically, tell the user:\n"
-                    "   'Run /model sonnet first, then send go again.'"
+                    "5. If you are still running as Opus (check your model ID), tell the user:\n"
+                    "   'Switch to Sonnet first — Desktop app: model dropdown → Sonnet. CLI: /model sonnet. Then type go.'"
                 )
             }
         }
@@ -136,8 +150,9 @@ if os.path.exists(GUARD_ACTIVE):
                         "PLAN GUARD ACTIVE — MANDATORY, output this FIRST before anything else:\n\n"
                         "Tell the user VERBATIM:\n"
                         "\"⚠️ You're in Opus mode. Switch to Sonnet before executing (~50% cheaper):\n"
-                        "   1. Run: /model sonnet\n"
-                        "   2. Then type: go\n"
+                        "   - Desktop app: Click the model selector dropdown → pick Sonnet\n"
+                        "   - CLI: Run /model sonnet\n"
+                        "   Then type: go\n"
                         "Waiting for you to switch...\"\n\n"
                         "Do NOT read files, run commands, or execute any plan steps. "
                         "Output ONLY the message above and stop."
