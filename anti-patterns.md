@@ -121,6 +121,13 @@
 - **Fix**: ALWAYS commit + push BEFORE deploying. Mandatory sequence: build → commit → push → deploy → verify. Never use `wrangler pages deploy` without a clean git state and pushed commit.
 - **Applies when**: Any Cloudflare Pages deploy, any version bump, any `wrangler` command. Check `git status` before deploying — if there are uncommitted changes, commit and push first.
 
+## ResumeForge — PDF Upload Spinner From CDN Worker + Missing Finalizer (PDF_WORKER_SPINNER_TRAP) — 2026-04-08
+- **Pattern**: Uploading a PDF leaves the builder stuck on "Reading file" instead of reaching either the editor or an error state.
+- **Root cause**: The client parser pointed PDF.js at a CDN-hosted `pdf.worker.min.mjs` URL that failed to load for the shipped version, and `BuilderPage.handleFile()` did not use `try/finally`, so extraction exceptions left `isParsing` true forever.
+- **Fix**: Bundle the PDF worker locally via `new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url)`, catch text-extraction failures in `parseResume()`, and always clear parsing state in `BuilderPage` with `finally`.
+- **Prevention rule**: Never make the upload spinner depend on external worker/CDN availability, and never let async intake flows mutate loading state without a guaranteed cleanup path.
+- **Verification**: Upload a PDF in browser automation and confirm the app does not remain on "Reading file"; it must either open the editor or show the intake error state.
+
 ## Permanent — ALWAYS Use `tier` Field for Pick Filtering (TIER_FILTER_GATE) — 2026-04-02
 - **Pattern**: Frontend filters picks using legacy boolean flags (`is_apex`, `is_agree`, `is_ml_pick`) which miss newer tiers (MADNESS, DISCOVERY, MONEYLINE) that only set `tier` field. Picks appear in grading but never show in bet history.
 - **Root cause**: DashboardPage.jsx `unifiedResults` filter checked `!r.is_apex && !r.is_agree && !r.is_ml_pick` — MADNESS picks have `is_madness: true` but this flag was never checked. The `tier` field was introduced later but never used as the canonical filter.
