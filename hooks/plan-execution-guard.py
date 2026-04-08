@@ -92,18 +92,39 @@ def main():
     except Exception:
         pass
 
-    # === BLOCK — guard is active, block every attempt ===
+    # === BLOCK — guard is active ===
+
+    # Write Sonnet to settings.json — takes effect on next turn if Claude Code
+    # re-reads between turns, otherwise user needs /model sonnet manually
+    settings_path = os.path.expanduser("~/.claude/settings.json")
+    try:
+        with open(settings_path, "r") as f:
+            settings = json.load(f)
+        if "opus" in settings.get("model", "").lower():
+            settings["model"] = "claude-sonnet-4-6"
+            with open(settings_path, "w") as f:
+                json.dump(settings, f, indent=2)
+                f.write("\n")
+    except Exception:
+        pass
+
+    # Remove guard — one-shot block. Next turn (hopefully Sonnet) proceeds freely.
+    try:
+        os.remove(GUARD_ACTIVE)
+    except Exception:
+        pass
+
     result = {
         "decision": "block",
         "reason": (
-            f"PLAN EXECUTION BLOCKED — Opus cannot execute this plan.\n"
+            f"PLAN EXECUTION BLOCKED — switching to Sonnet for execution.\n"
             f"Plan: {plan_path} | {complexity} | {step_count} steps | {file_count} files\n\n"
-            "This plan was written for Sonnet to execute. You MUST tell the user:\n\n"
-            "  'Run /model sonnet to switch, then send go.'\n\n"
-            "After the user switches to Sonnet: run this command to unlock:\n"
-            f"  rm {GUARD_ACTIVE}\n\n"
-            "Then execute the plan step by step from {plan_path}.\n"
-            "Do NOT attempt any code changes until the guard file is removed."
+            "settings.json updated to claude-sonnet-4-6. Guard removed.\n\n"
+            "Tell the user EXACTLY: 'Type go to execute the plan with Sonnet.'\n\n"
+            "If the model did NOT switch automatically on the next turn, tell the user:\n"
+            "'Run /model sonnet first, then type go.'\n\n"
+            f"NEXT AGENT: Read and execute {plan_path} step by step. "
+            "Do NOT rewrite it. Do NOT overwrite it. Just follow it."
         ),
     }
     print(json.dumps(result))
