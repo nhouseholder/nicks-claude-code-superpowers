@@ -103,7 +103,7 @@ When switching projects: drop all assumptions, read project CLAUDE.md + memory, 
 12. **Never poll background tasks** — use `run_in_background` or long timeout
 14. **No unsolicited Preview** — NEVER use Claude Preview (preview_start, preview_screenshot, etc.) to open or screenshot web pages unless the user explicitly asks to preview, test, or visually verify. Code changes don't need visual confirmation by default.
 15. **Never retry blind** — If a command produces empty/unexpected output, STOP. Diagnose (check exit code, stderr, cwd, deps) before re-running. Empty output = silent failure, not "needs more time." See BLIND_RETRY anti-pattern.
-16. **Budget context per turn** — Max 2 large file reads per turn (>100 lines). Never dump raw JSON via cat/print — use `python3 -c` to extract specific fields. Act on what you've read before reading more. See CONTEXT_FLOOD anti-pattern.
+16. **Budget context per turn** — Max 2 large file reads per turn (>100 lines). Never dump raw JSON via cat/print — use `python3 -c` to extract specific fields. Act on what you've read before reading more. PDFs: ALWAYS use `pages` parameter for PDFs over 10 pages — a full PDF can consume 80% of context. Read only the pages you need. See CONTEXT_FLOOD anti-pattern.
 13. **Hallucination Prevention** — When working with external data (models, pricing, features, APIs):
     - NEVER invent missing data to "complete" a dataset
     - NEVER guess future product versions
