@@ -43,11 +43,10 @@ if tool_name == "ExitPlanMode":
                 f.write("\n")
     except Exception:
         pass
-    # Remove stale guard — plan is done, next turn is execution
-    try:
-        os.remove(GUARD_ACTIVE)
-    except Exception:
-        pass
+    # KEEP guard active — do NOT remove it here.
+    # ExitPlanMode fires during the planning turn, before the user sees the plan.
+    # The guard must remain so plan-execution-guard.py blocks Edit/Write on the
+    # next turn, and so the UserPromptSubmit handler can inject "switch" context.
     sys.exit(0)
 
 prompt = input_data.get("prompt", "").strip()
@@ -121,6 +120,34 @@ if prompt_lower.strip().rstrip("!.") in GO_SIGNALS or prompt_lower in GO_SIGNALS
         }
         print(json.dumps(output))
         sys.exit(0)
+
+# === GUARD ACTIVE — non-GO prompt ===
+# Guard is active but prompt wasn't a GO signal (e.g. "Implement Plan" button sends
+# different text, or user typed something unrecognized). Inject context so Claude
+# immediately tells the user to switch to Sonnet — before executing anything.
+if os.path.exists(GUARD_ACTIVE):
+    try:
+        age = time.time() - os.path.getmtime(GUARD_ACTIVE)
+        if age < 1800:  # guard is recent (< 30 min)
+            output = {
+                "hookSpecificOutput": {
+                    "hookEventName": "UserPromptSubmit",
+                    "additionalContext": (
+                        "PLAN GUARD ACTIVE — MANDATORY, output this FIRST before anything else:\n\n"
+                        "Tell the user VERBATIM:\n"
+                        "\"⚠️ You're in Opus mode. Switch to Sonnet before executing (~50% cheaper):\n"
+                        "   1. Run: /model sonnet\n"
+                        "   2. Then type: go\n"
+                        "Waiting for you to switch...\"\n\n"
+                        "Do NOT read files, run commands, or execute any plan steps. "
+                        "Output ONLY the message above and stop."
+                    )
+                }
+            }
+            print(json.dumps(output))
+            sys.exit(0)
+    except Exception:
+        pass
 
 # === PLAN DETECTION SIGNALS ===
 PLAN_SIGNALS = [
