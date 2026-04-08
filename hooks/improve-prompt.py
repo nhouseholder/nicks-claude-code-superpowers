@@ -323,6 +323,46 @@ ANTI-PIVOT RULES (always active):
 - If arithmetic can answer your question, don't run code. Calculate first.""")
     sys.exit(0)
 
+# === KERNEL quality scoring ===
+def kernel_check(text):
+    """Score prompt on KERNEL dimensions. Returns list of issues."""
+    issues = []
+    tl = text.lower()
+    words = tl.split()
+    wc = len(words)
+
+    # K: Keep simple — overloaded wall of text
+    if wc > 60 and "\n" not in text and ":" not in text:
+        issues.append("simplify to one clear goal")
+
+    # E: Easy to verify — vague success criteria
+    vague_terms = ["better", "improve", "good", "nice", "clean up", "make it look",
+                   "engaging", "professional", "more modern", "enhance"]
+    if any(v in tl for v in vague_terms):
+        issues.append("add success criteria (how to verify?)")
+
+    # R: Reproducible — temporal references
+    temporal = ["current trends", "latest", "best practices", "up to date",
+                "modern approach", "trending"]
+    if any(t in tl for t in temporal):
+        issues.append("use specific versions, not temporal refs")
+
+    # N: Narrow scope — multiple unrelated goals
+    if tl.count(" and ") + tl.count(" also ") >= 3:
+        issues.append("narrow scope — split into separate prompts")
+
+    # E: Explicit constraints — no boundaries on longer prompts
+    constraints = ["don't", "not ", "only ", "must ", "no ", "without ",
+                   "avoid ", "max ", "limit", "under ", "less than"]
+    if not any(c in tl for c in constraints) and wc > 20:
+        issues.append("add constraints (what NOT to do)")
+
+    # L: Logical structure — wall of text
+    if wc > 30 and not any(m in text for m in [":", "\n", "1.", "2.", "- "]):
+        issues.append("add structure: Task / Context / Constraints / Output")
+
+    return issues
+
 # === ROUTING ===
 word_count = len(prompt.split())
 agent_route = route(prompt_lower)
@@ -337,6 +377,17 @@ if agent_route:
         f"Do NOT spawn subagents unless the task genuinely requires parallel independent work.\n\n"
         f"ANTI-PIVOT: If you change approach, diagnose WHY the first failed before trying another. "
         f"2+ pivots without a written reason = you're thrashing. Stop, write a 1-sentence plan, then execute ONE approach."
+    )
+
+# KERNEL check — append to directive when prompt fails 3+ criteria
+kernel_issues = kernel_check(prompt)
+if len(kernel_issues) >= 3:
+    issue_list = "; ".join(kernel_issues)
+    directive += (
+        f"\n\nKERNEL CHECK: Prompt has structural issues that risk wrong-path execution. "
+        f"Issues: {issue_list}. "
+        "Before executing, mentally restructure: Task (what) → Context (where) → "
+        "Constraints (boundaries) → Verify (success check)."
     )
 
 # === FAST-PATH ===
