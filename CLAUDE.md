@@ -115,6 +115,7 @@ When switching projects: drop all assumptions, read project CLAUDE.md + memory, 
 **Model selection:** Recommend the right model for the task. One suggestion per task, no nagging.
 - **Sonnet 4.6** — Mechanical execution with clear intent: renames, single-file edits, running commands, executing a pre-written plan, CRUD, tests for existing code
 - **Opus 4.6** — Requires reasoning, choosing between approaches, debugging unknowns, architecture, planning, multi-file features, security
+- **Haiku 4.5** — Subagent tasks that don't need reasoning: simple lookups, grep/glob searches, file reads, formatting. Pass `model: "haiku"` in Agent tool calls.
 - **Opus 4.6 1M** — ONLY when hitting the 200K context ceiling (huge codebases, 50K+ line files, 100+ file refactors). Standard Opus is cheaper for everything else.
 
 **Effort level:** Match effort to task, not model.
@@ -161,7 +162,7 @@ Lead with user impact. Tables for comparisons. One-line status for routine work.
 
 **Proactive optimization:** When you notice a skill producing inconsistent results, a prompt being rewritten 3+ times in a session, or the user doing the same task repeatedly with mixed quality — suggest `/autoresearch` to systematically diagnose and improve it.
 
-**Pre-compaction save:** When you notice the session is getting long (many tool calls, large context, multiple tasks completed), proactively commit and push any uncommitted work, then suggest running `/full-handoff` before context compression loses decisions and nuance. Don't wait for the user to ask — the whole point is saving state BEFORE it's lost. If the user declines, at minimum write a 3-line summary of current state, open decisions, and next steps as a comment to yourself.
+**Compact at 60% — don't wait for auto-compact.** Auto-compact fires at 95% but by then context quality is already degraded. When the context-saver hook injects a reminder (or you notice the session is heavy), suggest `/compact` to the user. Before compacting: commit and push any uncommitted work, then suggest `/full-handoff` to preserve decisions. If user declines handoff, write a 3-line summary of current state, open decisions, and next steps as a comment to yourself.
 
 ## Environment
 
