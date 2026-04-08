@@ -28,6 +28,28 @@ try:
 except (json.JSONDecodeError, Exception):
     sys.exit(0)
 
+# === ExitPlanMode PreToolUse — switch model BEFORE user triggers implementation ===
+# When Claude calls ExitPlanMode (end of planning turn), switch settings.json to
+# Sonnet immediately so the NEXT turn (however triggered — button or text) uses Sonnet.
+tool_name = input_data.get("tool_name", "")
+if tool_name == "ExitPlanMode":
+    try:
+        with open(SETTINGS_PATH, "r") as f:
+            settings = json.load(f)
+        if "opus" in settings.get("model", "").lower():
+            settings["model"] = "claude-sonnet-4-6"
+            with open(SETTINGS_PATH, "w") as f:
+                json.dump(settings, f, indent=2)
+                f.write("\n")
+    except Exception:
+        pass
+    # Remove stale guard — plan is done, next turn is execution
+    try:
+        os.remove(GUARD_ACTIVE)
+    except Exception:
+        pass
+    sys.exit(0)
+
 prompt = input_data.get("prompt", "").strip()
 prompt_lower = prompt.lower()
 
@@ -37,10 +59,13 @@ if not prompt or prompt.startswith("/"):
 
 # === "GO" DETECTION — Execute plan with Sonnet ===
 # Detect "go", "continue", "execute", "start", "begin", "run it", "do it"
+# Also covers "Implement Plan" button text variants
 GO_SIGNALS = [
     "go", "go!", "lets go", "let's go", "start", "begin", "execute",
     "run it", "do it", "proceed", "continue", "execute the plan",
     "execute plan", "run the plan", "start execution", "go ahead",
+    "implement", "implement plan", "implement the plan",
+    "implement it", "do the plan", "apply the plan",
 ]
 
 if prompt_lower.strip().rstrip("!.") in GO_SIGNALS or prompt_lower in GO_SIGNALS:
