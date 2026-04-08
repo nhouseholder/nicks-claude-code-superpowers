@@ -162,3 +162,12 @@
 - **Fix**: Added a scoped `.input-no-spinner` utility for the affected portfolio number inputs, widened the inline edit fields slightly, labeled the edit cells as `Shares`, `Basis`, and `P/L`, and rendered QORE distribution values as separated badges.
 - **Prevention rule**: In dense financial tables, never ship default browser number steppers or unlabeled edit-mode cells. If a cell changes meaning in edit mode, label it inside the cell and verify the value is readable at the actual table width.
 - **Verification**: On `/portfolio`, inline holding edit must show the full quantity value, trade form numeric inputs must render without native Safari steppers, and the Portfolio Grade QORE buckets must render as distinct badges.
+
+## MyStrainAI — esbuild.drop:['console'] Breaks Library Error Handling (ESBUILD_DROP_CONSOLE) — 2026-04-07
+- **Pattern**: Using `esbuild: { drop: ['console'] }` in vite.config.js removes ALL console methods including `console.error` and `console.warn`, which breaks libraries that use those methods in their internal error handling paths (FingerprintJS, Firebase Auth).
+- **Root cause**: `esbuild.drop: ['console']` is equivalent to `delete console.*` — a blanket removal. On Brave browser with fingerprint protection enabled, FingerprintJS hits error paths that call `console.error` at startup. With the method removed, uninitialized variable propagation fails silently, causing a TDZ (Temporal Dead Zone) ReferenceError that crashes the app.
+- **Symptom**: Mobile TDZ crash: `ReferenceError: Cannot access 'X' before initialization` on browsers with privacy protections (Brave, Firefox w/ Enhanced Tracking). Doesn't repro on Chrome/Safari.
+- **First fix (wrong)**: Added `Cache-Control: no-cache` + ErrorBoundary stale-chunk reload — didn't fix root cause.
+- **Correct fix (v5.217.7)**: Changed to `esbuild: { pure: ['console.log', 'console.debug'] }` — only strips non-essential calls, preserves `console.error`/`console.warn` for library error handling.
+- **Rule**: NEVER use `esbuild.drop: ['console']` for production builds. Use `esbuild.pure` targeting only `console.log` and `console.debug`. `console.error` and `console.warn` are load-bearing for third-party libraries.
+- **Verification**: Build with `esbuild.pure`, test on Brave with "Shields Up". FingerprintJS initialization must not throw.
