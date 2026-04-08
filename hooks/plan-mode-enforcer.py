@@ -73,18 +73,23 @@ if detect_plan_intent(prompt):
         "hookSpecificOutput": {
             "hookEventName": "UserPromptSubmit",
             "additionalContext": (
-                "PLAN MODE ENFORCEMENT: Write a highly detailed and specific "
-                "step-by-step plan that Sonnet can execute with minimal room for error. "
-                "Requirements for every plan:\n"
-                "- Exact file paths to create or modify\n"
-                "- Exact line numbers or unique string matches for edits\n"
-                "- Exact code blocks — copy-paste ready, not pseudocode\n"
-                "- Exact shell commands to run (with expected output where relevant)\n"
-                "- Zero decision points — every step must be unambiguous\n"
-                "- Verification steps after each logical group of changes\n\n"
-                "The plan must be 'Sonnet-proof' — a mechanical executor should follow it "
-                "without needing judgment calls. If a step requires a choice, make the choice "
-                "in the plan and document why."
+                "MANDATORY PLAN FORMAT — This overrides default plan mode behavior.\n\n"
+                "You MUST write a 'Sonnet-proof' plan: ultra-specific, zero ambiguity, "
+                "mechanically executable. Sonnet will execute this plan with NO judgment calls.\n\n"
+                "EVERY step MUST include ALL of these:\n"
+                "1. EXACT file path (absolute, not relative)\n"
+                "2. EXACT code — the literal old_string → new_string for Edit, or full content for Write. "
+                "Copy-paste ready. Never pseudocode. Never 'similar to above.' Never '...' ellipsis.\n"
+                "3. EXACT shell commands with expected output where relevant\n"
+                "4. A verification command after each logical group\n\n"
+                "BANNED in plans:\n"
+                "- 'Update the component to...' (vague — SHOW the exact code)\n"
+                "- 'Add appropriate error handling' (ambiguous — WRITE the handler)\n"
+                "- 'Similar changes in other files' (lazy — LIST every file)\n"
+                "- 'Modify as needed' / 'adjust accordingly' (decision point — DECIDE now)\n"
+                "- Pseudocode, placeholder comments, or partial snippets\n\n"
+                "If a step requires choosing between approaches, make the choice NOW "
+                "and document WHY in the plan. Zero decision points for the executor."
             )
         }
     }

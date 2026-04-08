@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """
-Plan Execution Guard — Blocks plan execution until model switches to Sonnet.
+Plan Execution Guard — Blocks code edits until user switches to Sonnet.
 
-Fires on PreToolUse:Bash|Edit|Write. When a plan-switch-pending marker
-exists (set by plan-mode-enforcer.py), this hook:
+Fires on PreToolUse:Edit|Write (NOT Bash — Bash is used for read-only
+exploration during plan mode and must not be blocked).
+
+When a .plan-switch-pending marker exists (set by plan-mode-enforcer.py):
 1. Allows writes to ~/.claude/plans/ (still writing the plan)
-2. Blocks all other tool calls with a model-switch instruction
-3. Writes claude-sonnet-4-6 to settings.json
-4. Deletes the marker file
+2. Blocks Edit/Write to any other file with a model-switch instruction
+3. Deletes the marker (one-shot — only blocks once)
 
-This ensures no plan execution happens on Opus after plan approval.
-The user sends one follow-up message and Sonnet handles execution.
+The block tells Claude to instruct the user to run /model sonnet.
+settings.json is also updated for new sessions, but the running session
+requires /model to actually change.
 
 Exit code 0 = allow, exit code 2 = block.
 """
@@ -38,19 +40,18 @@ def main():
     tool_name = hook_input.get("tool_name", "")
     tool_input = hook_input.get("tool_input", {})
 
-    # Allow writes to plan files (still in plan mode)
-    if tool_name in ("Write", "Edit"):
-        file_path = tool_input.get("file_path", "") or tool_input.get("path", "")
-        if file_path and PLAN_DIR in file_path:
-            sys.exit(0)
-
-    # Allow TodoWrite — just task tracking, not execution
-    if tool_name in ("TodoWrite",):
+    # Only act on Edit/Write
+    if tool_name not in ("Write", "Edit"):
         sys.exit(0)
 
-    # === BLOCK EXECUTION — Switch model first ===
+    # Allow writes to plan files (still in plan mode)
+    file_path = tool_input.get("file_path", "") or tool_input.get("path", "")
+    if file_path and PLAN_DIR in file_path:
+        sys.exit(0)
 
-    # Assess plan complexity
+    # === BLOCK EXECUTION — User must switch to Sonnet first ===
+
+    # Assess plan complexity from most recent plan file
     complexity = "MEDIUM"
     step_count = 0
     file_count = 0
@@ -63,8 +64,8 @@ def main():
         if plan_files:
             with open(plan_files[0], "r") as f:
                 plan_content = f.read()
-            step_count = len(re.findall(r"^###\s+Step", plan_content, re.MULTILINE))
-            file_count = len(re.findall(r"\*\*File:\*\*", plan_content))
+            step_count = len(re.findall(r"^###?\s+Step", plan_content, re.MULTILINE))
+            file_count = len(re.findall(r"\*\*File[s]?:\*\*", plan_content))
             complex_keywords = [
                 "architecture", "refactor", "migrate", "multi-file",
                 "database", "schema", "security", "performance",
@@ -78,17 +79,17 @@ def main():
     except Exception:
         pass
 
-    # Switch model in settings.json
+    # Update settings.json for NEW sessions (doesn't affect running session)
     try:
         with open(SETTINGS_PATH, "r") as f:
             settings = json.load(f)
-        old_model = settings.get("model", "unknown")
-        settings["model"] = "claude-sonnet-4-6"
-        with open(SETTINGS_PATH, "w") as f:
-            json.dump(settings, f, indent=2)
-            f.write("\n")
+        if "opus" in settings.get("model", "").lower():
+            settings["model"] = "claude-sonnet-4-6"
+            with open(SETTINGS_PATH, "w") as f:
+                json.dump(settings, f, indent=2)
+                f.write("\n")
     except Exception:
-        old_model = "unknown"
+        pass
 
     # Delete marker — one-shot guard
     try:
@@ -100,14 +101,12 @@ def main():
     result = {
         "decision": "block",
         "reason": (
-            f"AUTO-MODEL-SWITCH: Opus → Sonnet 4.6 | Complexity: {complexity} | "
-            f"Steps: {step_count} | Files: {file_count}\n\n"
-            "Plan approved but execution blocked — model must switch to Sonnet first.\n"
-            "settings.json has been updated to claude-sonnet-4-6.\n\n"
-            "Tell the user: 'Model switched to Sonnet 4.6 for plan execution "
-            f"({complexity} reasoning). Send any message to begin.'\n\n"
-            "Do NOT attempt to execute the plan in this turn. STOP your response "
-            "after informing the user. Sonnet will handle execution on the next turn."
+            f"PLAN EXECUTION BLOCKED — Switch to Sonnet first.\n"
+            f"Complexity: {complexity} | Steps: {step_count} | Files: {file_count}\n\n"
+            "MANDATORY — tell the user EXACTLY this:\n"
+            "'Plan approved. Run /model sonnet (or click the model selector) "
+            "to switch to Sonnet 4.6 for execution, then send \"go\" to begin.'\n\n"
+            "Do NOT attempt ANY code changes this turn. STOP after delivering the message above."
         ),
     }
     print(json.dumps(result))
