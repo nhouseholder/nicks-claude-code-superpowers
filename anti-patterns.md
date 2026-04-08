@@ -112,6 +112,13 @@
 - Round and method are separate bets. Fighter loss = ALL prop bets lose. SUB gating stays.
 - See EVENT_TABLE_SPEC.md for canonical scoring rules.
 
+## UFC — Hypothesis Testing Data Format Traps (HYPOTHESIS_DATA_TRAPS) — 2026-04-08
+- **Pattern 1**: `fight_history` in `ufc_backtest_registry.json` uses `'WIN'`/`'LOSS'`, NOT `'W'`/`'L'`. Writing `result not in ('W', 'L')` causes zero activations with no error — silent failure.
+- **Pattern 2**: File imports `from datetime import datetime` — so `datetime` is the CLASS, not the module. `datetime.date.fromisoformat()` fails with AttributeError. Correct pattern: `datetime.strptime(date_str, "%Y-%m-%d").date()`.
+- **Pattern 3**: Baseline from registry totals (e.g. 745.78u) diverges from fresh backtest run (770.51u). Always establish baseline from a FRESH clean run, never from file reads. Incremental registry totals are stale.
+- **Pattern 4**: Backtest overwrites production data files. Must `git restore` ALL data files between coefficient sweep runs or results are confounded.
+- **Applies when**: Writing ANY new function in `UFC_Alg_v4_fast_2026.py`. Check data format with `python3 -c` BEFORE writing code. Check imports at top of file BEFORE using stdlib functions.
+
 ## Build — Node 25 Rollup Deadlock
 - Node 25 + Rollup causes hanging builds. Use `NODE_OPTIONS=--max-old-space-size=4096` or downgrade to Node 22.
 
