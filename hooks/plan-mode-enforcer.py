@@ -6,11 +6,18 @@ Fires on UserPromptSubmit. Detects plan-related intent in the user's prompt
 and injects detailed plan requirements so Claude writes plans that Sonnet
 can execute with zero ambiguity.
 
-Exit code 0 always. Lightweight — no file I/O, no network, pure string analysis.
+Also writes a marker file (~/.claude/.plan-switch-pending) so the
+plan-execution-guard PreToolUse hook can block execution until the model
+switches to Sonnet.
+
+Exit code 0 always.
 """
 import json
+import os
 import re
 import sys
+
+MARKER_FILE = os.path.expanduser("~/.claude/.plan-switch-pending")
 
 try:
     input_data = json.load(sys.stdin)
@@ -55,6 +62,13 @@ def detect_plan_intent(text):
 
 
 if detect_plan_intent(prompt):
+    # Write marker file for plan-execution-guard.py
+    try:
+        with open(MARKER_FILE, "w") as f:
+            f.write("pending")
+    except Exception:
+        pass
+
     output = {
         "hookSpecificOutput": {
             "hookEventName": "UserPromptSubmit",
