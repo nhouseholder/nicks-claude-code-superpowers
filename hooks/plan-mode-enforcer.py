@@ -6,18 +6,19 @@ Fires on UserPromptSubmit. Detects plan-related intent in the user's prompt
 and injects detailed plan requirements so Claude writes plans that Sonnet
 can execute with zero ambiguity.
 
-Also writes a marker file (~/.claude/.plan-switch-pending) so the
-plan-execution-guard PreToolUse hook can block execution until the model
-switches to Sonnet.
+Also cleans up old plan files and the consumed guard marker so the
+plan-execution-guard can block fresh after new plan completion.
 
 Exit code 0 always.
 """
 import json
+import glob
 import os
 import re
 import sys
 
-MARKER_FILE = os.path.expanduser("~/.claude/.plan-switch-pending")
+PLAN_DIR = os.path.expanduser("~/.claude/plans")
+CONSUMED_FILE = os.path.expanduser("~/.claude/.plan-guard-consumed")
 
 try:
     input_data = json.load(sys.stdin)
@@ -63,18 +64,15 @@ def detect_plan_intent(text):
 
 if detect_plan_intent(prompt):
     # Clean up old plan files so Sonnet doesn't confuse them with the current plan
-    plan_dir = os.path.expanduser("~/.claude/plans")
     try:
-        import glob
-        for old_plan in glob.glob(os.path.join(plan_dir, "*.md")):
+        for old_plan in glob.glob(os.path.join(PLAN_DIR, "*.md")):
             os.remove(old_plan)
     except Exception:
         pass
 
-    # Write marker file for plan-execution-guard.py
+    # Delete consumed marker so guard can block fresh for this new plan
     try:
-        with open(MARKER_FILE, "w") as f:
-            f.write("pending")
+        os.remove(CONSUMED_FILE)
     except Exception:
         pass
 
@@ -98,7 +96,10 @@ if detect_plan_intent(prompt):
                 "- 'Modify as needed' / 'adjust accordingly' (decision point — DECIDE now)\n"
                 "- Pseudocode, placeholder comments, or partial snippets\n\n"
                 "If a step requires choosing between approaches, make the choice NOW "
-                "and document WHY in the plan. Zero decision points for the executor."
+                "and document WHY in the plan. Zero decision points for the executor.\n\n"
+                "AFTER writing the plan and calling ExitPlanMode:\n"
+                "Do NOT start executing the plan yourself. Tell the user to switch to Sonnet "
+                "for execution. You are the PLANNER, not the executor."
             )
         }
     }
