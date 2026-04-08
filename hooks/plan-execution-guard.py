@@ -108,23 +108,24 @@ def main():
     except Exception:
         pass
 
-    # Remove guard — one-shot block. Next turn (hopefully Sonnet) proceeds freely.
-    try:
-        os.remove(GUARD_ACTIVE)
-    except Exception:
-        pass
+    # DO NOT remove guard here — it must persist until the GO signal in
+    # plan-mode-enforcer.py properly removes it after model switch.
+    # Removing on first block was a bug: Opus would get blocked once,
+    # then proceed freely on the next Edit/Write attempt.
 
     result = {
         "decision": "block",
         "reason": (
-            f"PLAN EXECUTION BLOCKED — switching to Sonnet for execution.\n"
+            f"PLAN EXECUTION BLOCKED — You are still in Opus mode.\n"
             f"Plan: {plan_path} | {complexity} | {step_count} steps | {file_count} files\n\n"
-            "settings.json updated to claude-sonnet-4-6. Guard removed.\n\n"
-            "Tell the user EXACTLY: 'Type go to execute the plan with Sonnet.'\n\n"
-            "If the model did NOT switch automatically on the next turn, tell the user:\n"
-            "'Run /model sonnet first, then type go.'\n\n"
-            f"NEXT AGENT: Read and execute {plan_path} step by step. "
-            "Do NOT rewrite it. Do NOT overwrite it. Just follow it."
+            "settings.json updated to claude-sonnet-4-6.\n\n"
+            "Tell the user EXACTLY:\n"
+            "'Switch to Sonnet before executing:\n"
+            "  - Desktop app: Click the model selector dropdown → pick Sonnet\n"
+            "  - CLI: Run /model sonnet\n"
+            "Then type: go'\n\n"
+            "Do NOT attempt to execute the plan. Do NOT call Edit or Write. "
+            "Output ONLY the switch instructions above and stop."
         ),
     }
     print(json.dumps(result))

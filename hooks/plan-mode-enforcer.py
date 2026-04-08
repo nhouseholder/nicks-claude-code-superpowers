@@ -43,10 +43,16 @@ if tool_name == "ExitPlanMode":
                 f.write("\n")
     except Exception:
         pass
+    # Clean old plans — prevent Sonnet from executing stale plans.
+    # This is critical when user enters plan mode via Desktop UI toggle
+    # (detect_plan_intent() never fires, so its cleanup doesn't run).
+    try:
+        for old_plan in glob.glob(os.path.join(PLAN_DIR, "*.md")):
+            os.remove(old_plan)
+    except Exception:
+        pass
+
     # ENSURE guard exists — CREATE it if plan mode was toggled via UI (not text).
-    # When user toggles plan mode in Desktop app, detect_plan_intent() never fires,
-    # so the guard is never created. ExitPlanMode is our last chance to create it
-    # before the user clicks "Approve plan and start coding".
     if not os.path.exists(GUARD_ACTIVE):
         try:
             with open(GUARD_ACTIVE, "w") as f:
@@ -214,6 +220,12 @@ if detect_plan_intent(prompt):
             "hookEventName": "UserPromptSubmit",
             "additionalContext": (
                 "MANDATORY PLAN FORMAT — This overrides default plan mode behavior.\n\n"
+                "STEP 0 — SAVE THE PLAN TO DISK (CRITICAL, DO THIS FIRST):\n"
+                "Before writing inline, use the Write tool to save the COMPLETE plan to:\n"
+                f"  {PLAN_DIR}/plan-<YYYY-MM-DD-HHMM>.md\n"
+                "Use today's date and current time. The file MUST exist on disk — "
+                "Sonnet reads it from there during execution. If you skip this, "
+                "the entire pipeline breaks.\n\n"
                 "You MUST write a 'Sonnet-proof' plan: ultra-specific, zero ambiguity, "
                 "mechanically executable. Sonnet will execute this plan with NO judgment calls.\n\n"
                 "EVERY step MUST include ALL of these:\n"
@@ -230,7 +242,7 @@ if detect_plan_intent(prompt):
                 "- Pseudocode, placeholder comments, or partial snippets\n\n"
                 "If a step requires choosing between approaches, make the choice NOW "
                 "and document WHY in the plan. Zero decision points for the executor.\n\n"
-                "AFTER writing the plan and calling ExitPlanMode:\n"
+                "AFTER writing the plan file and calling ExitPlanMode:\n"
                 "Do NOT start executing the plan yourself. Tell the user to type 'go' "
                 "to begin execution with Sonnet. You are the PLANNER, not the executor."
             )
