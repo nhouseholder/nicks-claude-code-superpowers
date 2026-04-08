@@ -32,16 +32,13 @@ def output_json(text):
 
 AGENT_PROFILES = {
     "frontend": {
-        "name": "Frontend Agent",
+        "name": "Website Design Agent",
         "skills": [
-            (1, "frontend-design", "Anti-slop design, bold aesthetics, UNFORGETTABLE differentiation — READ FIRST"),
-            (1, "impeccable-design", "AI slop detection checklist + deep reference library (typography, color, motion, spatial) — GATE: slop score 3+ = redesign"),
-            (2, "ui-ux-pro-max", "50 styles, accessibility checklist — run search.py --design-system for recommendations"),
-            (2, "design-critique", "Nielsen's heuristics /40 score + cognitive load + persona testing — run AFTER implementation"),
-            (3, "react-best-practices", "40+ performance rules — read relevant rules/ files for the task"),
-            (3, "coding-standards", "TypeScript/React patterns and conventions"),
+            (1, "website-design-agent", "Unified design agent — 5-phase workflow: Understand → Research (58 brand refs + search.py DB) → Build → Audit (7-pillar + slop detection) → Critique (Nielsen /40 + personas). READ SKILL.md FIRST."),
+            (2, "react-best-practices", "40+ performance rules — read relevant rules/ files for the task"),
+            (2, "coding-standards", "TypeScript/React patterns and conventions"),
         ],
-        "after": "Run impeccable-design AI Slop Detection checklist. If slop score 3+ → redesign before delivering. Then verify with webapp-testing Playwright if possible.",
+        "after": "Run Phase 4 (7-pillar audit + slop detection). If slop score 3+ → redesign. Then Phase 5 (Nielsen critique) for quantitative scoring.",
     },
     "backend": {
         "name": "Backend Agent",
@@ -100,9 +97,7 @@ AGENT_PROFILES = {
         "name": "Visual Designer Agent",
         "skills": [
             (1, "canvas-design", "Design philosophy creation → visual expression"),
-            (1, "frontend-design", "Bold aesthetic direction, anti-generic rules"),
-            (2, "impeccable-design", "Design tokens + reference library for colors/typography/spacing"),
-            (2, "ui-ux-pro-max", "Style/palette/font search, accessibility rules"),
+            (1, "website-design-agent", "Unified design agent — brand refs, expert references, search DB, slop detection, critique framework"),
         ],
         "after": "Output: design philosophy doc + visual artifact (.png/.pdf)",
     },
