@@ -34,6 +34,19 @@
 - **Fix (long-term needed)**: Compute career stats from fight-level data with temporal cutoff (same approach used for Elo and method profiles). This would require refactoring `get_fighter_stats()` to aggregate from `fight_history` entries filtered by `cutoff_date`.
 - **Applies when**: Any backtest re-run. Always cross-check last 5 events against prediction_archive/ after re-running the backtester.
 
+## MyStrainAI — useRatings TDZ Crash from ESLint exhaustive-deps (ESLINT_TDZ) — 2026-04-07
+- **Pattern**: ESLint auto-fix added `_computeLocalProfile` to `rateStrain`'s useCallback dependency array. But `_computeLocalProfile` was a `const` declared 37 lines AFTER `rateStrain`. Dependency arrays are evaluated immediately (not lazily), so accessing the `const` before its declaration triggers JavaScript's Temporal Dead Zone → `ReferenceError: Cannot access 'w' before initialization` in minified bundles.
+- **Root cause**: Commit `736dd2d` lint fix changed dep array from `[userId, ratings]` to `[_computeLocalProfile, ratings, userId]` without checking declaration order.
+- **Fix**: Move `_computeLocalProfile` declaration (entire useCallback block) BEFORE `rateStrain` in `useRatings.js`. Added code comment warning about TDZ.
+- **Diagnosis key**: Chrome MCP tools captured the stack trace pointing to `useRatings-B3X3Q6P1.js:1:2024`. Reading the minified bundle showed `const v = useCallback(... [w, o, a])` before `const w = useCallback(...)`.
+- **Applies when**: Any ESLint exhaustive-deps auto-fix. Always check that added dependencies are declared BEFORE the hook that references them. `const`/`let` are not hoisted like `function` declarations.
+
+## MyStrainAI — Cloudflare Pages _middleware.js must process all requests (CF_MIDDLEWARE_ASSETS) — 2026-04-07
+- **Pattern**: Attempted to skip non-API routes in `_middleware.js` to avoid wrapping static assets in `new Response()`. Result: `_redirects` catch-all (`/*  /index.html  200`) intercepted JS asset requests and served HTML instead of JavaScript.
+- **Root cause**: Cloudflare Pages Functions middleware participates in the asset serving chain. When middleware returns `context.next()` for non-API paths, it still correctly routes to static assets. But when you skip middleware entirely for some paths, the `_redirects` catch-all takes priority, serving `index.html` for all paths including `/assets/*.js`.
+- **Fix**: Keep middleware processing ALL requests. The `new Response(response.body, response)` wrapper is necessary for static assets to be served correctly.
+- **Applies when**: Modifying Cloudflare Pages `_middleware.js`. Never exclude routes — the middleware must call `context.next()` and wrap the response for all paths.
+
 ## General — iCloud Filesystem Stalling (ICLOUD_STALL)
 - **Pattern**: Grep/read stalls on iCloud files → Claude retries with different tool → same stall → token burn loop
 - **Fix**: Clone from GitHub to `/tmp/`, work there. Never retry stalling ops with a different tool — the issue is iCloud, not the tool.
@@ -83,6 +96,13 @@
 ## UFC — SUB→DEC Fallback Is Optimal (DO NOT OVERRIDE)
 - GSA hybrid gate tested: +0.00u delta. Elite grapplers win by DEC (55%), not SUB (25%).
 - The blanket SUB→DEC fallback captures the dominant outcome and is mathematically optimal.
+
+## UFC — Live Tracker Scoring Gap (LIVE_TRACKER_SCORING_GAP) — 2026-04-07
+- **Pattern**: `scoreFight()` in LiveTrackerPage.jsx only scored ML, Method, and Combo. O/U scoring was completely missing, and method bets had no gating (scored as placed/lost even when no method odds existed). Live-tracked events showed wrong O/U results and phantom method losses.
+- **Root cause**: `scoreFight()` was written before O/U bets were added (v11.20.4) and never updated. Method gating was never implemented in the frontend — the Python `track_results.py` has it but the JS function didn't.
+- **Fix**: Added O/U scoring (Over: round >= 3; Under: round <= 2 with KO/TKO/SUB finish), method gating (check method odds exist before scoring), and `*_placed` flags to `scoreFight()`. Also fixed Scoreboard to show O/U instead of Round.
+- **Rule**: `scoreFight()` in LiveTrackerPage.jsx MUST mirror `track_results.py` scoring logic for ALL bet types. When a new bet type is added to the algorithm, it must be added to BOTH scoring paths.
+- **Applies when**: Any new bet type added, any scoring rule change, any Live Tracker modification.
 
 ## UFC — Ghost X Bug Prevention
 - Always use `*_placed` flags, never infer bet placement from `*_correct !== null`.
@@ -171,3 +191,10 @@
 - **Correct fix (v5.217.7)**: Changed to `esbuild: { pure: ['console.log', 'console.debug'] }` — only strips non-essential calls, preserves `console.error`/`console.warn` for library error handling.
 - **Rule**: NEVER use `esbuild.drop: ['console']` for production builds. Use `esbuild.pure` targeting only `console.log` and `console.debug`. `console.error` and `console.warn` are load-bearing for third-party libraries.
 - **Verification**: Build with `esbuild.pure`, test on Brave with "Shields Up". FingerprintJS initialization must not throw.
+
+## LUCIDE-REACT NEW IMPORT IN STRAIN CARD → TDZ CRASH
+- **File**: `frontend/src/components/results/StrainCard.jsx`
+- **Symptom**: `ReferenceError: Cannot access 'w' before initialization` — app crashes with ErrorBoundary on all pages that render StrainCard
+- **Root cause**: Adding a NEW lucide-react icon (TrendingUp) as a static import to StrainCard changed the Vite chunk graph. The new chunk dependency altered module initialization order, triggering a TDZ in one of the shared chunks (`fmt` or `normalizeStrain` — both have module-scope `const w` declarations).
+- **Fix**: Use an icon already imported in StrainCard (Star, Heart, MapPin, etc.) instead of introducing a new import. If a new icon is genuinely needed, use an inline SVG instead.
+- **Rule**: Never add a new lucide-react icon import to StrainCard without rebuilding and testing in the browser (not just checking build success).
