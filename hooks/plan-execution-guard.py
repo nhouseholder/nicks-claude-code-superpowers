@@ -40,6 +40,15 @@ def main():
     if tool_name not in ("Write", "Edit"):
         sys.exit(0)
 
+    # If already on Sonnet — allow immediately. The guard only blocks Opus.
+    try:
+        with open(SETTINGS_PATH, "r") as f:
+            current_model = json.load(f).get("model", "")
+        if "sonnet" in current_model.lower():
+            sys.exit(0)
+    except Exception:
+        pass
+
     # Always allow writes to plan files
     file_path = tool_input.get("file_path", "") or tool_input.get("path", "")
     if file_path and PLAN_DIR in file_path:
