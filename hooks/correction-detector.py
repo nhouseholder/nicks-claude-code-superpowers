@@ -10,8 +10,12 @@ a reminder into the context so Claude doesn't forget.
 Exit code 0 always (informational context injection).
 """
 import json
+import os
 import re
 import sys
+import time
+
+CORRECTION_COUNT_FILE = os.path.expanduser("~/.claude/.correction-count")
 
 CORRECTION_SIGNALS = [
     r"\bthat'?s wrong\b",
@@ -68,6 +72,32 @@ def main():
         sys.exit(0)
 
     if detect_correction(user_message):
+        # Track correction count for /clear escalation
+        count = 0
+        try:
+            with open(CORRECTION_COUNT_FILE, "r") as f:
+                data = json.load(f)
+            # Reset if older than 2 hours (new session)
+            if time.time() - data.get("started", 0) < 7200:
+                count = data.get("count", 0)
+        except (FileNotFoundError, json.JSONDecodeError):
+            pass
+        count += 1
+        try:
+            with open(CORRECTION_COUNT_FILE, "w") as f:
+                json.dump({"count": count, "started": time.time()}, f)
+        except Exception:
+            pass
+
+        escalation = ""
+        if count >= 3:
+            escalation = (
+                "\n\n⚠️ 3+ CORRECTIONS THIS SESSION — context may be poisoned. "
+                "Tell the user: 'I've been corrected 3 times — the context may be "
+                "working against us. Consider /clear to reset, or /rewind to undo "
+                "the last bad change, then re-state what you need.'"
+            )
+
         print(json.dumps({
             "decision": "allow",
             "context": (
@@ -78,6 +108,7 @@ def main():
                 "4. If it's a recurring pattern (seen before in anti-patterns.md), escalate: update anti-patterns.md. "
                 "5. If domain-specific (betting rules, scoring, data format), also update the relevant site command skill. "
                 "Keep the memory atomic — one lesson per file. Don't bundle multiple corrections."
+                + escalation
             )
         }))
 

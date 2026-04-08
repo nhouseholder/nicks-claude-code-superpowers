@@ -166,6 +166,8 @@ Lead with user impact. Tables for comparisons. One-line status for routine work.
 
 **Compact at 60% — don't wait for auto-compact.** Auto-compact fires at 95% but by then context quality is already degraded. When the context-saver hook injects a reminder (or you notice the session is heavy), suggest `/compact` to the user. Before compacting: commit and push any uncommitted work, then suggest `/full-handoff` to preserve decisions. If user declines handoff, write a 3-line summary of current state, open decisions, and next steps as a comment to yourself.
 
+**Context hygiene:** Suggest `/clear` between unrelated tasks — old context from Task A hurts Task B. Suggest `/rewind` when you made a bad change the user wants undone — faster than manual reversal. Suggest `/plan` (Shift+Tab) for anything touching 2+ files — wrong-path execution is the single biggest token waste.
+
 ## Environment
 
 **Git & iCloud:** Projects may be synced via iCloud. If git operations time out, immediately try a fresh clone to a non-iCloud directory rather than retrying repeatedly. Avoid committing large binary files.
