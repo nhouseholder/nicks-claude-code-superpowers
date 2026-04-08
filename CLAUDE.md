@@ -129,7 +129,7 @@ When switching projects: drop all assumptions, read project CLAUDE.md + memory, 
 
 ## Hooks Handle These (don't duplicate — they fire mechanically)
 
-`bash-guard.py`, `surgical-scope.py`, `protect-skills.py`, `agent-limit.py`, `correction-detector.py`, `no-narration-stops.py`, `ufc-context-loader.py`, `observe.py`, `unpushed-commits-check.py`, `anti-pattern-enforcer.py`, `anti-pattern-gate.py`, `impossible-stats-detector.py`, `missing-odds-detector.py`, `token-advisor.py`, `plan-mode-enforcer.py`
+`bash-guard.py`, `surgical-scope.py`, `protect-skills.py`, `agent-limit.py`, `correction-detector.py`, `no-narration-stops.py`, `ufc-context-loader.py`, `observe.py`, `unpushed-commits-check.py`, `anti-pattern-enforcer.py`, `anti-pattern-gate.py`, `impossible-stats-detector.py`, `missing-odds-detector.py`, `token-advisor.py`, `plan-mode-enforcer.py`, `plan-exit-model-switch.py`
 
 ## Backtest Rules
 
