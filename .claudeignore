@@ -1,3 +1,7 @@
+# Skills — canonical source is ~/.claude/skills/, this is just a sync copy
+# Without this, Claude discovers these as project skills AND global skills = duplicates
+skills/
+
 # Build artifacts
 node_modules/
 .next/

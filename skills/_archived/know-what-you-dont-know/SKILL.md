@@ -1,7 +1,7 @@
 ---
 name: know-what-you-dont-know
 description: Detects when Claude is about to implement domain-specific logic it hasn't verified understanding of. Forces background research BEFORE writing code in specialized domains (betting, finance, medicine, law, physics, etc.). Catches the dangerous failure mode where Claude is confident but wrong — not uncertain, but ignorant. Always-on metacognitive firewall.
-weight: light
+weight: passive
 triggers:
   - always-on — fires before any domain-specific implementation
   - when Claude is about to write scoring/settlement/payout logic
