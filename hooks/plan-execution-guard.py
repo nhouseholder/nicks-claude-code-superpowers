@@ -33,9 +33,28 @@ GUARD_ACTIVE = os.path.expanduser("~/.claude/.plan-guard-active")
 
 
 def main():
+    # Clean stale plan files (> 2 hours old)
+    try:
+        for pf in glob.glob(os.path.join(PLAN_DIR, "*.md")):
+            if time.time() - os.path.getmtime(pf) > 7200:
+                os.remove(pf)
+    except Exception:
+        pass
+
     # Fast exit: no guard active
     if not os.path.exists(GUARD_ACTIVE):
         sys.exit(0)
+
+    # Check if guard belongs to current project
+    try:
+        with open(GUARD_ACTIVE, "r") as f:
+            guard_project = f.read().strip()
+        if guard_project and guard_project != "active" and guard_project != os.getcwd():
+            # Guard is for a different project — clean up and allow
+            os.remove(GUARD_ACTIVE)
+            sys.exit(0)
+    except Exception:
+        pass
 
     try:
         hook_input = json.load(sys.stdin)

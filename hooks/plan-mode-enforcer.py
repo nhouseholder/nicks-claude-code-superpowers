@@ -23,6 +23,14 @@ PLAN_DIR = os.path.expanduser("~/.claude/plans")
 GUARD_ACTIVE = os.path.expanduser("~/.claude/.plan-guard-active")
 SETTINGS_PATH = os.path.expanduser("~/.claude/settings.json")
 
+# Clean stale plan files (> 2 hours old)
+try:
+    for old in glob.glob(os.path.join(PLAN_DIR, "*.md")):
+        if time.time() - os.path.getmtime(old) > 7200:
+            os.remove(old)
+except Exception:
+    pass
+
 try:
     input_data = json.load(sys.stdin)
 except (json.JSONDecodeError, Exception):
@@ -56,7 +64,7 @@ if tool_name == "ExitPlanMode":
     if not os.path.exists(GUARD_ACTIVE):
         try:
             with open(GUARD_ACTIVE, "w") as f:
-                f.write("active")
+                f.write(os.getcwd())
         except Exception:
             pass
     sys.exit(0)
@@ -211,7 +219,7 @@ if detect_plan_intent(prompt):
     # Activate the guard — blocks Edit/Write until "go" triggers model switch
     try:
         with open(GUARD_ACTIVE, "w") as f:
-            f.write("active")
+            f.write(os.getcwd())
     except Exception:
         pass
 
