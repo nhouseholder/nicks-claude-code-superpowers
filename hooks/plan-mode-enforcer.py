@@ -36,37 +36,18 @@ try:
 except (json.JSONDecodeError, Exception):
     sys.exit(0)
 
-# === ExitPlanMode PreToolUse — switch model BEFORE user triggers implementation ===
-# When Claude calls ExitPlanMode (end of planning turn), switch settings.json to
-# Sonnet immediately so the NEXT turn (however triggered — button or text) uses Sonnet.
+# === ExitPlanMode PreToolUse ===
+# Do NOT change settings.json here — leave on Opus so the guard
+# correctly blocks Edit/Write until user manually switches to Sonnet.
+# Do NOT delete plan files — Sonnet needs them for execution.
 tool_name = input_data.get("tool_name", "")
 if tool_name == "ExitPlanMode":
+    # ENSURE guard exists — blocks Edit/Write until user switches + types "go"
     try:
-        with open(SETTINGS_PATH, "r") as f:
-            settings = json.load(f)
-        if "opus" in settings.get("model", "").lower():
-            settings["model"] = "claude-sonnet-4-6"
-            with open(SETTINGS_PATH, "w") as f:
-                json.dump(settings, f, indent=2)
-                f.write("\n")
+        with open(GUARD_ACTIVE, "w") as f:
+            f.write(os.getcwd())
     except Exception:
         pass
-    # Clean old plans — prevent Sonnet from executing stale plans.
-    # This is critical when user enters plan mode via Desktop UI toggle
-    # (detect_plan_intent() never fires, so its cleanup doesn't run).
-    try:
-        for old_plan in glob.glob(os.path.join(PLAN_DIR, "*.md")):
-            os.remove(old_plan)
-    except Exception:
-        pass
-
-    # ENSURE guard exists — CREATE it if plan mode was toggled via UI (not text).
-    if not os.path.exists(GUARD_ACTIVE):
-        try:
-            with open(GUARD_ACTIVE, "w") as f:
-                f.write(os.getcwd())
-        except Exception:
-            pass
     sys.exit(0)
 
 prompt = input_data.get("prompt", "").strip()
@@ -127,6 +108,14 @@ if is_go:
         # Remove guard if it exists
         try:
             os.remove(GUARD_ACTIVE)
+        except Exception:
+            pass
+
+        # Clean old plan files (keep the one being executed)
+        try:
+            for old_plan in glob.glob(os.path.join(PLAN_DIR, "*.md")):
+                if old_plan != recent_plan:
+                    os.remove(old_plan)
         except Exception:
             pass
 
