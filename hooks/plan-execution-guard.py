@@ -113,13 +113,21 @@ def main():
 
     # === BLOCK — guard is active ===
 
-    # Write Sonnet to settings.json — takes effect on next turn if Claude Code
-    # re-reads between turns, otherwise user needs /model sonnet manually
+    # Check if user already switched to Sonnet (e.g. via Desktop dropdown)
     settings_path = os.path.expanduser("~/.claude/settings.json")
     try:
         with open(settings_path, "r") as f:
             settings = json.load(f)
-        if "opus" in settings.get("model", "").lower():
+        model = settings.get("model", "").lower()
+        if model and "opus" not in model:
+            # Already on Sonnet — remove guard and allow through
+            try:
+                os.remove(GUARD_ACTIVE)
+            except Exception:
+                pass
+            sys.exit(0)
+        # Still on Opus — switch to Sonnet in settings.json
+        if "opus" in model:
             settings["model"] = "claude-sonnet-4-6"
             with open(settings_path, "w") as f:
                 json.dump(settings, f, indent=2)

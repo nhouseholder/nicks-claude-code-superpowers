@@ -157,6 +157,25 @@ if os.path.exists(GUARD_ACTIVE):
     try:
         age = time.time() - os.path.getmtime(GUARD_ACTIVE)
         if age < 1800:  # guard is recent (< 30 min)
+            # Check if user already switched to Sonnet (e.g. via Desktop dropdown)
+            already_sonnet = False
+            try:
+                with open(SETTINGS_PATH, "r") as f:
+                    settings = json.load(f)
+                model = settings.get("model", "").lower()
+                if model and "opus" not in model:
+                    already_sonnet = True
+            except Exception:
+                pass
+
+            if already_sonnet:
+                # Already on Sonnet — remove guard silently, let through
+                try:
+                    os.remove(GUARD_ACTIVE)
+                except Exception:
+                    pass
+                sys.exit(0)
+
             output = {
                 "hookSpecificOutput": {
                     "hookEventName": "UserPromptSubmit",
