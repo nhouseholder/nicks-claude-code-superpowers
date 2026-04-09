@@ -479,6 +479,12 @@ git push origin main
 | `fight_breakdowns.json` != in-memory | URLs "missing" but actually present | JSON is simplified export. Read code at line ~10213 for in-memory structure, not the file. |
 | Generic grep for activations | 623 false matches vs 21 real | Use specific tags: `[GATE_NAME_ACTIVE]` and grep for those exact strings |
 
+### Fight Tuple Traps (learned 2026-04-09, Hypothesis 7)
+| Trap | Symptom | Fix |
+|------|---------|-----|
+| `valid_fights.append()` drops added tuple elements | New 13th element added in `get_last_5_fights()`, modifier sees all `'?'` / 0 values, zero delta even at extreme multipliers | The reconstruction at line ~8307-8320 must explicitly extract AND append the new element. Add `new_field_f = fight[12] if len(fight) > 12 else default` and include in `valid_fights.append()`. Verify with `len(_wf)` diagnostic print. |
+| Uniform weight modifier cancels after normalization | 0 mixed windows, 5000+ activations, yet zero delta | Pre-check mixed window count: if all 5 fights in every window are above threshold, multiplier is uniform, normalization cancels it. Run `for thresh in [3,4,5,6,8,10]: mixed = sum(1 for fd in fighters.values() if 0 < sum(c>=thresh for c in opp_counts) < len(opp_counts))` before any sweep. Skip thresholds with 0 mixed windows. |
+
 ---
 
 ## Step 10: Self-Learning Protocol (MANDATORY — after Step 9)

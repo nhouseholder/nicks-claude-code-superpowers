@@ -72,6 +72,30 @@ Each entry: Date | Bug Name | Symptom | Root Cause | Time Wasted | Prevention Ru
   assert d.get('event_count', 0) >= 75, f"WRONG FILE: only {d.get('event_count')} events"
   ```
 
+### LB-008: Fight Tuple Element Dropped by valid_fights Reconstruction (2026-04-09)
+- **Symptom**: Added 13th tuple element (`opp_fight_count`) to `get_last_5_fights()` return value, diagnostic prints show all `opp_ufc_fights: ['?', '?', '?', '?', '?']`, modifier never fires, zero delta across all runs including extreme stress test (1.50x bonus + 0.50x penalty simultaneously)
+- **Root Cause**: `calculate_adjusted_sl_ratio()` (line ~8307-8320) reconstructs fight tuples from the raw `fights` list into a `valid_fights` list. The `valid_fights.append()` call hardcodes exactly 12 elements extracted from `fight[0]` through `fight[11]`. Any element added beyond index 11 in `get_last_5_fights()` is silently dropped. The modifier code then does `_wf[12] if len(_wf) > 12 else 0` — always falls back to 0 since the tuple is always exactly 12 elements.
+- **Time Wasted**: ~3 full backtest runs (stress test 1.50/0.50, threshold sweep, re-implementation attempts)
+- **Prevention**: When adding a new field to the fight tuple in `get_last_5_fights()`, you MUST also:
+  1. Add `new_field_f = fight[N] if len(fight) > N else default` at line ~8318
+  2. Include `new_field_f` in the `valid_fights.append(...)` tuple
+  3. Add a new `len(fight_data) == N+1` case to the unpacking block at line ~8368
+  Diagnostic check: after first run, print tuple length inside modifier loop — `len(_wf)` must equal the expected count. If it equals 12 when you added a 13th element, the reconstruction is dropping it.
+
+### LB-009: Zero Mixed Windows = Zero Effect (Uniform Multiplier Cancels After Normalization) (2026-04-09)
+- **Symptom**: Running 3 full backtests at threshold 3 (all reasonable multiplier values) shows exactly +0.00u delta. No pick flips. Diagnostic confirms modifier fires (5776 activations) but result is identical to baseline.
+- **Root Cause**: The recency weight modifier only changes picks when the 5-fight window has a MIX of fights above and below threshold. At threshold 3, EVERY fighter in the backtest dataset has all 5 opponents with 3+ UFC fights (0 mixed windows out of 556 windows). All 5 weights get the same multiplier (e.g., 1.10x). After normalization `w / sum(w)`, a uniform multiplier cancels out: `1.10 * w_i / (1.10 * sum(w))` = `w_i / sum(w)`. The weights are mathematically unchanged.
+- **Time Wasted**: ~3 backtest runs burned before diagnosing
+- **Prevention**: Before sweeping any weight-modifier hypothesis, run the mixed-window diagnostic FIRST:
+  ```python
+  # For each threshold, count windows with mixed above/below
+  for thresh in [3, 4, 5, 6, 8, 10]:
+      mixed = sum(1 for name, counts in fighters.items()
+                  if 0 < sum(c >= thresh for c in counts) < len(counts))
+      print(f'Threshold {thresh}: {mixed} mixed windows')
+  ```
+  If `mixed == 0` for your threshold → skip it entirely. The minimum useful threshold is the one where mixed > 0. At threshold 3, mixed = 0. At threshold 5, mixed = 173 (31%). Use this diagnostic before ANY threshold sweep.
+
 ### LB-007: Canonicalize Overwrites Hypothesis P/L
 - **Symptom**: Registry P/L for hypothesis bouts showed `method_placed=False, method_pnl=None` even though settlement path set `fb['_method_placed']=True, fb['_method_pnl']=+3.0`
 - **Root Cause**: `_canonicalize_profit_registry_after_backtest()` (line ~2008) runs `fix_bout()` on every bout after the registry is built. `fix_bout()` in `fix_registry_placed_flags.py` applies the standard SUB→DEC fallback (line 432-434) without grappling gate awareness, overwriting the hypothesis's SUB method P/L.
