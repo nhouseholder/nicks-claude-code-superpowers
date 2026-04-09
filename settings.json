@@ -28,7 +28,7 @@
       "~/.claude"
     ]
   },
-  "model": "claude-opus-4-6",
+  "model": "claude-sonnet-4-6",
   "hooks": {
     "SessionStart": [
       {
@@ -62,15 +62,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/memory-migrator.py",
-            "timeout": 3000
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
             "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/session-context-loader.py",
             "timeout": 3000
           }
@@ -87,6 +78,15 @@
       }
     ],
     "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/plan-mode-enforcer.py",
+            "timeout": 1000
+          }
+        ]
+      },
       {
         "hooks": [
           {
@@ -112,9 +112,28 @@
             "timeout": 2000
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/context-saver.py",
+            "timeout": 1000
+          }
+        ]
       }
     ],
     "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/plan-execution-guard.py",
+            "timeout": 3000
+          }
+        ]
+      },
       {
         "matcher": "Bash",
         "hooks": [
@@ -166,6 +185,16 @@
           {
             "type": "command",
             "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/anti-pattern-gate.py",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/plan-mode-enforcer.py",
             "timeout": 2000
           }
         ]
@@ -247,5 +276,8 @@
     ]
   },
   "skipDangerousModePermissionPrompt": true,
-  "enabledPlugins": {}
+  "enabledPlugins": {},
+  "enabledMcpjsonServers": [
+    "youtube-transcript"
+  ]
 }
