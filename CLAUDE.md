@@ -73,12 +73,11 @@ Python + JS/TS. All projects at `~/Projects/<name>/` (flat). `~/Projects/` symli
 
 When switching projects: drop all assumptions, read project CLAUDE.md + memory, verify tech stack + git status.
 
-## Session Start: 3-Gate Verification
+## Session Start: 2-Gate Verification
 
-**All 3 gates must pass before starting work.** Details in `/review-handoff`.
-- **GATE 1**: Correct repo (trace from site-to-repo-map.json, verify git remote)
-- **GATE 2**: Local matches remote (`git fetch && compare SHAs`, pull if behind)
-- **GATE 3**: Read context (project CLAUDE.md, MEMORY.md, HANDOFF.md, anti-patterns.md)
+**Both gates must pass before starting work.** Details in `/review-handoff`.
+- **GATE 1**: Local matches remote (`git fetch && compare SHAs`, pull if behind)
+- **GATE 2**: Read context (latest handoff from `handoffs/`, project CLAUDE.md, anti-patterns.md)
 
 ## Decision Framework (in order)
 1. Is there a spec? Read it first.

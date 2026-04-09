@@ -16,6 +16,7 @@ import time
 
 STATE_FILE = os.path.expanduser("~/.claude/.context-saver-state")
 PROMPT_THRESHOLD = 15  # ~60% context usage heuristic
+CRITICAL_THRESHOLD = 25  # ~80% context usage — quality degrading
 SESSION_TIMEOUT = 7200  # 2 hours = new session
 
 try:
@@ -43,11 +44,14 @@ except (FileNotFoundError, json.JSONDecodeError):
 # Increment
 state["count"] = state.get("count", 0) + 1
 
-# Check threshold
+# Check thresholds
 should_remind = state["count"] >= PROMPT_THRESHOLD and not state.get("reminded", False)
+should_critical = state["count"] >= CRITICAL_THRESHOLD and not state.get("critical_reminded", False)
 
 if should_remind:
     state["reminded"] = True
+if should_critical:
+    state["critical_reminded"] = True
 
 # Write state
 try:
@@ -56,7 +60,20 @@ try:
 except Exception:
     pass
 
-if should_remind:
+if should_critical:
+    output = {
+        "hookSpecificOutput": {
+            "hookEventName": "UserPromptSubmit",
+            "additionalContext": (
+                "CONTEXT SAVER (CRITICAL): ~80%+ context estimated "
+                f"({state['count']} prompts this session). "
+                "Context quality is degrading. "
+                "Run /full-handoff NOW, then /compact or start a new session."
+            )
+        }
+    }
+    print(json.dumps(output))
+elif should_remind:
     output = {
         "hookSpecificOutput": {
             "hookEventName": "UserPromptSubmit",
