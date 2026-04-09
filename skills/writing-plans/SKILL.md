@@ -71,6 +71,12 @@ This structure informs the task decomposition. Each task should produce self-con
 **Tech Stack:** [Key technologies/libraries]
 
 ---
+
+### Task 0: Switch to Sonnet
+
+- [ ] **STOP. Do not execute this plan on Opus.** Switch to Sonnet now before proceeding. **CLI:** `/model sonnet` · **Desktop/Web app:** select Sonnet from the model picker dropdown. This plan was written by Opus with all decisions pre-made — execution is mechanical. Proceeding on Opus wastes ~40-60% tokens. **Do not continue until model is switched.**
+
+---
 ```
 
 ## Task Structure
@@ -145,7 +151,7 @@ After completing each chunk of the plan:
 
 After saving the plan:
 
-**"Plan complete and saved to `docs/superpowers/plans/<filename>.md`. Ready to execute?"**
+**"Plan complete and saved to `docs/superpowers/plans/<filename>.md`. Switch to Sonnet (`/model sonnet`) before executing — all decisions are baked in, execution is mechanical."**
 
 **Execution path depends on harness capabilities:**
 
