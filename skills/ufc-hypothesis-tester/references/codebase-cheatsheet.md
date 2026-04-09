@@ -1,5 +1,5 @@
 # UFC Algorithm Codebase Cheatsheet
-# UFC_Alg_v4_fast_2026.py — v11.24.0
+# UFC_Alg_v4_fast_2026.py — v11.25.0
 
 Exact line numbers shift after edits. Verify with grep before using.
 
@@ -90,7 +90,7 @@ def _my_function(fighter_url, fighter_name, cutoff_date):
 
 ---
 
-## Key Constants (v11.24.0)
+## Key Constants (v11.25.0)
 
 | Constant | Line | Value | Notes |
 |----------|------|-------|-------|
@@ -230,19 +230,19 @@ python3 -c "import json; print('Combined:', json.load(open('ufc_profit_registry.
 
 ---
 
-## True Current Baseline (v11.24.0, 75 events, fresh run 2026-04-08)
+## True Current Baseline (v11.25.0, 75 events, 580 bouts, fresh run 2026-04-08)
 
 | Stream | P/L | Record |
 |--------|-----|--------|
 | ML | +131.38u | 401W-153L |
-| Method | +171.68u | 162W-201L |
+| Method | +174.28u | 156W-153L |
 | Round | 0.00u | DISABLED |
-| Combo | +132.39u | ~42W-62L |
-| O/U | +88.10u | ~163W-73L |
+| Combo | +137.55u | 41W-65L |
+| O/U | +88.10u | 162W-73L |
 | Parlay | +246.96u | — |
-| **Combined** | **+770.51u** | |
+| **Combined** | **+778.27u** | |
 
-Note: 745.78u was a stale incremental baseline. 770.51u is the true fresh-run value.
+Note: v11.25.0 shipped grappling-gate SUB method betting (+22.91u vs v11.23.6 baseline). Previous 770.51u was v11.24.0 pre-grapple-gate.
 
 ---
 
@@ -255,6 +255,85 @@ Note: 745.78u was a stale incremental baseline. 770.51u is the true fresh-run va
 | False baseline delta | Reading totals from `ufc_profit_registry.json` instead of archived run | Read from `backtest_runs/*.json` archived file |
 | All sweep values identical | Not restoring data files between runs | `git restore` all 12 files before each run |
 | `ufc_fight_count` = 0 for all fighters | `fd.get('ufc_fight_count', 0)` returns `None` not `0` | `fd.get('ufc_fight_count', 0) or 0` |
+
+---
+
+## 3 P/L Computation Paths (CRITICAL — understand before debugging zero-delta)
+
+The algorithm has 3 separate paths that compute/store P/L. A hypothesis change that only affects Path 1 without flowing through Path 2 will produce **zero delta** in the archived output.
+
+### Path 1: Settlement Loop (lines ~10521-10761)
+- Iterates `fight_breakdowns` list (in-memory)
+- Computes `fb['_method_pnl']`, `fb['_combo_pnl']`, `fb['_ml_pnl']`, `fb['_ou_pnl']`
+- These are **temporary in-memory values** — they must flow into Path 2 to persist
+
+### Path 2: Registry Builder (lines ~1723-1812)
+- `_build_registry_event_entry()` constructs bout entries for `ufc_profit_registry.json`
+- **Signature preservation** (lines ~1783-1812): When `(picked, predicted_method, predicted_round)` matches an existing bout in the template registry, the existing bout is **deep-copied** (`json.loads(json.dumps(existing_bout))`), preserving ALL fields including old P/L
+- After deep copy, specific fields (actual_method, actual_round) are updated
+- **THE TRAP**: If your hypothesis changes settlement odds/method but NOT the prediction signature, the deep copy preserves OLD P/L. You MUST explicitly patch:
+  ```python
+  if fb.get("_method_pnl") is not None:
+      preserved_bout["method_pnl"] = fb.get("_method_pnl")
+  ```
+
+### Path 3: Canonicalize + Regenerate (lines ~2008-2043)
+- `_canonicalize_profit_registry_after_backtest()` runs `fix_bout()` on EVERY bout
+- `fix_bout()` (fix_registry_placed_flags.py:326-545) applies default business rules: SUB→DEC fallback, KO >+300 fallback, DEC gate
+- `recompute_event_totals()` (fix_registry_placed_flags.py:548-597) sums existing P/L from bouts (does NOT recalculate)
+- `_recompute_global_totals()` (sync_and_deploy.py:280-310) aggregates event totals
+- **Archived output reads from PATH 3**, not from the settlement loop directly
+
+### Key Functions in fix_registry_placed_flags.py
+| Function | Lines | What It Does |
+|----------|-------|--------------|
+| `fix_bout()` | 326-545 | Repairs ML P/L, clears ghost data for unplaced bets, applies business rules |
+| `determine_placed_flags()` | 232-323 | Decides method/combo placed status. If `method_pnl` already set → trusts it (won't recalculate) |
+| `recompute_event_totals()` | 548-597 | Sums existing P/L from bouts — does NOT recalculate from odds |
+
+---
+
+## fight_breakdowns: File vs In-Memory (DO NOT CONFUSE)
+
+| | `fight_breakdowns.json` (file) | `fight_breakdowns` (in-memory list) |
+|---|---|---|
+| **Contains** | Simplified export | Full dict with all scoring fields |
+| **Has `red_url`/`blue_url`?** | NO | YES (line ~10213: `'red_url': red["url"]`) |
+| **Has `_method_pnl` etc?** | NO | YES (set by settlement loop) |
+| **Used by settlement loop?** | NO | YES — iterates this list |
+| **When written** | After event processing | Constructed during event loop |
+
+**Rule**: To understand what's available in the settlement loop, read the dict construction at line ~10213 in the code, NOT the `fight_breakdowns.json` file.
+
+---
+
+## Registry Builder Signature Preservation (lines ~1783-1812)
+
+**How it works:**
+1. Builds lookup: `existing_bouts_by_pair[fighter_pair_key] = existing_bout`
+2. For each fight, checks if `(picked, predicted_method, predicted_round)` matches existing bout
+3. If match → `preserved_bout = json.loads(json.dumps(existing_bout))` (deep copy)
+4. Updates actual results (actual_method, actual_round) on the copy
+5. Appends preserved bout to event entry → `continue` (skips fresh construction)
+
+**When it bites:**
+- Hypothesis changes HOW a bet is settled (different odds lookup, different method key)
+- But prediction signature stays the same (same picked fighter, same predicted method/round)
+- Deep copy preserves OLD P/L from template registry → zero delta
+
+**How to fix:**
+After the deep copy, patch settlement P/L onto the preserved bout:
+```python
+if fb.get("_method_pnl") is not None:
+    preserved_bout["method_placed"] = fb.get("_method_placed", preserved_bout.get("method_placed"))
+    preserved_bout["method_correct"] = fb.get("_method_result") if fb.get("_method_placed") else preserved_bout.get("method_correct")
+    preserved_bout["method_pnl"] = fb.get("_method_pnl")
+if fb.get("_combo_pnl") is not None:
+    preserved_bout["combo_placed"] = fb.get("_combo_placed", preserved_bout.get("combo_placed"))
+    preserved_bout["combo_correct"] = fb.get("_combo_result") if fb.get("_combo_placed") else preserved_bout.get("combo_correct")
+    preserved_bout["combo_pnl"] = fb.get("_combo_pnl")
+preserved_bout["combined_pnl"] = bout_combined_pnl(preserved_bout)
+```
 
 ---
 

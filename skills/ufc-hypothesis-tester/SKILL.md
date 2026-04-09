@@ -21,6 +21,8 @@ Single source of truth for algorithm hypothesis testing. Every step is mandatory
 
 ## Step 0: Pre-Compute Gate (Run BEFORE Any Code)
 
+**First:** Read `references/LEARNED_BUGS.md` for bugs from previous sessions. Pattern-match your hypothesis against known failure modes before writing code. Pay special attention to LB-001 (signature preservation zero-delta) if your hypothesis changes method/combo settlement.
+
 Answer these 3 questions. If all can be answered without a full backtest, skip to logging.
 
 1. **Can math answer this?** What is the typical score differential? Does the proposed modifier cross the `PICK_DIFF_THRESHOLD = 0.14`? If `proposed_coeff < min_score_diff` → zero pick flips guaranteed → reject immediately.
@@ -45,6 +47,28 @@ for url, fd in fighters.items():
 print(f'Qualifying fighters: {qualifying} of {len(fighters)}')
 "
 ```
+
+---
+
+## Architecture: 3 P/L Computation Paths (READ BEFORE DEBUGGING)
+
+> This section explains why hypothesis changes can produce **zero delta** even when the code activates correctly. See `references/codebase-cheatsheet.md` for line numbers and code examples.
+
+The algorithm has 3 separate P/L paths. A hypothesis change must flow through ALL 3 to appear in the archived output.
+
+**Path 1: Settlement Loop** (line ~10521) — Computes in-memory `fb['_method_pnl']`, `fb['_combo_pnl']` during per-fight iteration. Your hypothesis code goes here.
+
+**Path 2: Registry Builder** (line ~1723) — `_build_registry_event_entry()` constructs bout entries for the profit registry. **CRITICAL TRAP:** Signature preservation at line ~1787 deep-copies existing bouts when `(picked, predicted_method, predicted_round)` matches. If your hypothesis changes settlement logic WITHOUT changing the prediction signature → old P/L is silently preserved.
+
+**Path 3: Canonicalize + Regenerate** (line ~2008) — `_canonicalize_profit_registry_after_backtest()` runs `fix_bout()` on every bout, then `recompute_event_totals()` sums P/L. **The archived output reads from THIS path**, not from the settlement loop.
+
+### The Zero-Delta Rule
+**If your hypothesis changes HOW a bet is settled (different odds, different method key, different gating) without changing the prediction signature → you MUST patch the registry builder's preserved bout with settlement P/L.** Otherwise the deep copy preserves old values and your change is invisible.
+
+### Never Skip Preservation
+Skipping signature preservation entirely causes -25.91u regression (ML/odds instability, parlay crash). Always PATCH specific fields after the deep copy — never skip the copy itself.
+
+See `references/codebase-cheatsheet.md` → "3 P/L Computation Paths" and "Registry Builder Signature Preservation" for exact code.
 
 ---
 
@@ -254,6 +278,49 @@ Diagnose before sweeping. Do NOT run more coefficient values until you know why.
 
 ---
 
+## Step 5.5: Zero-Delta Diagnostic (if first run shows zero delta despite activations)
+
+If Step 5 shows identical P/L to baseline despite confirmed activations, **do NOT run more sweeps**. Debug in this order:
+
+### 1. Check archived file integrity
+```bash
+python3 -c "
+import json, glob
+runs = sorted(glob.glob('backtest_runs/*.json'))
+latest = [r for r in runs if 'EXPERIMENT' not in r][-1]
+d = json.load(open(latest))
+ml_parts = d['ml_record'].replace('W','').replace('L','').split('-')
+total_bouts = int(ml_parts[0]) + int(ml_parts[1])
+print(f'File: {latest}')
+print(f'Bouts: {total_bouts} (expect ~580)')
+print(f'Events: {d.get(\"event_count\", \"?\")} (expect 75)')
+assert total_bouts >= 550, f'WRONG FILE — only {total_bouts} bouts'
+"
+```
+
+### 2. Check registry builder signature preservation
+Does your hypothesis change method/combo settlement WITHOUT changing `predicted_method` or `predicted_round`?
+- YES → Signature preservation is deep-copying old P/L. You need to patch `preserved_bout["method_pnl"]` from `fb["_method_pnl"]` after the deep copy. See "Architecture" section above.
+- NO → Proceed to check 3.
+
+### 3. Check canonicalize path
+Does `fix_bout()` in `fix_registry_placed_flags.py` re-apply default logic (e.g., SUB→DEC fallback at line 432) that overwrites your hypothesis P/L?
+- YES → Store a flag in the bout entry so `fix_bout()` respects it, OR ensure your settlement P/L is non-None so `determine_placed_flags()` preserves it.
+- NO → Proceed to check 4.
+
+### 4. Debug with targeted prints
+Place debug prints **AFTER** the variable assignment (not before — stale values from previous loop iteration will mislead). Use unique tags:
+```python
+if not QUIET_MODE and _hypo_active:
+    print(f"[HYPO_ACTIVE] {picked_name} bet_method={_bet_method} method_odds={method_odds} pnl={fb.get('_method_pnl')}")
+```
+Then grep for `[HYPO_ACTIVE]` specifically — not generic strings like the function name.
+
+### DO NOT: Skip signature preservation entirely
+First instinct will be to skip the deep copy when your gate is active. This causes -25.91u regression from ML/odds instability and parlay crashes. Always PATCH, never SKIP.
+
+---
+
 ## Step 6: Coefficient Sweep
 
 Only if Step 5 showed the modifier IS changing results. Restore before each variant.
@@ -385,17 +452,58 @@ git push origin main
 
 ## Known Traps (DO NOT REPEAT)
 
+### Data Format & API Traps
 | Trap | Symptom | Fix |
 |------|---------|-----|
 | `'W'`/`'L'` instead of `'WIN'`/`'LOSS'` | Zero activations, no error | Use `result not in ("WIN", "LOSS")` |
 | `datetime.date.fromisoformat()` | AttributeError on fromisoformat | Use `datetime.strptime(d, "%Y-%m-%d").date()` |
+| `ufc_fight_count` field | Wrong veteran count | Use `fd.get('ufc_fight_count', 0) or 0` — field exists directly on fighter dict |
+
+### Comparison & Baseline Traps
+| Trap | Symptom | Fix |
+|------|---------|-----|
 | Baseline from registry totals | Confounded comparison | Run fresh production baseline, use archived run file |
 | No `git restore` between sweeps | All sweeps return same result | Restore all 12 data files before each run |
-| Modifier fires but doesn't flip picks | All coefficients produce same P/L | Check: is `HYPO_COEFF` above the pick threshold (~0.14)? Count pick flips from ML record. |
+| Modifier fires but doesn't flip picks | All coefficients produce same P/L | Check: is `HYPO_COEFF` above the pick threshold (~0.14)? Count pick flips from ML record |
 | Running sweeps before verifying activations | 3+ wasted runs | Always run activation diagnostic (Step 4) before first full backtest |
 | Comparing hypothesis to wrong baseline | False +24u "improvement" | Verify baseline = fresh production run, not stale totals |
-| `ufc_fight_count` field | Wrong veteran count | Use `fd.get('ufc_fight_count', 0) or 0` — field exists directly on fighter dict |
+| Wrong archived file read | 484 bouts instead of 580 | Verify `events` count (>=75) + bout count (>=575) immediately after reading any archived file |
+
+### P/L Pipeline Traps (learned 2026-04-08, Hypothesis 6)
+| Trap | Symptom | Fix |
+|------|---------|-----|
+| Registry signature preservation | Zero delta despite activations (settlement computes new P/L, archived shows old) | Hypothesis changes settlement without changing prediction signature → deep copy preserves old P/L. Patch `method_pnl`/`combo_pnl` on preserved bout from `fb['_method_pnl']` after deep copy. See Step 5.5. |
+| Skip preservation entirely | -25.91u regression, ML losses, parlay tanked (-27u) | NEVER skip signature preservation. Patch specific fields only. Deep copy keeps ML/odds stable. |
+| `_canonicalize` overwrites P/L | `fix_bout()` re-applies SUB→DEC fallback, overwriting hypothesis settlement | Store a flag (e.g., `sub_grapple_gate: True`) in bout so `fix_bout()` respects it, OR ensure settlement P/L is non-None so `determine_placed_flags()` preserves it |
+| Debug print before assignment | Stale variable value from previous loop iteration (e.g., `_bet_method=DEC` when gate is True) | In settlement loop, place debug prints AFTER the variable is assigned. Loop reuses variables across iterations. |
+| `fight_breakdowns.json` != in-memory | URLs "missing" but actually present | JSON is simplified export. Read code at line ~10213 for in-memory structure, not the file. |
+| Generic grep for activations | 623 false matches vs 21 real | Use specific tags: `[GATE_NAME_ACTIVE]` and grep for those exact strings |
+
+---
+
+## Step 10: Self-Learning Protocol (MANDATORY — after Step 9)
+
+After every hypothesis test session, check for new bugs to record:
+
+1. **Review**: Did any unexpected bugs occur during this session? (zero-delta, wrong file, debug confusion, etc.)
+2. **If yes**, append a structured entry to `references/LEARNED_BUGS.md`:
+   ```markdown
+   ### LB-NNN: [Bug Name]
+   - **Symptom**: [What you observed]
+   - **Root Cause**: [Why it happened]
+   - **Time Wasted**: [Approximate debugging time]
+   - **Prevention**: [Rule to prevent recurrence]
+   ```
+3. **Number sequentially** — check the last LB-NNN in the file and increment
+4. **Commit** the updated LEARNED_BUGS.md alongside EXPERIMENT_LOG.md:
+   ```bash
+   git add references/LEARNED_BUGS.md backtest_runs/EXPERIMENT_LOG.md
+   # (or include in the experiment commit)
+   ```
+
+The goal: every debugging session that wastes >5 minutes teaches the next session to avoid the same trap. The LEARNED_BUGS.md file is read at Step 0 before any code is written.
 
 ---
 
 > Full reference: `references/codebase-cheatsheet.md`
+> Bug history: `references/LEARNED_BUGS.md`
