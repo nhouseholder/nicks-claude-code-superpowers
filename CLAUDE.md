@@ -88,7 +88,7 @@ When switching projects: drop all assumptions, read project CLAUDE.md + memory, 
 
 ## Rules (non-hook-enforced — these need YOUR attention)
 
-1. **Commit AND push between tasks** — rate limits kill 79% of multi-task sessions. GitHub is the source of truth, not iCloud. Every commit must be pushed. **High-value work first** — if the session has multiple tasks, ship the most impactful one before starting the rest. Never leave the big win uncommitted while polishing small stuff.
+1. **Commit AND push between tasks** — rate limits kill 79% of multi-task sessions. GitHub is the source of truth, not iCloud. Every commit must be pushed. **High-value work first** — if the session has multiple tasks, ship the most impactful one before starting the rest. Never leave the big win uncommitted while polishing small stuff. **Push = Deploy** — for ALL Cloudflare-hosted projects, every `git push` to main MUST be followed by a Cloudflare deploy. Never push without deploying. This is non-negotiable for website projects.
 2. **GitHub is source of truth** — Projects are on local SSD (`~/Desktop/ProjectsHQ/`), no more iCloud stalling. Always push after commits. If git state looks corrupted, re-clone from GitHub.
 3. **Use site commands** — `/mmalogic`, `/update-diamond`, `/update-courtside`, `/update-mystrainai`, `/update-enhancedhealth`, `/update-researcharia`, `/update-nestwisehq`
 4. **Handoff = /full-handoff always**
