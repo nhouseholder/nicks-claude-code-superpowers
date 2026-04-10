@@ -4,19 +4,17 @@
 > Pruned 2026-04-01: kept recurring behavioral patterns + permanent rules. One-time bug fixes removed (the fix is in the code).
 > Last updated: 2026-04-10
 
-## UFC — Cache Synthesis Not Persisted to Disk (CACHE_SYNTHESIS_NOT_PERSISTED) — 2026-04-10
-- **Pattern**: `lookup_fight_prop_odds()` synthesizes simple method odds (`f1_ko`/`f1_sub`/`f2_ko`/`f2_sub`) in-memory from combo round odds when the simple keys are missing, but never writes the synthesized values back to `ufc_prop_odds_cache.json`. When the live-tracker bot refreshes the cache (overwriting the synthesized keys with BFO's combo-only shape), the v11.27.0 baseline becomes non-reproducible: fresh backtests land ~+1105u instead of the committed +1631.07u. Root cause: 7 HM3 parlays fail to construct because `f{n}_ko`/`f{n}_sub` are missing at HM3 scorer time.
-- **Root cause**: In-memory synthesis is O(fight) cheap so it was written as a read-time helper — but the HM3 EV scorer reads through a different code path that bypasses the synthesis, and the scraper refresh blows away any keys that aren't in the BFO shape.
-- **Impact**: v11.27.0 committed at +1631.07u Grand but not deterministically reproducible from on-disk caches. 526u Combined delta between committed baseline and fresh re-runs.
-- **Fix (permanent, 2 layers)**: (1) Standalone regen script `rebuild_prop_odds_simple_keys.py` materializes all missing simple keys via summed-implied-prob synthesis (cap 95%), with atomic write + timestamped backup. Run once per baseline shift. (2) In-place safety net in `lookup_fight_prop_odds()`: when synthesis fires, mark `_prop_cache_dirty = True`; flush the cache to disk on process exit (atexit handler). This way *any* future read that triggers synthesis auto-persists the result.
-- **Applies when**: Any cache that has a "synthesize if missing" read path. Always persist synthesized values back to the cache OR treat the cache as frozen (no live refreshes allowed).
-
-## UFC — Hypothesis File Sync Leak (HYPOTHESIS_FILE_SYNC_LEAK) — 2026-04-10
-- **Pattern**: Copying `UFC_Alg_v4_fast_2026.py` to `_HYPOTHESIS.py` for A/B testing also copies all the production write paths: `_sync_to_frontend()` call at line ~15901, `algorithm_stats.json` fallback write loop at ~15996, `backtest_runs/` archive dir, `ufc_profit_registry.json` write, `ufc_systems_registry.json` write, `ufc_odds_cache.json` write, `ufc_prop_odds_cache.json` write, `ufc_backtest_registry.json` write. First H4 run during the 2026-04-10 8-hypothesis batch clobbered the webapp frontend registry with +1105.42u (the hypothesis's own result) because `_sync_to_frontend` was still active. 4 more silent leak sites were discovered during smoke testing of the fix (systems_engine, backtest_registry, odds_cache, prop_odds_cache).
-- **Root cause**: The algorithm file has ~9 distinct write sites scattered across 16k+ lines. Grep-based per-file scrubs are error-prone because new writes get added over time (and the hypothesis file diverges from the base). No central guard.
-- **Impact**: Transient corruption of `webapp/frontend/public/data/ufc_profit_registry.json`, `algorithm_stats.json`, `hero_stats.json`, `backtest_summary.json`, `fight_breakdowns.json`, `ufc_systems_registry.json`. Restored via `git checkout HEAD --` but could have been unrecoverable if the corruption had been committed.
-- **Fix (permanent, v11.27.1)**: Central `READONLY_MODE` flag, true when either `UFC_READONLY_MODE=1` env var is set OR when `"HYPOTHESIS"` appears in the filename (auto-detection). `_resolve_write_path(filename, default_dir)` helper returns `None` in READONLY unless `UFC_HYPOTHESIS_OUT_DIR` is set to an alternate output directory. All 9 write sites are now guarded. Startup prints `[READONLY] Production writes disabled` banner when active.
-- **Applies when**: Any time you copy `UFC_Alg_v4_fast_2026.py` for A/B testing. Verify via `grep -c "READONLY_MODE\|_resolve_write_path" HYPOTHESIS_FILE.py` that the guard infrastructure survived the copy. If you add a NEW write site to the base algorithm, it MUST go through `_resolve_write_path` or have an explicit `if READONLY_MODE: return` early-exit — never write to a hardcoded path.
+## React — Whole-Site Black Screen From One Render Crash (REACT_BLACK_SCREEN_NO_BOUNDARY) — 2026-04-10
+- **Pattern**: A single component throws during render (e.g. accessing `.roi` on an undefined nested key), React has no ErrorBoundary, so the entire tree unmounts and `#root` becomes empty. Users see a black/blank page that does NOT recover on refresh. Pipeline success logs are misleading because the backend succeeded — the crash is in the frontend at render time.
+- **Why it keeps happening**: Data generators (daily pipelines) produce JSON whose shape can shrink when categories drop below min-sample thresholds (e.g. `tier_breakdown` only contains PLATINUM when DIAMOND/GOLD have too few picks). React code that *destructures and dot-accesses* those keys crashes on the first undefined. Two incidents so far: SeasonCard key mismatch (2026-03) and NHL tier_breakdown (2026-04-10).
+- **Root cause (generalized)**: The frontend trusts that the data contract is stable. It isn't — daily regeneration re-shapes it whenever category counts fluctuate. Single crash + no boundary = full-site outage.
+- **Fix (permanent, 2 layers — now in place for diamond-predictions)**:
+  1. **Defense in depth**: `main.jsx` wraps `<App />` in `RootErrorBoundary` (class component with `getDerivedStateFromError` + `componentDidCatch`). A render crash now shows a recoverable error card, never a blank root. **This is the non-negotiable fix. Any new Vite/React site in Projects must have an ErrorBoundary at `main.jsx`/root mount from day one.**
+  2. **Root cause (data-driven rendering)**: Replaced the crashing hardcoded legend `tier_breakdown.DIAMOND.roi / .PLATINUM.roi / .GOLD.roi` with `tierChartData.map(t => ...)` so the legend iterates only existing keys. Applies generally: when rendering from a data object whose keys may be absent, iterate via `Object.entries` or a pre-built array — never dot-access a hardcoded subkey of a variable-shape object.
+- **Detection / how to catch it earlier**: 
+  1. If a user reports "site down / black screen that doesn't resolve on refresh" — it is almost certainly a React render crash, NOT a deploy/DNS/cache issue. Skip purging Cloudflare. Go straight to: (a) open the live site in Chrome MCP, (b) `read_console_messages onlyErrors:true`, (c) read the TypeError, (d) grep the source for the undefined key. Should be <5 minutes to root cause.
+  2. When writing React that pulls from a freshly-regenerated JSON file, **grep the current data file** for the keys you're about to dot-access. If any key might be absent, use `?.` or iterate.
+- **Applies when**: Any React code in any Projects site (diamond-predictions, mmalogic, courtside-ai, nestwisehq, mystrainai, enhancedhealth, researcharia). All of them need an ErrorBoundary at root if they don't have one. Audit any project where a daily pipeline regenerates JSON consumed by the React app.
 
 ## UFC — O/U Odds Source Mismatch After Contract Unification (OU_ODDS_SOURCE_DRIFT) — 2026-04-07
 - **Pattern**: O/U contract unification (v11.23.1, `ou_contract.py`) changed O/U odds source from DEC-prop-derived inline odds (broad coverage, ~438 bets) to BFO scraper cache only (~145 bets). `ufc_ou_odds_cache.json` has 618 flat entries (old derived odds) that are unreachable by `get_ou_odds()` because it requires event-nested keys. This caused a legitimate -104u absolute profit drop while per-bet ROI improved (42% → 55%).
@@ -47,6 +45,19 @@
 - **Fix (immediate)**: `patch_registry_from_archive.py` — patches divergent bouts using prediction_archive/ as ground truth. Run after every backtest for events that have archives.
 - **Fix (long-term needed)**: Compute career stats from fight-level data with temporal cutoff (same approach used for Elo and method profiles). This would require refactoring `get_fighter_stats()` to aggregate from `fight_history` entries filtered by `cutoff_date`.
 - **Applies when**: Any backtest re-run. Always cross-check last 5 events against prediction_archive/ after re-running the backtester.
+
+## MyStrainAI — useRatings TDZ Crash from ESLint exhaustive-deps (ESLINT_TDZ) — 2026-04-07
+- **Pattern**: ESLint auto-fix added `_computeLocalProfile` to `rateStrain`'s useCallback dependency array. But `_computeLocalProfile` was a `const` declared 37 lines AFTER `rateStrain`. Dependency arrays are evaluated immediately (not lazily), so accessing the `const` before its declaration triggers JavaScript's Temporal Dead Zone → `ReferenceError: Cannot access 'w' before initialization` in minified bundles.
+- **Root cause**: Commit `736dd2d` lint fix changed dep array from `[userId, ratings]` to `[_computeLocalProfile, ratings, userId]` without checking declaration order.
+- **Fix**: Move `_computeLocalProfile` declaration (entire useCallback block) BEFORE `rateStrain` in `useRatings.js`. Added code comment warning about TDZ.
+- **Diagnosis key**: Chrome MCP tools captured the stack trace pointing to `useRatings-B3X3Q6P1.js:1:2024`. Reading the minified bundle showed `const v = useCallback(... [w, o, a])` before `const w = useCallback(...)`.
+- **Applies when**: Any ESLint exhaustive-deps auto-fix. Always check that added dependencies are declared BEFORE the hook that references them. `const`/`let` are not hoisted like `function` declarations.
+
+## MyStrainAI — Cloudflare Pages _middleware.js must process all requests (CF_MIDDLEWARE_ASSETS) — 2026-04-07
+- **Pattern**: Attempted to skip non-API routes in `_middleware.js` to avoid wrapping static assets in `new Response()`. Result: `_redirects` catch-all (`/*  /index.html  200`) intercepted JS asset requests and served HTML instead of JavaScript.
+- **Root cause**: Cloudflare Pages Functions middleware participates in the asset serving chain. When middleware returns `context.next()` for non-API paths, it still correctly routes to static assets. But when you skip middleware entirely for some paths, the `_redirects` catch-all takes priority, serving `index.html` for all paths including `/assets/*.js`.
+- **Fix**: Keep middleware processing ALL requests. The `new Response(response.body, response)` wrapper is necessary for static assets to be served correctly.
+- **Applies when**: Modifying Cloudflare Pages `_middleware.js`. Never exclude routes — the middleware must call `context.next()` and wrap the response for all paths.
 
 ## General — iCloud Filesystem Stalling (ICLOUD_STALL)
 - **Pattern**: Grep/read stalls on iCloud files → Claude retries with different tool → same stall → token burn loop
@@ -98,6 +109,13 @@
 - GSA hybrid gate tested: +0.00u delta. Elite grapplers win by DEC (55%), not SUB (25%).
 - The blanket SUB→DEC fallback captures the dominant outcome and is mathematically optimal.
 
+## UFC — Live Tracker Scoring Gap (LIVE_TRACKER_SCORING_GAP) — 2026-04-07
+- **Pattern**: `scoreFight()` in LiveTrackerPage.jsx only scored ML, Method, and Combo. O/U scoring was completely missing, and method bets had no gating (scored as placed/lost even when no method odds existed). Live-tracked events showed wrong O/U results and phantom method losses.
+- **Root cause**: `scoreFight()` was written before O/U bets were added (v11.20.4) and never updated. Method gating was never implemented in the frontend — the Python `track_results.py` has it but the JS function didn't.
+- **Fix**: Added O/U scoring (Over: round >= 3; Under: round <= 2 with KO/TKO/SUB finish), method gating (check method odds exist before scoring), and `*_placed` flags to `scoreFight()`. Also fixed Scoreboard to show O/U instead of Round.
+- **Rule**: `scoreFight()` in LiveTrackerPage.jsx MUST mirror `track_results.py` scoring logic for ALL bet types. When a new bet type is added to the algorithm, it must be added to BOTH scoring paths.
+- **Applies when**: Any new bet type added, any scoring rule change, any Live Tracker modification.
+
 ## UFC — Ghost X Bug Prevention
 - Always use `*_placed` flags, never infer bet placement from `*_correct !== null`.
 - Run `python3 validate_registry_cells.py --strict` after any registry modification.
@@ -105,6 +123,13 @@
 ## UFC — Round Bet Is INDEPENDENT of Method
 - Round and method are separate bets. Fighter loss = ALL prop bets lose. SUB gating stays.
 - See EVENT_TABLE_SPEC.md for canonical scoring rules.
+
+## UFC — Hypothesis Testing Data Format Traps (HYPOTHESIS_DATA_TRAPS) — 2026-04-08
+- **Pattern 1**: `fight_history` in `ufc_backtest_registry.json` uses `'WIN'`/`'LOSS'`, NOT `'W'`/`'L'`. Writing `result not in ('W', 'L')` causes zero activations with no error — silent failure.
+- **Pattern 2**: File imports `from datetime import datetime` — so `datetime` is the CLASS, not the module. `datetime.date.fromisoformat()` fails with AttributeError. Correct pattern: `datetime.strptime(date_str, "%Y-%m-%d").date()`.
+- **Pattern 3**: Baseline from registry totals (e.g. 745.78u) diverges from fresh backtest run (770.51u). Always establish baseline from a FRESH clean run, never from file reads. Incremental registry totals are stale.
+- **Pattern 4**: Backtest overwrites production data files. Must `git restore` ALL data files between coefficient sweep runs or results are confounded.
+- **Applies when**: Writing ANY new function in `UFC_Alg_v4_fast_2026.py`. Check data format with `python3 -c` BEFORE writing code. Check imports at top of file BEFORE using stdlib functions.
 
 ## Build — Node 25 Rollup Deadlock
 - Node 25 + Rollup causes hanging builds. Use `NODE_OPTIONS=--max-old-space-size=4096` or downgrade to Node 22.
@@ -114,6 +139,13 @@
 - **Root cause**: Previous sessions deployed to Cloudflare Pages directly without committing to git first. 10 versions (v5.168–v5.177 of MyStrainAI) were lost and had to be reverse-engineered from minified production JS.
 - **Fix**: ALWAYS commit + push BEFORE deploying. Mandatory sequence: build → commit → push → deploy → verify. Never use `wrangler pages deploy` without a clean git state and pushed commit.
 - **Applies when**: Any Cloudflare Pages deploy, any version bump, any `wrangler` command. Check `git status` before deploying — if there are uncommitted changes, commit and push first.
+
+## ResumeForge — PDF Upload Spinner From CDN Worker + Missing Finalizer (PDF_WORKER_SPINNER_TRAP) — 2026-04-08
+- **Pattern**: Uploading a PDF leaves the builder stuck on "Reading file" instead of reaching either the editor or an error state.
+- **Root cause**: The client parser pointed PDF.js at a CDN-hosted `pdf.worker.min.mjs` URL that failed to load for the shipped version, and `BuilderPage.handleFile()` did not use `try/finally`, so extraction exceptions left `isParsing` true forever.
+- **Fix**: Bundle the PDF worker locally via `new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url)`, catch text-extraction failures in `parseResume()`, and always clear parsing state in `BuilderPage` with `finally`.
+- **Prevention rule**: Never make the upload spinner depend on external worker/CDN availability, and never let async intake flows mutate loading state without a guaranteed cleanup path.
+- **Verification**: Upload a PDF in browser automation and confirm the app does not remain on "Reading file"; it must either open the editor or show the intake error state.
 
 ## Permanent — ALWAYS Use `tier` Field for Pick Filtering (TIER_FILTER_GATE) — 2026-04-02
 - **Pattern**: Frontend filters picks using legacy boolean flags (`is_apex`, `is_agree`, `is_ml_pick`) which miss newer tiers (MADNESS, DISCOVERY, MONEYLINE) that only set `tier` field. Picks appear in grading but never show in bet history.
@@ -177,28 +209,18 @@
 - **Prevention rule**: In dense financial tables, never ship default browser number steppers or unlabeled edit-mode cells. If a cell changes meaning in edit mode, label it inside the cell and verify the value is readable at the actual table width.
 - **Verification**: On `/portfolio`, inline holding edit must show the full quantity value, trade form numeric inputs must render without native Safari steppers, and the Portfolio Grade QORE buckets must render as distinct badges.
 
-## WRONG_PROJECT_CWD — Running Domain Tasks in the Wrong Repo — 2026-04-09
-- **Symptom**: Running backtests, edits, or deploys in the wrong project repo because cwd happened to be elsewhere when the task was requested.
-- **Example**: User in `~/ProjectsHQ/superpowers/` asks "test H16 backtest" — UFC task, wrong repo, would have failed silently or worse, modified the wrong files.
-- **Fix**: `project-domain-guard.py` hook warns on domain/cwd mismatch before Claude acts. If you see a PROJECT MISMATCH warning, STOP and confirm with user which repo to use.
-- **Rule**: Never assume cwd is the right directory for a task. If the task has domain-specific keywords, verify cwd matches the project those keywords belong to.
-- **Prevention**: Domain map lives at `~/.claude/project-domains.json`. Update it when adding new projects or domain terms.
+## MyStrainAI — esbuild.drop:['console'] Breaks Library Error Handling (ESBUILD_DROP_CONSOLE) — 2026-04-07
+- **Pattern**: Using `esbuild: { drop: ['console'] }` in vite.config.js removes ALL console methods including `console.error` and `console.warn`, which breaks libraries that use those methods in their internal error handling paths (FingerprintJS, Firebase Auth).
+- **Root cause**: `esbuild.drop: ['console']` is equivalent to `delete console.*` — a blanket removal. On Brave browser with fingerprint protection enabled, FingerprintJS hits error paths that call `console.error` at startup. With the method removed, uninitialized variable propagation fails silently, causing a TDZ (Temporal Dead Zone) ReferenceError that crashes the app.
+- **Symptom**: Mobile TDZ crash: `ReferenceError: Cannot access 'X' before initialization` on browsers with privacy protections (Brave, Firefox w/ Enhanced Tracking). Doesn't repro on Chrome/Safari.
+- **First fix (wrong)**: Added `Cache-Control: no-cache` + ErrorBoundary stale-chunk reload — didn't fix root cause.
+- **Correct fix (v5.217.7)**: Changed to `esbuild: { pure: ['console.log', 'console.debug'] }` — only strips non-essential calls, preserves `console.error`/`console.warn` for library error handling.
+- **Rule**: NEVER use `esbuild.drop: ['console']` for production builds. Use `esbuild.pure` targeting only `console.log` and `console.debug`. `console.error` and `console.warn` are load-bearing for third-party libraries.
+- **Verification**: Build with `esbuild.pure`, test on Brave with "Shields Up". FingerprintJS initialization must not throw.
 
-## MATCHUP_OVER_ANTI_SIGNALS — NBA prop over systems that backtest negative — 2026-04-10 (courtside-ai)
-- **Context**: NBA prop matchup sweep, part of v12.48.2 backtest (26 hypotheses, 36 accepted). Two "over" systems that sound intuitive but are inverse signals.
-- **Anti-signal 1 — `BLK_OVER_HOT_vs_SOFT`**: 44.9% win / **−14.2% ROI** / N=280. Logic sounds right ("hot blocker vs soft block defense") but "soft block defense" actually means the opponent has tall shot-blockers who absorb shots — which hurts your blocker's stat line, not helps it. Counterintuitive but strong.
-- **Anti-signal 2 — `3PM_OVER_SIEVE`**: 46.1% win / **−11.9% ROI** / N=355. Logic sounds right ("fade any player vs team that allows many 3s") but team-level 3PA volume does not transfer to individual player 3PM. Shooters still need the ball.
-- **Rule**: Never build these systems into production. Never flip the sign and build them either — always run a fresh full walk-forward backtest before building any matchup system.
-- **Source**: `/Users/nicholashouseholder/ProjectsHQ/courtside-ai/scripts/analysis/props_matchup_sweep_summary.md`
-- **Prevention**: When porting backtest winners to production, also explicitly record the losers with their N and ROI so they can't sneak back in via "hey this sounds like it should work" intuition.
-
-## PLAN_AUTO_SWITCH_IMPOSSIBLE — Hook-based model switching from Opus to Sonnet — 2026-04-10
-- **Context**: Claude Code Desktop app on macOS. User wanted "when I approve a plan, auto-switch to Sonnet before execution" for ~40-60% token savings on mechanical plan execution.
-- **Failed approach**: PreToolUse / UserPromptSubmit hooks that (a) write `claude-sonnet-4-6` to `~/.claude/settings.json` when a plan is approved or "go" is typed, or (b) read `settings.json` to check "am I already on Sonnet?" and branch behavior. Tried in 10 commits from 2026-04-07 through 2026-04-10.
-- **Why it failed**: **The running session's model is locked at startup.** Writes to `settings.json` only affect NEW sessions, not the currently-running one. Additionally, the Desktop app's model dropdown is the real source of truth and does NOT reliably sync back to settings.json — so the file goes stale and tells lies ("model: sonnet" while the session is actually running Opus). Every hook branch that read settings.json to detect the running model was reading a stale value. One commit (`e37d4b6`) wrote Sonnet to settings.json from ExitPlanMode; a later commit (`08438d8`) discovered this was removing the guard immediately because the guard then saw "model=sonnet" and allowed Opus to execute freely. Classic self-inflicted bug chain from workarounds that couldn't exist cleanly.
-- **Working fix**: **Manual switch only.** The `plan-mode-enforcer.py` hook now (1) detects plan intent + writes a `.plan-guard-active` file, (2) injects a mandatory user-facing message saying "switch to Sonnet then type `go`", (3) on `go`, removes the guard and injects execution instructions WITHOUT claiming to know the model. `plan-execution-guard.py` blocks Edit/Write unconditionally while the guard exists — no model check. Trust the user to have switched; the hook cannot verify it and must not pretend to.
-- **Flawed assumption**: API/behavior assumption — believed `settings.json` writes propagated to the running session, and that settings.json would stay in sync with the Desktop UI dropdown. Both false.
-- **Reasoning lesson**: *If a hook cannot detect a piece of state reliably, it must not pretend to know it.* Reading a stale settings.json and interpolating that value into user-facing messages ("PLAN EXECUTION MODE — running on claude-sonnet-4-6") produces lies that damage user trust faster than the feature ever delivered value. Honest "I don't know which model you're on, here's the plan, go execute it" beats clever-but-wrong auto-detection every time.
-- **Secondary lesson**: Substring matching on user prompts ("execute plan" inside "why does execute plans fail") triggered false plan-execution injections. All GO detection must be start-anchored regex + length-guarded. Never substring-match on user prose.
-- **Applies when**: Any future attempt to have a Claude Code hook (a) change the active model mid-session, (b) inject `/model` slash commands into the CLI, (c) read settings.json to infer the running model, (d) substring-match user prompts for action signals. Don't.
-- **History**: 10 commits tried variations. Zero worked. Session transcript `45c88614-7853-4083-a404-12faa23a963a` (superpowers project, 2026-04-10) documents the final root-cause diagnosis and remediation.
+## LUCIDE-REACT NEW IMPORT IN STRAIN CARD → TDZ CRASH
+- **File**: `frontend/src/components/results/StrainCard.jsx`
+- **Symptom**: `ReferenceError: Cannot access 'w' before initialization` — app crashes with ErrorBoundary on all pages that render StrainCard
+- **Root cause**: Adding a NEW lucide-react icon (TrendingUp) as a static import to StrainCard changed the Vite chunk graph. The new chunk dependency altered module initialization order, triggering a TDZ in one of the shared chunks (`fmt` or `normalizeStrain` — both have module-scope `const w` declarations).
+- **Fix**: Use an icon already imported in StrainCard (Star, Heart, MapPin, etc.) instead of introducing a new import. If a new icon is genuinely needed, use an inline SVG instead.
+- **Rule**: Never add a new lucide-react icon import to StrainCard without rebuilding and testing in the browser (not just checking build success).
