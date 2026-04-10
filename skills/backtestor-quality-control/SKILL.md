@@ -1,6 +1,6 @@
 ---
 name: backtestor-quality-control
-description: Backtestor quality control and audit skill. Ensures every backtestor across all sports projects meets mandatory standards — walk-forward integrity, real Vegas odds, correct unit math, complete bet type coverage, data caching, intelligent scraping, growing event windows, and single canonical backtestor per sport. Fires when building, modifying, auditing, or running any backtestor. Prevents the recurring confusion of multiple outdated backtestor versions, missing bet types, flat unit payouts, and data leakage.
+description: "Quality control audit for backtestors across sports projects — enforces walk-forward integrity, real Vegas odds, correct unit math, complete bet type coverage, data caching, and single canonical backtestor per sport. Fires when building, modifying, auditing, or running any backtestor."
 weight: light
 triggers:
   - building or modifying any backtestor

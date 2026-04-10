@@ -1,6 +1,6 @@
 ---
 name: skill-awareness
-description: "MANDATORY first-thought on every prompt: 'Is there a skill, hook, command, or agent that handles this?' Before doing ANY work, Claude must scan the available skills list in the system prompt and identify which skills apply. If a matching skill exists and wasn't used, that's a failure. This skill exists because Claude repeatedly ignores installed skills and does tasks manually when specialized skills would produce better results. Always-on, fires on every message."
+description: "MANDATORY first-thought on every prompt: scan the available skills list and use any matching skill before doing work manually. Always-on."
 weight: passive
 ---
 

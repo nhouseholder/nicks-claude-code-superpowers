@@ -1,6 +1,6 @@
 ---
 name: smart-clarify
-description: When Claude is uncertain about the user's intent, it asks a structured multiple-choice clarification question instead of guessing or asking open-ended questions. Presents 2-4 options (A, B, C, D) that cover the most likely interpretations, plus "Something else" as an escape hatch. Designed for speed — the user picks a letter and we move. Always-on awareness skill that fires when ambiguity is detected.
+description: "When intent is ambiguous, asks a structured multiple-choice clarification (2-4 options + escape hatch) instead of guessing. Always-on — fires on ambiguity."
 weight: passive
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: content-research-writer
-description: Full research + writing assistant. Searches the web, gathers sources, builds outlines, drafts content with citations, and iterates section-by-section. Use for blog posts, articles, documentation, case studies, newsletters, or any structured writing that needs research backing. Triggers on "write an article", "draft a blog post", "research and write", "create content about", or any writing task that requires source material.
+description: "Research + writing assistant — searches the web, gathers sources, builds outlines, and drafts cited content. For blog posts, articles, case studies, or newsletters. Triggers on 'write an article', 'draft a blog post', 'research and write'."
 weight: heavy
 ---
 

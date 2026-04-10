@@ -1,6 +1,6 @@
 ---
 name: error-memory
-description: Captures failed approaches, working solutions, and recurring bugs after debugging sessions. Analyzes WHY Claude's reasoning went wrong — flawed assumptions, not just what broke. Tracks recurrence so repeat offenders trigger escalated root-cause analysis. Persists anti-patterns, reasoning failures, and recurring bug tracker so Claude never wastes tokens retrying known-bad approaches or repeating the same thinking errors.
+description: "Captures failed approaches, working solutions, and recurring bugs after debugging. Analyzes why reasoning went wrong (not just what broke). Escalates repeat offenders to root-cause analysis."
 context: fork
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 weight: light

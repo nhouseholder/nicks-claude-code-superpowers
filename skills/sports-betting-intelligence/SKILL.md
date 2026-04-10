@@ -1,6 +1,6 @@
 ---
 name: sports-betting-intelligence
-description: Professional sports betting domain expert — edge identification, system brainstorming, contrarian sharp logic, CLV tracking, and sport-specific knowledge for NFL, NBA, MLB, NHL, UFC, soccer, tennis, and college sports. Fires when working on prediction algorithms, discussing betting strategy, brainstorming new angles, or evaluating system profitability. The betting brain that complements backtest and profit-driven-development skills.
+description: "Pro sports betting domain expert — edges, contrarian sharp logic, CLV tracking, and sport-specific knowledge (NFL, NBA, MLB, NHL, UFC, soccer, tennis, CBB). Fires on prediction algorithm work, betting strategy, brainstorming, or profitability evaluation."
 weight: light
 triggers:
   - working in sports prediction codebases

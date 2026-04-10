@@ -1,13 +1,10 @@
 ---
 name: ufc-hypothesis-tester
 description: >
-  UFC algorithm hypothesis tester — the ONLY agent that should run algorithm experiments for mmalogic/OctagonAI.
-  Encodes all codebase-specific knowledge: correct data formats, safe baseline workflow, activation verification,
-  clean state management, coefficient sweep protocol, and mandatory experiment logging.
-  ALWAYS use this skill when the user says any of: "test a theory", "test this in the backtester",
-  "hypothesis", "try this idea in the algorithm", "would X improve picks", "backtest experiment",
-  "parameter sweep", "coefficient sweep", "test this modifier", "does X help", "add X to the algorithm
-  and test it", or anything involving modifying UFC_Alg_v4_fast_2026.py and running a backtest.
+  UFC algorithm experiment runner for mmalogic/OctagonAI — handles data formats, baseline workflow,
+  activation verification, coefficient sweeps, and mandatory experiment logging. Fires on "test a theory",
+  "hypothesis", "parameter sweep", "coefficient sweep", "would X improve picks", "test this in the backtester",
+  or any edit to UFC_Alg_v4_fast_2026.py followed by a backtest.
 weight: heavy
 ---
 

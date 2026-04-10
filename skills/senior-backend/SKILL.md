@@ -1,6 +1,6 @@
 ---
 name: senior-backend
-description: Backend audit, architecture review, and development skill. Performs systematic audit of backend code — API routes, middleware, auth, database, error handling — plus architecture assessment of service boundaries, data flow, scalability, and tech stack fit. Use when asked to audit backend, review APIs, review architecture, design a system, evaluate tech stack, or build backend features.
+description: "Backend audit, architecture, and development — APIs, middleware, auth, DB, error handling, service boundaries, scalability, tech stack. Use for backend audits, API/architecture review, system design, or backend features."
 weight: heavy
 ---
 

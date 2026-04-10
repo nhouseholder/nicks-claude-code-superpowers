@@ -1,6 +1,6 @@
 ---
 name: deep-research
-description: Self-directed literature review and expert-level research before implementation. When Claude encounters an unfamiliar concept, statistic, algorithm, technique, or domain — it STOPS, researches extensively from authoritative sources (academic papers, official docs, expert blogs), becomes an expert, identifies alternatives, and makes informed suggestions BEFORE writing any code. Triggers when asked to implement something Claude isn't deeply knowledgeable about, add a new statistical method, integrate an unfamiliar API, or when the user says "research this" or "learn about this first".
+description: "Self-directed literature review before implementation. Researches authoritative sources (papers, official docs, expert blogs) when encountering unfamiliar concepts, algorithms, APIs, or statistical methods. Triggers on 'research this', 'learn about this first', or unfamiliar domain knowledge."
 weight: heavy
 ---
 

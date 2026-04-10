@@ -1,6 +1,6 @@
 ---
 name: pre-debug-check
-description: Checks known anti-patterns, past error solutions, and familiar barrier patterns BEFORE attempting any fix. Auto-triggers when Claude encounters an error, test failure, or build problem. Also watches for mid-execution barriers — approach repetition, escalating cascades, environment friction, and framework quirks. Prevents wasting tokens on approaches that have already been tried and failed. Must fire before systematic-debugging.
+description: "Checks anti-patterns, past error solutions, and mid-execution barriers before any fix. Auto-triggers on errors, test failures, or build problems. Must fire before systematic-debugging."
 context: fork
 allowed-tools: Read, Glob, Grep
 weight: light

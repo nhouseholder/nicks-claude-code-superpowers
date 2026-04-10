@@ -1,6 +1,6 @@
 ---
 name: website-guardian
-description: "MANDATORY enforcement skill for ALL web app changes. Before ANY edit to a website/webapp: snapshot baseline state. After ANY edit: verify nothing broke. On ANY bug found: full root cause analysis, identify the carelessness that caused it, log permanently, and update instructions for all future agents. This skill exists because Claude keeps breaking websites during updates and never learns from its mistakes. Every website bug is now treated as a system failure that must be permanently fixed at the instruction level, not just the code level. Fires on EVERY file change in any webapp directory."
+description: "MANDATORY enforcement for web app changes. Snapshot baseline before edits, verify after, and run root-cause analysis with permanent logging on any bug. Fires on every file change in a webapp directory."
 weight: light
 triggers:
   - "update the website", "deploy", "fix the site", "the site is broken"

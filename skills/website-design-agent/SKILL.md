@@ -1,6 +1,6 @@
 ---
 name: website-design-agent
-description: "Unified website design agent. Combines creative direction (frontend-design), expert references (impeccable-design), searchable design DB (ui-ux-pro-max), quantitative critique (design-critique), visual audit (refactoring-ui), token generation (ui-design-system), and 58 real brand DESIGN.md references (awesome-design-md). Use for ANY web design task: build, redesign, review, critique, audit."
+description: "Unified website design agent — creative direction, design references, critique, visual audit, and design tokens in one skill. Use for any web design task: build, redesign, review, critique, or audit."
 weight: heavy
 ---
 
