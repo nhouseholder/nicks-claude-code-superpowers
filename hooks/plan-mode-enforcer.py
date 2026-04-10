@@ -129,31 +129,89 @@ if is_go:
         sys.exit(0)
 
 # === GUARD ACTIVE — non-GO prompt ===
-# Guard is active but prompt wasn't a GO signal. Inject a reminder telling the
-# user to switch to Sonnet and type "go". We do NOT check the current model
-# because the hook cannot determine it reliably — trust the user.
+# Only fire the "type go" nudge when ALL of these are true:
+#   (a) guard file exists and is recent (< 30 min)
+#   (b) guard was created for THIS project (cwd match — no cross-project bleed)
+#   (c) a recent plan file actually exists in PLAN_DIR (not orphaned)
+#   (d) the user's prompt is SHORT (< 80 chars) — long prose is never a GO
+# Otherwise: silently clean up stale guards or skip the injection.
 if os.path.exists(GUARD_ACTIVE):
     try:
         age = time.time() - os.path.getmtime(GUARD_ACTIVE)
-        if age < 1800:  # guard is recent (< 30 min)
-            output = {
-                "hookSpecificOutput": {
-                    "hookEventName": "UserPromptSubmit",
-                    "additionalContext": (
-                        "PLAN GUARD ACTIVE — MANDATORY, output this FIRST before anything else:\n\n"
-                        "Tell the user VERBATIM:\n"
-                        "\"A plan is ready for execution. For ~40-60% token savings:\n"
-                        "   - Desktop app: Click the model selector dropdown → pick Sonnet\n"
-                        "   - CLI: Run /model sonnet\n"
-                        "   Then type: go\n"
-                        "(If you'd rather execute on the current model, just type: go)\"\n\n"
-                        "Do NOT read files, run commands, or execute any plan steps. "
-                        "Output ONLY the message above and stop."
-                    )
-                }
+
+        # (a) Expire old guards
+        if age >= 1800:
+            try:
+                os.remove(GUARD_ACTIVE)
+            except Exception:
+                pass
+            raise StopIteration  # break out to fall-through
+
+        # (b) Project-scope check — cross-project bleed is the #1 source of
+        # false fires. If cwd doesn't match the guard's stored cwd, the guard
+        # belongs to a different session in a different project. Clean up.
+        try:
+            with open(GUARD_ACTIVE, "r") as f:
+                guard_project = f.read().strip()
+        except Exception:
+            guard_project = ""
+        if guard_project and guard_project != "active" and guard_project != os.getcwd():
+            try:
+                os.remove(GUARD_ACTIVE)
+            except Exception:
+                pass
+            raise StopIteration
+
+        # (c) Orphaned guard check — if there's no recent plan file, the guard
+        # is leftover from plan-intent detection that never produced a plan.
+        # Remove it so future turns are silent.
+        has_recent_plan = False
+        try:
+            plan_files = sorted(
+                glob.glob(os.path.join(PLAN_DIR, "*.md")),
+                key=os.path.getmtime,
+                reverse=True,
+            )
+            if plan_files and (time.time() - os.path.getmtime(plan_files[0])) < 1800:
+                has_recent_plan = True
+        except Exception:
+            pass
+        if not has_recent_plan:
+            try:
+                os.remove(GUARD_ACTIVE)
+            except Exception:
+                pass
+            raise StopIteration
+
+        # (d) Length filter — real GO signals are short. Long prompts are
+        # feature descriptions, clarifications, or continued planning
+        # discussion. Silently skip the injection (keep the guard — a later
+        # short "go" should still fire).
+        if len(prompt) >= 80:
+            raise StopIteration
+
+        # All gates passed. This is plausibly a GO signal on the correct
+        # project with a real pending plan. Show the nudge.
+        output = {
+            "hookSpecificOutput": {
+                "hookEventName": "UserPromptSubmit",
+                "additionalContext": (
+                    "PLAN GUARD ACTIVE — MANDATORY, output this FIRST before anything else:\n\n"
+                    "Tell the user VERBATIM:\n"
+                    "\"A plan is ready for execution. For ~40-60% token savings:\n"
+                    "   - Desktop app: Click the model selector dropdown → pick Sonnet\n"
+                    "   - CLI: Run /model sonnet\n"
+                    "   Then type: go\n"
+                    "(If you'd rather execute on the current model, just type: go)\"\n\n"
+                    "Do NOT read files, run commands, or execute any plan steps. "
+                    "Output ONLY the message above and stop."
+                )
             }
-            print(json.dumps(output))
-            sys.exit(0)
+        }
+        print(json.dumps(output))
+        sys.exit(0)
+    except StopIteration:
+        pass  # fall through to plan-intent detection below
     except Exception:
         pass
 
@@ -195,12 +253,12 @@ if detect_plan_intent(prompt):
     except Exception:
         pass
 
-    # Activate the guard — blocks Edit/Write until "go" triggers execution
-    try:
-        with open(GUARD_ACTIVE, "w") as f:
-            f.write(os.getcwd())
-    except Exception:
-        pass
+    # DO NOT activate the guard here. Conversational plan-intent phrases like
+    # "make a plan" are too loose to justify locking Edit/Write. The guard is
+    # only created by the PreToolUse:ExitPlanMode branch above, which fires
+    # when the user actually exits plan mode via the real tool. Creating a
+    # guard on prose signals produced orphaned guards that leaked into other
+    # sessions/projects and false-fired "A plan is ready for execution".
 
     output = {
         "hookSpecificOutput": {
