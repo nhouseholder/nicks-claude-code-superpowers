@@ -204,7 +204,7 @@ ROUTES = [
     # Debugging
     (r"site.*broke|page.*broke|display.*wrong|render.*wrong|chart.*broke|table.*broke",
      85, "debugger"),
-    (r"\bfix\b|bug|broken|error|crash|failing|not.?working|broke|debug|regress",
+    (r"^(please\s+)?(fix|debug|diagnose|troubleshoot)\b|\b(bug|broken|crash|failing|not.?working|regress(ion|ed)?)\b.*\?|\berror[:\s]",
      80, "debugger"),
 
     # Website commands (specific → command, generic → agent)
@@ -220,7 +220,7 @@ ROUTES = [
      80, "tester"),
 
     # Code review
-    (r"review|code.?review|pr.?review|check.*code",
+    (r"^(please\s+)?(review|audit|check)\s+(this|the|my|our)\b|code.?review|pr.?review",
      75, "reviewer"),
 
     # Deploy
@@ -228,7 +228,7 @@ ROUTES = [
      80, "deployer"),
 
     # Planning
-    (r"\bplan\b|break.*down|roadmap|requirements",
+    (r"^(write|make|create|draft)\s+(a\s+|the\s+|me\s+a\s+)?plan\b|implementation\s+plan|break\s+(this|it)\s+down\s+into\s+(steps|tasks)|\broadmap\b",
      60, "planner"),
 
     # Design
@@ -238,7 +238,7 @@ ROUTES = [
      75, "designer"),
 
     # Testing
-    (r"\btest\b|tdd|coverage|\bspec\b|unit.?test|integration.?test",
+    (r"^(write|add|create|run)\s+(a\s+)?(unit\s+|integration\s+|e2e\s+|end.?to.?end\s+)?tests?\b|tdd|test.?coverage|playwright|\bspec\b.*\bfile\b",
      60, "tester"),
 
     # What's next — strategic advisor
@@ -390,8 +390,8 @@ if len(kernel_issues) >= 3:
         "Constraints (boundaries) → Verify (success check)."
     )
 
-# === FAST-PATH ===
-if word_count <= 3 and not agent_route:
+# === FAST-PATH: short prompts, no route match, pass through ===
+if word_count <= 5 and not agent_route:
     output_json(prompt)
     sys.exit(0)
 
@@ -402,21 +402,17 @@ clear_signals = [
     "show me", "read ", "open ", "check ", "look at", "what is",
     "how do", "why does", "can you", "please ",
 ]
+
+# === CLEAR-INTENT: starts with verb, has directive if route matched ===
 if any(prompt_lower.startswith(s) for s in clear_signals) or word_count >= 20:
     output_json(prompt + directive)
     sys.exit(0)
 
-if word_count <= 5 and agent_route:
+# === AMBIGUOUS: only wrap if we actually have a route AND it's mid-length ===
+if agent_route and 6 <= word_count < 20:
     output_json(prompt + directive)
     sys.exit(0)
 
-# === EVALUATION for ambiguous ===
-escaped = prompt.replace("\\", "\\\\").replace('"', '\\"')
-wrapped = f"""PROMPT EVALUATION
-
-Original user request: "{escaped}"
-
-PROCEED IMMEDIATELY if clear. If genuinely vague, use prompt-improver skill."""
-
-output_json(wrapped + directive)
+# === Default: pass through clean, no injection ===
+output_json(prompt)
 sys.exit(0)
