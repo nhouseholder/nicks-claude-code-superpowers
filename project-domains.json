@@ -1,0 +1,42 @@
+{
+  "mmalogic": {
+    "dir_signals": ["mmalogic", "ufc-predict", "octagonai", "ufc_predict"],
+    "canonical_path": "~/Projects/mmalogic",
+    "domain_terms": [
+      "ufc", "mma", "fighter", "h16", "h17", "h18", "h19", "h20",
+      "backtest", "sweep", "octagonai", "mmalogic", "odds", "max bets",
+      "bet cap", "ev threshold", "coefficient", "reach delta",
+      "striking delta", "grappling delta", "walk-forward"
+    ]
+  },
+  "diamondpredictions": {
+    "dir_signals": ["diamondpredictions", "diamond-predictions"],
+    "canonical_path": "~/Projects/diamondpredictions",
+    "domain_terms": ["mlb", "baseball", "diamond", "hr props", "strikeout", "pitcher prop"]
+  },
+  "mystrainai": {
+    "dir_signals": ["mystrainai", "strain-finder"],
+    "canonical_path": "~/Projects/mystrainai",
+    "domain_terms": ["strain", "cannabis", "terpene", "indica", "sativa", "cannalchemy"]
+  },
+  "enhancedhealthai": {
+    "dir_signals": ["enhancedhealthai", "enhanced-health"],
+    "canonical_path": "~/Projects/enhancedhealthai",
+    "domain_terms": ["enhanced health", "supplement", "nootropic", "health ai"]
+  },
+  "nestwisehq": {
+    "dir_signals": ["nestwisehq", "dad-financial-planner"],
+    "canonical_path": "~/Projects/nestwisehq",
+    "domain_terms": ["nestwise", "financial planner", "retirement", "401k", "roth"]
+  },
+  "courtside-ai": {
+    "dir_signals": ["courtside-ai", "courtside"],
+    "canonical_path": "~/Projects/courtside-ai",
+    "domain_terms": ["nba", "basketball", "courtside", "player prop"]
+  },
+  "researcharia": {
+    "dir_signals": ["researcharia", "aria-research"],
+    "canonical_path": "~/Projects/researcharia",
+    "domain_terms": ["aria", "research aria", "research agent"]
+  }
+}

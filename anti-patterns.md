@@ -34,19 +34,6 @@
 - **Fix (long-term needed)**: Compute career stats from fight-level data with temporal cutoff (same approach used for Elo and method profiles). This would require refactoring `get_fighter_stats()` to aggregate from `fight_history` entries filtered by `cutoff_date`.
 - **Applies when**: Any backtest re-run. Always cross-check last 5 events against prediction_archive/ after re-running the backtester.
 
-## MyStrainAI — useRatings TDZ Crash from ESLint exhaustive-deps (ESLINT_TDZ) — 2026-04-07
-- **Pattern**: ESLint auto-fix added `_computeLocalProfile` to `rateStrain`'s useCallback dependency array. But `_computeLocalProfile` was a `const` declared 37 lines AFTER `rateStrain`. Dependency arrays are evaluated immediately (not lazily), so accessing the `const` before its declaration triggers JavaScript's Temporal Dead Zone → `ReferenceError: Cannot access 'w' before initialization` in minified bundles.
-- **Root cause**: Commit `736dd2d` lint fix changed dep array from `[userId, ratings]` to `[_computeLocalProfile, ratings, userId]` without checking declaration order.
-- **Fix**: Move `_computeLocalProfile` declaration (entire useCallback block) BEFORE `rateStrain` in `useRatings.js`. Added code comment warning about TDZ.
-- **Diagnosis key**: Chrome MCP tools captured the stack trace pointing to `useRatings-B3X3Q6P1.js:1:2024`. Reading the minified bundle showed `const v = useCallback(... [w, o, a])` before `const w = useCallback(...)`.
-- **Applies when**: Any ESLint exhaustive-deps auto-fix. Always check that added dependencies are declared BEFORE the hook that references them. `const`/`let` are not hoisted like `function` declarations.
-
-## MyStrainAI — Cloudflare Pages _middleware.js must process all requests (CF_MIDDLEWARE_ASSETS) — 2026-04-07
-- **Pattern**: Attempted to skip non-API routes in `_middleware.js` to avoid wrapping static assets in `new Response()`. Result: `_redirects` catch-all (`/*  /index.html  200`) intercepted JS asset requests and served HTML instead of JavaScript.
-- **Root cause**: Cloudflare Pages Functions middleware participates in the asset serving chain. When middleware returns `context.next()` for non-API paths, it still correctly routes to static assets. But when you skip middleware entirely for some paths, the `_redirects` catch-all takes priority, serving `index.html` for all paths including `/assets/*.js`.
-- **Fix**: Keep middleware processing ALL requests. The `new Response(response.body, response)` wrapper is necessary for static assets to be served correctly.
-- **Applies when**: Modifying Cloudflare Pages `_middleware.js`. Never exclude routes — the middleware must call `context.next()` and wrap the response for all paths.
-
 ## General — iCloud Filesystem Stalling (ICLOUD_STALL)
 - **Pattern**: Grep/read stalls on iCloud files → Claude retries with different tool → same stall → token burn loop
 - **Fix**: Clone from GitHub to `/tmp/`, work there. Never retry stalling ops with a different tool — the issue is iCloud, not the tool.
@@ -97,13 +84,6 @@
 - GSA hybrid gate tested: +0.00u delta. Elite grapplers win by DEC (55%), not SUB (25%).
 - The blanket SUB→DEC fallback captures the dominant outcome and is mathematically optimal.
 
-## UFC — Live Tracker Scoring Gap (LIVE_TRACKER_SCORING_GAP) — 2026-04-07
-- **Pattern**: `scoreFight()` in LiveTrackerPage.jsx only scored ML, Method, and Combo. O/U scoring was completely missing, and method bets had no gating (scored as placed/lost even when no method odds existed). Live-tracked events showed wrong O/U results and phantom method losses.
-- **Root cause**: `scoreFight()` was written before O/U bets were added (v11.20.4) and never updated. Method gating was never implemented in the frontend — the Python `track_results.py` has it but the JS function didn't.
-- **Fix**: Added O/U scoring (Over: round >= 3; Under: round <= 2 with KO/TKO/SUB finish), method gating (check method odds exist before scoring), and `*_placed` flags to `scoreFight()`. Also fixed Scoreboard to show O/U instead of Round.
-- **Rule**: `scoreFight()` in LiveTrackerPage.jsx MUST mirror `track_results.py` scoring logic for ALL bet types. When a new bet type is added to the algorithm, it must be added to BOTH scoring paths.
-- **Applies when**: Any new bet type added, any scoring rule change, any Live Tracker modification.
-
 ## UFC — Ghost X Bug Prevention
 - Always use `*_placed` flags, never infer bet placement from `*_correct !== null`.
 - Run `python3 validate_registry_cells.py --strict` after any registry modification.
@@ -111,13 +91,6 @@
 ## UFC — Round Bet Is INDEPENDENT of Method
 - Round and method are separate bets. Fighter loss = ALL prop bets lose. SUB gating stays.
 - See EVENT_TABLE_SPEC.md for canonical scoring rules.
-
-## UFC — Hypothesis Testing Data Format Traps (HYPOTHESIS_DATA_TRAPS) — 2026-04-08
-- **Pattern 1**: `fight_history` in `ufc_backtest_registry.json` uses `'WIN'`/`'LOSS'`, NOT `'W'`/`'L'`. Writing `result not in ('W', 'L')` causes zero activations with no error — silent failure.
-- **Pattern 2**: File imports `from datetime import datetime` — so `datetime` is the CLASS, not the module. `datetime.date.fromisoformat()` fails with AttributeError. Correct pattern: `datetime.strptime(date_str, "%Y-%m-%d").date()`.
-- **Pattern 3**: Baseline from registry totals (e.g. 745.78u) diverges from fresh backtest run (770.51u). Always establish baseline from a FRESH clean run, never from file reads. Incremental registry totals are stale.
-- **Pattern 4**: Backtest overwrites production data files. Must `git restore` ALL data files between coefficient sweep runs or results are confounded.
-- **Applies when**: Writing ANY new function in `UFC_Alg_v4_fast_2026.py`. Check data format with `python3 -c` BEFORE writing code. Check imports at top of file BEFORE using stdlib functions.
 
 ## Build — Node 25 Rollup Deadlock
 - Node 25 + Rollup causes hanging builds. Use `NODE_OPTIONS=--max-old-space-size=4096` or downgrade to Node 22.
@@ -127,13 +100,6 @@
 - **Root cause**: Previous sessions deployed to Cloudflare Pages directly without committing to git first. 10 versions (v5.168–v5.177 of MyStrainAI) were lost and had to be reverse-engineered from minified production JS.
 - **Fix**: ALWAYS commit + push BEFORE deploying. Mandatory sequence: build → commit → push → deploy → verify. Never use `wrangler pages deploy` without a clean git state and pushed commit.
 - **Applies when**: Any Cloudflare Pages deploy, any version bump, any `wrangler` command. Check `git status` before deploying — if there are uncommitted changes, commit and push first.
-
-## ResumeForge — PDF Upload Spinner From CDN Worker + Missing Finalizer (PDF_WORKER_SPINNER_TRAP) — 2026-04-08
-- **Pattern**: Uploading a PDF leaves the builder stuck on "Reading file" instead of reaching either the editor or an error state.
-- **Root cause**: The client parser pointed PDF.js at a CDN-hosted `pdf.worker.min.mjs` URL that failed to load for the shipped version, and `BuilderPage.handleFile()` did not use `try/finally`, so extraction exceptions left `isParsing` true forever.
-- **Fix**: Bundle the PDF worker locally via `new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url)`, catch text-extraction failures in `parseResume()`, and always clear parsing state in `BuilderPage` with `finally`.
-- **Prevention rule**: Never make the upload spinner depend on external worker/CDN availability, and never let async intake flows mutate loading state without a guaranteed cleanup path.
-- **Verification**: Upload a PDF in browser automation and confirm the app does not remain on "Reading file"; it must either open the editor or show the intake error state.
 
 ## Permanent — ALWAYS Use `tier` Field for Pick Filtering (TIER_FILTER_GATE) — 2026-04-02
 - **Pattern**: Frontend filters picks using legacy boolean flags (`is_apex`, `is_agree`, `is_ml_pick`) which miss newer tiers (MADNESS, DISCOVERY, MONEYLINE) that only set `tier` field. Picks appear in grading but never show in bet history.
@@ -197,18 +163,9 @@
 - **Prevention rule**: In dense financial tables, never ship default browser number steppers or unlabeled edit-mode cells. If a cell changes meaning in edit mode, label it inside the cell and verify the value is readable at the actual table width.
 - **Verification**: On `/portfolio`, inline holding edit must show the full quantity value, trade form numeric inputs must render without native Safari steppers, and the Portfolio Grade QORE buckets must render as distinct badges.
 
-## MyStrainAI — esbuild.drop:['console'] Breaks Library Error Handling (ESBUILD_DROP_CONSOLE) — 2026-04-07
-- **Pattern**: Using `esbuild: { drop: ['console'] }` in vite.config.js removes ALL console methods including `console.error` and `console.warn`, which breaks libraries that use those methods in their internal error handling paths (FingerprintJS, Firebase Auth).
-- **Root cause**: `esbuild.drop: ['console']` is equivalent to `delete console.*` — a blanket removal. On Brave browser with fingerprint protection enabled, FingerprintJS hits error paths that call `console.error` at startup. With the method removed, uninitialized variable propagation fails silently, causing a TDZ (Temporal Dead Zone) ReferenceError that crashes the app.
-- **Symptom**: Mobile TDZ crash: `ReferenceError: Cannot access 'X' before initialization` on browsers with privacy protections (Brave, Firefox w/ Enhanced Tracking). Doesn't repro on Chrome/Safari.
-- **First fix (wrong)**: Added `Cache-Control: no-cache` + ErrorBoundary stale-chunk reload — didn't fix root cause.
-- **Correct fix (v5.217.7)**: Changed to `esbuild: { pure: ['console.log', 'console.debug'] }` — only strips non-essential calls, preserves `console.error`/`console.warn` for library error handling.
-- **Rule**: NEVER use `esbuild.drop: ['console']` for production builds. Use `esbuild.pure` targeting only `console.log` and `console.debug`. `console.error` and `console.warn` are load-bearing for third-party libraries.
-- **Verification**: Build with `esbuild.pure`, test on Brave with "Shields Up". FingerprintJS initialization must not throw.
-
-## LUCIDE-REACT NEW IMPORT IN STRAIN CARD → TDZ CRASH
-- **File**: `frontend/src/components/results/StrainCard.jsx`
-- **Symptom**: `ReferenceError: Cannot access 'w' before initialization` — app crashes with ErrorBoundary on all pages that render StrainCard
-- **Root cause**: Adding a NEW lucide-react icon (TrendingUp) as a static import to StrainCard changed the Vite chunk graph. The new chunk dependency altered module initialization order, triggering a TDZ in one of the shared chunks (`fmt` or `normalizeStrain` — both have module-scope `const w` declarations).
-- **Fix**: Use an icon already imported in StrainCard (Star, Heart, MapPin, etc.) instead of introducing a new import. If a new icon is genuinely needed, use an inline SVG instead.
-- **Rule**: Never add a new lucide-react icon import to StrainCard without rebuilding and testing in the browser (not just checking build success).
+## WRONG_PROJECT_CWD — Running Domain Tasks in the Wrong Repo — 2026-04-09
+- **Symptom**: Running backtests, edits, or deploys in the wrong project repo because cwd happened to be elsewhere when the task was requested.
+- **Example**: User in `~/ProjectsHQ/superpowers/` asks "test H16 backtest" — UFC task, wrong repo, would have failed silently or worse, modified the wrong files.
+- **Fix**: `project-domain-guard.py` hook warns on domain/cwd mismatch before Claude acts. If you see a PROJECT MISMATCH warning, STOP and confirm with user which repo to use.
+- **Rule**: Never assume cwd is the right directory for a task. If the task has domain-specific keywords, verify cwd matches the project those keywords belong to.
+- **Prevention**: Domain map lives at `~/.claude/project-domains.json`. Update it when adding new projects or domain terms.

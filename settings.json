@@ -121,6 +121,15 @@
             "timeout": 1000
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/project-domain-guard.py",
+            "timeout": 1000
+          }
+        ]
       }
     ],
     "PreToolUse": [
