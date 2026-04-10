@@ -4,6 +4,17 @@
 > Pruned 2026-04-01: kept recurring behavioral patterns + permanent rules. One-time bug fixes removed (the fix is in the code).
 > Last updated: 2026-04-10
 
+## UFC — Parlay With Correlated Same-Fighter Props (PARLAY_SAME_FIGHTER_CORRELATED) — 2026-04-10
+- **Pattern**: Parlay builder selects two props on the SAME fighter in the SAME fight as legs of one parlay (e.g., "Fighter A by KO" + "Fighter A KO R1"). No sportsbook on any platform allows this — correlated same-fighter props are rejected at the slip.
+- **When it happened**: v11.27.0 (Hypothesis 15 v2, 2026-04-09) shipped HM3 with a "correlated legs allowed" gate that bucketed legs by `fight_id` with a `>= 2` counter but never checked fighter identity. UFC 327 produced Murzakanov KO R2 + **Hokit KO R1 + Hokit by KO**. The latter two couldn't be placed.
+- **Why the backtest number lied**: V3's "+875.58u" advantage over V2's "+709.01u" was partly paper P/L — 3 of V3's 6 winning parlays relied on same-fight correlated legs that would be rejected by any book (Rodriguez KO R1 + Under 2.5 same fight; Leroy KO + Over 2.5 same fight; De Ridder SUB + Over 2.5 same fight). A backtest that counts un-placeable parlays as wins overstates the strategy. The realizable edge was ≤ V2's +709.01u.
+- **Root cause**: Treating fight_id as a dedup bucket (allowing 2 legs per fight) without asserting distinct fighters/markets. The dedup key must ensure every leg is independently placeable as a parlay under sportsbook correlation rules.
+- **Permanent rule**: **Parlay construction must enforce 1 leg per fight** unless a rigorous check is implemented for (a) distinct fighters AND (b) independent (non-correlated) market types, verified against the target sportsbook's correlation rules. The naive "2 legs per fight OK" rule is broken by construction.
+- **Detection**: Any parlay leg generator that uses a fight-level bucket with count >= 2 must be audited. Grep: `_fight_counts\.get|_live_counts\.get` in UFC_Alg_v4_fast_2026.py — gate must be `>= 1`.
+- **Fix applied**: v11.27.2 reverted both paths (backtest `_build_registry_event_entry` + live prediction path) to `>= 1` per fight. Canonical baseline dropped +1631.07u → ~+1464.50u, which is the correct realizable number.
+- **Validation check for new parlay builders**: For every output parlay, assert `len(set(fighter(leg) for leg in parlay.legs)) == len(parlay.legs)` AND `len(set(fight_id(leg) for leg in parlay.legs)) == len(parlay.legs)` before claiming a P/L number.
+- **Files**: `UFC_Alg_v4_fast_2026.py` (dual-path fix)
+
 ## React — Whole-Site Black Screen From One Render Crash (REACT_BLACK_SCREEN_NO_BOUNDARY) — 2026-04-10
 - **Pattern**: A single component throws during render (e.g. accessing `.roi` on an undefined nested key), React has no ErrorBoundary, so the entire tree unmounts and `#root` becomes empty. Users see a black/blank page that does NOT recover on refresh. Pipeline success logs are misleading because the backend succeeded — the crash is in the frontend at render time.
 - **Why it keeps happening**: Data generators (daily pipelines) produce JSON whose shape can shrink when categories drop below min-sample thresholds (e.g. `tier_breakdown` only contains PLATINUM when DIAMOND/GOLD have too few picks). React code that *destructures and dot-accesses* those keys crashes on the first undefined. Two incidents so far: SeasonCard key mismatch (2026-03) and NHL tier_breakdown (2026-04-10).
