@@ -5,12 +5,20 @@ Plan Mode Enforcer — Two responsibilities:
 1. On plan intent: injects "Sonnet-proof plan" format requirements, cleans old
    plan files, activates the execution guard.
 
-2. On "go" after plan: writes claude-sonnet-4-6 to settings.json BEFORE the
-   model processes the turn. If Claude Code hot-reloads settings between the
-   hook and model invocation, the switch is automatic. Injects instructions
-   to execute the plan from the file.
+2. On "go" after plan: removes the guard and injects execution instructions.
+   Does NOT attempt to detect or change the running model — hooks cannot do
+   that (see anti-patterns.md → PLAN_AUTO_SWITCH_IMPOSSIBLE). Trusts the user
+   to have manually switched to Sonnet before typing "go".
 
 Fires on UserPromptSubmit. Exit code 0 always.
+
+DO NOT re-add:
+- Reads of settings.json to infer the running model (settings.json lies — the
+  Desktop app locks the model at session startup and the file is stale).
+- Substring GO matching (matched "execute plan" inside natural prose like
+  "why does execute plans fail"). Start-anchored regex + length guard only.
+- Writes to settings.json "model" key from any hook (doesn't propagate to the
+  running session, only affects next session).
 """
 import json
 import glob
@@ -21,7 +29,6 @@ import time
 
 PLAN_DIR = os.path.expanduser("~/.claude/plans")
 GUARD_ACTIVE = os.path.expanduser("~/.claude/.plan-guard-active")
-SETTINGS_PATH = os.path.expanduser("~/.claude/settings.json")
 
 # Clean stale plan files (> 2 hours old)
 try:
@@ -37,12 +44,11 @@ except (json.JSONDecodeError, Exception):
     sys.exit(0)
 
 # === ExitPlanMode PreToolUse ===
-# Do NOT change settings.json here — leave on Opus so the guard
-# correctly blocks Edit/Write until user manually switches to Sonnet.
-# Do NOT delete plan files — Sonnet needs them for execution.
+# Do NOT change settings.json here — the running session's model is locked.
+# Do NOT delete plan files — they're consumed during execution.
 tool_name = input_data.get("tool_name", "")
 if tool_name == "ExitPlanMode":
-    # ENSURE guard exists — blocks Edit/Write until user switches + types "go"
+    # ENSURE guard exists — blocks Edit/Write until user types "go"
     try:
         with open(GUARD_ACTIVE, "w") as f:
             f.write(os.getcwd())
@@ -57,24 +63,21 @@ prompt_lower = prompt.lower()
 if not prompt or prompt.startswith("/"):
     sys.exit(0)
 
-# === "GO" DETECTION — Execute plan with Sonnet ===
-# Two tiers: exact match for short signals, substring for longer button text.
-# Desktop app button: "Approve plan and start coding"
-# CLI plan mode button: "Implement Plan" or similar
-EXACT_GO = [
-    "go", "go!", "lets go", "let's go", "start", "begin", "execute",
-    "run it", "do it", "proceed", "continue", "go ahead",
-    "implement", "implement it",
-]
-SUBSTRING_GO = [
-    "approve plan", "approve the plan", "start coding",
-    "execute the plan", "execute plan", "run the plan",
-    "implement plan", "implement the plan",
-    "do the plan", "apply the plan", "start execution",
+# === "GO" DETECTION — Execute plan ===
+# ANCHORED REGEX + LENGTH GUARD. Never substring-match on prose.
+# Real GO signals are short button text or short user phrases. A diagnostic
+# question like "why does execute plan fail?" must NOT match.
+GO_PATTERNS = [
+    r"^\s*go[!.]?\s*$",
+    r"^\s*let'?s\s+go[!.]?\s*$",
+    r"^\s*(start|begin|execute|proceed|continue|implement|run\s+it|do\s+it|go\s+ahead)[!.]?\s*$",
+    r"^\s*approve\s+(the\s+)?plan\b",
+    r"^\s*start\s+coding\b",
+    r"^\s*(execute|run|implement|apply|do)\s+(the\s+)?plan\b",
+    r"^\s*start\s+execution\b",
 ]
 
-cleaned = prompt_lower.strip().rstrip("!.")
-is_go = cleaned in EXACT_GO or any(sg in prompt_lower for sg in SUBSTRING_GO)
+is_go = len(prompt) < 80 and any(re.search(p, prompt_lower) for p in GO_PATTERNS)
 
 if is_go:
     # Check if there's a recent plan file (written within last 30 min)
@@ -93,25 +96,13 @@ if is_go:
         pass
 
     if recent_plan:
-        # Switch model to Sonnet in settings.json BEFORE model processes
-        try:
-            with open(SETTINGS_PATH, "r") as f:
-                settings = json.load(f)
-            if "opus" in settings.get("model", "").lower():
-                settings["model"] = "claude-sonnet-4-6"
-                with open(SETTINGS_PATH, "w") as f:
-                    json.dump(settings, f, indent=2)
-                    f.write("\n")
-        except Exception:
-            pass
-
-        # Remove guard if it exists
+        # Remove guard — user typed "go", trust them to have switched.
         try:
             os.remove(GUARD_ACTIVE)
         except Exception:
             pass
 
-        # Clean old plan files (keep the one being executed)
+        # Clean up older plan files so execution targets the right one.
         try:
             for old_plan in glob.glob(os.path.join(PLAN_DIR, "*.md")):
                 if old_plan != recent_plan:
@@ -119,19 +110,18 @@ if is_go:
         except Exception:
             pass
 
+        # Neutral injection — does NOT claim to know which model is running.
         output = {
             "hookSpecificOutput": {
                 "hookEventName": "UserPromptSubmit",
                 "additionalContext": (
-                    f"PLAN EXECUTION MODE — settings.json switched to claude-sonnet-4-6.\n\n"
+                    "PLAN EXECUTION MODE.\n\n"
                     f"Plan file: {recent_plan}\n\n"
                     "INSTRUCTIONS:\n"
                     f"1. Read the plan at {recent_plan}\n"
                     "2. Execute it step by step — every step exactly as written\n"
                     "3. Do NOT rewrite, overwrite, or re-plan. Just execute.\n"
-                    "4. Mark tasks as you complete them\n"
-                    "5. If you are still running as Opus (check your model ID), tell the user:\n"
-                    "   'Switch to Sonnet first — Desktop app: model dropdown → Sonnet. CLI: /model sonnet. Then type go.'"
+                    "4. Mark tasks as you complete them."
                 )
             }
         }
@@ -139,43 +129,24 @@ if is_go:
         sys.exit(0)
 
 # === GUARD ACTIVE — non-GO prompt ===
-# Guard is active but prompt wasn't a GO signal (e.g. "Implement Plan" button sends
-# different text, or user typed something unrecognized). Inject context so Claude
-# immediately tells the user to switch to Sonnet — before executing anything.
+# Guard is active but prompt wasn't a GO signal. Inject a reminder telling the
+# user to switch to Sonnet and type "go". We do NOT check the current model
+# because the hook cannot determine it reliably — trust the user.
 if os.path.exists(GUARD_ACTIVE):
     try:
         age = time.time() - os.path.getmtime(GUARD_ACTIVE)
         if age < 1800:  # guard is recent (< 30 min)
-            # Check if user already switched to Sonnet (e.g. via Desktop dropdown)
-            already_sonnet = False
-            try:
-                with open(SETTINGS_PATH, "r") as f:
-                    settings = json.load(f)
-                model = settings.get("model", "").lower()
-                if model and "opus" not in model:
-                    already_sonnet = True
-            except Exception:
-                pass
-
-            if already_sonnet:
-                # Already on Sonnet — remove guard silently, let through
-                try:
-                    os.remove(GUARD_ACTIVE)
-                except Exception:
-                    pass
-                sys.exit(0)
-
             output = {
                 "hookSpecificOutput": {
                     "hookEventName": "UserPromptSubmit",
                     "additionalContext": (
                         "PLAN GUARD ACTIVE — MANDATORY, output this FIRST before anything else:\n\n"
                         "Tell the user VERBATIM:\n"
-                        "\"⚠️ You're in Opus mode. Switch to Sonnet before executing (~50% cheaper):\n"
+                        "\"A plan is ready for execution. For ~40-60% token savings:\n"
                         "   - Desktop app: Click the model selector dropdown → pick Sonnet\n"
                         "   - CLI: Run /model sonnet\n"
                         "   Then type: go\n"
-                        "Waiting for you to switch...\"\n\n"
+                        "(If you'd rather execute on the current model, just type: go)\"\n\n"
                         "Do NOT read files, run commands, or execute any plan steps. "
                         "Output ONLY the message above and stop."
                     )
@@ -224,7 +195,7 @@ if detect_plan_intent(prompt):
     except Exception:
         pass
 
-    # Activate the guard — blocks Edit/Write until "go" triggers model switch
+    # Activate the guard — blocks Edit/Write until "go" triggers execution
     try:
         with open(GUARD_ACTIVE, "w") as f:
             f.write(os.getcwd())
@@ -260,7 +231,7 @@ if detect_plan_intent(prompt):
                 "and document WHY in the plan. Zero decision points for the executor.\n\n"
                 "AFTER writing the plan file and calling ExitPlanMode:\n"
                 "Do NOT start executing the plan yourself. Tell the user to type 'go' "
-                "to begin execution with Sonnet. You are the PLANNER, not the executor."
+                "to begin execution (manually switching to Sonnet first is recommended for cost)."
             )
         }
     }
