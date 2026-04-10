@@ -60,6 +60,25 @@ if not hit_projects:
 if current_project and current_project in hit_projects:
     sys.exit(0)
 
+# SAFETY NET: if cwd IS a known project, require signature-level evidence
+# (project name or dir_signal) before warning about other projects.
+# Generic domain terms alone cause false positives — e.g. "odds" in
+# courtside-ai should not trigger an mmalogic warning.
+if current_project:
+    signature_hits = {}
+    for name in list(hit_projects.keys()):
+        cfg = domains[name]
+        sig_terms = [name] + cfg.get("dir_signals", [])
+        sig_matches = [
+            t for t in sig_terms
+            if re.search(r"\b" + re.escape(t) + r"\b", prompt_lower)
+        ]
+        if sig_matches:
+            signature_hits[name] = sig_matches
+    if not signature_hits:
+        sys.exit(0)
+    hit_projects = signature_hits
+
 # MISMATCH: prompt references project(s), but cwd is different
 hit_list = ", ".join(
     f"{name} ({', '.join(terms[:3])})"

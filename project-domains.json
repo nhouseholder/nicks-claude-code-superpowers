@@ -2,11 +2,11 @@
   "mmalogic": {
     "dir_signals": ["mmalogic", "ufc-predict", "octagonai", "ufc_predict"],
     "canonical_path": "~/Projects/mmalogic",
+    "_comment": "domain_terms must be UFC-SPECIFIC only. Never add generic sports-betting vocab (odds, backtest, sweep, walk-forward, coefficient, ev threshold, max bets, bet cap) — they cause false positives in courtside-ai/diamondpredictions sessions.",
     "domain_terms": [
       "ufc", "mma", "fighter", "h16", "h17", "h18", "h19", "h20",
-      "backtest", "sweep", "octagonai", "mmalogic", "odds", "max bets",
-      "bet cap", "ev threshold", "coefficient", "reach delta",
-      "striking delta", "grappling delta", "walk-forward"
+      "octagonai", "mmalogic", "reach delta",
+      "striking delta", "grappling delta"
     ]
   },
   "diamondpredictions": {
