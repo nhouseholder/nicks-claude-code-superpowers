@@ -32,6 +32,8 @@ PLAN_DIR = os.path.expanduser("~/.claude/plans")
 GUARD_ACTIVE = os.path.expanduser("~/.claude/.plan-guard-active")
 
 
+
+
 def main():
     # Clean stale plan files (> 2 hours old)
     try:
@@ -111,48 +113,27 @@ def main():
     except Exception:
         pass
 
-    # === BLOCK — guard is active ===
-
-    # Check if user already switched to Sonnet (e.g. via Desktop dropdown)
-    settings_path = os.path.expanduser("~/.claude/settings.json")
-    try:
-        with open(settings_path, "r") as f:
-            settings = json.load(f)
-        model = settings.get("model", "").lower()
-        if model and "opus" not in model:
-            # Already on Sonnet — remove guard and allow through
-            try:
-                os.remove(GUARD_ACTIVE)
-            except Exception:
-                pass
-            sys.exit(0)
-        # Still on Opus — switch to Sonnet in settings.json
-        if "opus" in model:
-            settings["model"] = "claude-sonnet-4-6"
-            with open(settings_path, "w") as f:
-                json.dump(settings, f, indent=2)
-                f.write("\n")
-    except Exception:
-        pass
-
-    # DO NOT remove guard here — it must persist until the GO signal in
-    # plan-mode-enforcer.py properly removes it after model switch.
-    # Removing on first block was a bug: Opus would get blocked once,
-    # then proceed freely on the next Edit/Write attempt.
+    # Guard is active. Block unconditionally.
+    # DO NOT check model here — settings.json may not reflect the actual
+    # running model (Desktop app can override Sonnet → Opus silently).
+    # The guard is ONLY removed by:
+    #   1. The explicit GO handler in plan-mode-enforcer.py (correct pathway)
+    #   2. 30-minute expiry (checked above)
+    # Checking model and removing the guard on "Sonnet" was the bug:
+    # settings.json permanently says sonnet, so the guard was instantly
+    # removed on the first Edit/Write, letting Opus execute freely.
 
     result = {
         "decision": "block",
         "reason": (
-            f"PLAN EXECUTION BLOCKED — You are still in Opus mode.\n"
+            f"PLAN EXECUTION BLOCKED — plan pending approval.\n"
             f"Plan: {plan_path} | {complexity} | {step_count} steps | {file_count} files\n\n"
-            "settings.json updated to claude-sonnet-4-6.\n\n"
             "Tell the user EXACTLY:\n"
-            "'Switch to Sonnet before executing:\n"
-            "  - Desktop app: Click the model selector dropdown → pick Sonnet\n"
-            "  - CLI: Run /model sonnet\n"
-            "Then type: go'\n\n"
+            "'A plan is ready and waiting for your approval.\n"
+            "  1. Switch to Sonnet if not already (Desktop: model dropdown; CLI: /model sonnet)\n"
+            "  2. Type: go\n"
             "Do NOT attempt to execute the plan. Do NOT call Edit or Write. "
-            "Output ONLY the switch instructions above and stop."
+            "Output ONLY the instructions above and stop.'",
         ),
     }
     print(json.dumps(result))
