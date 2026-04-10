@@ -125,6 +125,8 @@ When switching projects: drop all assumptions, read project CLAUDE.md + memory, 
 
 **Opus-plan / Sonnet-execute workflow:** For COMPLEX+ tasks, write a "Sonnet-proof plan" in Opus (exact file paths, exact line numbers, exact code blocks, exact test commands, zero decision points), then suggest switching to Sonnet to execute it mechanically. ~40-60% token savings.
 
+**CLI sessions only:** If Claude Code ≥ 2.1.91 and the task is complex, prefer `/ultraplan` over writing a local plan — see `using-ultraplan` skill. Desktop sessions keep the Opus-plan/Sonnet-execute workflow unchanged.
+
 **Subagent discipline:** Subagents cost 7-10x more tokens than inline work. Always prefer Glob/Grep/Read directly. Only spawn Agent when: (1) genuinely parallel independent tasks, (2) context isolation needed (huge reads that would flood main context), or (3) task matches a specialized agent type exactly. Hard limit: 2 per session (agent-limit.py).
 
 **Golden rule:** Opus earns its cost on the FIRST pass of a complex problem. Once the thinking is done, every subsequent step should be Sonnet.
