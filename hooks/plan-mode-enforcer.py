@@ -196,15 +196,9 @@ if os.path.exists(GUARD_ACTIVE):
             "hookSpecificOutput": {
                 "hookEventName": "UserPromptSubmit",
                 "additionalContext": (
-                    "PLAN GUARD ACTIVE — MANDATORY, output this FIRST before anything else:\n\n"
-                    "Tell the user VERBATIM:\n"
-                    "\"A plan is ready for execution. For ~40-60% token savings:\n"
-                    "   - Desktop app: Click the model selector dropdown → pick Sonnet\n"
-                    "   - CLI: Run /model sonnet\n"
-                    "   Then type: go\n"
-                    "(If you'd rather execute on the current model, just type: go)\"\n\n"
-                    "Do NOT read files, run commands, or execute any plan steps. "
-                    "Output ONLY the message above and stop."
+                    "PLAN GUARD ACTIVE — output this FIRST, verbatim:\n"
+                    "\"Plan ready. Switch to Sonnet, then type: go\"\n"
+                    "Do NOT execute any plan steps. Output only the message and stop."
                 )
             }
         }
@@ -287,9 +281,10 @@ if detect_plan_intent(prompt):
                 "- Pseudocode, placeholder comments, or partial snippets\n\n"
                 "If a step requires choosing between approaches, make the choice NOW "
                 "and document WHY in the plan. Zero decision points for the executor.\n\n"
-                "AFTER writing the plan file and calling ExitPlanMode:\n"
-                "Do NOT start executing the plan yourself. Tell the user to type 'go' "
-                "to begin execution (manually switching to Sonnet first is recommended for cost)."
+                "AFTER writing the plan file, STOP. Call ExitPlanMode if in plan mode.\n"
+                "Then tell the user VERBATIM, as your final output:\n"
+                "\"Plan saved. Switch to Sonnet, then type: go\"\n"
+                "Do NOT execute plan steps yourself."
             )
         }
     }

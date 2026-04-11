@@ -2,7 +2,26 @@
 
 > Claude checks this before debugging to avoid repeating known-bad approaches.
 > Pruned 2026-04-01: kept recurring behavioral patterns + permanent rules. One-time bug fixes removed (the fix is in the code).
-> Last updated: 2026-04-10
+> Last updated: 2026-04-11
+
+## General — Model Auto-Switch From Hook Is Impossible (PLAN_AUTO_SWITCH_IMPOSSIBLE) — 2026-04-11
+- **Pattern**: Tried 10 times across ~2 weeks to auto-switch the running Claude Code session from Opus → Sonnet via a hook (`UserPromptSubmit`, `Stop`, `PreToolUse:ExitPlanMode`) right after plan mode exits, so the user wouldn't have to manually click the dropdown. Every attempt silently failed — the session kept running on Opus regardless of what the hook did.
+- **Why it is architecturally impossible**: (1) Claude Code Desktop/Web locks the model at session startup; the running session's model is NOT re-read from any file. (2) Writes to `~/.claude/settings.json` "model" key are recognized only for the **next** session — never the running one. (3) There is no public API/IPC to force a live model change mid-session. (4) `get_current_model()` that reads `settings.json` lies: the file says what's persisted, not what's actually running. Desktop can silently override Sonnet → Opus, so a hook that "confirms the switch happened" by reading settings.json always returns true and removes the guard, letting Opus execute freely. That was the specific bug that cost the most cycles.
+- **Secondary root cause (same saga)**: Substring-matching "execute plan" / "go" in prose false-fired on diagnostic text like "why does execute plans fail" — and the guard was being written on conversational plan-intent prose, which then bled across projects via the global `~/.claude/.plan-guard-active` file.
+- **What TO do instead** (the current working design, 2026-04-10):
+  1. Write the plan to disk (`~/.claude/plans/*.md`).
+  2. A cwd-scoped guard (`~/.claude/.plan-guard-active` with cwd stored as content) is created by `PreToolUse:ExitPlanMode` (formal plan mode) OR by `PostToolUse:Write` on any file inside `~/.claude/plans/` (informal prose plan path — added 2026-04-11).
+  3. `plan-execution-guard.py` on `PreToolUse:Edit|Write` blocks all non-plan-file edits while the guard exists.
+  4. Tell the user EXACTLY (one line): *"Plan saved. Switch to Sonnet, then type: go"*. Do not spell out the dropdown/CLI steps and do not claim to know which model is running.
+  5. On `go` (start-anchored regex + length < 80 char filter to avoid prose false-match), remove the guard and inject the plan path + execution instructions. Trust the user — hooks CANNOT verify the switch actually happened.
+- **DO NOT re-add any of these**:
+  - `get_current_model()` that reads `settings.json` — it lies.
+  - Writes to `settings.json` "model" key from any hook — only affects next session.
+  - Any text that claims to know which model is running.
+  - Substring-match of "execute plan", "go", or similar in prose. Use start-anchored regex + short-prompt length filter.
+  - Guard creation on conversational plan-intent prose (`detect_plan_intent`). Only real tool calls (`ExitPlanMode`) or actual writes to `~/.claude/plans/` should create the guard.
+  - Global, non-project-scoped guard files. Always store cwd in the guard content and check on read.
+- **Files**: `~/.claude/hooks/plan-mode-enforcer.py`, `~/.claude/hooks/plan-execution-guard.py`, `~/.claude/hooks/plan-write-guard-activator.py`, `~/.claude/hooks/plan-exit-model-switch.ARCHIVED.py` (10-commit graveyard).
 
 ## UFC — Parlay With Correlated Same-Fighter Props (PARLAY_SAME_FIGHTER_CORRELATED) — 2026-04-10
 - **Pattern**: Parlay builder selects two props on the SAME fighter in the SAME fight as legs of one parlay (e.g., "Fighter A by KO" + "Fighter A KO R1"). No sportsbook on any platform allows this — correlated same-fighter props are rejected at the slip.
