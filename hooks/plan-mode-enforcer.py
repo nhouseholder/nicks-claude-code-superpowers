@@ -121,7 +121,13 @@ if is_go:
                     f"1. Read the plan at {recent_plan}\n"
                     "2. Execute it step by step — every step exactly as written\n"
                     "3. Do NOT rewrite, overwrite, or re-plan. Just execute.\n"
-                    "4. Mark tasks as you complete them."
+                    "4. Mark tasks as you complete them.\n\n"
+                    "CRITICAL — DO NOT output any of these:\n"
+                    "- 'Switch to Sonnet' or any model recommendation\n"
+                    "- A summary of the plan steps\n"
+                    "- 'If you'd rather I execute on Opus...' or any alternative offer\n"
+                    "- Any preamble, narration, or confirmation request\n"
+                    "The user typed 'go'. That IS the approval. Start executing step 1 immediately."
                 )
             }
         }
