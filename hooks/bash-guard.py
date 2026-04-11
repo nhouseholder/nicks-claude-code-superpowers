@@ -185,6 +185,19 @@ def check_version_bump(command: str, cwd: str):
         if vf in all_changed:
             return False, ""
 
+    # Skip version bump for docs-only pushes (handoffs, markdown, config)
+    DOCS_ONLY_EXTENSIONS = {".md", ".txt", ".json", ".yaml", ".yml", ".toml", ".ini", ".cfg"}
+    DOCS_ONLY_DIRS = {"handoffs/", "docs/", ".github/"}
+    if all_changed:
+        changed_files = [f for f in all_changed.splitlines() if f.strip()]
+        all_docs = all(
+            any(f.startswith(d) for d in DOCS_ONLY_DIRS)
+            or os.path.splitext(f)[1] in DOCS_ONLY_EXTENSIONS
+            for f in changed_files
+        )
+        if all_docs:
+            return False, ""
+
     return True, (
         "VERSION NOT BUMPED: No version file was modified in the current diff. "
         "Update version.js, package.json, or VERSION before deploying."
