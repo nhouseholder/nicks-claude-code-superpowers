@@ -28,9 +28,20 @@
       "~/.claude"
     ]
   },
-  "model": "claude-sonnet-4-6",
+  "enabledMcpjsonServers": [
+    "youtube-transcript"
+  ],
   "hooks": {
     "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/communication-rule-injector.py",
+            "timeout": 1000
+          }
+        ]
+      },
       {
         "hooks": [
           {
@@ -64,15 +75,6 @@
             "type": "command",
             "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/session-context-loader.py",
             "timeout": 3000
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/anti-pattern-enforcer.py",
-            "timeout": 2000
           }
         ]
       }
@@ -231,6 +233,14 @@
         "hooks": [
           {
             "type": "command",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/response-format-guard.py"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
             "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/session-complete-notify.py",
             "timeout": 5000
           }
@@ -246,6 +256,16 @@
       }
     ],
     "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/plan-write-guard-activator.py",
+            "timeout": 1000
+          }
+        ]
+      },
       {
         "matcher": "Bash|Edit|Write|Agent|Skill",
         "hooks": [
@@ -284,9 +304,6 @@
       }
     ]
   },
-  "skipDangerousModePermissionPrompt": true,
   "enabledPlugins": {},
-  "enabledMcpjsonServers": [
-    "youtube-transcript"
-  ]
+  "skipDangerousModePermissionPrompt": true
 }
