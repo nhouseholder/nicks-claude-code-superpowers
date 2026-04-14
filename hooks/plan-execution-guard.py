@@ -28,6 +28,13 @@ import re
 import sys
 import time
 
+# Shared plan-utils
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+try:
+    import _plan_utils as plan_utils
+except Exception:
+    plan_utils = None
+
 PLAN_DIR = os.path.expanduser("~/.claude/plans")
 GUARD_ACTIVE = os.path.expanduser("~/.claude/.plan-guard-active")
 
@@ -35,13 +42,13 @@ GUARD_ACTIVE = os.path.expanduser("~/.claude/.plan-guard-active")
 
 
 def main():
-    # Clean stale plan files (> 2 hours old)
-    try:
-        for pf in glob.glob(os.path.join(PLAN_DIR, "*.md")):
-            if time.time() - os.path.getmtime(pf) > 7200:
-                os.remove(pf)
-    except Exception:
-        pass
+    # Clean stale plan files — SCOPED TO CURRENT PROJECT ONLY.
+    # Global cleanup is the #1 source of cross-project data loss.
+    if plan_utils is not None:
+        try:
+            plan_utils.clean_stale_project_plans()
+        except Exception:
+            pass
 
     # Fast exit: no guard active
     if not os.path.exists(GUARD_ACTIVE):
@@ -49,9 +56,10 @@ def main():
 
     # Check if guard belongs to current project
     try:
-        with open(GUARD_ACTIVE, "r") as f:
-            guard_project = f.read().strip()
-        if guard_project and guard_project != "active" and guard_project != os.getcwd():
+        guard_cwd, _guard_real = (
+            plan_utils.read_guard() if plan_utils is not None else ("", "")
+        )
+        if guard_cwd and guard_cwd != "active" and guard_cwd != os.getcwd():
             # Guard is for a different project — clean up and allow
             os.remove(GUARD_ACTIVE)
             sys.exit(0)
@@ -85,16 +93,21 @@ def main():
         sys.exit(0)
 
     # === Find the plan file for the block message ===
+    # PROJECT-SCOPED discovery — see _plan_utils.find_project_plans.
+    # Falls back to raw PLAN_DIR glob only if the helper import failed.
     plan_path = "unknown"
     complexity = "MEDIUM"
     step_count = 0
     file_count = 0
     try:
-        plan_files = sorted(
-            glob.glob(os.path.join(PLAN_DIR, "*.md")),
-            key=os.path.getmtime,
-            reverse=True,
-        )
+        if plan_utils is not None:
+            plan_files = plan_utils.find_project_plans()
+        else:
+            plan_files = sorted(
+                glob.glob(os.path.join(PLAN_DIR, "*.md")),
+                key=os.path.getmtime,
+                reverse=True,
+            )
         if plan_files:
             plan_path = plan_files[0]
             with open(plan_path, "r") as f:

@@ -61,9 +61,16 @@ if not abs_path.startswith(plan_dir_abs + os.sep):
     sys.exit(0)
 
 # Write the cwd-scoped guard. Overwrites any existing guard safely.
+# Two-line format (line 1 = cwd, line 2 = real plan path). The real path
+# resolves symlinks created by plan-relocate.py so downstream hooks can
+# verify the exact plan file being guarded, independent of the harness
+# symlink in ~/.claude/plans/.
 try:
+    real_path = os.path.realpath(abs_path)
     with open(GUARD_ACTIVE, "w") as f:
         f.write(os.getcwd())
+        f.write("\n")
+        f.write(real_path)
 except Exception:
     pass
 

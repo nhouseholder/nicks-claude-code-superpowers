@@ -2,7 +2,23 @@
 
 > Claude checks this before debugging to avoid repeating known-bad approaches.
 > Pruned 2026-04-01: kept recurring behavioral patterns + permanent rules. One-time bug fixes removed (the fix is in the code).
-> Last updated: 2026-04-11
+> Last updated: 2026-04-14
+
+## General — Plan Files Crossed Projects Because PLAN_DIR Is Global (PLAN_FILE_CROSS_PROJECT_CONFUSION) — 2026-04-14
+- **Pattern**: User approved `imperative-bubbling-lake.md` in mmalogic, but `plan-execution-guard.py` reported `reactive-spinning-plum.md` (Diamond Predictions) as the pending plan. Cause: every plan-consuming hook used `glob.glob(~/.claude/plans/*.md)` + latest-mtime, which crosses project boundaries. The `go` handler then `os.remove`'d "all other plans" — silent data loss of approved plans from other projects. The 2-hour stale cleanup in both `plan-mode-enforcer.py` and `plan-execution-guard.py` did the same thing every session start.
+- **Why it kept happening**: The harness forces plan writes into `~/.claude/plans/<slug>.md` with a random slug and no project metadata. Hooks had no way to tell which project a plan belonged to, so they treated the directory as a single global bucket. cwd checks existed only on the guard sidecar, not on plan discovery.
+- **What TO do instead (working design, 2026-04-14)**:
+  1. `PostToolUse:Write|Edit` → `plan-relocate.py` moves the real file to `<project-root>/.plans/<YYYY-MM-DD>_<slug>.md` and replaces `~/.claude/plans/<slug>.md` with a symlink so the harness-visible path still resolves.
+  2. All plan-consuming hooks import `_plan_utils.find_project_plans()` which returns ONLY the current project's plans (scoped `.plans/` + symlinks whose realpath is inside the project).
+  3. Stale cleanup in every hook uses `_plan_utils.clean_stale_project_plans()` — never touches plans outside the current project.
+  4. Guard sidecar stores cwd AND the real plan path (two-line format) so downstream hooks can verify the exact file being guarded.
+  5. `go` cleanup iterates project-scoped plans only, never `glob(~/.claude/plans/*.md)`.
+- **DO NOT re-add**:
+  - `glob.glob(os.path.join(PLAN_DIR, "*.md"))` followed by `sorted(..., key=getmtime)` in any hook. Use `_plan_utils.find_project_plans()` instead.
+  - `for old_plan in glob.glob(...): os.remove(old_plan)` in stale-cleanup or go-cleanup paths. Scope all deletes to the current project.
+  - Treating `~/.claude/plans/` as the source of truth for the real file. It's a harness-compat symlink directory only.
+- **Files**: `~/.claude/hooks/_plan_utils.py` (new), `~/.claude/hooks/plan-relocate.py` (new), `~/.claude/hooks/plan-execution-guard.py`, `~/.claude/hooks/plan-mode-enforcer.py`, `~/.claude/hooks/plan-write-guard-activator.py`, `~/.claude/settings.json` (PostToolUse:Write|Edit registration).
+- **Verification**: See `Verification` section in `~/.claude/plans/purrfect-growing-neumann.md` (approved + executed 2026-04-14).
 
 ## General — Absence From settings.json Does Not Mean Unregistered (HOOK_REGISTRY_INCOMPLETE) — 2026-04-11
 - **Pattern**: Deleted `copilot-learning-log.py` from `~/.claude/hooks/` after confirming it had no entry in `~/.claude/settings.json`. Assumed "not in settings.json = dead code." File was actually registered in GitHub Copilot Chat's hook system (PostToolUse + UserPromptSubmit), which uses a SEPARATE config from Claude Code. Deleting it immediately broke Copilot Chat in VS Code.
@@ -245,6 +261,16 @@
 - **Prevention rule**: In dense financial tables, never ship default browser number steppers or unlabeled edit-mode cells. If a cell changes meaning in edit mode, label it inside the cell and verify the value is readable at the actual table width.
 - **Verification**: On `/portfolio`, inline holding edit must show the full quantity value, trade form numeric inputs must render without native Safari steppers, and the Portfolio Grade QORE buckets must render as distinct badges.
 
+## NestWise — Chat Second-Turn Failure And Portfolio Bias (NESTWISE_CHAT_HISTORY_OVERFLOW) — 2026-04-13
+- **Project**: nestwisehq / dad-financial-planner
+- **Page/Component**: `/assistant` — `app/api/chat/route.ts`, `components/assistant/assistant-chat.tsx`, `lib/chat/runtime.ts`
+- **Bug**: The assistant could answer once, then fail on the next turn with a generic error. Broad market or AI-industry questions in General mode also got dragged back into the portfolio context or misread `AI` as ticker `AI`.
+- **Root cause**: The route validated every message in the full conversation against the 4,000-character user-message limit, so a long first assistant reply poisoned the second request. Separately, General mode always carried heavy personal portfolio context and a naive uppercase ticker extractor, which biased non-personal questions toward holdings analysis.
+- **Carelessness type**: Didn't separate user-input validation from model-history preparation; assumed more context was always better; assumed uppercase token extraction was safe.
+- **Fix**: Added `lib/chat/runtime.ts` to validate only user-message length, clip long history before reuse, select context by intent, exclude `AI` and similar false tickers, switch chat default to Gemini 2.5 Flash, and add grounded-search first with plain-Flash fallback. The UI now surfaces the actual backend error instead of a generic placeholder.
+- **Prevention rule**: Never apply user input limits to prior assistant messages, and never force full portfolio context into broad live-news questions by default.
+- **Verification**: `npm run typecheck`, `npm exec -- vitest --run lib/chat/runtime.test.ts`, and `npm run build` must all pass. In `/assistant`, a second turn after a long first answer must still complete, and a General-mode question about current market or AI developments must not default to the user's portfolio.
+
 ## MyStrainAI — esbuild.drop:['console'] Breaks Library Error Handling (ESBUILD_DROP_CONSOLE) — 2026-04-07
 - **Pattern**: Using `esbuild: { drop: ['console'] }` in vite.config.js removes ALL console methods including `console.error` and `console.warn`, which breaks libraries that use those methods in their internal error handling paths (FingerprintJS, Firebase Auth).
 - **Root cause**: `esbuild.drop: ['console']` is equivalent to `delete console.*` — a blanket removal. On Brave browser with fingerprint protection enabled, FingerprintJS hits error paths that call `console.error` at startup. With the method removed, uninitialized variable propagation fails silently, causing a TDZ (Temporal Dead Zone) ReferenceError that crashes the app.
@@ -260,3 +286,13 @@
 - **Root cause**: Adding a NEW lucide-react icon (TrendingUp) as a static import to StrainCard changed the Vite chunk graph. The new chunk dependency altered module initialization order, triggering a TDZ in one of the shared chunks (`fmt` or `normalizeStrain` — both have module-scope `const w` declarations).
 - **Fix**: Use an icon already imported in StrainCard (Star, Heart, MapPin, etc.) instead of introducing a new import. If a new icon is genuinely needed, use an inline SVG instead.
 - **Rule**: Never add a new lucide-react icon import to StrainCard without rebuilding and testing in the browser (not just checking build success).
+
+## Courtside — Props Rollout Must Match The Validated Rule (COURTSIDE_PROP_RULE_DRIFT) — 2026-04-13
+- **Project**: courtside-ai
+- **Page/Component**: `functions/api/nba-props-generate.js`, `functions/lib/player-stats.js`, `src/lib/prop-systems.js`
+- **Bug**: The live NBA props rollout promoted three expected-soft 3PM systems even though only `MJ165` was robust enough to ship, used `line_delta <= -1.5` instead of the researched `<= -0.6`, and averaged the oldest 20 games instead of the most recent 20 in the live baseline helper.
+- **Root cause**: The rollout copied the research family name and headline ROI without diffing the live predicates against the backtest predicates line-by-line or re-running the helper math against newest-first logs.
+- **Carelessness type**: Didn't verify after; copied without understanding.
+- **Fix**: Re-tested the family on clean train/holdout windows, restricted live production to `3PM_UNDER_EXPECTED_SOFT_MJ165`, changed the live threshold to `line_delta <= -0.6`, fixed `computePlayerBaseline()` to use newest-first logs, and updated the visible props catalog.
+- **Prevention rule**: When shipping a backtested system, diff the live rule against the research rule line-by-line and run a minimal runtime repro for every rolling helper that feeds it before deploying.
+- **Verification**: `node --test functions/lib/player-stats.test.js`, direct newest-first baseline repro, `npm run build`, and source smoke checks confirming only `MJ165` remains live.

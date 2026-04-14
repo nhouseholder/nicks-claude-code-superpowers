@@ -27,16 +27,25 @@ import re
 import sys
 import time
 
+# Shared plan-utils
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+try:
+    import _plan_utils as plan_utils
+except Exception:
+    plan_utils = None
+
 PLAN_DIR = os.path.expanduser("~/.claude/plans")
 GUARD_ACTIVE = os.path.expanduser("~/.claude/.plan-guard-active")
 
-# Clean stale plan files (> 2 hours old)
-try:
-    for old in glob.glob(os.path.join(PLAN_DIR, "*.md")):
-        if time.time() - os.path.getmtime(old) > 7200:
-            os.remove(old)
-except Exception:
-    pass
+# Clean stale plan files — SCOPED TO CURRENT PROJECT ONLY.
+# Previously this ran a global glob across ~/.claude/plans/ which silently
+# deleted approved plans from other concurrent sessions. See anti-patterns.md
+# → PLAN_FILE_CROSS_PROJECT_CONFUSION.
+if plan_utils is not None:
+    try:
+        plan_utils.clean_stale_project_plans()
+    except Exception:
+        pass
 
 try:
     input_data = json.load(sys.stdin)
@@ -48,10 +57,19 @@ except (json.JSONDecodeError, Exception):
 # Do NOT delete plan files — they're consumed during execution.
 tool_name = input_data.get("tool_name", "")
 if tool_name == "ExitPlanMode":
-    # ENSURE guard exists — blocks Edit/Write until user types "go"
+    # ENSURE guard exists — blocks Edit/Write until user types "go".
+    # Store cwd + newest project-scoped plan real path (two-line format).
     try:
+        recent_real = ""
+        if plan_utils is not None:
+            plans = plan_utils.find_project_plans()
+            if plans:
+                recent_real = plans[0]
         with open(GUARD_ACTIVE, "w") as f:
             f.write(os.getcwd())
+            if recent_real:
+                f.write("\n")
+                f.write(recent_real)
     except Exception:
         pass
     sys.exit(0)
@@ -81,13 +99,17 @@ is_go = len(prompt) < 80 and any(re.search(p, prompt_lower) for p in GO_PATTERNS
 
 if is_go:
     # Check if there's a recent plan file (written within last 30 min)
+    # PROJECT-SCOPED — only plans belonging to the current project qualify.
     recent_plan = None
     try:
-        plan_files = sorted(
-            glob.glob(os.path.join(PLAN_DIR, "*.md")),
-            key=os.path.getmtime,
-            reverse=True,
-        )
+        if plan_utils is not None:
+            plan_files = plan_utils.find_project_plans()
+        else:
+            plan_files = sorted(
+                glob.glob(os.path.join(PLAN_DIR, "*.md")),
+                key=os.path.getmtime,
+                reverse=True,
+            )
         if plan_files:
             age = time.time() - os.path.getmtime(plan_files[0])
             if age < 1800:  # 30 minutes
@@ -102,11 +124,25 @@ if is_go:
         except Exception:
             pass
 
-        # Clean up older plan files so execution targets the right one.
+        # Clean up older plan files so execution targets the right one —
+        # PROJECT-SCOPED. Never deletes plans belonging to other projects.
         try:
-            for old_plan in glob.glob(os.path.join(PLAN_DIR, "*.md")):
-                if old_plan != recent_plan:
-                    os.remove(old_plan)
+            project_plans = (
+                plan_utils.find_project_plans() if plan_utils is not None
+                else [recent_plan]
+            )
+            for old_plan in project_plans:
+                if os.path.realpath(old_plan) != os.path.realpath(recent_plan):
+                    try:
+                        os.remove(old_plan)
+                    except Exception:
+                        pass
+                    # Remove dangling symlink in ~/.claude/plans/
+                    if plan_utils is not None:
+                        try:
+                            plan_utils._remove_dangling_symlinks_to(old_plan)
+                        except Exception:
+                            pass
         except Exception:
             pass
 
@@ -170,14 +206,17 @@ if os.path.exists(GUARD_ACTIVE):
 
         # (c) Orphaned guard check — if there's no recent plan file, the guard
         # is leftover from plan-intent detection that never produced a plan.
-        # Remove it so future turns are silent.
+        # Remove it so future turns are silent. PROJECT-SCOPED discovery.
         has_recent_plan = False
         try:
-            plan_files = sorted(
-                glob.glob(os.path.join(PLAN_DIR, "*.md")),
-                key=os.path.getmtime,
-                reverse=True,
-            )
+            if plan_utils is not None:
+                plan_files = plan_utils.find_project_plans()
+            else:
+                plan_files = sorted(
+                    glob.glob(os.path.join(PLAN_DIR, "*.md")),
+                    key=os.path.getmtime,
+                    reverse=True,
+                )
             if plan_files and (time.time() - os.path.getmtime(plan_files[0])) < 1800:
                 has_recent_plan = True
         except Exception:
@@ -246,10 +285,26 @@ def detect_plan_intent(text):
 
 
 if detect_plan_intent(prompt):
-    # Clean up old plan files so Sonnet doesn't confuse them with the current plan
+    # Clean up old plan files so Sonnet doesn't confuse them with the current
+    # plan — PROJECT-SCOPED. A "write a plan" prompt in project A must never
+    # wipe project B's approved plan.
     try:
-        for old_plan in glob.glob(os.path.join(PLAN_DIR, "*.md")):
-            os.remove(old_plan)
+        if plan_utils is not None:
+            for old_plan in plan_utils.find_project_plans():
+                try:
+                    os.remove(old_plan)
+                except Exception:
+                    pass
+                try:
+                    plan_utils._remove_dangling_symlinks_to(old_plan)
+                except Exception:
+                    pass
+        else:
+            for old_plan in glob.glob(os.path.join(PLAN_DIR, "*.md")):
+                try:
+                    os.remove(old_plan)
+                except Exception:
+                    pass
     except Exception:
         pass
 

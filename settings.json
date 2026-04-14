@@ -261,6 +261,16 @@
         "hooks": [
           {
             "type": "command",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/plan-relocate.py",
+            "timeout": 1500
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
             "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/plan-write-guard-activator.py",
             "timeout": 1000
           }
