@@ -283,6 +283,22 @@ def should_block(text: str) -> str | None:
             "Expand each bullet to a full line (~80–120 chars) or merge into prose."
         )
 
+    # BLUF Debrief check — every substantive response must end with DONE/FOUND block.
+    # Only enforce on responses long enough to have done something meaningful (>400 chars).
+    if len(cleaned) >= 400:
+        tail = cleaned[-600:].lower()
+        has_debrief = bool(
+            re.search(r"\bdone\s*:", tail) or re.search(r"\bfound\s*:", tail)
+        )
+        if not has_debrief:
+            return (
+                "BLOCKED STOP: Missing DONE/FOUND debrief. Every response must end with:\n"
+                "---\n"
+                "DONE: [what was done — one tight sentence]\n"
+                "FOUND: [what was found/decided — one tight sentence, or N/A]\n"
+                "Add it and resubmit."
+            )
+
     return None
 
 
