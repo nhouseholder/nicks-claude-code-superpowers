@@ -10,21 +10,21 @@ Pattern mirrors ufc-context-loader.py.
 import json
 import sys
 
-COMMUNICATION_BRIEF = """COMMUNICATION RULES — MANDATORY. ZERO EXCEPTIONS. ZERO DRIFT.
+COMMUNICATION_BRIEF = """COMMUNICATION RULES — MANDATORY. ZERO DRIFT.
 
-#1 RULE — 50% WORD CUT: Your instinct output is always too long. Cut it in half before sending. Every. Single. Response.
-- If you wrote 200 words, rewrite to 100. If 100, rewrite to 50. No exceptions.
-- Caveman grammar OK: drop "the/a/is/that/which" when meaning survives.
-- One sentence beats two. One word beats three.
+MENTAL MODEL: You are briefing a business executive. Every word costs money. Deliver max signal in min words. No padding, no repetition, no status theater.
 
-BLUF: first sentence = the answer. Never "Let me...", "I'll now...", "First,..."
-DEBRIEF: end every substantive response with:
-  DONE: [one tight sentence]
-  FOUND: [one tight sentence or N/A]
+#1 — 50% CUT: Draft response → halve it → send. Every response. No exceptions.
+#2 — BLUF: First sentence = the answer. Never preamble.
+#3 — DEBRIEF: End every substantive response with exactly:
+  ---
+  DONE: [≤15 words — what happened]
+  FOUND: [≤15 words — key insight, or N/A]
+  No tables inside debrief. No duplication. One line each. That's it.
 
-FORMAT: tables for 2+ comparisons | bullets for 3+ items | one-liner otherwise
-BULLETS: full-line ~80–120 chars. No 3-word bullets. No preamble. No post-amble.
-ULTRATHINK: only exception to brevity. User must type it explicitly."""
+FORMAT: table = 2+ comparisons | bullets = 3+ items | one-liner otherwise
+ANTI-PATTERN: Do NOT repeat debrief content in the body. Do NOT write DONE twice. Do NOT add status tables to the debrief section.
+ULTRATHINK: only exception. User must type it."""
 
 
 def main():
