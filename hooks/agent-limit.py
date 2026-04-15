@@ -51,10 +51,22 @@ def main():
 
     # Allow and increment
     new_count = increment()
-    print(json.dumps({
-        "decision": "allow",
-        "context": f"Agent {new_count}/{MAX_AGENTS} spawned."
-    }))
+
+    # Haiku nudge — Explore agents and simple lookups must use Haiku (20x cheaper).
+    tool_input = hook_input.get("tool_input", {}) or {}
+    subagent_type = str(tool_input.get("subagent_type", "")).lower()
+    model = str(tool_input.get("model", "")).lower()
+    haiku_types = {"explore"}
+    needs_haiku_nudge = subagent_type in haiku_types and "haiku" not in model
+
+    context = f"Agent {new_count}/{MAX_AGENTS} spawned."
+    if needs_haiku_nudge:
+        context += (
+            " HAIKU REQUIRED: Explore agents must use model='haiku' — 20x cheaper"
+            " than Sonnet/Opus for file reads and searches. Respawn with model='haiku'."
+        )
+
+    print(json.dumps({"decision": "allow", "context": context}))
     sys.exit(0)
 
 
