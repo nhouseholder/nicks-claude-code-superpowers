@@ -235,8 +235,8 @@ def should_block(text: str) -> str | None:
     if bullet_lines:
         avg_bullet_len = sum(len(re.sub(r"^\s*([-*+]|\d+\.)\s+", "", line)) for line in bullet_lines) / bullet_count
 
-    long_paragraphs = [paragraph for paragraph in paragraphs if len(paragraph) >= 300]
-    medium_paragraphs = [paragraph for paragraph in paragraphs if len(paragraph) >= 180]
+    long_paragraphs = [paragraph for paragraph in paragraphs if len(paragraph) >= 240]
+    medium_paragraphs = [paragraph for paragraph in paragraphs if len(paragraph) >= 150]
 
     if long_paragraphs and bullet_count == 0 and table_count == 0:
         return (

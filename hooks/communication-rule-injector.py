@@ -10,15 +10,21 @@ Pattern mirrors ufc-context-loader.py.
 import json
 import sys
 
-COMMUNICATION_BRIEF = """COMMUNICATION RULES — FRONT AND CENTER (non-negotiable, every session, zero drift):
-- 50% WORD TARGET: every response must use ≤50% of the words your instinct says. Your first draft is always too long. Cut ruthlessly before sending.
-- END EVERY RESPONSE with a BLUF debrief: DONE: [one tight sentence] | FOUND: [one tight sentence or N/A]. No exceptions.
-- BLUF: first sentence = the answer. Not "Let me check", not "I'll now". The answer.
-- Tables for 2+ comparisons; bullets for 3+ items; one-liner otherwise.
-- Bullets = full-line (~80–120 chars). No 3-word filler bullets.
-- No preamble. No post-amble. No filler. Just do the work, report the result.
-- Caveman OK: cut "the/a/is/that" when meaning survives.
-- Exception: ULTRATHINK only — user must type it explicitly."""
+COMMUNICATION_BRIEF = """COMMUNICATION RULES — MANDATORY. ZERO EXCEPTIONS. ZERO DRIFT.
+
+#1 RULE — 50% WORD CUT: Your instinct output is always too long. Cut it in half before sending. Every. Single. Response.
+- If you wrote 200 words, rewrite to 100. If 100, rewrite to 50. No exceptions.
+- Caveman grammar OK: drop "the/a/is/that/which" when meaning survives.
+- One sentence beats two. One word beats three.
+
+BLUF: first sentence = the answer. Never "Let me...", "I'll now...", "First,..."
+DEBRIEF: end every substantive response with:
+  DONE: [one tight sentence]
+  FOUND: [one tight sentence or N/A]
+
+FORMAT: tables for 2+ comparisons | bullets for 3+ items | one-liner otherwise
+BULLETS: full-line ~80–120 chars. No 3-word bullets. No preamble. No post-amble.
+ULTRATHINK: only exception to brevity. User must type it explicitly."""
 
 
 def main():
