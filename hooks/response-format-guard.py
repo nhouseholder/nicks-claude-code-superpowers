@@ -140,14 +140,30 @@ def load_last_message(hook_input: dict[str, Any]) -> str:
     if not isinstance(transcript_path, str) or not transcript_path:
         return ""
 
+    messages: list[str] = []
     try:
         with open(transcript_path) as handle:
-            transcript = json.load(handle)
+            content = handle.read()
+        # Try JSONL first (one JSON object per line — Claude Code's format)
+        for line in content.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entry = json.loads(line)
+                collect_assistant_messages(entry, messages)
+            except Exception:
+                continue
+        # Fallback: single JSON document (older format)
+        if not messages:
+            try:
+                transcript = json.loads(content)
+                collect_assistant_messages(transcript, messages)
+            except Exception:
+                pass
     except Exception:
         return ""
 
-    messages: list[str] = []
-    collect_assistant_messages(transcript, messages)
     return messages[-1].strip() if messages else ""
 
 
