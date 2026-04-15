@@ -235,8 +235,8 @@ def should_block(text: str) -> str | None:
     if bullet_lines:
         avg_bullet_len = sum(len(re.sub(r"^\s*([-*+]|\d+\.)\s+", "", line)) for line in bullet_lines) / bullet_count
 
-    long_paragraphs = [paragraph for paragraph in paragraphs if len(paragraph) >= 420]
-    medium_paragraphs = [paragraph for paragraph in paragraphs if len(paragraph) >= 260]
+    long_paragraphs = [paragraph for paragraph in paragraphs if len(paragraph) >= 300]
+    medium_paragraphs = [paragraph for paragraph in paragraphs if len(paragraph) >= 180]
 
     if long_paragraphs and bullet_count == 0 and table_count == 0:
         return (
@@ -244,7 +244,7 @@ def should_block(text: str) -> str | None:
             "then compress with compact bullets or a table if needed."
         )
 
-    if len(medium_paragraphs) >= 3 and bullet_count == 0 and table_count == 0:
+    if len(medium_paragraphs) >= 2 and bullet_count == 0 and table_count == 0:
         return (
             "BLOCKED STOP: Response uses too many medium paragraphs. Compress the answer into "
             "one compact paragraph plus minimal structure."

@@ -11,14 +11,14 @@ import json
 import sys
 
 COMMUNICATION_BRIEF = """COMMUNICATION RULES — FRONT AND CENTER (non-negotiable, every session, zero drift):
-- END EVERY RESPONSE with a BLUF debrief: one clean block at the bottom — DONE: [what was done] | FOUND: [what was found]. No exceptions. Every single response, every chat, forever.
+- 50% WORD TARGET: every response must use ≤50% of the words your instinct says. Your first draft is always too long. Cut ruthlessly before sending.
+- END EVERY RESPONSE with a BLUF debrief: DONE: [one tight sentence] | FOUND: [one tight sentence or N/A]. No exceptions.
 - BLUF: first sentence = the answer. Not "Let me check", not "I'll now". The answer.
 - Tables for 2+ comparisons; bullets for 3+ items; one-liner otherwise.
-- Bullets = full-line target (~80–120 chars each). No 3-word filler bullets.
-- No preamble ("Let me...", "First I need to...", "I'll now..."). Just do the work.
-- No post-amble fluff ("In summary", "To summarize", "Let me know if..."). Debrief block IS the summary.
-- Caveman OK: cut filler words when meaning survives. Short > verbose, always.
-- Exception: ULTRATHINK mode only — user must type it explicitly per request."""
+- Bullets = full-line (~80–120 chars). No 3-word filler bullets.
+- No preamble. No post-amble. No filler. Just do the work, report the result.
+- Caveman OK: cut "the/a/is/that" when meaning survives.
+- Exception: ULTRATHINK only — user must type it explicitly."""
 
 
 def main():
