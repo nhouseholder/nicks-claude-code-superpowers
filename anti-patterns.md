@@ -296,3 +296,17 @@
 - **Fix**: Re-tested the family on clean train/holdout windows, restricted live production to `3PM_UNDER_EXPECTED_SOFT_MJ165`, changed the live threshold to `line_delta <= -0.6`, fixed `computePlayerBaseline()` to use newest-first logs, and updated the visible props catalog.
 - **Prevention rule**: When shipping a backtested system, diff the live rule against the research rule line-by-line and run a minimal runtime repro for every rolling helper that feeds it before deploying.
 - **Verification**: `node --test functions/lib/player-stats.test.js`, direct newest-first baseline repro, `npm run build`, and source smoke checks confirming only `MJ165` remains live.
+
+## UFC — Backtester Writes combo_correct=True on KO-R1 pred / R2 actual (COMBO_R1_R2_MISMATCH) — 2026-04-14
+- **Pattern**: For bouts where predicted_method=KO, predicted_round=1, actual_method=KO, actual_round=2, the backtester or patch script sometimes marks combo_correct=True, producing an inflated combo win.
+- **Known affected bout**: Mauricio Ruffy vs Rafael Fiziev at UFC 325: Volkanovski vs. Lopes 2 (combo_pnl +11.0 should be -1.0; combined_pnl +17.63 should be +5.63).
+- **Impact**: +12.00u inflation in Combo P/L that survives every 100-event regeneration.
+- **Surgical fix**: `scripts/patch_ruffy_combo.py` (run after every backtest until root-cause fix ships).
+- **Suspected source**: KO-round-promotion logic (v11.23.2 / v11.23.4) may set an `effective_round` of 2 while the stored `predicted_round` stays at 1, then combo scoring uses effective_round for the equality check. Needs confirmation.
+- **Investigation entry points**:
+  - `UFC_Alg_v4_fast_2026.py` line 11370-11385 (combo scoring)
+  - `patch_registry_from_archive.py` line 173-188 (patch combo scoring)
+  - `ko_round_contract.py` — round promotion logic
+  - Look for any code that stores `predicted_round` as the ORIGINAL while using `effective_round` for scoring.
+- **Permanent rule**: After any registry regen, `verify_registry.py` MUST pass 5/5. Surgical patch is acceptable only while the root cause is being investigated.
+- **Applies when**: Any fresh backtest, any 100-event regeneration, any optimizer run.
