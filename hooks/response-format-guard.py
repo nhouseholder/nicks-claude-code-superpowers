@@ -315,7 +315,7 @@ def should_block(text: str) -> str | None:
             pointer = _os.path.join(result.stdout.strip(), ".plans", "ACTIVE_PLAN")
             if _os.path.isfile(pointer):
                 age = _time.time() - _os.path.getmtime(pointer)
-                if age < 60:
+                if age < 300:
                     needle = "switch to sonnet, then type: go"
                     if needle not in cleaned.lower():
                         return (
