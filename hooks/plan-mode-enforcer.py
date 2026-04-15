@@ -59,12 +59,17 @@ tool_name = input_data.get("tool_name", "")
 if tool_name == "ExitPlanMode":
     # ENSURE guard exists — blocks Edit/Write until user types "go".
     # Store cwd + newest project-scoped plan real path (two-line format).
+    # Also pin ACTIVE_PLAN pointer so `go` resolves deterministically.
     try:
         recent_real = ""
         if plan_utils is not None:
-            plans = plan_utils.find_project_plans()
-            if plans:
-                recent_real = plans[0]
+            # Prefer ACTIVE_PLAN if already set by plan-relocate.py
+            recent_real = plan_utils.get_active_plan()
+            if not recent_real:
+                plans = plan_utils.find_project_plans()
+                if plans:
+                    recent_real = plans[0]
+                    plan_utils.set_active_plan(recent_real)
         with open(GUARD_ACTIVE, "w") as f:
             f.write(os.getcwd())
             if recent_real:
@@ -98,22 +103,30 @@ GO_PATTERNS = [
 is_go = len(prompt) < 80 and any(re.search(p, prompt_lower) for p in GO_PATTERNS)
 
 if is_go:
-    # Check if there's a recent plan file (written within last 30 min)
-    # PROJECT-SCOPED — only plans belonging to the current project qualify.
+    # Resolve THE plan. Priority:
+    #   1. ACTIVE_PLAN pointer (single source of truth, set by ExitPlanMode/relocate)
+    #   2. Newest project-scoped plan by mtime (fallback for legacy/edge cases)
+    # Either way, age must be < 30 min — old approvals don't auto-execute.
     recent_plan = None
     try:
         if plan_utils is not None:
-            plan_files = plan_utils.find_project_plans()
+            active = plan_utils.get_active_plan()
+            if active and (time.time() - os.path.getmtime(active)) < 1800:
+                recent_plan = active
+            else:
+                plan_files = plan_utils.find_project_plans()
+                if plan_files and (time.time() - os.path.getmtime(plan_files[0])) < 1800:
+                    recent_plan = plan_files[0]
         else:
             plan_files = sorted(
                 glob.glob(os.path.join(PLAN_DIR, "*.md")),
                 key=os.path.getmtime,
                 reverse=True,
             )
-        if plan_files:
-            age = time.time() - os.path.getmtime(plan_files[0])
-            if age < 1800:  # 30 minutes
-                recent_plan = plan_files[0]
+            if plan_files:
+                age = time.time() - os.path.getmtime(plan_files[0])
+                if age < 1800:
+                    recent_plan = plan_files[0]
     except Exception:
         pass
 

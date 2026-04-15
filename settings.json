@@ -46,6 +46,15 @@
         "hooks": [
           {
             "type": "command",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/plan-pending-reminder.py",
+            "timeout": 1500
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
             "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/session-init-guard.py",
             "timeout": 1000
           }

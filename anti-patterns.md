@@ -20,6 +20,19 @@
 - **Files**: `~/.claude/hooks/_plan_utils.py` (new), `~/.claude/hooks/plan-relocate.py` (new), `~/.claude/hooks/plan-execution-guard.py`, `~/.claude/hooks/plan-mode-enforcer.py`, `~/.claude/hooks/plan-write-guard-activator.py`, `~/.claude/settings.json` (PostToolUse:Write|Edit registration).
 - **Verification**: See `Verification` section in `~/.claude/plans/purrfect-growing-neumann.md` (approved + executed 2026-04-14).
 
+## General — Plan Pipeline Must Use ACTIVE_PLAN Pointer, Not Mtime (PLAN_PIPELINE_DETERMINISTIC) — 2026-04-14
+- **Pattern**: Plan-execution pipeline (Opus writes plan → user approves → user types `go` → Sonnet executes) used "newest plan by mtime" to resolve THE plan. With multiple concurrent plans, equal mtimes, or relocations modifying mtime, the wrong plan could be picked. Filenames were also opaque random slugs (`purrfect-growing-neumann.md`), so user couldn't tell which plan was current at a glance.
+- **What TO do (working design, 2026-04-14)**:
+  1. Plans named `<YYYY-MM-DD>_<HHMM>_<topic-slug>.md` — topic extracted from plan H1 heading via `_plan_utils.extract_topic_slug()`.
+  2. `<project-root>/.plans/ACTIVE_PLAN` is a single-line pointer file containing the absolute real path of the currently-approved plan. Written by `plan-relocate.py` and `plan-mode-enforcer.py:ExitPlanMode`. Read by `plan-mode-enforcer.py:go` BEFORE any mtime fallback.
+  3. `response-format-guard.py` (Stop hook) blocks any response that creates ACTIVE_PLAN within the last 60 sec but lacks the verbatim line `Plan saved. Switch to Sonnet, then type: go`. No silent drift.
+  4. `plan-pending-reminder.py` (SessionStart) inspects ACTIVE_PLAN; if pending and < 30 min old, injects a context block telling the next session to nudge the user. Survives session compaction.
+- **DO NOT re-add**:
+  - Mtime-only resolution in `go` handler — always check ACTIVE_PLAN first.
+  - Random-slug filenames as the only naming source — always extract topic from content.
+  - Reliance on Claude remembering to say "Switch to Sonnet" — Stop hook enforces it.
+- **Files**: `~/.claude/hooks/_plan_utils.py` (active-pointer helpers, topic extractor), `~/.claude/hooks/plan-relocate.py` (topic naming, sets pointer), `~/.claude/hooks/plan-mode-enforcer.py` (reads pointer in `go`), `~/.claude/hooks/response-format-guard.py` (enforces hand-off message), `~/.claude/hooks/plan-pending-reminder.py` (NEW, SessionStart reminder).
+
 ## General — Absence From settings.json Does Not Mean Unregistered (HOOK_REGISTRY_INCOMPLETE) — 2026-04-11
 - **Pattern**: Deleted `copilot-learning-log.py` from `~/.claude/hooks/` after confirming it had no entry in `~/.claude/settings.json`. Assumed "not in settings.json = dead code." File was actually registered in GitHub Copilot Chat's hook system (PostToolUse + UserPromptSubmit), which uses a SEPARATE config from Claude Code. Deleting it immediately broke Copilot Chat in VS Code.
 - **Why this fails**: Claude Code (`~/.claude/settings.json`) and GitHub Copilot Chat (VS Code extension) both support `~/.claude/hooks/` but maintain **independent** hook registries. A file can be active in one system while absent from the other. There may be additional consumers (other editors, scripts, cron jobs) that reference files in this directory.

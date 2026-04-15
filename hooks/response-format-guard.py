@@ -299,6 +299,34 @@ def should_block(text: str) -> str | None:
                 "Add it and resubmit."
             )
 
+    # Sonnet-switch message check — if a plan was just approved (ACTIVE_PLAN
+    # pointer exists and is < 60 sec old) and this response does NOT contain
+    # the verbatim hand-off line, block. Pipeline drift prevention.
+    try:
+        import os as _os
+        import time as _time
+        import subprocess as _sp
+        # Find current project's ACTIVE_PLAN pointer
+        result = _sp.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            cwd=_os.getcwd(), capture_output=True, text=True, timeout=2,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            pointer = _os.path.join(result.stdout.strip(), ".plans", "ACTIVE_PLAN")
+            if _os.path.isfile(pointer):
+                age = _time.time() - _os.path.getmtime(pointer)
+                if age < 60:
+                    needle = "switch to sonnet, then type: go"
+                    if needle not in cleaned.lower():
+                        return (
+                            "BLOCKED STOP: Plan was just approved but the response "
+                            "is missing the hand-off line. Output VERBATIM:\n"
+                            "  Plan saved. Switch to Sonnet, then type: go\n"
+                            "Do NOT execute plan steps yourself."
+                        )
+    except Exception:
+        pass
+
     return None
 
 

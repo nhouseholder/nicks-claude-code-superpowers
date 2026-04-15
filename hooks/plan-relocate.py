@@ -42,33 +42,50 @@ PLAN_DIR_ABS = os.path.abspath(plan_utils.PLAN_DIR)
 
 
 def relocate(abs_path: str) -> None:
-    """Move abs_path into <project-root>/.plans/ and replace with symlink."""
-    # Already a symlink? Nothing to do — the underlying real file was written
-    # through the link. Idempotent re-entry on second Edit.
+    """Move abs_path into <project-root>/.plans/ with topic-based name + symlink.
+
+    Naming format: <YYYY-MM-DD>_<HHMM>_<topic-slug>.md
+      - topic-slug extracted from plan's first H1 heading
+      - falls back to harness slug (filename) if no heading found
+      - HHMM disambiguates same-day plans without numeric suffixes
+
+    Also writes <project-root>/.plans/ACTIVE_PLAN pointer to this real path
+    so downstream hooks can resolve THE plan deterministically (not by mtime).
+    """
+    # Already a symlink? Nothing to do — second Edit writes through the link.
     if os.path.islink(abs_path):
         return
 
-    # File must exist as a real regular file to relocate it
     if not os.path.isfile(abs_path):
         return
 
     root = plan_utils.project_root()
     scoped_dir = plan_utils.ensure_project_plans_dir(root)
 
-    # If we're already inside a project tree (shouldn't be the case for
-    # ~/.claude/plans/ writes, but be defensive), skip.
+    # Defensive: skip if already inside the project's .plans/
     if os.path.realpath(abs_path).startswith(os.path.realpath(scoped_dir) + os.sep):
         return
 
-    slug = os.path.basename(abs_path)
-    date_prefix = datetime.date.today().isoformat()  # YYYY-MM-DD
-    dest_name = f"{date_prefix}_{slug}"
+    # Read plan content to derive topic slug
+    try:
+        with open(abs_path, "r") as handle:
+            plan_content = handle.read()
+    except Exception:
+        plan_content = ""
+
+    harness_slug = os.path.basename(abs_path).replace(".md", "")
+    topic = plan_utils.extract_topic_slug(plan_content, fallback=harness_slug)
+
+    now = datetime.datetime.now()
+    date_prefix = now.strftime("%Y-%m-%d")
+    time_prefix = now.strftime("%H%M")
+    dest_name = f"{date_prefix}_{time_prefix}_{topic}.md"
     dest = os.path.join(scoped_dir, dest_name)
 
-    # Collision — append a numeric suffix. Preserves any concurrent plan.
+    # Collision (same minute, same topic) — append numeric suffix
     suffix = 1
     while os.path.exists(dest):
-        dest = os.path.join(scoped_dir, f"{date_prefix}_{suffix}_{slug}")
+        dest = os.path.join(scoped_dir, f"{date_prefix}_{time_prefix}_{topic}_{suffix}.md")
         suffix += 1
 
     try:
@@ -79,11 +96,18 @@ def relocate(abs_path: str) -> None:
     try:
         os.symlink(dest, abs_path)
     except Exception:
-        # Symlink failed — move the file back so harness can still find it
+        # Symlink failed — move file back so harness can still find it
         try:
             shutil.move(dest, abs_path)
         except Exception:
             pass
+        return
+
+    # Mark as ACTIVE_PLAN — single source of truth for `go` resolution
+    try:
+        plan_utils.set_active_plan(dest)
+    except Exception:
+        pass
 
 
 def main() -> None:

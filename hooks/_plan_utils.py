@@ -197,3 +197,89 @@ def resolve_harness_path(path: str) -> str:
         return os.path.realpath(path)
     except Exception:
         return path
+
+
+# === ACTIVE_PLAN pointer — single source of truth ===
+
+ACTIVE_PLAN_NAME = "ACTIVE_PLAN"
+
+
+def active_plan_pointer_path(root: str | None = None) -> str:
+    """Return absolute path to the project's ACTIVE_PLAN pointer file."""
+    return os.path.join(project_plans_dir(root), ACTIVE_PLAN_NAME)
+
+
+def get_active_plan(cwd: str | None = None) -> str:
+    """Read the ACTIVE_PLAN pointer. Returns absolute plan path or '' if none.
+
+    The pointer file contains a single line with the absolute real path of
+    the currently-approved plan. If the file is missing, empty, or points to
+    a non-existent file, returns ''.
+    """
+    cwd = cwd or os.getcwd()
+    pointer = active_plan_pointer_path(project_root(cwd))
+    try:
+        if not os.path.isfile(pointer):
+            return ""
+        with open(pointer, "r") as handle:
+            target = handle.read().strip()
+        if target and os.path.isfile(target):
+            return target
+    except Exception:
+        pass
+    return ""
+
+
+def set_active_plan(plan_path: str, cwd: str | None = None) -> None:
+    """Write the ACTIVE_PLAN pointer to plan_path (absolute real path)."""
+    cwd = cwd or os.getcwd()
+    try:
+        ensure_project_plans_dir(project_root(cwd))
+        pointer = active_plan_pointer_path(project_root(cwd))
+        with open(pointer, "w") as handle:
+            handle.write(os.path.realpath(plan_path))
+    except Exception:
+        pass
+
+
+def clear_active_plan(cwd: str | None = None) -> None:
+    """Remove the ACTIVE_PLAN pointer (idempotent — no-op if missing)."""
+    cwd = cwd or os.getcwd()
+    try:
+        pointer = active_plan_pointer_path(project_root(cwd))
+        if os.path.isfile(pointer):
+            os.remove(pointer)
+    except Exception:
+        pass
+
+
+# === Topic extraction for human-readable filenames ===
+
+import re as _re  # local import to keep top-of-file imports unchanged
+
+
+def extract_topic_slug(plan_content: str, fallback: str = "plan") -> str:
+    """Extract a kebab-case topic slug from a plan's first H1 heading.
+
+    Examples:
+      '# Plan: Project-Scoped Files'  -> 'project-scoped-files'
+      '# Bulletproof Pipeline'        -> 'bulletproof-pipeline'
+      ''                              -> fallback
+
+    Strips leading 'Plan:' / 'Plan -' prefix. Lowercases. Replaces spaces
+    and non-word chars with hyphens. Caps at 50 chars.
+    """
+    if not plan_content:
+        return fallback
+    for line in plan_content.splitlines():
+        line = line.strip()
+        if line.startswith("# ") and not line.startswith("## "):
+            heading = line[2:].strip()
+            heading = _re.sub(r"^plan\s*[:\-]\s*", "", heading, flags=_re.IGNORECASE)
+            heading = heading.lower()
+            heading = _re.sub(r"[^a-z0-9]+", "-", heading).strip("-")
+            heading = heading[:50].strip("-")
+            if heading:
+                return heading
+            break
+    return fallback
