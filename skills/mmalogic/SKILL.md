@@ -443,12 +443,23 @@ The review is READ-ONLY. It produces recommendations. The user decides what to a
     import json
     h = json.load(open('webapp/frontend/public/data/hero_stats.json'))
     a = json.load(open('webapp/frontend/public/data/algorithm_stats.json'))
+    r = json.load(open('ufc_profit_registry.json'))
+    algo_combined = sum(a.get(f, 0) or 0 for f in ['ml_pnl','method_pnl','round_pnl','combo_pnl','ou_pnl','parlay_pnl'])
+    parlay_keys = ['parlay','parlay_roi','parlay_hc3','parlay_roi3','parlay_hm3','parlay_hm2','parlay_mx2','parlay_ou3_over','parlay_ou3_under']
+    fight_keys = ['ml','method','combo','ou']
+    events = r.get('events', [])
+    reg_combined = sum(sum((e.get(k) or {}).get('pnl', 0) or 0 for e in events) for k in fight_keys) + sum(sum((e.get(pk) or {}).get('pnl', 0) or 0 for e in events) for pk in parlay_keys)
     print(f'hero: {h.get(\"combined_pnl\")}u')
-    print(f'algo: {a.get(\"totals\",{}).get(\"combined\")}u')
+    print(f'algo: {algo_combined:.2f}u')
+    print(f'reg:  {reg_combined:.2f}u')
     "
     ```
-    hero_stats, algorithm_stats, and registry combined_pnl agree to ±0.01u.
-19. **Latest event is current** — `jq -r '.events[-1].event_name, .events[-1].event_date' ufc_profit_registry.json` matches the newest event shown on site (EventSlideshow top + LastWeekPicks).
+    All three must agree to ±0.01u. (Note: algorithm_stats uses flat `ml_pnl`+`method_pnl`+... fields, NOT `totals.combined`.)
+19. **Latest event is current** — Registry is sorted reverse-chronologically, so newest event is `.events[0]`, NOT `.events[-1]`. Check:
+    ```bash
+    python3 -c "import json; e=json.load(open('ufc_profit_registry.json'))['events'][0]; print(f'{e[\"event_name\"]} — {e[\"date\"]}')"
+    ```
+    vs. the newest event shown on site (EventSlideshow top + LastWeekPicks).
 20. **Null-odds cell handling** — Spot-check one event with any bout where method_odds or combo_odds is null. Wins with odds show real payout (never bare `—`). Losses always show `-1.00u` (never `—` or blank), even when odds are null.
 21. **Parlay type coverage (6 files)** — Current 9 canonical parlay keys must appear in each source:
     ```bash
