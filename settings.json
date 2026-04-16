@@ -242,6 +242,15 @@
         "hooks": [
           {
             "type": "command",
+            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/sonnet-switch-gate.py",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
             "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/session-complete-notify.py",
             "timeout": 5000
           }
