@@ -46,30 +46,47 @@ try:
     )
     current_branch = branch_result.stdout.strip()
 
-    # Get upstream tracking ref
-    upstream_result = subprocess.run(
-        ["git", "rev-parse", "--abbrev-ref", "@{u}"],
-        capture_output=True, text=True, timeout=3, cwd=cwd
-    )
-    upstream = upstream_result.stdout.strip()  # e.g. "origin/main" or "origin/claude/bold-spence"
+    # Resolve the ref to compare against:
+    # Priority 1: origin/<current-branch> if it exists
+    # Priority 2: configured @{u} upstream
+    # Priority 3: origin/main or origin/master
+    compare_ref = None
 
-    # If upstream is origin/main but we're not on main, the worktree branch
-    # has no dedicated tracking ref — check against the branch's own remote ref instead.
-    if upstream in ("origin/main", "origin/master") and current_branch not in ("main", "master"):
-        remote_branch_ref = f"origin/{current_branch}"
-        check_ref = subprocess.run(
-            ["git", "rev-parse", "--verify", remote_branch_ref],
+    if current_branch:
+        branch_remote = f"origin/{current_branch}"
+        check = subprocess.run(
+            ["git", "rev-parse", "--verify", branch_remote],
             capture_output=True, text=True, timeout=3, cwd=cwd
         )
-        if check_ref.returncode == 0:
-            upstream = remote_branch_ref
-        else:
-            # Branch not pushed at all — fall back to main comparison
-            pass
+        if check.returncode == 0:
+            compare_ref = branch_remote
 
-    # Check for unpushed commits vs the resolved upstream
+    if compare_ref is None:
+        # Try configured upstream
+        upstream_result = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "@{u}"],
+            capture_output=True, text=True, timeout=3, cwd=cwd
+        )
+        if upstream_result.returncode == 0 and upstream_result.stdout.strip():
+            compare_ref = upstream_result.stdout.strip()
+
+    if compare_ref is None:
+        # Fall back to origin/main or origin/master
+        for ref in ("origin/main", "origin/master"):
+            check = subprocess.run(
+                ["git", "rev-parse", "--verify", ref],
+                capture_output=True, text=True, timeout=3, cwd=cwd
+            )
+            if check.returncode == 0:
+                compare_ref = ref
+                break
+
+    if compare_ref is None:
+        sys.exit(0)
+
+    # Check for unpushed commits vs resolved ref
     result = subprocess.run(
-        ["git", "log", "--oneline", f"{upstream}..HEAD"],
+        ["git", "log", "--oneline", f"{compare_ref}..HEAD"],
         capture_output=True, text=True, timeout=5, cwd=cwd
     )
 
