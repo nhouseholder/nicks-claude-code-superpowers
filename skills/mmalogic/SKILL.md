@@ -124,11 +124,7 @@ Based on what the user asked, route to the appropriate workflow:
    git commit -m "v[X.Y.Z]: [description]"
    git push origin main
    ```
-10. **Post-deploy verification (MANDATORY)** — open mmalogic.com in Claude in Chrome or Preview:
-    - Confirm new version number is displayed
-    - Confirm updated date is displayed
-    - Run FULL 15-item checklist with specific values for each item
-    - Spot-check 1 event table end-to-end (fight-level P/L matches registry)
+10. **Post-deploy verification (MANDATORY)** — run Step 4 (15-Point Checklist Report) immediately after CI deploys. Do NOT write the output format until Step 4 is complete.
 11. **If deploy fails or live site has regressions:**
     ```bash
     git revert HEAD    # revert the bad commit
@@ -396,6 +392,80 @@ Constraint violations filtered: [N findings removed for touching protected areas
 ```
 
 The review is READ-ONLY. It produces recommendations. The user decides what to act on, and any implementation goes through the normal `/mmalogic` workflow with validator checks.
+
+---
+
+---
+
+## Step 4: Post-Deploy 15-Point Verification Report (MANDATORY — NON-SKIPPABLE)
+
+**MUST run after EVERY deploy, fix, or feature ship.** No exceptions. Skipping this step is what caused 11 bugs going undetected on 2026-03-24.
+
+### How to run it
+
+1. Open mmalogic.com using `mcp__Claude_in_Chrome__navigate` or Preview
+2. Go through ALL 15 items below — each one must show a **specific value**, not "looks fine"
+3. If you cannot load the site, write `UNABLE TO VERIFY` for each item and explain why
+4. If CI hasn't finished deploying yet, wait or check back — do NOT skip the step
+
+### The 15 Items (check each individually, state exact values)
+
+**Landing Page (/)**
+1. **Combined P/L** — What exact value is shown? Must match current Full Combined baseline (e.g., +1926.30u after v11.36.0).
+2. **Event count** — What number is shown? Must be 100+ (current canonical window). NOT 25.
+3. **Bet type cards** — Which cards are shown? Expected: ML, Method, Combo, O/U, Parlay. NO Round card. State exact W-L and P/L for each.
+4. **ROI badge** — What ROI% is shown? Must be plausible (50-200% for the current model).
+
+**Picks Page (/picks)**
+5. **Confidence display** — Does it show raw diff values (e.g., "1.43 diff")? NOT percentages ("143% conf"). State the value shown for 1 pick.
+6. **R1 KO gating** — If there's a KO R1 pick, does it show a Combo bet row? If not KO R1, is there NO round/combo shown?
+7. **Combo bets** — Do KO R1 picks show a CMB tag/row? State which fight (if any) shows one.
+8. **SUB gating** — If SUB is predicted, does it show "DEC (SUB→DEC)" not "by SUB"?
+9. **Both parlays** — Is HC Parlay AND High ROI Parlay shown (if algorithm generates both)?
+
+**Event Detail (History page, expand 1 event)**
+10. **Fighter loss = -1u everywhere** — Find a losing pick. Does it show -1.00u in ML, Method, and Combo (if KO R1)?
+11. **Fighter win = odds-based payout** — Find a winning method bet. Does it show the actual payout (e.g., +2.45u), NOT "+1.00u" flat?
+12. **Parlay row** — Does every event show a parlay row with legs listed and P/L shown?
+13. **Summary header** — Does the event header show ALL bet types? ML, Method, Combo, O/U, Parlay. NO Round column.
+
+**Admin/Optimizer (/admin)**
+14. **Current values populated** — Does the optimizer show actual numbers for params? NOT "—" everywhere.
+15. **All param categories** — Are multiple param categories visible (Scoring, Advanced Features, System Integration)?
+
+### Report format
+
+After checking all 15 items, output this table in your response:
+
+```
+15-POINT CHECKLIST — [version] — [date]
+Live site: mmalogic.com
+===============================================
+ #  Item                    Result   Value
+─────────────────────────────────────────────
+ 1  Combined P/L             PASS    +1926.30u
+ 2  Event count              PASS    100 events
+ 3  Bet type cards           PASS    ML +190u / Method +190u / ...
+ 4  ROI badge                PASS    ~107%
+ 5  Confidence display       PASS    "1.43 diff" ✓
+ 6  R1 KO gating             PASS    [fight name] shows CMB
+ 7  Combo bets               PASS    [fight name] CMB row ✓
+ 8  SUB gating               N/A     No SUB predictions this card
+ 9  Both parlays             PASS    HC + ROI both shown
+10  Fighter loss = -1u       PASS    [event] losing picks all -1u
+11  Win = real odds          PASS    +2.45u (not +1.00u)
+12  Parlay row               PASS    All events show parlay
+13  Summary header           PASS    ML/M/C/O/P — no Round ✓
+14  Admin params populated   PASS    All params show values
+15  Admin categories         PASS    3 categories visible
+===============================================
+TOTAL: 15/15 PASS (or N/15 — list failures below)
+
+FAILURES (if any):
+- Item N: [specific value seen] vs [expected value] — [root cause if known]
+```
+
+**If ANY item FAILS:** do NOT write "MMALOGIC TASK COMPLETE" — investigate and fix the failure first. Re-run Step 4 after the fix.
 
 ---
 
@@ -776,7 +846,7 @@ Version: [before] → [after] (bumped ✓ / N/A — no deploy)
 Freshness: [verified against GitHub ✓]
 Baseline: [N items recorded] — [all preserved ✓ / N regressions fixed]
 Validator: [ALL 12 RULES PASS / N failures — list them]
-15-item checklist: [N/15 passed]
+15-item checklist: [N/15 passed — MUST show full table from Step 4, specific values for each item, not a summary]
 Credentials: [verified intact ✓ — counts match before/after]
 Changed files: [list of specific files staged]
 Knowledge updated: [list of files updated — or "none (no new learnings)" with justification]
