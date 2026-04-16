@@ -187,7 +187,7 @@ def check_version_bump(command: str, cwd: str):
 
     # Skip version bump for docs-only pushes (handoffs, markdown, config)
     DOCS_ONLY_EXTENSIONS = {".md", ".txt", ".json", ".yaml", ".yml", ".toml", ".ini", ".cfg"}
-    DOCS_ONLY_DIRS = {"handoffs/", "docs/", ".github/"}
+    DOCS_ONLY_DIRS = {"handoffs/", "docs/", ".github/", "scripts/"}
     if all_changed:
         changed_files = [f for f in all_changed.splitlines() if f.strip()]
         all_docs = all(
