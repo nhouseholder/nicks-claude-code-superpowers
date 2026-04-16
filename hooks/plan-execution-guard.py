@@ -50,21 +50,37 @@ def main():
         except Exception:
             pass
 
-    # Fast exit: no guard active
+    # Fast exit: no guard active.
+    # Two activation paths:
+    #   1. GUARD_ACTIVE file (set by ExitPlanMode handler — the normal path)
+    #   2. Fresh ACTIVE_PLAN pointer (set by plan-relocate.py on any plan write,
+    #      even when ExitPlanMode is never called because the session isn't in
+    #      plan mode). Without this fallback, Claude can write a plan and
+    #      immediately execute in the same turn — bypassing the Sonnet handoff.
+    _guard_from_active_plan = False
     if not os.path.exists(GUARD_ACTIVE):
-        sys.exit(0)
-
-    # Check if guard belongs to current project
-    try:
-        guard_cwd, _guard_real = (
-            plan_utils.read_guard() if plan_utils is not None else ("", "")
-        )
-        if guard_cwd and guard_cwd != "active" and guard_cwd != os.getcwd():
-            # Guard is for a different project — clean up and allow
-            os.remove(GUARD_ACTIVE)
+        if plan_utils is not None:
+            try:
+                _ptr = plan_utils.active_plan_pointer_path()
+                if os.path.isfile(_ptr) and (time.time() - os.path.getmtime(_ptr)) <= 1800:
+                    _guard_from_active_plan = plan_utils.get_active_plan() != ""
+            except Exception:
+                pass
+        if not _guard_from_active_plan:
             sys.exit(0)
-    except Exception:
-        pass
+
+    # Check if guard belongs to current project (GUARD_ACTIVE path only —
+    # ACTIVE_PLAN is already project-scoped via git_toplevel).
+    if not _guard_from_active_plan:
+        try:
+            guard_cwd, _guard_real = (
+                plan_utils.read_guard() if plan_utils is not None else ("", "")
+            )
+            if guard_cwd and guard_cwd != "active" and guard_cwd != os.getcwd():
+                os.remove(GUARD_ACTIVE)
+                sys.exit(0)
+        except Exception:
+            pass
 
     try:
         hook_input = json.load(sys.stdin)
@@ -84,13 +100,15 @@ def main():
         sys.exit(0)
 
     # === Check guard age — auto-expire after 30 minutes ===
-    try:
-        age = time.time() - os.path.getmtime(GUARD_ACTIVE)
-        if age > 1800:  # 30 minutes
-            os.remove(GUARD_ACTIVE)
+    # Skip for ACTIVE_PLAN path (age already verified above).
+    if not _guard_from_active_plan:
+        try:
+            age = time.time() - os.path.getmtime(GUARD_ACTIVE)
+            if age > 1800:  # 30 minutes
+                os.remove(GUARD_ACTIVE)
+                sys.exit(0)
+        except Exception:
             sys.exit(0)
-    except Exception:
-        sys.exit(0)
 
     # === Find the plan file for the block message ===
     # PROJECT-SCOPED discovery — see _plan_utils.find_project_plans.
