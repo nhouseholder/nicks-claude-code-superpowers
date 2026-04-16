@@ -264,9 +264,8 @@ if os.path.exists(GUARD_ACTIVE):
             "hookSpecificOutput": {
                 "hookEventName": "UserPromptSubmit",
                 "additionalContext": (
-                    "PLAN GUARD ACTIVE — output this FIRST, verbatim:\n"
-                    "\"Plan ready. Switch to Sonnet, then type: go\"\n"
-                    "Do NOT execute any plan steps. Output only the message and stop."
+                    "PLAN GUARD ACTIVE — output this one line only, nothing else:\n"
+                    "switch to sonnet to execute and reply go"
                 )
             }
         }
@@ -366,9 +365,8 @@ if detect_plan_intent(prompt):
                 "If a step requires choosing between approaches, make the choice NOW "
                 "and document WHY in the plan. Zero decision points for the executor.\n\n"
                 "AFTER writing the plan file, STOP. Call ExitPlanMode if in plan mode.\n"
-                "Then tell the user VERBATIM, as your final output:\n"
-                "\"Plan saved. Switch to Sonnet, then type: go\"\n"
-                "Do NOT execute plan steps yourself."
+                "Then output this one line only, nothing else — no preamble, no summary:\n"
+                "switch to sonnet to execute and reply go"
             )
         }
     }

@@ -28,7 +28,7 @@ import time
 from typing import Any
 
 
-NEEDLE = "switch to sonnet, then type: go"
+NEEDLE = "switch to sonnet to execute and reply go"
 SESSION_WINDOW_SEC = 86400  # 24h — covers any realistic session; abandoned plans auto-release
 
 
@@ -158,11 +158,8 @@ def main() -> None:
         # No message text available — can't verify needle. Default to blocking
         # (fail-closed) so a broken transcript can't bypass the gate.
         sys.stderr.write(
-            "BLOCKED: A plan is pending approval and the hand-off line is missing.\n"
-            "Output exactly:\n\n"
-            "  Plan saved. Switch to Sonnet, then type: go\n\n"
-            "Do NOT execute the plan. Do NOT summarize the plan. "
-            "Just the hand-off line, then stop."
+            "BLOCKED: Output this one line only, nothing else:\n"
+            "switch to sonnet to execute and reply go"
         )
         sys.exit(2)
 
@@ -172,12 +169,8 @@ def main() -> None:
 
     # ACTIVE_PLAN is live and needle is missing — block every time, no exceptions.
     sys.stderr.write(
-        "BLOCKED: A plan is pending approval. Pause here and output exactly:\n\n"
-        "  Plan saved. Switch to Sonnet, then type: go\n\n"
-        "Do NOT execute the plan. Do NOT summarize the plan. "
-        "Just the hand-off line, then stop.\n\n"
-        "(Gate releases only when user types 'go' or removes "
-        f"{pointer}.)"
+        "BLOCKED: Output this one line only, nothing else:\n"
+        "switch to sonnet to execute and reply go"
     )
     sys.exit(2)
 

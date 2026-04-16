@@ -42,14 +42,9 @@ def main() -> None:
             sys.exit(0)
 
         context = (
-            "PENDING PLAN DETECTED — DO NOT START A NEW TASK YET.\n"
-            f"An approved plan is waiting for execution:\n"
-            f"  {active}\n"
-            f"  (approved {age_min:.0f} min ago)\n\n"
-            "Tell the user EXACTLY (one line, verbatim):\n"
-            "  Plan ready. Switch to Sonnet, then type: go\n\n"
-            "Do NOT execute the plan yourself. Do NOT call Edit or Write. "
-            "Output ONLY the message above and stop, then wait for the user."
+            f"PENDING PLAN: {active} (approved {age_min:.0f} min ago)\n"
+            "Output this one line only, nothing else:\n"
+            "switch to sonnet to execute and reply go"
         )
         print(json.dumps({"decision": "allow", "context": context}))
     except Exception:
