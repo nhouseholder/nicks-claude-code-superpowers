@@ -1,25 +1,24 @@
 #!/usr/bin/env python3
 """Stop hook: After a plan is written/approved, require Claude to hand off to Sonnet.
 
-Narrow-purpose — fires ONLY when:
-  (1) the current project has an ACTIVE_PLAN pointer
-  (2) the pointer was set within the last 5 minutes
-  (3) the last assistant message is missing the verbatim hand-off line
+NO EXCEPTIONS policy (per 2026-04-16):
+  Fires every turn while an ACTIVE_PLAN pointer exists AND the last
+  assistant message is missing the verbatim hand-off line. Does not
+  silently give up after N attempts. The only ways to clear it:
+    1. User types "go" → plan-mode-enforcer clears ACTIVE_PLAN pointer
+    2. User manually deletes <project>/.plans/ACTIVE_PLAN
+    3. Pointer is older than SESSION_WINDOW_SEC (24h — abandoned plan)
 
-Behavior:
-  - Block with exit code 2 → Claude regenerates with the hand-off line
-  - Max 2 blocks per session, then silently pass (avoid infinite loops)
+Respects the harness's stop_hook_active recursion flag (mandatory to
+prevent infinite loops during the re-prompt cycle). This is not a
+user-configurable exception — it's a Claude Code protocol requirement.
 
 Does NOT enforce:
   - Word count, BLUF, bullet density, paragraph length, DONE/FOUND debrief
-  - Any other communication style rule (removed per user request)
-
-Designed to replace the Sonnet-switch enforcement that lived inside the old
-response-format-guard.py, without the format-guard baggage.
+  - Any other communication style rule
 """
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import re
@@ -29,39 +28,8 @@ import time
 from typing import Any
 
 
-MAX_BLOCKS = 2
 NEEDLE = "switch to sonnet, then type: go"
-FRESH_WINDOW_SEC = 300  # 5 min — matches plan-relocate / ExitPlanMode recency
-
-
-def counter_path(session_id: str) -> str:
-    short = hashlib.md5((session_id or "default").encode()).hexdigest()[:8]
-    return f"/tmp/.claude-sonnet-gate-{short}"
-
-
-def get_count(path: str) -> int:
-    try:
-        if os.path.exists(path):
-            return int(open(path).read().strip())
-    except Exception:
-        pass
-    return 0
-
-
-def bump_count(path: str, n: int) -> None:
-    try:
-        with open(path, "w") as h:
-            h.write(str(n))
-    except Exception:
-        pass
-
-
-def reset_count(path: str) -> None:
-    try:
-        if os.path.exists(path):
-            os.remove(path)
-    except Exception:
-        pass
+SESSION_WINDOW_SEC = 86400  # 24h — covers any realistic session; abandoned plans auto-release
 
 
 def extract_text(value: Any) -> str:
@@ -133,22 +101,36 @@ def load_last_message(hook_input: dict[str, Any]) -> str:
     return messages[-1].strip() if messages else ""
 
 
-def active_plan_fresh() -> bool:
-    """True iff the current project has a freshly-set ACTIVE_PLAN pointer."""
+def active_plan_pointer() -> str:
+    """Return path to project's ACTIVE_PLAN pointer, or '' if not in a project."""
     try:
         result = subprocess.run(
             ["git", "rev-parse", "--show-toplevel"],
             cwd=os.getcwd(), capture_output=True, text=True, timeout=2,
         )
-        if result.returncode != 0 or not result.stdout.strip():
-            return False
-        pointer = os.path.join(result.stdout.strip(), ".plans", "ACTIVE_PLAN")
-        if not os.path.isfile(pointer):
-            return False
+        if result.returncode == 0 and result.stdout.strip():
+            return os.path.join(result.stdout.strip(), ".plans", "ACTIVE_PLAN")
+    except Exception:
+        pass
+    return ""
+
+
+def active_plan_is_live(pointer: str) -> bool:
+    """True iff the ACTIVE_PLAN pointer exists and is not abandoned (<24h old)."""
+    if not pointer or not os.path.isfile(pointer):
+        return False
+    try:
         age = time.time() - os.path.getmtime(pointer)
-        return age < FRESH_WINDOW_SEC
     except Exception:
         return False
+    if age >= SESSION_WINDOW_SEC:
+        # Abandoned plan — clean up pointer so it stops firing.
+        try:
+            os.remove(pointer)
+        except Exception:
+            pass
+        return False
+    return True
 
 
 def strip_code(text: str) -> str:
@@ -161,43 +143,41 @@ def main() -> None:
     except Exception:
         sys.exit(0)
 
-    session_id = str(
-        hook_input.get("session_id") or hook_input.get("sessionId") or "default"
-    )
-    counter_file = counter_path(session_id)
-
-    # Allow recursion guard from harness
+    # Harness recursion guard — MANDATORY. If we already blocked once in this
+    # response chain, exit 0 now to avoid infinite loops. Claude Code sets
+    # this flag specifically to signal "you've had your one block."
     if hook_input.get("stop_hook_active") or hook_input.get("stopHookActive"):
-        reset_count(counter_file)
         sys.exit(0)
 
-    # Only enforce if a plan was just pinned as active
-    if not active_plan_fresh():
-        reset_count(counter_file)
+    pointer = active_plan_pointer()
+    if not active_plan_is_live(pointer):
         sys.exit(0)
 
     last = load_last_message(hook_input)
     if not last:
-        reset_count(counter_file)
-        sys.exit(0)
+        # No message text available — can't verify needle. Default to blocking
+        # (fail-closed) so a broken transcript can't bypass the gate.
+        sys.stderr.write(
+            "BLOCKED: A plan is pending approval and the hand-off line is missing.\n"
+            "Output exactly:\n\n"
+            "  Plan saved. Switch to Sonnet, then type: go\n\n"
+            "Do NOT execute the plan. Do NOT summarize the plan. "
+            "Just the hand-off line, then stop."
+        )
+        sys.exit(2)
 
     cleaned = strip_code(last).lower()
     if NEEDLE in cleaned:
-        reset_count(counter_file)
         sys.exit(0)
 
-    # Block — require hand-off line
-    count = get_count(counter_file) + 1
-    bump_count(counter_file, count)
-
-    if count > MAX_BLOCKS:
-        reset_count(counter_file)
-        sys.exit(0)
-
+    # ACTIVE_PLAN is live and needle is missing — block every time, no exceptions.
     sys.stderr.write(
-        "BLOCKED: A plan was just approved. Pause here and output exactly:\n\n"
+        "BLOCKED: A plan is pending approval. Pause here and output exactly:\n\n"
         "  Plan saved. Switch to Sonnet, then type: go\n\n"
-        "Do NOT execute the plan. Do NOT summarize the plan. Just the hand-off line, then stop."
+        "Do NOT execute the plan. Do NOT summarize the plan. "
+        "Just the hand-off line, then stop.\n\n"
+        "(Gate releases only when user types 'go' or removes "
+        f"{pointer}.)"
     )
     sys.exit(2)
 

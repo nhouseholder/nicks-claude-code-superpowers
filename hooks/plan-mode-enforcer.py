@@ -137,6 +137,16 @@ if is_go:
         except Exception:
             pass
 
+        # Clear ACTIVE_PLAN pointer — user approved execution, so the
+        # sonnet-switch-gate Stop hook no longer needs to block. Without
+        # this, the pointer would stay fresh and the gate would block
+        # every subsequent assistant turn during execution.
+        try:
+            if plan_utils is not None:
+                plan_utils.clear_active_plan()
+        except Exception:
+            pass
+
         # Clean up older plan files so execution targets the right one —
         # PROJECT-SCOPED. Never deletes plans belonging to other projects.
         try:
