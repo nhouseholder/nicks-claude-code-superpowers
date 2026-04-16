@@ -242,14 +242,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/response-format-guard.py"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
             "command": "/opt/homebrew/bin/python3 ~/.claude/hooks/session-complete-notify.py",
             "timeout": 5000
           }
