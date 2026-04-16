@@ -39,9 +39,37 @@ try:
         capture_output=True, text=True, timeout=10, cwd=cwd
     )
 
-    # Check for unpushed commits
+    # Get current branch
+    branch_result = subprocess.run(
+        ["git", "branch", "--show-current"],
+        capture_output=True, text=True, timeout=3, cwd=cwd
+    )
+    current_branch = branch_result.stdout.strip()
+
+    # Get upstream tracking ref
+    upstream_result = subprocess.run(
+        ["git", "rev-parse", "--abbrev-ref", "@{u}"],
+        capture_output=True, text=True, timeout=3, cwd=cwd
+    )
+    upstream = upstream_result.stdout.strip()  # e.g. "origin/main" or "origin/claude/bold-spence"
+
+    # If upstream is origin/main but we're not on main, the worktree branch
+    # has no dedicated tracking ref — check against the branch's own remote ref instead.
+    if upstream in ("origin/main", "origin/master") and current_branch not in ("main", "master"):
+        remote_branch_ref = f"origin/{current_branch}"
+        check_ref = subprocess.run(
+            ["git", "rev-parse", "--verify", remote_branch_ref],
+            capture_output=True, text=True, timeout=3, cwd=cwd
+        )
+        if check_ref.returncode == 0:
+            upstream = remote_branch_ref
+        else:
+            # Branch not pushed at all — fall back to main comparison
+            pass
+
+    # Check for unpushed commits vs the resolved upstream
     result = subprocess.run(
-        ["git", "log", "--oneline", "@{u}..HEAD"],
+        ["git", "log", "--oneline", f"{upstream}..HEAD"],
         capture_output=True, text=True, timeout=5, cwd=cwd
     )
 
