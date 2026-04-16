@@ -397,18 +397,19 @@ The review is READ-ONLY. It produces recommendations. The user decides what to a
 
 ---
 
-## Step 4: Post-Deploy 15-Point Verification Report (MANDATORY — NON-SKIPPABLE)
+## Step 4: Post-Deploy 21-Point Verification Report (MANDATORY — NON-SKIPPABLE)
 
-**MUST run after EVERY deploy, fix, or feature ship.** No exceptions. Skipping this step is what caused 11 bugs going undetected on 2026-03-24.
+**MUST run after EVERY deploy, fix, or feature ship.** No exceptions. Skipping this step is what caused 11 bugs going undetected on 2026-03-24. Items 16-21 were added 2026-04-15 after user mandate to catch table/data-freshness bugs the original 15 missed.
 
 ### How to run it
 
 1. Open mmalogic.com using `mcp__Claude_in_Chrome__navigate` or Preview
-2. Go through ALL 15 items below — each one must show a **specific value**, not "looks fine"
+2. Go through ALL 21 items below — each must show a **specific value**, not "looks fine"
 3. If you cannot load the site, write `UNABLE TO VERIFY` for each item and explain why
 4. If CI hasn't finished deploying yet, wait or check back — do NOT skip the step
+5. Items 16-21 include filesystem checks (grep/jq/python) in addition to visual inspection — run those commands
 
-### The 15 Items (check each individually, state exact values)
+### The 21 Items (check each individually, state exact values)
 
 **Landing Page (/)**
 1. **Combined P/L** — What exact value is shown? Must match current Full Combined baseline (e.g., +1926.30u after v11.36.0).
@@ -433,33 +434,64 @@ The review is READ-ONLY. It produces recommendations. The user decides what to a
 14. **Current values populated** — Does the optimizer show actual numbers for params? NOT "—" everywhere.
 15. **All param categories** — Are multiple param categories visible (Scoring, Advanced Features, System Integration)?
 
+**Table Updates & Data Freshness (filesystem + visual)**
+16. **Cross-Component Table Parity** — Open event detail (EventBetsDropdown), admin backtest tab (AdminBacktest BoutRow), landing latest event (EventSlideshow EventCard), LastWeekPicks, HistoryPage. All 5 show same columns in same order: `[ML, Method, Combo, O/U, Parlay, Combined]`. ZERO Round columns anywhere.
+17. **Parlay row present + totals match registry** — On landing, the parlay card total equals registry parlay sum. LastWeekPicks and HistoryPage show parlay rows for each event. No component shows parlay 0W-0L while registry has non-zero totals.
+18. **Data freshness — 3-file reconciliation** — Run:
+    ```bash
+    python3 -c "
+    import json
+    h = json.load(open('webapp/frontend/public/data/hero_stats.json'))
+    a = json.load(open('webapp/frontend/public/data/algorithm_stats.json'))
+    print(f'hero: {h.get(\"combined_pnl\")}u')
+    print(f'algo: {a.get(\"totals\",{}).get(\"combined\")}u')
+    "
+    ```
+    hero_stats, algorithm_stats, and registry combined_pnl agree to ±0.01u.
+19. **Latest event is current** — `jq -r '.events[-1].event_name, .events[-1].event_date' ufc_profit_registry.json` matches the newest event shown on site (EventSlideshow top + LastWeekPicks).
+20. **Null-odds cell handling** — Spot-check one event with any bout where method_odds or combo_odds is null. Wins with odds show real payout (never bare `—`). Losses always show `-1.00u` (never `—` or blank), even when odds are null.
+21. **Parlay type coverage (6 files)** — Current 9 canonical parlay keys must appear in each source:
+    ```bash
+    for f in pnl_contract.py track_results.py fix_registry_placed_flags.py sync_and_deploy.py build_event_analysis.py webapp/frontend/src/lib/parlayUtils.js; do
+      echo "=== $f ==="
+      grep -o 'parlay_mx2\|parlay_ou3_over\|parlay_ou3_under\|parlay_hm3\|parlay_hm2' "$f" | sort -u
+    done
+    ```
+    Each file must list all active parlay keys (no silent skips — DUAL_PATH_DIVERGENCE #7b).
+
 ### Report format
 
-After checking all 15 items, output this table in your response:
+After checking all 21 items, output this table in your response:
 
 ```
-15-POINT CHECKLIST — [version] — [date]
+21-POINT CHECKLIST — [version] — [date]
 Live site: mmalogic.com
-===============================================
- #  Item                    Result   Value
-─────────────────────────────────────────────
- 1  Combined P/L             PASS    +1926.30u
- 2  Event count              PASS    100 events
- 3  Bet type cards           PASS    ML +190u / Method +190u / ...
- 4  ROI badge                PASS    ~107%
- 5  Confidence display       PASS    "1.43 diff" ✓
- 6  R1 KO gating             PASS    [fight name] shows CMB
- 7  Combo bets               PASS    [fight name] CMB row ✓
- 8  SUB gating               N/A     No SUB predictions this card
- 9  Both parlays             PASS    HC + ROI both shown
-10  Fighter loss = -1u       PASS    [event] losing picks all -1u
-11  Win = real odds          PASS    +2.45u (not +1.00u)
-12  Parlay row               PASS    All events show parlay
-13  Summary header           PASS    ML/M/C/O/P — no Round ✓
-14  Admin params populated   PASS    All params show values
-15  Admin categories         PASS    3 categories visible
-===============================================
-TOTAL: 15/15 PASS (or N/15 — list failures below)
+==========================================================================
+ #  Item                             Result   Value
+──────────────────────────────────────────────────────────────────────────
+ 1  Combined P/L                      PASS    +1926.30u
+ 2  Event count                       PASS    100 events
+ 3  Bet type cards                    PASS    ML +190u / Method +190u / ...
+ 4  ROI badge                         PASS    ~107%
+ 5  Confidence display                PASS    "1.43 diff" ✓
+ 6  R1 KO gating                      PASS    [fight name] shows CMB
+ 7  Combo bets                        PASS    [fight name] CMB row ✓
+ 8  SUB gating                        N/A     No SUB predictions this card
+ 9  Both parlays                      PASS    HC + ROI both shown
+10  Fighter loss = -1u                PASS    [event] losing picks all -1u
+11  Win = real odds                   PASS    +2.45u (not +1.00u)
+12  Parlay row                        PASS    All events show parlay
+13  Summary header                    PASS    ML/M/C/O/P — no Round ✓
+14  Admin params populated            PASS    All params show values
+15  Admin categories                  PASS    3 categories visible
+16  Table parity (5 comps)            PASS    EventBetsDropdown / AdminBacktest / EventSlideshow / LastWeekPicks / HistoryPage — all match
+17  Parlay totals vs registry         PASS    Hero parlay +1270.63u = registry sum (±0.01u)
+18  hero/algo/registry agree          PASS    All 3 report +1926.30u
+19  Latest event is current           PASS    Registry newest = site newest ([event name])
+20  Null-odds handling                PASS    Losses -1.00u without odds; wins show real payout
+21  Parlay type coverage (6 files)    PASS    9 canonical keys present in pnl_contract / track_results / fix_registry / sync_and_deploy / build_event_analysis / parlayUtils.js
+==========================================================================
+TOTAL: 21/21 PASS (or N/21 — list failures below)
 
 FAILURES (if any):
 - Item N: [specific value seen] vs [expected value] — [root cause if known]
