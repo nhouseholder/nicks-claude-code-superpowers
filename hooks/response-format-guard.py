@@ -78,7 +78,12 @@ def block(reason: str, counter_file: str) -> None:
         pass
 
     if count <= MAX_BLOCKS:
-        sys.stderr.write(reason)
+        sys.stderr.write(
+            reason
+            + "\n\nCRITICAL: Do NOT repeat or rewrite your previous response."
+            + " Output ONLY the corrected version of the specific issue above."
+            + " No duplicate summaries, no restating what was already done."
+        )
         sys.exit(2)
 
     try:
