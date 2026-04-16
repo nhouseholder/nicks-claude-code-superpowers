@@ -217,6 +217,18 @@ def check_fast_mode_backtest(command: str):
     return False, ""
 
 
+def effective_cwd(command: str, fallback: str) -> str:
+    """If command starts with 'cd <path> &&', use that path as CWD for all checks.
+    Fixes: hook reads os.getcwd() (worktree dir) before 'cd canonical && push' runs.
+    """
+    m = re.match(r'^\s*cd\s+([^\s&;|]+)\s*&&', command)
+    if m:
+        path = os.path.expanduser(m.group(1))
+        if os.path.isdir(path):
+            return path
+    return fallback
+
+
 def main():
     try:
         hook_input = json.load(sys.stdin)
@@ -227,7 +239,7 @@ def main():
     if not command:
         sys.exit(0)
 
-    cwd = os.getcwd()
+    cwd = effective_cwd(command, os.getcwd())
 
     # Check 1: Dangerous patterns (fastest — pure regex, no subprocess)
     blocked, reason = check_dangerous_patterns(command)
