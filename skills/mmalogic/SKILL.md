@@ -455,11 +455,36 @@ The review is READ-ONLY. It produces recommendations. The user decides what to a
     "
     ```
     All three must agree to ±0.01u. (Note: algorithm_stats uses flat `ml_pnl`+`method_pnl`+... fields, NOT `totals.combined`.)
-19. **Latest event is current** — Registry is sorted reverse-chronologically, so newest event is `.events[0]`, NOT `.events[-1]`. Check:
+19. **Latest event is current — TWO-PART CHECK (both required)**
+
+    **Part A — Registry vs Site parity:** Registry is sorted reverse-chronologically, so newest event is `.events[0]`, NOT `.events[-1]`.
     ```bash
     python3 -c "import json; e=json.load(open('ufc_profit_registry.json'))['events'][0]; print(f'{e[\"event_name\"]} — {e[\"date\"]}')"
     ```
-    vs. the newest event shown on site (EventSlideshow top + LastWeekPicks).
+    vs. the newest event shown on site (EventSlideshow top + LastWeekPicks). These must match.
+
+    **Part B — Registry vs real-world UFC calendar (catches the "site looks right but data is stale" bug):** Part A only proves the site mirrors the registry — it does NOT prove the registry was updated after the most recent completed UFC event. The post-event pipeline (backtester + track_results.py + sync_and_deploy) may not have run.
+    ```bash
+    # Print registry's newest event date and today's date
+    python3 -c "
+    import json, datetime
+    e = json.load(open('ufc_profit_registry.json'))['events'][0]
+    reg_date = datetime.date.fromisoformat(e['date'])
+    today = datetime.date.today()
+    days = (today - reg_date).days
+    print(f'Registry newest: {e[\"event_name\"]} on {e[\"date\"]} ({days} days ago)')
+    print(f'Today: {today}')
+    print('⚠️  STALE' if days > 10 else '✓ fresh (<=10 days)')
+    "
+    ```
+    Then **independently verify** via WebFetch (ufcstats.com/statistics/events/completed or google "most recent UFC event") what the most recently completed UFC event was. If the real-world most-recent completed event is NOT in the registry as `.events[0]`, the post-event pipeline hasn't been run — FAIL this item regardless of Part A result.
+
+    **Fail modes this catches:**
+    - Registry `.events[0]` is 2+ weeks old while a UFC event fired last weekend — post-event backtest never ran.
+    - Site display matches registry perfectly but both are stale.
+    - `track_results.py` ran but failed silently; winners never got ingested into the registry.
+
+    **Remediation on FAIL:** Run the post-event pipeline: `UFC_BACKTEST_MODE=1 UFC_CACHE_ONLY=1 python3 UFC_Alg_v4_fast_2026.py` → `fix_registry_placed_flags.py` → `patch_registry_from_archive.py` → `fix_registry_placed_flags.py` → `validate_registry_cells.py --strict` → sync data to `webapp/frontend/public/data/` → deploy.
 20. **Null-odds cell handling** — Spot-check one event with any bout where method_odds or combo_odds is null. Wins with odds show real payout (never bare `—`). Losses always show `-1.00u` (never `—` or blank), even when odds are null.
 21. **Parlay type coverage (6 files)** — Current 9 canonical parlay keys must appear in each source:
     ```bash
@@ -498,7 +523,7 @@ Live site: mmalogic.com
 16  Table parity (5 comps)            PASS    EventBetsDropdown / AdminBacktest / EventSlideshow / LastWeekPicks / HistoryPage — all match
 17  Parlay totals vs registry         PASS    Hero parlay +1270.63u = registry sum (±0.01u)
 18  hero/algo/registry agree          PASS    All 3 report +1926.30u
-19  Latest event is current           PASS    Registry newest = site newest ([event name])
+19  Latest event is current           PASS    [A] reg=site ✓  [B] reg newest = real-world last completed UFC (X days ago) ✓
 20  Null-odds handling                PASS    Losses -1.00u without odds; wins show real payout
 21  Parlay type coverage (6 files)    PASS    9 canonical keys present in pnl_contract / track_results / fix_registry / sync_and_deploy / build_event_analysis / parlayUtils.js
 ==========================================================================
