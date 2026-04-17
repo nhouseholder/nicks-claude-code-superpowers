@@ -20,12 +20,35 @@ DO NOT re-add:
 - Writes to settings.json "model" key from any hook (doesn't propagate to the
   running session, only affects next session).
 """
+import datetime
 import json
 import glob
 import os
 import re
 import sys
 import time
+
+
+_TODAY_RE = re.compile(r"(\d{4}-\d{2}-\d{2})")
+
+
+def _plan_filename_is_today(path: str) -> bool:
+    """Guard against stale-plan execution: require plan filename date = today.
+
+    plan-relocate.py stamps every plan with <YYYY-MM-DD>_<HHMM>_<slug>.md.
+    If the prefix date != today, the plan was written in a prior session and
+    must not auto-execute via mtime fallback (mtime can be bumped by editor
+    touch / reload / background tools, which is what got yesterday's H10 plan
+    silently re-executed on 2026-04-16).
+    """
+    try:
+        m = _TODAY_RE.search(os.path.basename(path))
+        if not m:
+            # No date prefix — legacy file, be conservative and reject.
+            return False
+        return m.group(1) == datetime.date.today().isoformat()
+    except Exception:
+        return False
 
 # Shared plan-utils
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -111,22 +134,34 @@ if is_go:
     try:
         if plan_utils is not None:
             active = plan_utils.get_active_plan()
-            if active and (time.time() - os.path.getmtime(active)) < 1800:
+            if (
+                active
+                and (time.time() - os.path.getmtime(active)) < 1800
+                and _plan_filename_is_today(active)
+            ):
                 recent_plan = active
             else:
                 plan_files = plan_utils.find_project_plans()
-                if plan_files and (time.time() - os.path.getmtime(plan_files[0])) < 1800:
-                    recent_plan = plan_files[0]
+                # mtime fallback: require filename date = today so an editor-
+                # touched yesterday plan can't masquerade as the active one.
+                for candidate in plan_files:
+                    if (
+                        (time.time() - os.path.getmtime(candidate)) < 1800
+                        and _plan_filename_is_today(candidate)
+                    ):
+                        recent_plan = candidate
+                        break
         else:
             plan_files = sorted(
                 glob.glob(os.path.join(PLAN_DIR, "*.md")),
                 key=os.path.getmtime,
                 reverse=True,
             )
-            if plan_files:
-                age = time.time() - os.path.getmtime(plan_files[0])
-                if age < 1800:
-                    recent_plan = plan_files[0]
+            for candidate in plan_files:
+                age = time.time() - os.path.getmtime(candidate)
+                if age < 1800 and _plan_filename_is_today(candidate):
+                    recent_plan = candidate
+                    break
     except Exception:
         pass
 
@@ -134,6 +169,16 @@ if is_go:
         # Remove guard — user typed "go", trust them to have switched.
         try:
             os.remove(GUARD_ACTIVE)
+        except Exception:
+            pass
+
+        # Clear ACTIVE_PLAN pointer — user approved execution, so the
+        # sonnet-switch-gate Stop hook no longer needs to block. Without
+        # this, the pointer would stay fresh and the gate would block
+        # every subsequent assistant turn during execution.
+        try:
+            if plan_utils is not None:
+                plan_utils.clear_active_plan()
         except Exception:
             pass
 
@@ -254,9 +299,8 @@ if os.path.exists(GUARD_ACTIVE):
             "hookSpecificOutput": {
                 "hookEventName": "UserPromptSubmit",
                 "additionalContext": (
-                    "PLAN GUARD ACTIVE — output this FIRST, verbatim:\n"
-                    "\"Plan ready. Switch to Sonnet, then type: go\"\n"
-                    "Do NOT execute any plan steps. Output only the message and stop."
+                    "PLAN GUARD ACTIVE — output this one line only, nothing else:\n"
+                    "switch to sonnet to execute and reply go"
                 )
             }
         }
@@ -356,9 +400,8 @@ if detect_plan_intent(prompt):
                 "If a step requires choosing between approaches, make the choice NOW "
                 "and document WHY in the plan. Zero decision points for the executor.\n\n"
                 "AFTER writing the plan file, STOP. Call ExitPlanMode if in plan mode.\n"
-                "Then tell the user VERBATIM, as your final output:\n"
-                "\"Plan saved. Switch to Sonnet, then type: go\"\n"
-                "Do NOT execute plan steps yourself."
+                "Then output this one line only, nothing else — no preamble, no summary:\n"
+                "switch to sonnet to execute and reply go"
             )
         }
     }
