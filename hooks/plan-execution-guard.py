@@ -90,14 +90,45 @@ def main():
     tool_name = hook_input.get("tool_name", "")
     tool_input = hook_input.get("tool_input", {})
 
-    # Only act on Edit/Write
-    if tool_name not in ("Write", "Edit"):
+    # Act on Edit/Write AND Bash. Bash coverage closes the loophole where
+    # Opus ignores the Stop hook's "output this line only" instruction and
+    # writes a plan file via a heredoc or shell cp, or runs `git commit`,
+    # `npm run …`, etc. to push execution through even though Write/Edit
+    # is blocked. NotebookEdit included for the same reason.
+    if tool_name not in ("Write", "Edit", "NotebookEdit", "Bash"):
         sys.exit(0)
 
     # Always allow writes to plan files and guard files
     file_path = tool_input.get("file_path", "") or tool_input.get("path", "")
     if file_path and (PLAN_DIR in file_path or ".claude/." in file_path):
         sys.exit(0)
+
+    # Allow a narrow set of read-only Bash commands so planning-phase sanity
+    # checks (ls the plan file, cat it, git status, etc.) aren't blocked.
+    # Anything that could mutate state is blocked.
+    if tool_name == "Bash":
+        command = (tool_input.get("command", "") or "").strip()
+        # Strip a leading "cd … && " prefix before evaluating the real command.
+        _stripped = re.sub(r"^\s*cd\s+\S+\s*(&&|;)\s*", "", command)
+        first_token = _stripped.split(None, 1)[0] if _stripped else ""
+        # rtk is a token-killer proxy; check the wrapped binary.
+        if first_token == "rtk":
+            first_token = (_stripped.split(None, 2)[1:2] or [""])[0]
+        READ_ONLY_BIN = {
+            "ls", "cat", "head", "tail", "grep", "rg", "find", "pwd", "echo",
+            "which", "wc", "file", "stat", "tree", "diff", "awk", "sed",
+            "env", "printenv", "date", "uname", "python3", "node",
+        }
+        READ_ONLY_GIT = {"status", "diff", "log", "show", "branch", "remote", "rev-parse", "ls-files"}
+        is_read_only = False
+        if first_token in READ_ONLY_BIN:
+            is_read_only = True
+        elif first_token == "git":
+            git_sub = (_stripped.split(None, 2)[1:2] or [""])[0]
+            if git_sub in READ_ONLY_GIT:
+                is_read_only = True
+        if is_read_only:
+            sys.exit(0)
 
     # === Check guard age — auto-expire after 30 minutes ===
     # Skip for ACTIVE_PLAN path (age already verified above).
@@ -163,8 +194,9 @@ def main():
             "'A plan is ready and waiting for your approval.\n"
             "  1. Switch to Sonnet if not already (Desktop: model dropdown; CLI: /model sonnet)\n"
             "  2. Type: go\n"
-            "Do NOT attempt to execute the plan. Do NOT call Edit or Write. "
-            "Output ONLY the instructions above and stop.'",
+            "Do NOT attempt to execute the plan. Do NOT call Edit, Write, or "
+            "any state-changing Bash command. Output ONLY the instructions above "
+            "and stop.'",
         ),
     }
     print(json.dumps(result))

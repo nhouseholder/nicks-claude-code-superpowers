@@ -69,41 +69,52 @@ def collect_assistant(node: Any, out: list[str]) -> None:
             collect_assistant(item, out)
 
 
-def load_last_message(hook_input: dict[str, Any]) -> str:
-    # Prefer direct field if harness provides it
+def load_recent_messages(hook_input: dict[str, Any], n: int = 6) -> list[str]:
+    """Return the last N assistant-message texts from the transcript.
+
+    Multiple entries per turn are normal — Claude Code emits a new assistant
+    entry whenever a tool call interrupts text. To detect the needle reliably
+    we inspect the tail of the transcript, not just the final entry.
+    """
+    out: list[str] = []
+
+    # Direct-field fast path (still useful when the harness provides it)
     for key in ("last_assistant_message", "lastAssistantMessage"):
         msg = hook_input.get(key)
         if isinstance(msg, str) and msg.strip():
-            return msg.strip()
+            out.append(msg.strip())
 
     transcript_path = hook_input.get("transcript_path") or hook_input.get("transcriptPath")
-    if not isinstance(transcript_path, str) or not transcript_path:
-        return ""
+    if isinstance(transcript_path, str) and transcript_path:
+        messages: list[str] = []
+        try:
+            with open(transcript_path) as h:
+                content = h.read()
+            for line in content.splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entry = json.loads(line)
+                    collect_assistant(entry, messages)
+                except Exception:
+                    continue
+            if not messages:
+                try:
+                    collect_assistant(json.loads(content), messages)
+                except Exception:
+                    pass
+        except Exception:
+            pass
+        if messages:
+            out.extend(m.strip() for m in messages[-n:] if m and m.strip())
+    return out
 
-    messages: list[str] = []
-    try:
-        with open(transcript_path) as h:
-            content = h.read()
-        # JSONL format (Claude Code standard)
-        for line in content.splitlines():
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                entry = json.loads(line)
-                collect_assistant(entry, messages)
-            except Exception:
-                continue
-        # Single-doc fallback
-        if not messages:
-            try:
-                collect_assistant(json.loads(content), messages)
-            except Exception:
-                pass
-    except Exception:
-        return ""
 
-    return messages[-1].strip() if messages else ""
+def load_last_message(hook_input: dict[str, Any]) -> str:
+    """Legacy helper — kept for back-compat; returns the single tail message."""
+    msgs = load_recent_messages(hook_input, n=1)
+    return msgs[-1] if msgs else ""
 
 
 def active_plan_pointer() -> str:
@@ -159,8 +170,16 @@ def main() -> None:
     if not active_plan_is_live(pointer):
         sys.exit(0)
 
-    last = load_last_message(hook_input)
-    cleaned = strip_code(last).lower() if last else ""
+    # Scan the LAST N assistant messages for the needle, not just messages[-1].
+    # Claude Code splits a response into multiple assistant entries whenever a
+    # tool call interrupts text — e.g.:
+    #   text("plan written") → Write → text("switch to sonnet ...") → Bash → text("done")
+    # messages[-1] is "done", the needle lives in an earlier entry. Checking
+    # only the tail caused false blocks when Opus ran a trailing verification
+    # command after outputting the handoff line.
+    recent = load_recent_messages(hook_input, n=6)
+    combined = "\n".join(recent)
+    cleaned = strip_code(combined).lower() if combined else ""
     has_needle = bool(cleaned) and NEEDLE in cleaned
 
     # Harness recursion guard — MANDATORY to avoid infinite re-prompt loops.
@@ -171,13 +190,12 @@ def main() -> None:
             _clear_pointer(pointer)
         sys.exit(0)
 
-    if not last:
-        # Fail-closed: can't verify needle, block.
-        sys.stderr.write(
-            "BLOCKED: Output this one line only, nothing else:\n"
-            "switch to sonnet to execute and reply go"
-        )
-        sys.exit(2)
+    if not recent:
+        # Can't read any recent messages — FAIL-OPEN to avoid re-prompt loops
+        # on transcript read failures. The plan-execution-guard still blocks
+        # Edit/Write/Bash while ACTIVE_PLAN is live, so a bypass here doesn't
+        # actually let Claude execute the plan unchecked.
+        sys.exit(0)
 
     if has_needle:
         # Handoff delivered — clear pointer so subsequent unrelated turns
