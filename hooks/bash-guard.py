@@ -134,17 +134,13 @@ def check_version_bump(command: str, cwd: str):
     if not is_deploy and not is_push:
         return False, ""
 
-    # Block deploys from /tmp/ or worktree dirs — but allow if the command
-    # explicitly cd's to a canonical project path first (worktree→canonical push)
-    if "/tmp/" in cwd or "/.claude/worktrees/" in cwd:
-        # Check if command cd's to a canonical path before push/deploy
-        canonical_cd = re.search(r'cd\s+~/(?:Projects|ProjectsHQ)/\w+', command)
-        if not canonical_cd:
-            return True, (
-                f"WRONG DIRECTORY: Deploying from {cwd} which is a temp/worktree directory. "
-                f"Deploy from the canonical project directory under ~/Projects/. "
-                f"Hint: prefix with 'cd ~/ProjectsHQ/<project> && ' to push from canonical path."
-            )
+    # (Removed 2026-04-16) The "worktree CWD → block deploy" check was too
+    # aggressive. effective_cwd() only recovers the canonical path when `cd`
+    # is in the SAME command string as the deploy/push. Running the natural
+    # multi-step sequence (cd in step 1, deploy in step 5) left every deploy
+    # call blocked with "WRONG DIRECTORY". Worktrees are a normal workflow,
+    # not a safety hazard — version-bump/deploy-guard checks below are the
+    # actual safety net.
 
     # Check for suspiciously old version (UFC-specific)
     for vf in VERSION_FILES:
