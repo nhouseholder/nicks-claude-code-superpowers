@@ -51,6 +51,12 @@ COMPLETION_SIGNALS = [
     "changed", "committed", "pushed", "deployed", "verified",
     "all cases pass", "here's the", "result", "summary",
     "ready to work", "no previous handoff", "session oriented",
+    # Plan-handoff line is intentionally terse ("switch to sonnet to execute
+    # and reply go"). It's a VALID terminal output for the plan pipeline —
+    # sonnet-switch-gate handles the semantic check. Treating it as narration
+    # here caused every handoff to trigger BLOCKED STOP, forcing Opus to
+    # bulldoze through the plan instead of pausing for the model switch.
+    "switch to sonnet to execute and reply go",
 ]
 
 MAX_BLOCKS = 3
