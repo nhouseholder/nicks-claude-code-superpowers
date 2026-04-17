@@ -106,6 +106,20 @@ Based on what the user asked, route to the appropriate workflow:
 
 ## Step 3A: Update & Deploy
 
+### Latest Event Table Pipeline — Cache + Grade (2026-04-17 MANDATE)
+
+**The Latest Event table is NEVER generated retroactively by running the algorithm on a settled event.** It is built in two phases:
+
+- **Phase A — Pre-event cache (fight day, after final odds rescrape):** scrape final sportsbook odds → run prediction path ONCE → apply all gates (SUB→DEC, slight-fav KO skip, heavy-fav KO skip, DEC method gate, combo round promotion, parlay selection) → write the resulting `{picks, bets_placed, odds, skip_flags, predicted_method, predicted_round}` envelope to `event_picks_cache/UFC_<slug>.json`. This is THE bet slate. Frozen at event start.
+
+- **Phase B — Post-event grade (Sunday auto-cron, after UFCStats posts results):** read cached picks → compare to actual UFCStats outcomes → compute P/L from cached odds → write `actual_*` + `*_correct` + `*_pnl` into `ufc_profit_registry.json` → regenerate `algorithm_stats.json` / hero totals / Latest Event table → push to production. Grade step is READ-ONLY with respect to picks and odds — it NEVER rewrites `*_placed`, `predicted_*`, or `odds`.
+
+Why: 2026-04-17 audit of UFC 327 found Ulberg (-103), Reyes (-148), Swanson (-113) were placed with `method_placed=true` and `combo_placed=true` despite `skip_ko_prop=true` — retroactive ingest ran a code branch that diverged from the pre-event gate. Caching locks the slate; grading is pure arithmetic.
+
+Legacy events pre-dating the cache system may use `grading_source: "retroactive_fallback"` — flagged in registry so audit can find them. New events MUST be `grading_source: "cached_picks"`.
+
+### Update & Deploy Steps
+
 1. **Run validator first** — `python3 validate_registry.py` (see Ground Truth Validation below)
 2. **If validator fails** — fix data issues BEFORE any display work
 3. **Data sync** — copy data files from `ufc-predict/webapp/frontend/public/data/`
@@ -397,9 +411,9 @@ The review is READ-ONLY. It produces recommendations. The user decides what to a
 
 ---
 
-## Step 4: Post-Deploy 21-Point Verification Report (MANDATORY — NON-SKIPPABLE)
+## Step 4: Post-Deploy 23-Point Verification Report (MANDATORY — NON-SKIPPABLE)
 
-**MUST run after EVERY deploy, fix, or feature ship.** No exceptions. Skipping this step is what caused 11 bugs going undetected on 2026-03-24. Items 16-21 were added 2026-04-15 after user mandate to catch table/data-freshness bugs the original 15 missed.
+**MUST run after EVERY deploy, fix, or feature ship.** No exceptions. Skipping this step is what caused 11 bugs going undetected on 2026-03-24. Items 16-21 were added 2026-04-15 after user mandate to catch table/data-freshness bugs the original 15 missed. Items 22-23 were added 2026-04-17 after UFC 327 ingest placed KO method+combo bets on Ulberg (-103) / Reyes (-148) / Swanson (-113) despite `skip_ko_prop=true` — confirming the v11.15 gate was bypassed and that retroactive recomputation is unsafe.
 
 ### How to run it
 
@@ -494,6 +508,35 @@ The review is READ-ONLY. It produces recommendations. The user decides what to a
     done
     ```
     Each file must list all active parlay keys (no silent skips — DUAL_PATH_DIVERGENCE #7b).
+22. **Slight-favorite KO skip enforced (v11.15 gate)** — Every bout in the latest event with `predicted_method=='KO'` AND `-150 < odds < -100` must have `skip_ko_prop=true` AND `method_placed=false` AND `combo_placed=false`. Flag alone is NOT enough — placement MUST be suppressed.
+    ```bash
+    python3 -c "
+    import json
+    ev = json.load(open('ufc_profit_registry.json'))['events'][0]
+    bad = []
+    for b in ev['bouts']:
+        odds = b.get('odds')
+        pm = b.get('predicted_method')
+        if pm == 'KO' and odds is not None and -150 < odds < -100:
+            if b.get('method_placed') or b.get('combo_placed'):
+                bad.append(f\"{b.get('picked')} ({odds}) pm={pm} method_placed={b.get('method_placed')} combo_placed={b.get('combo_placed')} skip_ko_prop={b.get('skip_ko_prop')}\")
+    print('Slight-fav KO gate violations:', len(bad))
+    for line in bad: print(' -', line)
+    "
+    ```
+    Must report 0 violations. If any appear, the v11.15 gate is broken in the placement layer — FAIL this item regardless of Part A/B of item 19.
+23. **Latest event sourced from pre-event cache (not retroactive)** — The latest event's `source` (or `grading_source`) metadata must be `"cached_picks"`, NOT `"retroactive_fallback"`. Confirms the Sunday grade cron graded a frozen pre-fight cache rather than re-running the algorithm at ingest time.
+    ```bash
+    python3 -c "
+    import json
+    ev = json.load(open('ufc_profit_registry.json'))['events'][0]
+    src = ev.get('grading_source') or ev.get('source') or 'UNKNOWN'
+    print(f\"Latest event: {ev.get('event_name')}\")
+    print(f\"Source: {src}\")
+    print('✓ cached' if src == 'cached_picks' else ('⚠️ retroactive' if 'retroactive' in src else '⚠️ missing metadata'))
+    "
+    ```
+    Retroactive fallback is allowed ONLY for legacy events pre-dating the cache system — it must NEVER appear on an event whose pre-scrape day had a working cache writer. Legacy events stay flagged in the registry so audit can find them.
 
 ### Report format
 
@@ -526,8 +569,10 @@ Live site: mmalogic.com
 19  Latest event is current           PASS    [A] reg=site ✓  [B] reg newest = real-world last completed UFC (X days ago) ✓
 20  Null-odds handling                PASS    Losses -1.00u without odds; wins show real payout
 21  Parlay type coverage (6 files)    PASS    9 canonical keys present in pnl_contract / track_results / fix_registry / sync_and_deploy / build_event_analysis / parlayUtils.js
+22  Slight-fav KO skip enforced       PASS    0 violations — all KO picks with -150<ml<-100 have method_placed=false AND combo_placed=false
+23  Cache-sourced latest event        PASS    source="cached_picks" (not retroactive_fallback)
 ==========================================================================
-TOTAL: 21/21 PASS (or N/21 — list failures below)
+TOTAL: 23/23 PASS (or N/23 — list failures below)
 
 FAILURES (if any):
 - Item N: [specific value seen] vs [expected value] — [root cause if known]
