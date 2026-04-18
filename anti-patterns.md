@@ -171,6 +171,19 @@
 - Prop odds must be scraped/backfilled, never accepted as null. Missing odds → missing P/L → wrong totals.
 - Run `python3 check_prop_odds.py` after any registry modification.
 
+## MLB — Synthetic-Bucket Payouts Inflate Prop Backtest ROI (SYNTHETIC_PAYOUT_OPTIMISM) — 2026-04-18
+- **Symptom**: 10 consecutive MLB HR/hits hypotheses killed (H39-H48). User asked "are we sure vegas odds are accurate?" — correct intuition.
+- **Root cause**: `mlb_predict/backtest/prop_backtester.py` had **no per-date real-odds path** for HR or hits markets. `backtest_cache/prop_odds/` archived only `K_lines/`. Every HR pick resolved through `HR_MATCHUP_BUCKETS` / `HR_ISO_BUCKETS` (synthetic, single-book BetOnlineAG, +900-capped) or flat `MARKET_JUICE["home_runs"]["over"]` = +600 when ISO/HR9 null. Every hits pick hit flat -172.
+- **Evidence** (from `sample_picks` in H39-H48 result JSONs): 6-20 of 20 HR picks had `iso_at_fire: null` → flat +600 fallback. H39 + H42 (hits): 20/20 flat +58 payout.
+- **Bias direction**: FAVORABLE to backtester. Flat +600 overpays elite-power wins (real odds ~+280-450 for Judge/Ohtani tier). Measured ROI is an optimistic upper bound — kills still stand, but live ROI on any borderline-pass would be **worse** than measured.
+- **Fix (partial, 2026-04-18)**:
+  1. Added `MULTIBOOK_ARCHIVE_DIR` + `_load_multibook(date)` + `get_archived_real_payout(market, side, player, line, date)` in `prop_backtester.py`. Resolution order: archived real → empirical cache → synthetic bucket → flat MARKET_JUICE.
+  2. Added `PropBacktester.payout_source_counts` provenance dict; `_print_payout_provenance()` reports distribution per run. Any backtest with 0% `archived_real` is bucket-only → treat ROI as optimistic.
+  3. `snapshot_prop_lines.py` already runs 2x/day via CI writing to `data/prop_lines_multibook/` with all 5 markets + full books[] array. Archive is forward-only (2026-04-17+).
+  4. Wrote `scripts/derive_hits_buckets_multibook.py` (analog to HR derive); both derive scripts GATED at 1000 rows. Hits: 621/1000 currently (~14d to clear). Fixed tuple-key JSON serialization bug in existing HR script.
+- **Blocked**: Historical 2024/2025 real prop odds. The Odds API historical = paid-tier only (`HISTORICAL_UNAVAILABLE_ON_FREE_USAGE_PLAN`, HTTP 401). BettingPros scraper live-only. Historical prop backfill requires a paid data source (~$30-100/mo) — user decision.
+- **Prevention**: Every new prop hypothesis eval must report payout_source_counts. If `archived_real` is 0%, verdict note must include "synthetic-bucket payouts — ROI is optimistic upper bound". Never cite a prop backtest ROI as "real" when provenance is 100% synthetic.
+
 ## Permanent — NEVER Gate Bets by Odds Range
 - DEC odds gate caused -91.95u regression. Longshot wins (+300 to +800) cross-subsidize mid-range losses.
 - Method bets are a portfolio — never remove the tail.
