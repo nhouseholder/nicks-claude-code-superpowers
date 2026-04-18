@@ -2,7 +2,26 @@
 
 > Claude checks this before debugging to avoid repeating known-bad approaches.
 > Pruned 2026-04-01: kept recurring behavioral patterns + permanent rules. One-time bug fixes removed (the fix is in the code).
-> Last updated: 2026-04-14
+> Last updated: 2026-04-16
+
+## UFC — Scraper Display-Text Anchor Collides on Duplicate Listings (BFO_DISPLAY_TEXT_FIRST_MATCH) — 2026-04-16
+- **Pattern**: `_find_bfo_event_link()` in `scrape_ou_odds.py` used `page_text.find(display_text)` to anchor on a candidate event link, then checked nearby fighter names. BestFightOdds occasionally lists ONE UFC card under TWO event pages with identical display text — e.g. April 18 prelims (`/events/ufc-winnipeg-4130`) + April 19 main card (`/events/ufc-winnipeg-4145`), both labeled "UFC Winnipeg". `find()` returns the FIRST occurrence, the matcher anchored on prelims, never visited the main card, and the cache silently lost ALL headliner O/U lines (Burns, Malott, Jasudavicius, Silva, Young, Moises, Phillips, Jourdain). Frontend rendered "Over 2.5 skipped — price outside gate" because `over_odds=None` returned the same `over_price_blocked` reason code as a genuinely out-of-gate price. User saw the misleading message and reported it as a gate bug.
+- **Why it kept happening**: No silent failure surfaced — the scraper successfully captured 7 prelim fights and looked healthy. No per-fight reconciliation against `prediction_output.json`. The reason-code "over_price_blocked" conflated "no odds fetched" with "odds outside gate", so neither the website nor a logfile gave the truth.
+- **What TO do (working design, 2026-04-16)**:
+  1. Anchor event-link matching on the UNIQUE href in raw HTML (`page_html.find(href.lower())`), not the display text. Each event has a unique URL even when display text repeats.
+  2. Return ALL matching event links (`_find_bfo_event_links`) with strict-match (all fighters present) first, loose-match (any fighter) second.
+  3. Add sibling-page expansion: once any candidate matches, also walk every other UFC event link with the same display text. Catches BFO's prelim/main split where headliners only appear on one of the two pages.
+  4. Reconciliation: after every scrape, walk `prediction_output.json` fights and `[WARN] BFO missing: <key>` for each unmatched fight. Loud, not silent.
+  5. Reason-code split in `ou_contract.py`: `_over_block_reason(over_odds)` returns `over_no_odds` when `over_odds is None`, `over_price_blocked` only when a real odds value fails the gate. Same for under.
+  6. Frontend shows "sportsbook line not yet posted" for `*_no_odds` and the existing "price outside gate" message for `*_price_blocked`. Truth, not conflation.
+  7. Secondary source: extract DK Total Rounds (`_dk_extract_total_rounds`) from the existing DK API call, merge into `ufc_ou_odds_cache.json` without clobbering BFO entries. Belt-and-suspenders for when BFO lags.
+- **DO NOT re-add**:
+  - `page_text.find(display_text)` anywhere in scraper anchor logic. Use `page_html.find(href)` — hrefs are unique.
+  - A single `over_price_blocked` for both missing-data and out-of-gate cases. Always split: missing-data is a scraper bug, out-of-gate is intended behavior.
+  - Returning a single best-match event link when BFO might split a card across pages. Always return the list.
+- **Files**: `scrape_ou_odds.py`, `ou_contract.py`, `webapp/frontend/src/lib/pickContract.js`, `UFC_Alg_v4_fast_2026.py` (`_dk_extract_total_rounds`, `_persist_ou_to_cache`, retry tuple at the live-prediction O/U path).
+- **Verification**: See plan `~/.claude/plans/lexical-churning-engelbart.md`. Live confirmation 2026-04-16: Burns vs. Malott card cache went from 7 prelim fights to 13 fights total; Jasudavicius/Silva and Young/Moises now show real Over 2.5 bets at -310 and -180 respectively (commit `3a16a72`).
+
 
 ## General — Plan Files Crossed Projects Because PLAN_DIR Is Global (PLAN_FILE_CROSS_PROJECT_CONFUSION) — 2026-04-14
 - **Pattern**: User approved `imperative-bubbling-lake.md` in mmalogic, but `plan-execution-guard.py` reported `reactive-spinning-plum.md` (Diamond Predictions) as the pending plan. Cause: every plan-consuming hook used `glob.glob(~/.claude/plans/*.md)` + latest-mtime, which crosses project boundaries. The `go` handler then `os.remove`'d "all other plans" — silent data loss of approved plans from other projects. The 2-hour stale cleanup in both `plan-mode-enforcer.py` and `plan-execution-guard.py` did the same thing every session start.
@@ -323,3 +342,16 @@
   - Look for any code that stores `predicted_round` as the ORIGINAL while using `effective_round` for scoring.
 - **Permanent rule**: After any registry regen, `verify_registry.py` MUST pass 5/5. Surgical patch is acceptable only while the root cause is being investigated.
 - **Applies when**: Any fresh backtest, any 100-event regeneration, any optimizer run.
+
+## UFC — track_results.py parlay_key_map silently skipping new parlay types (DUAL_PATH_DIVERGENCE #7b) — 2026-04-15
+- **Seen:** KP2 shipped v11.32.0, OU3 shipped v11.35.0 — both silently unscored on Sunday auto-settlement. Root cause: `track_results.py:808` had a hardcoded 4-entry label→key map ({Ultra High Confidence, High ROI, HC3, ROI3} only). Every parlay type added after ROI3 (v11.28.0) was silently skipped.
+- **Fix:** Added `_PARLAY_LABEL_TO_KEY` (10-entry canonical map) + `_settle_parlay_legs()` helper with per-parlay routing: ML parlays use `ml_correct`; MP2/KP2 strip method suffix from leg label and use `method_correct`; OU3 matches bouts by fighter pair + `ou_type` prefix and uses `ou_correct`; HM3/HM2 sniff leg type from label suffix (KO R1/R2, SUB R1, by method, ML, Over/Under). Also expanded `event_entry` init from 4 → 10 parlay slots.
+- **Rule (NEW PARLAY SHIPPING CHECKLIST — 6 REQUIRED FILES):** When shipping a new parlay type, confirm it appears in ALL 6:
+  1. `UFC_Alg_v4_fast_2026.py` — backtest path
+  2. `UFC_Alg_v4_fast_2026.py` — live prediction path
+  3. `pnl_contract.py` — PARLAY_KEYS tuple
+  4. `fix_registry_placed_flags.py` — rebuild function
+  5. `build_event_analysis.py` — PARLAY_LABELS dict
+  6. **`track_results.py`** — `_PARLAY_LABEL_TO_KEY` + `_settle_parlay_legs()` case
+  Grep all 6 files before declaring ship-ready.
+- **Note:** The settlement is only exercised on Sunday auto-tracking (new events). Backtest parlays are scored independently. This means the gap can silently persist for months without obvious symptoms.
