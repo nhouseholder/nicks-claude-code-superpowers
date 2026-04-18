@@ -116,7 +116,7 @@ Based on what the user asked, route to the appropriate workflow:
 
 Why: 2026-04-17 audit of UFC 327 found Ulberg (-103), Reyes (-148), Swanson (-113) were placed with `method_placed=true` and `combo_placed=true` despite `skip_ko_prop=true` — retroactive ingest ran a code branch that diverged from the pre-event gate. Caching locks the slate; grading is pure arithmetic.
 
-Legacy events pre-dating the cache system may use `grading_source: "retroactive_fallback"` — flagged in registry so audit can find them. New events MUST be `grading_source: "cached_picks"`.
+Legacy events pre-dating the cache system carry `source: "retroactive_fallback"` — flagged in registry so audit can find them. New events MUST be `source: "cached_prediction"`.
 
 ### Update & Deploy Steps
 
@@ -525,18 +525,11 @@ The review is READ-ONLY. It produces recommendations. The user decides what to a
     "
     ```
     Must report 0 violations. If any appear, the v11.15 gate is broken in the placement layer — FAIL this item regardless of Part A/B of item 19.
-23. **Latest event sourced from pre-event cache (not retroactive)** — The latest event's `source` (or `grading_source`) metadata must be `"cached_picks"`, NOT `"retroactive_fallback"`. Confirms the Sunday grade cron graded a frozen pre-fight cache rather than re-running the algorithm at ingest time.
+23. **Latest Event was graded from source=cached_prediction (not retroactive_fallback)** — verify via `jq '.events[-1].source' ufc_profit_registry.json`. Confirms the Sunday grade cron graded a frozen pre-fight cache rather than re-running the algorithm at ingest time.
     ```bash
-    python3 -c "
-    import json
-    ev = json.load(open('ufc_profit_registry.json'))['events'][0]
-    src = ev.get('grading_source') or ev.get('source') or 'UNKNOWN'
-    print(f\"Latest event: {ev.get('event_name')}\")
-    print(f\"Source: {src}\")
-    print('✓ cached' if src == 'cached_picks' else ('⚠️ retroactive' if 'retroactive' in src else '⚠️ missing metadata'))
-    "
+    jq '.events[-1] | {event_name, source}' ufc_profit_registry.json
     ```
-    Retroactive fallback is allowed ONLY for legacy events pre-dating the cache system — it must NEVER appear on an event whose pre-scrape day had a working cache writer. Legacy events stay flagged in the registry so audit can find them.
+    Must print `"source": "cached_prediction"`. Retroactive fallback is allowed ONLY for legacy events pre-dating the cache system — never on an event whose pre-scrape day had a working cache writer. Legacy events stay flagged in the registry so audit can find them.
 
 ### Report format
 
