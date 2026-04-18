@@ -368,3 +368,10 @@
   6. **`track_results.py`** — `_PARLAY_LABEL_TO_KEY` + `_settle_parlay_legs()` case
   Grep all 6 files before declaring ship-ready.
 - **Note:** The settlement is only exercised on Sunday auto-tracking (new events). Backtest parlays are scored independently. This means the gap can silently persist for months without obvious symptoms.
+
+## MLB Props — Platoon-Family Conclusively Retired (PLATOON_EXHAUSTED) — 2026-04-18
+- **Pattern**: Any batter-vs-pitcher platoon hypothesis (L vs RHP, R vs LHP) using pitcher handedness, split OPS, relative vulnerability percentile, or roster-level stacking conditions.
+- **Evidence**: 14 tests (H1-H6, H23, H38, H49-H51 + related killed), 0 activations across hits-over, HR-over, TB-over, hits-under markets. All absolute thresholds killed. All relative-percentile thresholds killed. Joint pitcher-p85-vulnerability + stack≥3 with wOBA-vs-hand ≥ 0.340 also killed (H49 pooled OOS +1.59% p=0.9474; H50 −30.35%; H51 −17.77%).
+- **Root cause**: MLB books use platoon splits in line-setting (confirmed per H38 takeaway). Every discoverable platoon signal — regardless of framing (absolute, relative, joint) — is already priced into the line. The advantage is real but fully embedded in the opening line.
+- **Rule**: Do NOT retry any platoon-derived prop hypothesis. This applies to: (a) pitcher-split OPS as a standalone gate, (b) relative-vulnerability percentile, (c) lineup/roster stacking conditions, (d) combined pitcher+batter platoon gates, (e) any market (hits, HR, TB, SB, K). Zero exceptions. If a user proposes a platoon-based system, surface this kill record immediately via AskUserQuestion before building anything.
+- **Applies when**: MLB prop system design, backtest planning, evaluator.py additions.
