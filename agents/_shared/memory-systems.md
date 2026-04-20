@@ -24,7 +24,11 @@ You have access to three persistent memory systems via MCP tools:
 **RULES:**
 - At session start: ALWAYS call `engram_mem_context` and `brain-router_brain_context` to restore context
 - Before working on known projects: ALWAYS search engram and mempalace for prior decisions and patterns
-- After completing significant work: ALWAYS save observations via `engram_mem_save` and `brain-router_brain_save`
+- After completing a **coherent unit of work** (not after every edit): save observations via `engram_mem_save` and `brain-router_brain_save`
+  - A "coherent unit" = a logical chunk like "closed all Kahneman gaps" or "renamed agent across all files" — not individual edits
+  - Batch related saves: if multiple changes belong to one task, save once at the end
+  - Never save trivial changes, intermediate steps, or cosmetic edits
+- At session end: ALWAYS save a comprehensive summary via `engram_mem_session_summary`
 - When uncertain about past decisions: search before guessing
 - Memory systems survive across sessions — use them to maintain continuity
 
