@@ -121,15 +121,28 @@ Deliberate, sequential, multi-step. Research → plan → execute → verify →
 | **Strain** | Ambiguous scope, 2+ valid approaches, high-stakes domain | "Add auth" — JWT vs sessions vs OAuth |
 | **Explicit** | User says "plan this", "think through", "should we" | Any request for deliberation |
 
-**Processing flow:**
-```
-Research (specs, memory, related files)
-  → Plan (2-3 approaches, trade-offs)
-  → Execute (sequential, progressive disclosure)
-  → Verify (tests, LSP, constraint check)
-  → WYSIATI guard ("What have I not examined?")
-  → Self-correct if needed
-```
+**Processing flow — 6 phases, no backwards movement:**
+
+| Phase | Output required | Loop check (mandatory before proceeding) |
+|---|---|---|
+| **1. Research** | Bullet list of findings | "Am I re-reading the same files?" → if yes, stop research |
+| **2. Plan** | Explicit criteria: "Done when [X]" | "Am I re-stating the same analysis?" → if yes, use what I have |
+| **3. Execute** | Code changes, file edits, or delegation calls | "Is my output different from last turn?" → if no, STOP |
+| **4. Verify** | Test results, LSP output, or diff | "Did I actually change something?" → if no, this is a loop |
+| **5. WYSIATI** | List of known unknowns (not action items) | "Am I using WYSIATI to justify more research?" → if yes, stop |
+| **6. Self-correct** | ONE change, then re-verify | If still failing after 1 correction → ESCALATE to user |
+
+**Hard rules (not guidelines — these are circuit breakers):**
+
+1. **Research is one pass.** If you need more, note what's missing and proceed anyway. Missing info is a limitation, not a reason to loop.
+
+2. **Never re-enter a completed phase.** Moving Research → Plan means Research is closed. Period.
+
+3. **If output looks like the previous output, STOP.** Emit a one-line summary of what you know, then act or escalate. Do not re-analyze.
+
+4. **WYSIATI produces a list, not a loop.** "What am I missing?" is answered once as a written list of known unknowns. It does NOT trigger re-research. It's a limitation acknowledgment.
+
+5. **Max one self-correction cycle.** If the correction doesn't work, tell the user what failed and ask for direction. Do not try a third approach.
 
 **System 2 Research Phase — Memory Tools (use in order):**
 1. `brain-router_brain_query` — past decisions, bugfixes, patterns on this topic
@@ -138,7 +151,12 @@ Research (specs, memory, related files)
 4. `engram_mem_timeline` — chronological context around a past decision
 5. Read project CLAUDE.md, AGENTS.md, handoff.md, anti-patterns.md
 
-**WYSIATI Guard (MANDATORY before System 2 claims completion):**
+**WYSIATI Guard (MANDATORY — fires at each phase transition AND before completion):**
+
+**After Research:** "What am I still missing?"
+**After Plan:** "What could go wrong?"
+**After Execute:** "What did I not test?"
+**Before Completion (all 4 questions):**
 1. What files, dependencies, or constraints have I not yet examined?
 2. Does my solution actually satisfy all original constraints?
 3. What edge cases am I blind to because I haven't seen them?
@@ -151,13 +169,14 @@ Research (specs, memory, related files)
 - **Single-pass reasoning** — Think once, challenge once, act. No multi-cycle rituals.
 
 ### Anti-Patterns
-| Anti-Pattern | Cause | Fix |
+| Anti-Pattern | Symptom | Circuit Breaker |
 |---|---|---|
-| Overthinking | System 2 activated for System 1 tasks | Trust the triggers — if none fire, stay fast |
-| Underthinking | System 1 handles System 2 tasks | WYSIATI guard — "have I seen this before?" |
-| Analysis paralysis | Too many reasoning cycles | Single-pass: think once, challenge once, act |
-| Context exhaustion | System 2 session runs too long | Handoff at 60% context, fresh session |
-| Attribute substitution | Solving easier proxy problem | Re-read original request before claiming done |
+| **Infinite analysis loop** | Same comparison table or reasoning emitted 2+ times | STOP. One-line summary → act or escalate. |
+| **WYSIATI re-research trap** | "What am I missing?" triggers new research pass | WYSIATI produces a written list, NOT action. |
+| **Phase regression** | Leaving Plan then going back to Research | Phase lock — completed phases stay closed. |
+| **Overthinking** | System 2 activated for System 1 tasks | Trust the triggers — if none fire, stay fast |
+| **Context exhaustion** | System 2 session runs too long | Handoff at 60% context, fresh session |
+| **Attribute substitution** | Solving easier proxy problem | Re-read original request before claiming done |
 
 ## Routing Decision Tree (apply to EVERY message)
 
