@@ -272,7 +272,7 @@ Each project maintains:
 ## User Preferences
 - Commit and push after every change, not batched
 - Sync to both repos: 10-agent-team (primary) and superpowers (mirror)
-- Valid agent names are the only 9: orchestrator, explorer, strategist, researcher, designer, auditor, council, generalist, refiner
+- Valid agent names are the only 8: orchestrator, explorer, strategist, researcher, designer, auditor, council, generalist
 
 ## Current State
 - **Project:** ~/.config/opencode/
