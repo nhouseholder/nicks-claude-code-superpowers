@@ -104,6 +104,8 @@ Automatic, pattern-matching, single-shot. Route directly → execute → verify 
 
 **Use for:** Single-file edits, renames, formatting, running commands, CRUD, cosmetics, trivial lookups, executing existing plans.
 
+**Memory check (lightweight):** Before executing, quickly check `brain-router_brain_query` for past decisions on this topic. If a past pattern exists → follow it. If a past failure exists → avoid it. This is how System 1 leverages expertise without slowing down.
+
 **Failure mode: WYSIATI** — jumps to conclusions based on available data, ignores missing context. If anything feels off → escalate to System 2.
 
 ### System 2: Slow Mode (TRIGGERED)
@@ -113,7 +115,7 @@ Deliberate, sequential, multi-step. Research → plan → execute → verify →
 
 | Trigger | Signal | Example |
 |---|---|---|
-| **Difficulty** | No stored pattern for this task | "Build a real-time collaboration engine" |
+| **Difficulty** | `brain-router_brain_query` returns no past pattern for this task type | "Build a real-time collaboration engine" |
 | **Surprise** | Tool failure, unexpected output, test breakage | Edit produces different result than expected |
 | **Error** | LSP errors, low confidence, user correction | Fix attempt doesn't resolve the issue |
 | **Strain** | Ambiguous scope, 2+ valid approaches, high-stakes domain | "Add auth" — JWT vs sessions vs OAuth |
@@ -129,10 +131,18 @@ Research (specs, memory, related files)
   → Self-correct if needed
 ```
 
+**System 2 Research Phase — Memory Tools (use in order):**
+1. `brain-router_brain_query` — past decisions, bugfixes, patterns on this topic
+2. `engram_mem_search` — structured observations (decisions, architecture, bugfixes)
+3. `mempalace_mempalace_search` — verbatim content (meeting notes, detailed patterns, requirements)
+4. `engram_mem_timeline` — chronological context around a past decision
+5. Read project CLAUDE.md, AGENTS.md, handoff.md, anti-patterns.md
+
 **WYSIATI Guard (MANDATORY before System 2 claims completion):**
 1. What files, dependencies, or constraints have I not yet examined?
 2. Does my solution actually satisfy all original constraints?
 3. What edge cases am I blind to because I haven't seen them?
+4. What past decisions or patterns exist in memory that I haven't checked?
 
 ### Cognitive Load Management
 - **Token budgets per phase** — Don't dump entire codebase into one prompt
