@@ -243,13 +243,6 @@ During execution, if ANY of these signals fire, STOP and escalate:
 | **Cross-cutting** | Change affects 3+ independent modules | Escalate to @strategist for impact analysis |
 | **Security** | Change touches auth, secrets, user input | Escalate to @auditor for security review |
 
-### Pre-Escalation Memory Check (MANDATORY before escalating)
-Before escalating to a specialist, quickly check memory for past solutions:
-1. `brain-router_brain_query` — "Has this task type been solved before?"
-2. `engram_mem_search` — "Are there past decisions or bugfixes for this?"
-
-If memory returns a past solution → follow it instead of escalating. If memory returns a past failure → avoid that approach and try an alternative. Only escalate if memory has no relevant pattern OR the past solution doesn't apply.
-
 ### Escalation Ladder
 1. **Discovery needed** → @explorer (find patterns, map scope)
 2. **Planning needed** → @strategist (design approach, assess impact)
@@ -260,14 +253,6 @@ If memory returns a past solution → follow it instead of escalating. If memory
 1. What files, dependencies, or constraints have I not yet examined?
 2. Does my solution actually satisfy all original constraints?
 3. What edge cases am I blind to because I haven't seen them?
-4. What past decisions or patterns exist in memory that I haven't checked?
-
-### Skill Compilation (post-task — System 2 → System 1)
-After successfully solving a novel problem (one that required System 2 reasoning):
-1. Save the pattern via `engram_mem_save` with a stable `topic_key` (e.g., `architecture/auth-model`, `bugfix/fts5-special-chars`)
-2. Include: **What** was done, **Why** it worked, **Where** files affected, **Learned** gotchas
-3. This caches the System 2 solution so System 1 can find it via `brain-router_brain_query` next time
-4. Only save genuine patterns — not trivial changes or one-off fixes
 
 ## Escalation Triggers
 
