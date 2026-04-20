@@ -69,10 +69,10 @@ Save a compact state snapshot to `thoughts/ledgers/CONTINUITY_$(date +%Y-%m-%d_%
 
 ## Pre-Compaction Checkpoint (MANDATORY)
 
-**Before EVERY compaction, save a checkpoint file.** This is the difference between safe compaction and lossy compaction.
+**Before EVERY compaction, save a checkpoint file AND persistent memory.** This is the difference between safe compaction and lossy compaction.
 
+### Step 1: Write checkpoint file
 Write to `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md` (overwritten each time):
-
 ```markdown
 # Pre-Compact Checkpoint — <timestamp>
 
@@ -92,9 +92,41 @@ Write to `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md` (overwr
 <List of files changed and why>
 ```
 
-**After compaction, the first thing to do is re-read this file.** It costs ~200 tokens to read but saves thousands in re-discovery.
+### Step 2: Save to persistent memory (engram + brain-router)
+In the same batch as the checkpoint file, save to MCP memory systems:
+- `engram_mem_save` — save key decisions, bugfixes, and patterns discovered this session
+- `brain-router_brain_save` — save structured facts with conflict detection
+- Use the same distilled context from the checkpoint (decisions, data, progress, files)
+- This ensures long-term memory survives even if the checkpoint file is lost
 
-**When NOT to checkpoint** (skip the file, just compact):
+### Step 3: Write continuity ledger
+Save to `thoughts/ledgers/CONTINUITY_$(date +%Y-%m-%d_%H%M).md`:
+```markdown
+# Continuity Ledger — [Project] — [Date Time]
+
+## Current Task
+[What we're working on right now]
+
+## Key Decisions Made
+- [Decision 1]: [rationale]
+- [Decision 2]: [rationale]
+
+## Critical Context (survives compaction)
+- [File paths that matter]
+- [Variables/constants that must not change]
+- [Patterns/conventions in use]
+- [Open questions pending]
+
+## Anti-Patterns to Avoid
+- [Specific to this session/project]
+
+## Next Action
+[Exactly where to pick up]
+```
+
+**After compaction, the first thing to do is re-read the checkpoint file.** It costs ~200 tokens to read but saves thousands in re-discovery.
+
+**When NOT to checkpoint** (skip all three saves, just compact):
 - Very short sessions (<10 tool calls)
 - No data or decisions to preserve
 - Session was purely exploratory with no conclusions
