@@ -1,3 +1,4 @@
 hooks/__pycache__/
 .agents/
 skills/_archived/
+.claude/scheduled_tasks.lock
