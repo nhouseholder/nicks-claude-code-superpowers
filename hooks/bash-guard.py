@@ -200,6 +200,24 @@ def check_version_bump(command: str, cwd: str):
     )
 
 
+def check_git_sync(command: str, cwd: str):
+    """Block deploy/push when there are uncommitted changes. GitHub = source of truth."""
+    is_deploy = re.search(r'wrangler(?:@[\d.]+)?\s+deploy', command)
+    is_push = re.search(r'git\s+push', command)
+    if not is_deploy and not is_push:
+        return False, ""
+
+    status = run("git status --porcelain", cwd=cwd)
+    if status.strip():
+        file_count = len(status.strip().splitlines())
+        return True, (
+            f"GIT SYNC GUARD: {file_count} uncommitted changes. GitHub is the source of truth. "
+            f"Commit and push before deploying or pushing.\n"
+            f"Run: git add -A && git commit -m 'message' && git push origin $(git branch --show-current)"
+        )
+    return False, ""
+
+
 def check_fast_mode_backtest(command: str):
     """Block backtests running with FAST_MODE=1 — results are useless for evaluation."""
     # Detect backtest-like commands with FAST_MODE
@@ -255,7 +273,13 @@ def main():
         print(json.dumps({"decision": "block", "reason": reason}))
         sys.exit(2)
 
-    # Check 4: FAST_MODE on backtests (useless results)
+    # Check 4: Git sync — block deploy/push with uncommitted changes
+    blocked, reason = check_git_sync(command, cwd)
+    if blocked:
+        print(json.dumps({"decision": "block", "reason": reason}))
+        sys.exit(2)
+
+    # Check 5: FAST_MODE on backtests (useless results)
     blocked, reason = check_fast_mode_backtest(command)
     if blocked:
         print(json.dumps({"decision": "block", "reason": reason}))

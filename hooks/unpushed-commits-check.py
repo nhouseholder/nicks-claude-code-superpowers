@@ -103,7 +103,7 @@ try:
             )
         }))
     else:
-        # Also check for uncommitted changes
+        # Also check for uncommitted changes — BLOCK, not just notify
         result = subprocess.run(
             ["git", "status", "--porcelain"],
             capture_output=True, text=True, timeout=5, cwd=cwd
@@ -111,10 +111,16 @@ try:
         changes = result.stdout.strip()
         if changes:
             file_count = len(changes.splitlines())
+            changed_files = changes.splitlines()
+            staged = [l for l in changed_files if not l.startswith("??")]
+            unstaged = [l for l in changed_files if l.startswith("??") or l[0] in (" ", "M", "A", "D", "R")]
             print(json.dumps({
-                "systemMessage": (
-                    f"Note: {file_count} uncommitted changes in working directory. "
-                    f"Consider committing and pushing before ending session."
+                "decision": "block",
+                "reason": (
+                    f"UNCOMMITTED CHANGES ({file_count} files): GitHub is the source of truth. "
+                    f"Commit and push before ending this session.\n"
+                    f"Staged: {len(staged)} | Unstaged/untracked: {len(unstaged)}\n\n"
+                    f"Run: git add -A && git commit -m 'message' && git push origin $(git branch --show-current)"
                 )
             }))
 
