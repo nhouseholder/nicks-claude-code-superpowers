@@ -397,3 +397,27 @@
 - **Rule:** When wiring a component to a public JSON artifact, (1) open the current live artifact and list its actual keys, (2) reference ONLY those keys, (3) wrap numeric formatting in a helper that returns `'--'` for `null/undefined/NaN`, (4) add a conditional branch when a field may legitimately be null (rule-based vs model-based picks). Never trust a field name from a sibling algorithm — check the generator.
 - **Validation check:** After editing any card that reads `pick.*`, diff the keys referenced by the component against the keys actually in `public/data/<file>.json`. Mismatches = bug. For admin-only panels, check as admin before claiming fix.
 - **Applies when:** Any card/panel binding to a JSON data file, especially after a backend algorithm change, or when a new pick-type (rule-based vs model-based, regular season vs playoff) is introduced alongside an existing one.
+
+### 2026-04-20 — DUAL_PATH_DIVERGENCE (anti-pattern #7) — UFC_Alg + fix_registry_placed_flags
+**Context:** v11.52.0 mixed-finisher Under gate. Wired gate into `ou_contract.resolve_ou_bet`, both `UFC_Alg_v4_fast_2026.py` vectorized optimizer paths, and the live `_call_resolve_ou`. Backtest produced **zero delta**.
+**Root cause:** `fix_registry_placed_flags.fix_bout()` calls `resolve_ou_bet()` independently as the canonicalizer pass that runs after the backtest and OVERWRITES every OU decision the algorithm wrote. This was an undocumented THIRD call site.
+**Signal:** If pre-compute predicts a delta but the validated registry shows 0.00u change AND the target bouts still have their original `ou_type`, the gate isn't reaching the final writer.
+**Fix:** Any signature change or gate added to `ou_contract.resolve_ou_bet` MUST be echoed in ALL three call sites — the two algorithm paths AND the fix_registry canonicalizer.  Added `_fight_breakdowns_lookup` helper in fix_registry for passing ko_sc/sub_sc.
+**Verify:** `grep -n resolve_ou_bet *.py` — expect 3+ matches across UFC_Alg, fix_registry, ou_contract itself. If you only touched one file, you did not ship the gate.
+
+## General — Path Drift in Agent Handoffs (AGENT_HANDOFF_PATH_DRIFT) — 2026-04-22
+- **Pattern:** Agent creates file at `~/8-agent-team/docs/specs/2026-04-22-ltm-consolidation-spec.md`. Later agent (or same agent in new context) searches `~/docs/specs/...` or `~/Projects/8-agent-team/docs/specs/...` — both wrong. Results in `File not found`, wasted tool calls, and user-visible inefficiency. Ghost repo at `~/ProjectsHQ/8-agent-team/` (now archived) exacerbated confusion.
+- **Why it happened:** (a) Agent assumed repo location without verification. (b) Stale ghost repo with similar structure existed at `~/ProjectsHQ/8-agent-team/`. (c) Handoff did not include explicit canonical path verification. (d) No `ls` preflight before `read`.
+- **What TO do (working design, 2026-04-22):**
+  1. **Canonical path enforcement:** Live repo is ALWAYS `~/8-agent-team/`. Ghost repo is `~/ProjectsHQ/ARCHIVED-8-agent-team-*/` — never search it.
+  2. **Preflight verification:** Before any `read`, run `ls <dir>` or `test -f <file>` to confirm path exists. Do not assume.
+  3. **Handoff path anchoring:** When passing file references between agents, include FULL absolute path: `~/8-agent-team/docs/specs/2026-04-22-ltm-consolidation-spec.md`, not relative or abbreviated.
+  4. **Ghost repo cleanup:** Already archived with `README-ARCHIVED.md` marker. If another ghost appears, archive immediately.
+  5. **Session continuity:** If context compaction occurs between agent delegations, re-verify paths on resume. Do not trust memory of paths across compaction boundaries.
+- **DO NOT:**
+  - Assume `~/Projects/` or `~/ProjectsHQ/` contains the live repo. Verify with `git remote -v`.
+  - Use relative paths (`docs/specs/...`) in handoffs. Always absolute.
+  - Search archived repos without checking for `README-ARCHIVED.md` marker first.
+  - Skip `ls` preflight before `read` on files created by prior agents.
+- **Files:** `~/8-agent-team/agents/orchestrator.md` (handoff protocol), `~/.claude/anti-patterns.md` (this entry).
+- **Verification:** `ls ~/8-agent-team/docs/specs/` should show `2026-04-22-ltm-consolidation-spec.md`. `ls ~/ProjectsHQ/ARCHIVED-8-agent-team-*/` should show `README-ARCHIVED.md`.
