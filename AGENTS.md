@@ -3,6 +3,30 @@
 > **Platform:** This file is for [OpenAI Codex CLI](https://github.com/openai/codex). Codex uses `AGENTS.md` the same way Claude Code uses `CLAUDE.md`.
 > **Claude Code users:** See `CLAUDE.md` instead.
 
+## Auto-Codebase Diagram Protocol — RUN BEFORE FIRST REPLY
+
+**CORE PRINCIPLE: GENERATE ONCE, REUSE FOREVER.**
+
+Before typing a single word to the user, execute this protocol:
+
+```
+STEP 1: Check Engram: mem_search(query="codebase diagram", topic_key="codebase/diagram/{PROJECT_NAME}")
+    ├─ FOUND → mem_get_observation → check staleness (>7 days OR major refactor?) → FRESH = use it
+    └─ NOT FOUND → Generate via CGC CLI:
+         cgc index . --force
+         cgc stats
+         cgc analyze complexity --limit 10
+         cgc analyze dead-code
+         Synthesize → mem_save(topic_key="codebase/diagram/{PROJECT_NAME}", type="architecture")
+         If mem_save times out → write to CODEBASE_DIAGRAM.md in project root
+```
+
+**STALE CRITERIA**: >7 days old, new top-level dirs, framework changed, >20% file churn, auth/deployment changed.
+
+**Local fallback**: If Engram is empty, read `CODEBASE_DIAGRAM.md` from project root.
+
+---
+
 All universal rules (backtesting, walk-forward, caching, debugging, memory, behavioral rules) are in `~/.codex/AGENTS.md`. Do NOT duplicate them here.
 
 ## This Project
